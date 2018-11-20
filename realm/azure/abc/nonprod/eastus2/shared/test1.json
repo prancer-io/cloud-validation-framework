@@ -1,0 +1,19 @@
+{
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "subscription": {
+        "subscriptionId": "46d16002-8ea4-4ef3-ad9c-ab89a5f2a685",
+        "subscriptionName": "TJX-DCLOGISTICS-NON-PROD",
+        "defaultLocation": "eastus2"
+    },
+    "testSet": [
+        {
+            "testName": "test1",
+            "testUser": "user1",
+            "availableAttributes":["/resourcegroup1/resource1/attribute['name']"],
+            "comparisonAttributes":[
+                "/resourcegroup1/resource1/attribute['name']"
+            ]
+        }
+    ]
+}
