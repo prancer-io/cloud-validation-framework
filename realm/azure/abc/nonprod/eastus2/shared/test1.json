@@ -12,7 +12,7 @@
             "testUser": "user1",
             "availableAttributes":["/resourcegroup1/resource1/attribute['name']"],
             "comparisonAttributes":[
-                "/resourcegroup1/resource1/attribute['name']"
+                "/resourcegroup1/resource1/attribute['name']" is equal to another attribute / static or could be with the custom json paramter file
             ]
         }
     ]

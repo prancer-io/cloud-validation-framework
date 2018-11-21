@@ -1,0 +1,15 @@
+{
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "subscription": {
+        "subscriptionId": "8ea4-4ef3-ad9c",
+        "subscriptionName": "ABC-UNIT1-NON-PROD",
+        "defaultLocation": "eastus2"
+    },
+    "nodes": [
+        {
+            "type": "Microsoft.Network",
+            "path":"/resourceGroups/zah-comm-network-rg/providers/Microsoft.Network/virtualNetworks/zah-gateway-vnet-2/subnets/GatewaySubnet"
+        }
+    ]
+}
