@@ -2,8 +2,8 @@
     "$schema": "",
     "contentVersion": "1.0.0.0",
     "subscription": {
-        "subscriptionId": "46d16002-8ea4-4ef3-ad9c-ab89a5f2a685",
-        "subscriptionName": "TJX-DCLOGISTICS-NON-PROD",
+        "subscriptionId": "8ea4-4ef3-ad9c",
+        "subscriptionName": "ABC-UNIT1-NON-PROD",
         "defaultLocation": "eastus2"
     },
     "testSet": [
