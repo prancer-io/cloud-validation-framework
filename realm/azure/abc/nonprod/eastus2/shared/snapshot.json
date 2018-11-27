@@ -6,10 +6,18 @@
         "subscriptionName": "ABC-UNIT1-NON-PROD",
         "defaultLocation": "eastus2"
     },
-    "nodes": [
+    "azure-nodes": [
         {
+            "snapshot-id":"1",
             "type": "Microsoft.Network",
             "path":"/resourceGroups/zah-comm-network-rg/providers/Microsoft.Network/virtualNetworks/zah-gateway-vnet-2/subnets/GatewaySubnet"
+        }
+    ],
+    "json-nodes":[
+        {
+            "snapshot-id":"2",
+            "type":"custom",
+            "path":""
         }
     ]
 }

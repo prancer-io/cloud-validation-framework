@@ -8,9 +8,10 @@
     },
     "testSet": [
         {
+            "snapshot":"snapshot.json",
             "testName": "test1",
             "testUser": "user1",
-            "availableAttributes":["/resourcegroup1/resource1/attribute['name']"],
+            "availableAttributes":["{snapshot-id(1)}.attribute['location']"],
             "comparisonAttributes":[
                 "/resourcegroup1/resource1/attribute['name']" is equal to another attribute / static or could be with the custom json paramter file
             ]
