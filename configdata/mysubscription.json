@@ -1,0 +1,48 @@
+{
+  "companyName": "abcd",
+  "globalAdmin": "ajeybk1@kbajeygmail.onmicrosoft.com",
+  "logAnalyticsAdmin": "ajeybk1@kbajeygmail.onmicrosoft.com",
+  "networkAdmin": "ajeybk1@kbajeygmail.onmicrosoft.com",
+  "peeringAdmin": "",
+  "imageAdmin": "",
+  "omsAdmin": "",
+  "accounts": [
+    {
+      "account-name": "Ajey K",
+      "account-user": "ajeybk1@kbajeygmail.onmicrosoft.com",
+      "account-email": "ajeybk1@kbajeygmail.onmicrosoft.com",
+      "mfa-enabled": "false",
+      "department": "abc",
+      "subscription": [
+        {
+          "client_id": "919bc6f3-9b6f-4f20-9fa7-098618465e0d",
+          "client_secret": "aZJrSULOZx280ioDoVjdhMp0R0uDD/sZcms/ei1RZQo=",
+          "subscription_name": "DevTest",
+          "subscription_description": "Dev Test",
+          "offer_type": "Pay-As-You-Go",
+          "subscription_id": "37f11aaf-0b72-44ef-a173-308e990279da",
+          "automation-account": "ajeybk1@kbajeygmail.onmicrosoft.com"
+        },
+        {
+          "client_id": "919bc6f3-9b6f-4f20-9fa7-098618465e0d",
+          "client_secret": "aZJrSULOZx280ioDoVjdhMp0R0uDD/sZcms/ei1RZQo=",
+          "subscription_name": "Prod",
+          "subscription_description": "Productions",
+          "offer_type": "Pay-As-You-Go",
+          "subscription_id": "deba9307-2f2d-41d8-a524-4c5f2632b547",
+          "automation-account": "ajeybk1@kbajeygmail.onmicrosoft.com"
+        },
+        {
+          "client_id": "919bc6f3-9b6f-4f20-9fa7-098618465e0d",
+          "client_secret": "aZJrSULOZx280ioDoVjdhMp0R0uDD/sZcms/ei1RZQo=",
+          "subscription_name": "service-sub",
+          "subscription_description": "Service",
+          "offer_type": "Pay-As-You-Go",
+          "subscription_id": "7980c2dd-dc35-41ec-a246-8e23d4dc8ea2",
+          "automation-account": "ajeybk1@kbajeygmail.onmicrosoft.com"
+        }
+      ]
+
+    }
+  ]
+}

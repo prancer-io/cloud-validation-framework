@@ -2,14 +2,19 @@
     "$schema": "",
     "contentVersion": "1.0.0.0",
     "subscription": {
-        "subscriptionId": "8ea4-4ef3-ad9c",
-        "subscriptionName": "ABC-UNIT1-NON-PROD",
+        "subscriptionName": "DevTest",
+        "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
+        "tenantId": "3959230b-8fb3-4957-baf4-85bd4c26239d",
         "defaultLocation": "eastus2"
     },
     "nodes": [
         {
-            "type": "Microsoft.Network",
-            "path":"/resourceGroups/zah-comm-network-rg/providers/Microsoft.Network/virtualNetworks/zah-gateway-vnet-2/subnets/GatewaySubnet"
+            "type": "Microsoft.Compute/availabilitySets",
+            "path":"/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet01"
         }
     ]
 }

@@ -1,0 +1,6 @@
+.idea
+.python-version
+logs/*.log
+rundata/*
+__pycache__
+*.pyc
