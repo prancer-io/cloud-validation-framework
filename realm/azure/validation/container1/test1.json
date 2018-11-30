@@ -25,6 +25,11 @@
                 },
                 {
                     "snapshotId": "1",
+                    "attribute": "location.name",
+                    "comparison":"not(exist())"
+                },
+                {
+                    "snapshotId": "1",
                     "attribute": "location",
                     "comparison":"greater(10)"
                 },{
@@ -41,6 +46,11 @@
                     "snapshotId": "1",
                     "attribute": "location",
                     "comparison":"equal('eastus2')"
+                },
+                {
+                    "snapshotId": "1",
+                    "attribute": "location",
+                    "comparison":"not(equal('eastus2'))"
                 },
                 {
                     "snapshotId": "1",
