@@ -1,27 +1,30 @@
 {
     "companyName": "abcd",
-    "globalAdmin": "farshid@liquware.com",
     "accounts": [
         {
-            "account-name": "farshid-account",
-            "account-user": "farshid@liquware.com",
-            "mfa-enabled": "false",
             "department": "abc",
             "subscription": [
                 {
                     "subscription_name": "Microsoft Partner Network",
                     "subscription_description": "CNT IT CET Prod",
-                    "offer_type": "prod",
                     "subscription_id": "8b12edf7-8360-4239-8ebd-d99d59a4ffc4"
                 },
                 {
                     "subscription_name": "liq-prod",
                     "subscription_description": "CNT IT CET Dev",
-                    "offer_type": "prod",
                     "subscription_id": "da701db2-b00b-49ed-b602-5fc48df78e6b",
-                    "automation-account": "farshid@liquware.com",
-                    "client_id":"aae6fe1a-5bff-4ed2-85dd-62a234570a33",
-                    "client_secret":"VlMhJitnupNqHaAX/RZ6vAbGWQSOT29hOZ19ssDVfVk="
+                    "users": [
+                        {
+                            "name":"user1",
+                            "client_id": "aae6fe1a-5bff-4ed2-85dd-62a234570a33",
+                            "client_secret": "VlMhJitnupNqHaAX/RZ6vAbGWQSOT29hOZ19ssDVfVk="
+                        },
+                        {
+                            "name":"user2",
+                            "client_id": "aae6fe1a-5bff-4ed2-85dd-62a234570a33",
+                            "client_secret": "VlMhJitnupNqHaAX/RZ6vAbGWQSOT29hOZ19ssDVfVk="
+                        }
+                    ]
                 }
             ]
         },
@@ -35,7 +38,7 @@
                     "subscription_name": "Pay-As-You-Go",
                     "subscription_description": "CNT IT CET Shared",
                     "offer_type": "prod",
-                    "useradmin_rbac":"",
+                    "useradmin_rbac": "",
                     "subscription_id": "5009d3c3-e8ea-4109-bb89-b377190cc8b2"
                 }
             ]

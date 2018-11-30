@@ -1,0 +1,23 @@
+{
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "subscription": {
+        "subscriptionId": "8ea4-4ef3-ad9c",
+        "subscriptionName": "ABC-UNIT1-NON-PROD"
+    },
+    "snapshot": "snapshot.json",
+    "azureStructure": "azureStructure.json",
+    "parameterStructure": "parameterStructure.json",
+    "testSet": [
+        {
+            "testName": "test1",
+            "testUser": "user1",
+            "availableAttributes": [
+                "{snapshot-id(1)}.attribute['location']"
+            ],
+            "comparisonAttributes": [
+                "/resourcegroup1/resource1/attribute['name']"
+            ]
+        }
+    ]
+}
