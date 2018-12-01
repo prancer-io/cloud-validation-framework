@@ -12,6 +12,7 @@
         {
             "testName": "test1",
             "testUser": "user1",
+            "version":"0.1",
             "cases": [
                 {
                     "snapshotId": "1",
