@@ -12,11 +12,51 @@
         {
             "testName": "test1",
             "testUser": "user1",
-            "availableAttributes": [
-                "{snapshot-id(1)}.attribute['location']"
-            ],
-            "comparisonAttributes": [
-                "/resourcegroup1/resource1/attribute['name']"
+            "cases": [
+                {
+                    "snapshotId": "1",
+                    "attribute": "location",
+                    "comparison":"exist()"
+                },
+                {
+                    "snapshotId": "1",
+                    "attribute": "location.name",
+                    "comparison":"exist()"
+                },
+                {
+                    "snapshotId": "1",
+                    "attribute": "location.name",
+                    "comparison":"not(exist())"
+                },
+                {
+                    "snapshotId": "1",
+                    "attribute": "location",
+                    "comparison":"greater(10)"
+                },{
+                    "snapshotId": "1",
+                    "attribute": "location",
+                    "comparison":"less(10)"
+                },
+                {
+                    "snapshotId": "1",
+                    "attribute": "location",
+                    "comparison":"count(greater(10))"
+                },
+                {
+                    "snapshotId": "1",
+                    "attribute": "location",
+                    "comparison":"equal('eastus2')"
+                },
+                {
+                    "snapshotId": "1",
+                    "attribute": "location",
+                    "comparison":"not(equal('eastus2'))"
+                },
+                {
+                    "snapshotId": "1",
+                    "attribute": "location",
+                    "comparison":"equal('{2}.location')"
+                }
             ]
         }
     ]
