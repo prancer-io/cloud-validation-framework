@@ -3,6 +3,7 @@
 """
 
 import json
+import datetime
 from collections import OrderedDict
 from processor.helper.file.file_utils import check_filename
 from processor.helper.config.config_utils import get_parameter_file
@@ -92,9 +93,22 @@ def get_boolean(val):
     return retval
 
 
+def set_timestamp(json_data, fieldname='timestamp'):
+    """Set the current timestamp for the object."""
+    if not json_data or not isinstance(json_data, dict):
+        return False
+    timestamp_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    json_data[fieldname] = timestamp_str
+    return True
+
+
 def get_vars_json(container, filename):
     varsfile = get_parameter_file(container, filename)
     logger.debug('Original file: %s', varsfile)
     json_data = load_json(varsfile)
     return varsfile, json_data
+
+
+
+
 

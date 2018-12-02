@@ -11,14 +11,14 @@
         {
             "snapshotId": "1",
             "source":"azureStructure.json",
-            "type": "Microsoft.Network",
-            "path": "/resourceGroups/zah-comm-network-rg/providers/Microsoft.Network/virtualNetworks/zah-gateway-vnet-2/subnets/GatewaySubnet"
+            "type": "Microsoft.Compute/availabilitySets",
+            "path":"/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
         },
         {
             "snapshotId": "2",
-            "source":"parameterStructure.json",
-            "type": "custom",
-            "path": ""
+            "source":"custom",
+            "type": "Microsoft.Network/virtualNetworks",
+            "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet01"
         }
     ]
 }

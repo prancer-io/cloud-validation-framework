@@ -10,7 +10,8 @@ from processor.helper.loglib.log_handler import getlogger
 from processor.helper.config.rundata_utils import (init_config,
                                                    add_to_run_config,
                                                    delete_run_config)
-from processor.helper.json.json_utils import get_vars_json, get_field_value
+from processor.helper.json.json_utils import get_vars_json, get_field_value,\
+    set_timestamp, set_field_value
 from processor.helper.httpapi.restapi_azure import get_access_token
 from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import get_config
@@ -60,6 +61,9 @@ def populate_snapshot(container, var_file=None):
         dbname = get_config('MONGODB', 'dbname')
         for node in vars_json_data['nodes']:
             data = get_node(token, sub_id, node)
+            if 'snapshotId' in node and node['snapshotId']:
+                set_field_value(data, 'snapshotId', node['snapshotId'])
+            set_timestamp(data)
             insert_one_document(data, 'resources', dbname)
             logger.info('Type: %s', type(data))
     return True
