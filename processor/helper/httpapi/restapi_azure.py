@@ -156,11 +156,8 @@ def get_tenant_id():
 def main(arg_vals=None):
     """Main driver for running the utility."""
     cmd_parser = argparse.ArgumentParser("Test Azure REST API access.")
-    cmd_parser.add_argument('businessunit', action='store', help='Business Unit')
-    cmd_parser.add_argument('envtype', action='store', help='Environment Type')
-    cmd_parser.add_argument('azureregion', action='store', help='Azure Region')
-    cmd_parser.add_argument('environment', action='store', help='Environment')
-    cmd_parser.add_argument('template', action='store', help='Json file')
+    cmd_parser.add_argument('container', action='store', help='Container tests directory.')
+    cmd_parser.add_argument('template', action='store', nargs='?', default=None, help='Json file')
     args = cmd_parser.parse_args(arg_vals)
     # Delete the rundata at the end of the script.
     init_config()
@@ -168,9 +165,7 @@ def main(arg_vals=None):
     logger.info(args)
 
     # Get the vars json file from the template
-    vars_file, vars_json_data = \
-        get_vars_json(args.businessunit, args.envtype, args.azureregion,
-                      args.environment, args.template, False)
+    vars_file, vars_json_data = get_vars_json(args.container, args.template)
     if not vars_json_data:
         logger.info("File %s does not exist, exiting!...", vars_file)
         return False

@@ -4,3 +4,4 @@ logs/*.log
 rundata/*
 __pycache__
 *.pyc
+configdata/mysubscription.json

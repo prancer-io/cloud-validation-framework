@@ -7,8 +7,8 @@ from processor.helper.file.file_utils import check_filename
 
 SOLUTIONDIR = os.getenv('SOLUTIONDIR', os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                                     '../../../'))
-CONFIGINI = '%s/configdata/config.ini' % SOLUTIONDIR
-RUNCONFIG = '%s/rundata/rundata' % SOLUTIONDIR
+CONFIGINI = '%srealm/config.ini' % SOLUTIONDIR
+RUNCONFIG = '%srundata/rundata' % SOLUTIONDIR
 
 
 def get_config_ini():
@@ -31,10 +31,11 @@ def load_config(config_file):
 
 
 def get_subscription_file(parentdir=False):
-    env_parameter_file = os.getenv('SUBSCRIPTION', None)
-    if env_parameter_file:
-        file_path = '%s/%s' % (SOLUTIONDIR, env_parameter_file)
-        parameter_file = file_path if parentdir else env_parameter_file
+    """ Return the subscription file"""
+    env_subscription_file = os.getenv('SUBSCRIPTION', None)
+    if env_subscription_file:
+        file_path = '%s/%s' % (SOLUTIONDIR, env_subscription_file)
+        parameter_file = file_path if parentdir else env_subscription_file
     else:
         parameter_file = get_config('DEFAULT', 'subscription', parentdir=parentdir)
     return parameter_file.replace('//', '/')
@@ -51,11 +52,20 @@ def get_config(section, key, configfile=CONFIGINI, default=None, parentdir=False
     return retval
 
 
-def get_parameter_file(businessunit, envtype, azureregion, env, filename):
-    """ Create the absolute path for the filename based on the input parameters."""
+def get_test_json_dir():
+    """ Path to check and run the tests from the test containers."""
     soln_dir = get_solution_dir()
-    parameterfile = '%s/realm/azure/%s/%s/%s/%s/%s' % (soln_dir, businessunit, envtype,
-                                                      azureregion, env, filename)
+    env_test_dir = os.getenv('TESTDIR', None)
+    if not env_test_dir:
+        env_test_dir = "/realm/azure/validation/"
+    test_path = '%s/%s' % (soln_dir, env_test_dir)
+    return test_path.replace('//', '/')
+
+
+def get_parameter_file(container, filename):
+    """ Create the absolute path for the filename based on the input parameters."""
+    test_dir = get_test_json_dir()
+    parameterfile = '%s/%s/%s' % (test_dir, container, filename)
     return parameterfile.replace('//', '/')
 
 
@@ -63,13 +73,13 @@ def main():
     print(get_config_ini())
     sol_dir = get_solution_dir()
     print(sol_dir)
-    cfg_file = '%s/configdata/config.ini' % sol_dir
+    cfg_file = '%srealm/config.ini' % sol_dir
     print(cfg_file)
     sub_file = get_subscription_file()
     print(sub_file)
-    filename = '%s/%s' % (sol_dir, sub_file)
-    print(filename)
-    print(get_parameter_file('abc', 'nonprod', 'eastus2', 'shared', 'test1.json'))
+    sub_file = get_subscription_file(True)
+    print(sub_file)
+    print(get_parameter_file('container1', 'test1.json'))
     print(get_config('DEFAULT', 'subscription'))
 
 

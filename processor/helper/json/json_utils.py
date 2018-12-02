@@ -92,8 +92,8 @@ def get_boolean(val):
     return retval
 
 
-def get_vars_json(businessunit, envtype, azureregion, env, filename):
-    varsfile = get_parameter_file(businessunit, envtype, azureregion, env, filename)
+def get_vars_json(container, filename):
+    varsfile = get_parameter_file(container, filename)
     logger.debug('Original file: %s', varsfile)
     json_data = load_json(varsfile)
     return varsfile, json_data

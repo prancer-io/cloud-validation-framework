@@ -24,33 +24,26 @@ def main(arg_vals=None):
     """Main driver utility for running validator tests."""
     logger.info("Comand: '%s %s'", sys.executable.rsplit('/', 1)[-1], ' '.join(sys.argv))
     cmd_parser = argparse.ArgumentParser("Validator functional tests.")
-    cmd_parser.add_argument('businessunit', action='store', help='Business Unit')
-    cmd_parser.add_argument('envtype', action='store', help='Environment Type')
-    cmd_parser.add_argument('azureregion', action='store', help='Azure Region')
-    cmd_parser.add_argument('environment', action='store', help='Environment')
-    cmd_parser.add_argument('template', action='store', nargs='?', default=None,
-                            help='Json file')
+    cmd_parser.add_argument('container', action='store', help='Container tests directory.')
+    cmd_parser.add_argument('template', action='store', nargs='?', default=None, help='Json file')
     args = cmd_parser.parse_args(arg_vals)
     # Delete the rundata at the end of the script.
     atexit.register(delete_run_config)
     logger.info(args)
     init_config()
-    status = populate_snapshot(args.businessunit, args.envtype,
-                               args.azureregion, args.environment)
+    status = populate_snapshot(args.container, args.template)
     if status and args.template:
-        run_validator_tests(args.businessunit, args.envtype, args.azureregion,
-                            args.environment, args.template)
+        run_validator_tests(args.container, args.template)
 
 
-def run_validator_tests(businessunit, envtype, azureregion, env, var_file):
+def run_validator_tests(container, var_file):
     logger.info("Run validator tests")
 
 
-def populate_snapshot(businessunit, envtype, azureregion, env, var_file=None):
+def populate_snapshot(container, var_file=None):
     """ Get the current snapshot of the resources """
     vars_json = var_file if var_file else 'snapshot.json'
-    vars_file, vars_json_data = \
-        get_vars_json(businessunit, envtype, azureregion, env, vars_json)
+    vars_file, vars_json_data = get_vars_json(container, vars_json)
     if not vars_json_data:
         logger.info("File %s does not exist, exiting!...", vars_file)
         return False
