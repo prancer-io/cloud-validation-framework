@@ -1,11 +1,11 @@
 """
    Common file for running validator functions.
 """
-
 import argparse
 import sys
 import atexit
 import json
+import pymongo
 from processor.helper.loglib.log_handler import getlogger
 from processor.helper.config.rundata_utils import (init_config,
                                                    add_to_run_config,
@@ -15,10 +15,11 @@ from processor.helper.json.json_utils import get_vars_json, get_field_value,\
 from processor.helper.httpapi.restapi_azure import get_access_token
 from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import get_config
-from processor.helper.dbapi.database import mongodb, insert_one_document
+from processor.helper.dbapi.database import get_documents, insert_one_document,\
+    create_indexes
 
 
-
+COLLECTION = 'resources'
 logger = getlogger()
 
 
@@ -33,39 +34,72 @@ def main(arg_vals=None):
     atexit.register(delete_run_config)
     logger.info(args)
     init_config()
-    status = populate_snapshot(args.container, None)
+    dbname = get_config('MONGODB', 'dbname')
+    create_indexes(COLLECTION, dbname, [('timestamp', pymongo.TEXT)])
+    status = populate_snapshot(args.container, args.template)
     if status and args.template:
         run_validator_tests(args.container, args.template)
 
 
-def run_validator_tests(container, var_file):
+def run_validator_tests(container, vars_json):
+    dbname = get_config('MONGODB', 'dbname')
     logger.info("Run validator tests")
-
-
-def populate_snapshot(container, var_file=None):
-    """ Get the current snapshot of the resources """
-    vars_json = var_file if var_file else 'snapshot.json'
     vars_file, vars_json_data = get_vars_json(container, vars_json)
     if not vars_json_data:
         logger.info("File %s does not exist, exiting!...", vars_file)
         return False
-    logger.info(json.dumps(vars_json_data, indent=2))
-    sub_id = get_field_value(vars_json_data, 'subscription.subscriptionId')
-    tenant_id = get_field_value(vars_json_data, 'subscription.tenantId')
+    if 'testSet' not in vars_json_data or not isinstance(vars_json_data['testSet'], list):
+        logger.info("No tests in testSet!...")
+        return False
+    for testset in vars_json_data['testSet']:
+        if 'cases' not in testset or not isinstance(testset['cases'], list):
+            logger.info("No testcases in testSet!...")
+            return False
+        for testcase in testset['cases']:
+            if 'snapshotId' in testcase and testcase['snapshotId']:
+                docs = get_documents(COLLECTION, dbname=dbname,
+                                     sort=[('timestamp', pymongo.DESCENDING)],
+                                     query={'snapshotId': testcase['snapshotId']},
+                                     limit=1)
+                logger.info('Results: %s', len(docs))
+    return True
+
+
+def populate_snapshot(container, vars_json):
+    """ Get the current snapshot of the resources """
+    vars_file, vars_json_data = get_vars_json(container, vars_json)
+    if not vars_json_data:
+        logger.info("File %s does not exist, exiting!...", vars_file)
+        return False
+    snapshot_json = vars_json_data['snapshot'] if 'snapshot' in vars_json_data and \
+                                      vars_json_data['snapshot'] else None
+    if not snapshot_json:
+        logger.info("File %s does not contain valid snapshot attribute!...", vars_file)
+        return False
+    snapshot_file, snapshot_json_data = get_vars_json(container, snapshot_json)
+    if not snapshot_json_data:
+        logger.info("Snapshot file %s does not exist, exiting!...", snapshot_file)
+        return False
+    logger.debug(json.dumps(snapshot_json_data, indent=2))
+    sub_id = get_field_value(snapshot_json_data, 'subscription.subscriptionId')
+    tenant_id = get_field_value(snapshot_json_data, 'subscription.tenantId')
+    if 'nodes' not in snapshot_json_data or not snapshot_json_data['nodes']:
+        logger.info("No nodes in snapshot to be backed up!...", vars_file)
+        return False
     logger.info('Sub:%s, tenant:%s', sub_id, tenant_id)
     add_to_run_config('subscriptionId', sub_id)
     add_to_run_config('tenant_id', tenant_id)
     token = get_access_token()
-    logger.info('TOKEN: %s', token)
+    logger.debug('TOKEN: %s', token)
     if token:
         dbname = get_config('MONGODB', 'dbname')
-        for node in vars_json_data['nodes']:
+        for node in snapshot_json_data['nodes']:
             data = get_node(token, sub_id, node)
             if 'snapshotId' in node and node['snapshotId']:
                 set_field_value(data, 'snapshotId', node['snapshotId'])
             set_timestamp(data)
-            insert_one_document(data, 'resources', dbname)
-            logger.info('Type: %s', type(data))
+            insert_one_document(data, COLLECTION, dbname)
+            logger.debug('Type: %s', type(data))
     return True
 
 

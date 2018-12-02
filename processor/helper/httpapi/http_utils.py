@@ -65,13 +65,13 @@ def http_get_request(url, headers=None):
         headers.update(hdrs)
     else:
         headers = hdrs
-    logger.info('GET: header: %s, url: %s', json.dumps(headers), url)
+    logger.debug('GET: header: %s, url: %s', json.dumps(headers), url)
     if url: #Do something only valid URL
         try:
             urlreq = request.Request(url, headers=headers, method='GET')
             urlresp = request.urlopen(urlreq)
             respdata = urlresp.read()
-            logger.info("GET status: %d, response: %s", urlresp.status, respdata)
+            logger.debug("GET status: %d, response: %s", urlresp.status, respdata)
             st_code = urlresp.status
             check_and_add_error(st_code, "Get Status: %d" % st_code)
             if isinstance(respdata, bytes):
@@ -131,12 +131,12 @@ def http_post_request(url, mapdata, headers=None, json_type=False):
                 postdata = str.encode(json.dumps(mapdata))
             else:
                 postdata = parse.urlencode(mapdata).encode()
-            logger.info('POST: data: %s', postdata)
+            logger.debug('POST: data: %s', postdata)
             urlreq = request.Request(url, data=postdata, headers=headers,
                                      method='POST')
             urlresp = request.urlopen(urlreq)
             respdata = urlresp.read()
-            logger.info("POST status: %d, response: %s", urlresp.status, respdata)
+            logger.debug("POST status: %d, response: %s", urlresp.status, respdata)
             st_code = urlresp.status
             check_and_add_error(st_code, "POST status: %d" % st_code)
             if isinstance(respdata, bytes):

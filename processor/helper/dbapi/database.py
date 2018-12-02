@@ -68,15 +68,17 @@ def check_document(collection, docid, dbname=None):
    return doc
 
 
-def get_documents(collection, query=None, dbname=None, sort=None):
+def get_documents(collection, query=None, dbname=None, sort=None, limit=10):
    """ Find the documents based on the query """
    docs = None
    db = mongodb(dbname)
    collection = db[collection] if db and collection else None
    if collection:
        query = {} if query is None else query
-       sortfield = '_id' if not sort else sort
-       results = collection.find(query).sort(sortfield)
+       if sort:
+           results = collection.find(query).sort(sort).limit(limit)
+       else:
+           results = collection.find(query).limit(limit)
        docs = [result for result in results]
    return docs
 
@@ -98,8 +100,8 @@ def create_indexes(collection, dbname, fields):
    db = mongodb(dbname)
    collection = db[collection] if db and collection else None
    if collection:
-       index_fields = [(field, ASCENDING) for field in fields]
-       result = collection.create_index(index_fields, unique=True)
+       # index_fields = [(field, ASCENDING) for field in fields]
+       result = collection.create_index(fields, unique=True)
    return result
 
 

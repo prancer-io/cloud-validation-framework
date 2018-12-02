@@ -3,7 +3,7 @@
 """
 
 import json
-import datetime
+import time
 from collections import OrderedDict
 from processor.helper.file.file_utils import check_filename
 from processor.helper.config.config_utils import get_parameter_file
@@ -97,8 +97,8 @@ def set_timestamp(json_data, fieldname='timestamp'):
     """Set the current timestamp for the object."""
     if not json_data or not isinstance(json_data, dict):
         return False
-    timestamp_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    json_data[fieldname] = timestamp_str
+    timestamp = int(time.time() * 1000)
+    json_data[fieldname] = timestamp
     return True
 
 
