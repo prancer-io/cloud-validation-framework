@@ -6,12 +6,11 @@
         "subscriptionName": "ABC-UNIT1-NON-PROD"
     },
     "snapshot": "snapshot.json",
-    "azureStructure": "azureStructure.json",
-    "parameterStructure": "parameterStructure.json",
     "testSet": [
         {
             "testName": "test1",
             "testUser": "user1",
+            "version":"0.1",
             "cases": [
                 {
                     "snapshotId": "1",
