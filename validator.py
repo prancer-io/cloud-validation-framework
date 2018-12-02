@@ -5,6 +5,7 @@
 import argparse
 import sys
 import atexit
+import json
 from processor.helper.loglib.log_handler import getlogger
 from processor.helper.config.rundata_utils import (init_config,
                                                    add_to_run_config,
@@ -31,7 +32,7 @@ def main(arg_vals=None):
     atexit.register(delete_run_config)
     logger.info(args)
     init_config()
-    status = populate_snapshot(args.container, args.template)
+    status = populate_snapshot(args.container, None)
     if status and args.template:
         run_validator_tests(args.container, args.template)
 
@@ -47,6 +48,7 @@ def populate_snapshot(container, var_file=None):
     if not vars_json_data:
         logger.info("File %s does not exist, exiting!...", vars_file)
         return False
+    logger.info(json.dumps(vars_json_data, indent=2))
     sub_id = get_field_value(vars_json_data, 'subscription.subscriptionId')
     tenant_id = get_field_value(vars_json_data, 'subscription.tenantId')
     logger.info('Sub:%s, tenant:%s', sub_id, tenant_id)

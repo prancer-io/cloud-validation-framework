@@ -2,8 +2,9 @@
     "$schema": "",
     "contentVersion": "1.0.0.0",
     "subscription": {
-        "subscriptionId": "8ea4-4ef3-ad9c",
-        "subscriptionName": "ABC-UNIT1-NON-PROD"
+        "subscriptionName": "DevTest",
+        "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
+        "location": "eastus2"
     },
     "snapshot": "snapshot.json",
     "testSet": [

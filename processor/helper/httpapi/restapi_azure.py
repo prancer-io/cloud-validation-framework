@@ -29,6 +29,7 @@ def get_web_client_data(subid):
     if not subid:
         return client_id
     subscription_file = get_subscription_file(parentdir=True)
+    logger.info(subscription_file)
     data = load_json(subscription_file)
     if data and 'accounts' in data:
         for account_data in data['accounts']:
