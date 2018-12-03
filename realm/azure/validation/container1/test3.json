@@ -4,54 +4,53 @@
     "snapshot": "snapshot.json",
     "testSet": [
         {
-            "testName": "test1",
+            "testName": "test3",
             "testUser": "user1",
             "version":"0.1",
             "cases": [
                 {
                     "snapshotId": "1",
                     "attribute": "location",
-                    "comparison":"exist"
+                    "comparison":"exist()"
                 },
                 {
                     "snapshotId": "1",
                     "attribute": "location.name",
-                    "comparison":"exist"
+                    "comparison":"exist()"
                 },
                 {
                     "snapshotId": "1",
                     "attribute": "location.name",
-                    "comparison":"not exist"
+                    "comparison":"not(exist())"
                 },
                 {
                     "snapshotId": "1",
                     "attribute": "location",
-                    "comparison":"gt 10"
+                    "comparison":"greater(10)"
+                },{
+                    "snapshotId": "1",
+                    "attribute": "location",
+                    "comparison":"less(10)"
                 },
                 {
                     "snapshotId": "1",
                     "attribute": "location",
-                    "comparison":"lt 10"
+                    "comparison":"count(greater(10))"
                 },
                 {
                     "snapshotId": "1",
                     "attribute": "location",
-                    "comparison":"gt lem(10)"
+                    "comparison":"equal('eastus2')"
                 },
                 {
                     "snapshotId": "1",
                     "attribute": "location",
-                    "comparison":"eq 'eastus2'"
+                    "comparison":"not(equal('eastus2'))"
                 },
                 {
                     "snapshotId": "1",
                     "attribute": "location",
-                    "comparison":"neq 'eastus2'"
-                },
-                {
-                    "snapshotId": "1",
-                    "attribute": "location",
-                    "comparison":"eq '{2}.location'"
+                    "comparison":"equal('{2}.location')"
                 }
             ]
         }

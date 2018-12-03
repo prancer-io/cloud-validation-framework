@@ -1,24 +1,31 @@
 {
     "$schema": "",
     "contentVersion": "1.0.0.0",
-    "subscription": {
-        "subscriptionName": "DevTest",
-        "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
-        "location": "eastus2",
-        "tenantId": "3959230b-8fb3-4957-baf4-85bd4c26239d"
-    },
-    "nodes": [
+    "snapshots": [
         {
-            "snapshotId": "1",
-            "source":"azureStructure.json",
-            "type": "Microsoft.Compute/availabilitySets",
-            "path":"/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
-        },
-        {
-            "snapshotId": "2",
-            "source":"custom",
-            "type": "Microsoft.Network/virtualNetworks",
-            "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet01"
+            "source": "azureStructure.json",
+            "type":"azure",
+            "subscriptionId": "8ea4-4ef3-ad9c",
+            "subscriptionName": "DevTest",
+            "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
+            "location": "eastus2",
+            "tenantId": "3959230b-8fb3-4957-baf4-85bd4c26239d",
+            "nodes": [
+                {
+                    "snapshotId": "1",
+                    "source":"azureStructure.json",
+                    "type": "Microsoft.Compute/availabilitySets",
+                    "collection": "Microsoft.Compute",
+                    "path":"/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
+                },
+                {
+                    "snapshotId": "2",
+                    "source":"custom",
+                    "type": "Microsoft.Network/virtualNetworks",
+                    "collection": "Microsoft.Network",
+                    "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet01"
+                }
+            ]
         }
     ]
 }
