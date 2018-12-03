@@ -1,6 +1,7 @@
 {
     "$schema": "",
     "contentVersion": "1.0.0.0",
+    "fileType":"snapshot",
     "snapshots": [
         {
             "source": "azureStructure.json",
