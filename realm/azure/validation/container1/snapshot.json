@@ -1,22 +1,23 @@
 {
     "$schema": "",
     "contentVersion": "1.0.0.0",
-    "subscription": {
-        "subscriptionId": "8ea4-4ef3-ad9c",
-        "subscriptionName": "ABC-UNIT1-NON-PROD"
-    },
-    "nodes": [
+    "snapshots": [
         {
-            "snapshotId": "1",
-            "source":"azureStructure.json",
-            "type": "Microsoft.Network",
-            "path": "/resourceGroups/zah-comm-network-rg/providers/Microsoft.Network/virtualNetworks/zah-gateway-vnet-2/subnets/GatewaySubnet"
-        },
-        {
-            "snapshotId": "2",
-            "source":"parameterStructure.json",
-            "type": "custom",
-            "path": ""
+            "source": "azureStructure.json",
+            "type":"azure",
+            "subscriptionId": "8ea4-4ef3-ad9c",
+            "nodes": [
+                {
+                    "snapshotId": "1",
+                    "collection": "Microsoft.Network",
+                    "path": "/resourceGroups/zah-comm-network-rg/providers/Microsoft.Network/virtualNetworks/zah-gateway-vnet-2/subnets/GatewaySubnet"
+                },
+                {
+                    "snapshotId": "2",
+                    "collection": "custom",
+                    "path": ""
+                }
+            ]
         }
     ]
 }
