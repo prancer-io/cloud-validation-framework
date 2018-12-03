@@ -6,12 +6,7 @@
     "testSet": [
         {
             "testName": "test1",
-<<<<<<< HEAD
             "version":"0.1",
-=======
-            "testUser": "user1",
-            "version": "0.1",
->>>>>>> 4b0814ff69907da1bb903789eedd378f41f63676
             "cases": [
                 {
                     "testId": "1",
