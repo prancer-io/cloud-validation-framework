@@ -4,8 +4,9 @@
     "snapshots": [
         {
             "source": "azureStructure.json",
-            "type":"azure",
+            "type": "azure",
             "subscriptionId": "8ea4-4ef3-ad9c",
+            "testUser": "user1",
             "nodes": [
                 {
                     "snapshotId": "1",
