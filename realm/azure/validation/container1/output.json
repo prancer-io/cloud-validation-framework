@@ -5,6 +5,7 @@
     "timestamp": "",
     "snapshot": "snapshot1.json",
     "test": "test1.json",
+    "container":"container1",
     "results": [
         {
             "testId": "1",

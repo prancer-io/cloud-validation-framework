@@ -11,7 +11,7 @@
             "nodes": [
                 {
                     "snapshotId": "1",
-                    "collection": "Microsoft.Network",
+                    "collection": "microsoft.network/nsg",
                     "path": "/resourceGroups/zah-comm-network-rg/providers/Microsoft.Network/virtualNetworks/zah-gateway-vnet-2/subnets/GatewaySubnet"
                 },
                 {
