@@ -28,7 +28,7 @@ def main(arg_vals=None):
     logger.info("Comand: '%s %s'", sys.executable.rsplit('/', 1)[-1], ' '.join(sys.argv))
     cmd_parser = argparse.ArgumentParser("Validator functional tests.")
     cmd_parser.add_argument('container', action='store', help='Container tests directory.')
-    cmd_parser.add_argument('template', action='store', nargs='?', default=None, help='Json file')
+    # cmd_parser.add_argument('template', action='store', nargs='?', default=None, help='Json file')
     args = cmd_parser.parse_args(arg_vals)
     # Delete the rundata at the end of the script.
     atexit.register(delete_run_config)
@@ -36,14 +36,17 @@ def main(arg_vals=None):
     init_config()
     dbname = get_config('MONGODB', 'dbname')
     create_indexes(COLLECTION, dbname, [('timestamp', pymongo.TEXT)])
-    status = populate_snapshot(args.container, args.template)
-    if status and args.template:
-        run_validator_tests(args.container, args.template)
+    # status = populate_snapshot(args.container, args.template)
+    status = populate_snapshot(args.container)
+    # if status and args.template:
+    # if status:
+    #     run_validator_tests(args.container)
 
 
-def run_validator_tests(container, vars_json):
+def run_validator_tests(container):
     dbname = get_config('MONGODB', 'dbname')
     logger.info("Run validator tests")
+    vars_json = 'snapshot.json'
     vars_file, vars_json_data = get_vars_json(container, vars_json)
     if not vars_json_data:
         logger.info("File %s does not exist, exiting!...", vars_file)
@@ -64,18 +67,71 @@ def run_validator_tests(container, vars_json):
                 logger.info('Results: %s', len(docs))
     return True
 
+# # operators
+# # left operator - 'attribute' field of the test case
+# # operators - eq, neq, lt, le, gt, ge, not, exist,
+# # right operator
+#
+# # Grammar: Left operator has to be present, i.e 'attribute' field  in the testcase should be present
+# #          operator - has to be present and one of the above.
+# #          Right operator optional and if present will used in python comparison statements.
+# #          Different formats will be evolved as required for the framework.
+# # Sample tests:
+# # Test for existence of an attribute
+# {
+#     "snapshotId": "1",
+#     "attribute":  "location",
+#     "comparison": "exist"
+# }
+# # Test for non-existence of an attribute
+# {
+#     "snapshotId": "1",
+#     "attribute": "location.name",
+#     "comparison":"not exist"
+# }
+# # Test for numerical less than of an attribute,
+# # for string less than quote it in single quotes.
+# # "lt 'Red'"
+# {
+#     "snapshotId": "1",
+#     "attribute": "location",
+#     "comparison": "lt 10"
+# }
+# # Test if the attribute is an array and its length is  gt
+# {
+#     "snapshotId": "1",
+#     "attribute": "location",
+#     "comparison":"gt len(10)"
+# }
+# # Test equality and inequality check for ascii and numeric values
+# {
+#     "snapshotId": "1",
+#     "attribute": "location",
+#     "comparison": "eq 'eastus2'",
+#     "comparison": "neq 'eastus2'",
+#     "comparison": "eq 2",
+#     "comparison": "neq 2"
+# }
+# # Test to compare with other snapshot
+# {
+#     "snapshotId": "1",
+#     "attribute": "location",
+#     "comparison":"eq '{2}.location'"
+# }
 
-def populate_snapshot(container, vars_json):
+def populate_snapshot(container):
     """ Get the current snapshot of the resources """
-    vars_file, vars_json_data = get_vars_json(container, vars_json)
-    if not vars_json_data:
-        logger.info("File %s does not exist, exiting!...", vars_file)
-        return False
-    snapshot_json = vars_json_data['snapshot'] if 'snapshot' in vars_json_data and \
-                                      vars_json_data['snapshot'] else None
-    if not snapshot_json:
-        logger.info("File %s does not contain valid snapshot attribute!...", vars_file)
-        return False
+    # vars_json = 'snapshot.json'
+    # vars_file, vars_json_data = get_vars_json(container, vars_json)
+    # if not vars_json_data:
+    #     logger.info("File %s does not exist, exiting!...", vars_file)
+    #     return False
+    # snapshot_json = vars_json_data['snapshot'] if 'snapshot' in vars_json_data and \
+    #                                   vars_json_data['snapshot'] else None
+    # if not snapshot_json:
+    #     logger.info("File %s does not contain valid snapshot attribute!...", vars_file)
+    #     return False
+    snapshot_json = 'snapshot.json'
     snapshot_file, snapshot_json_data = get_vars_json(container, snapshot_json)
     if not snapshot_json_data:
         logger.info("Snapshot file %s does not exist, exiting!...", snapshot_file)
@@ -84,7 +140,7 @@ def populate_snapshot(container, vars_json):
     sub_id = get_field_value(snapshot_json_data, 'subscription.subscriptionId')
     tenant_id = get_field_value(snapshot_json_data, 'subscription.tenantId')
     if 'nodes' not in snapshot_json_data or not snapshot_json_data['nodes']:
-        logger.info("No nodes in snapshot to be backed up!...", vars_file)
+        logger.info("No nodes in snapshot to be backed up!...", snapshot_file)
         return False
     logger.info('Sub:%s, tenant:%s', sub_id, tenant_id)
     add_to_run_config('subscriptionId', sub_id)

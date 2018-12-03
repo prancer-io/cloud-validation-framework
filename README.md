@@ -13,3 +13,5 @@ TODO - Version selection and features involved.
 cd $HOME/projects/upwork/liquware/whitekite
 export PYTHONPATH=`pwd`:$PYTHONPATH
 echo $PYTHONPATH
+
+python3 validator.py container1
