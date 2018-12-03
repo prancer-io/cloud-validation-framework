@@ -1,10 +1,6 @@
 {
     "$schema": "",
     "contentVersion": "1.0.0.0",
-    "subscription": {
-        "subscriptionId": "8ea4-4ef3-ad9c",
-        "subscriptionName": "ABC-UNIT1-NON-PROD"
-    },
     "snapshot": "snapshot.json",
     "testSet": [
         {
