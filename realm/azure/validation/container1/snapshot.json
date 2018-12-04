@@ -6,7 +6,7 @@
         {
             "source": "azureStructure.json",
             "type": "azure",
-            "testUser": "user1",
+            "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
             "subscriptionName": "DevTest",
             "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
             "location": "eastus2",

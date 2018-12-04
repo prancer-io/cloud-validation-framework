@@ -33,6 +33,7 @@
                     "comparison":"gt 10"
                 },
                 {
+                    "testId": "5",
                     "snapshotId": "1",
                     "attribute": "location",
                     "comparison":"lt 10"

@@ -5,24 +5,19 @@
             "department": "abc",
             "subscription": [
                 {
-                    "subscription_name": "Microsoft Partner Network",
+                    "subscription_name": "Prod",
                     "subscription_description": "CNT IT CET Prod",
-                    "subscription_id": "8b12edf7-8360-4239-8ebd-d99d59a4ffc4"
+                    "subscription_id": "deba9307-2f2d-41d8-a524-4c5f2632b547"
                 },
                 {
-                    "subscription_name": "liq-prod",
+                    "subscription_name": "DevTest",
                     "subscription_description": "CNT IT CET Dev",
-                    "subscription_id": "da701db2-b00b-49ed-b602-5fc48df78e6b",
+                    "subscription_id": "37f11aaf-0b72-44ef-a173-308e990279da",
                     "users": [
                         {
-                            "name":"user1",
-                            "client_id": "aae6fe1a-5bff-4ed2-85dd-62a234570a33",
-                            "client_secret": "VlMhJitnupNqHaAX/RZ6vAbGWQSOT29hOZ19ssDVfVk="
-                        },
-                        {
-                            "name":"user2",
-                            "client_id": "aae6fe1a-5bff-4ed2-85dd-62a234570a33",
-                            "client_secret": "VlMhJitnupNqHaAX/RZ6vAbGWQSOT29hOZ19ssDVfVk="
+                            "name":"ajeybk1@kbajeygmail.onmicrosoft.com",
+                            "client_id": "919bc6f3-9b6f-4f20-9fa7-098618465e0d",
+                            "client_secret": "aZJrSULOZx280ioDoVjdhMp0R0uDD/sZcms/ei1RZQo="
                         }
                     ]
                 }

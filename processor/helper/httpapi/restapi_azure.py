@@ -18,6 +18,8 @@ SUBSCRIPTION = 'subscriptionId'
 TENANT = 'tenant_id'
 RESOURCEGROUP = 'rg'
 STORAGE = 'storageid'
+CLIENTID = 'clientId'
+CLIENTSECRET = 'clientSecret'
 
 
 logger = getlogger()
@@ -56,12 +58,21 @@ def get_tenant_id_from_runconfig():
     return get_from_run_config(TENANT)
 
 
+def get_client_id_from_runconfig():
+    """ Return the client Id used for the current run"""
+    return get_from_run_config(CLIENTID)
+
+
 def get_resource_group_from_runconfig():
     """ Return the resource group"""
     return get_from_run_config(RESOURCEGROUP)
 
+
 def get_client_secret():
-    client_secret = os.getenv('CLIENTKEY', None)
+    """ Return the client secret used for the current run"""
+    client_secret = get_from_run_config(CLIENTSECRET)
+    if not client_secret:
+        client_secret = os.getenv('CLIENTKEY', None)
     if not client_secret:
         client_secret = input('Enter the client secret for the app: ')
     return client_secret
@@ -75,8 +86,8 @@ def get_access_token():
     token = get_from_run_config(ACCESSTOKEN)
     if not token:
         tenant_id = get_tenant_id_from_runconfig()
-        subid = get_subscription_id_from_runconfig()
-        client_id = get_web_client_data(subid)
+        # subid = get_subscription_id_from_runconfig()
+        client_id = get_client_id_from_runconfig()
         if client_id:
             client_secret = get_client_secret()
         else:

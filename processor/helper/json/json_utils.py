@@ -4,6 +4,7 @@
 
 import json
 import time
+import glob
 from collections import OrderedDict
 from processor.helper.file.file_utils import check_filename
 from processor.helper.config.config_utils import get_parameter_file
@@ -53,6 +54,25 @@ def is_json(json_input):
         logger.debug('Not a valid json: %s', json_input)
 
     return status
+
+
+def check_field_exists(data, parameter):
+    """Utility to check json field is present."""
+    present = False
+    if data and parameter:
+        fields = parameter.split('.')
+        curdata = data
+        if fields:
+            allfields = True
+            for field in fields:
+                if curdata:
+                    if field in curdata:
+                        curdata = curdata[field]
+                    else:
+                        allfields = False
+            if allfields:
+                present = True
+    return present
 
 
 def get_field_value(data, parameter):
@@ -107,6 +127,15 @@ def get_vars_json(container, filename):
     logger.debug('Original file: %s', varsfile)
     json_data = load_json(varsfile)
     return varsfile, json_data
+
+def get_json_files(json_dir, filetype):
+    file_list = []
+    if json_dir and filetype:
+        for filename in glob.glob('%s/*.json' % json_dir.replace('//', '/')):
+            json_data = load_json(filename)
+            if json_data and 'fileType' in json_data and json_data['fileType'] == filetype:
+                file_list.append(filename)
+    return file_list
 
 
 

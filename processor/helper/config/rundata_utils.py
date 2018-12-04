@@ -41,6 +41,14 @@ def add_to_run_config(key, value):
         save_run_config(runconfig)
 
 
+def delete_from_run_config(key):
+    if key:
+        runconfig = get_run_config()
+        if key in runconfig:
+            del runconfig[key]
+        save_run_config(runconfig)
+
+
 def get_from_run_config(key):
     """ Get the data for this key from the rundata"""
     data = None
