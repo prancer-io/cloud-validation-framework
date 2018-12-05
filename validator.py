@@ -14,7 +14,8 @@ from processor.helper.config.rundata_utils import (init_config,
                                                    delete_run_config)
 from processor.helper.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value,\
-    set_timestamp, set_field_value, get_json_files, load_json
+    set_timestamp, set_field_value, get_json_files, load_json,\
+    dump_output_results
 from processor.helper.httpapi.restapi_azure import get_access_token
 from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import get_config, get_test_json_dir
@@ -63,6 +64,7 @@ def run_validator_tests(container):
         if not testsets or not isinstance(testsets, list):
             logger.info("Test file %s does not contain testset, next!...", test_file)
             continue
+        resultset = []
         for testset in testsets:
             version = get_field_value(testset, 'version')
             if 'cases' not in testset or not isinstance(testset['cases'], list):
@@ -82,6 +84,23 @@ def run_validator_tests(container):
                         logger.info('Testid: %s, snapshot:%s, attribute: %s, comparison:%s, result: %s',
                                     testcase['testId'], testcase['snapshotId'], testcase['attribute'],
                                     testcase['comparison'], result)
+                        result_val = {
+                            "result": "passed" if result else "failed"
+                        }
+                    else:
+                        result_val = {
+                            "result": "skipped",
+                            "reason": "Missing documents for the snapshot"
+                        }
+                else:
+                    result_val = {
+                        "result": "skipped",
+                        "reason": "Missing snapshotId for testcase"
+                    }
+                result_val.update(testcase)
+                resultset.append(result_val)
+        dump_output_results(resultset, test_file, container)
+
 
     return True
 
