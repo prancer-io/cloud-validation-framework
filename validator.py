@@ -5,6 +5,8 @@ import argparse
 import sys
 import atexit
 import json
+import hashlib
+import time
 import pymongo
 from processor.helper.file.file_utils import check_filename
 from processor.helper.loglib.log_handler import getlogger
@@ -64,6 +66,14 @@ def run_validator_tests(container):
         if not testsets or not isinstance(testsets, list):
             logger.info("Test file %s does not contain testset, next!...", test_file)
             continue
+        snapshot_file = '%s/%s' % (json_dir, test_json_data['snapshot'])
+        snapshot_data = {}
+        snapshot_json_data = load_json(snapshot_file)
+        for snapshot in snapshot_json_data['snapshots']:
+            for snode in snapshot['nodes']:
+                collection = snode['collection'] if 'collection' in snode else COLLECTION
+                snapshot_data[snode['snapshotId']] = collection.replace('.', '').lower()
+                create_indexes(snapshot_data[snode['snapshotId']], dbname, [('timestamp', pymongo.TEXT)])
         resultset = []
         for testset in testsets:
             version = get_field_value(testset, 'version')
@@ -72,13 +82,13 @@ def run_validator_tests(container):
                 continue
             for testcase in testset['cases']:
                 if 'snapshotId' in testcase and testcase['snapshotId']:
-                    docs = get_documents(COLLECTION, dbname=dbname,
+                    docs = get_documents(snapshot_data[testcase['snapshotId']], dbname=dbname,
                                          sort=[('timestamp', pymongo.DESCENDING)],
                                          query={'snapshotId': testcase['snapshotId']},
                                          limit=1)
                     logger.info('Number of Snapshot Documents: %s', len(docs))
                     if docs and len(docs):
-                        comparator = Comparator(version, docs[0], testcase['attribute'],
+                        comparator = Comparator(version, docs[0]['json'], testcase['attribute'],
                                                 testcase['comparison'])
                         result = comparator.validate()
                         logger.info('Testid: %s, snapshot:%s, attribute: %s, comparison:%s, result: %s',
@@ -232,22 +242,34 @@ def populate_snapshot(container):
             logger.debug('TOKEN: %s', token)
             if token:
                 for node in snapshot['nodes']:
-                    data = get_node(token, sub_id, node)
-                    if 'snapshotId' in node and node['snapshotId']:
-                        set_field_value(data, 'snapshotId', node['snapshotId'])
-                    set_timestamp(data)
-                    insert_one_document(data, COLLECTION, dbname)
+                    data = get_node(token, sub_id, node, snapshot_user)
+                    # if 'snapshotId' in node and node['snapshotId']:
+                    #     set_field_value(data, 'snapshotId', node['snapshotId'])
+                    # set_timestamp(data)
+                    if data:
+                        insert_one_document(data, data['collection'], dbname)
                     logger.debug('Type: %s', type(data))
                 delete_from_run_config('clientId')
                 delete_from_run_config('client_secret')
                 delete_from_run_config('subscriptionId')
                 delete_from_run_config('tenant_id')
+                delete_from_run_config('token')
     return True
 
 
-def get_node(token, sub_id, node):
+def get_node(token, sub_id, node, user):
     """ Fetch node from azure portal using rest API."""
     version = None
+    collection = node['collection'] if 'collection' in node else COLLECTION
+    db_record = {
+        "timestamp": int(time.time() * 1000),
+        "queryuser": user,
+        "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
+        "node": node,
+        "snapshotId": node['snapshotId'],
+        "collection": collection.replace('.', '').lower(),
+        "json": {}
+    }
     if node and 'type' in node:
         if node['type'] == "Microsoft.Compute/availabilitySets":
             version = '2018-06-01'
@@ -264,13 +286,15 @@ def get_node(token, sub_id, node):
         logger.info('Get Id status: %s', status)
         # logger.info('Get data: %s', data)
         if status and isinstance(status, int) and status == 200:
-            return data
+            db_record['json'] = data
+            data_str = json.dumps(data)
+            db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
         else:
             add_to_run_config('errors', data)
             logger.info("Get Id returned invalid status: %s", status)
     else:
         logger.info('Get requires valid subscription, token and path.!')
-        return None
+    return db_record
 
 
 if __name__ == "__main__":
