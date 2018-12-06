@@ -7,12 +7,14 @@
                 {
                     "subscription_name": "Prod",
                     "subscription_description": "CNT IT CET Prod",
-                    "subscription_id": "deba9307-2f2d-41d8-a524-4c5f2632b547"
+                    "subscription_id": "deba9307-2f2d-41d8-a524-4c5f2632b547",
+                    "tenant_id": "3959230b-8fb3-4957-baf4-85bd4c26239d"
                 },
                 {
                     "subscription_name": "DevTest",
                     "subscription_description": "CNT IT CET Dev",
                     "subscription_id": "37f11aaf-0b72-44ef-a173-308e990279da",
+                    "tenant_id": "3959230b-8fb3-4957-baf4-85bd4c26239d",
                     "users": [
                         {
                             "name":"ajeybk1@kbajeygmail.onmicrosoft.com",
@@ -34,7 +36,8 @@
                     "subscription_description": "CNT IT CET Shared",
                     "offer_type": "prod",
                     "useradmin_rbac": "",
-                    "subscription_id": "5009d3c3-e8ea-4109-bb89-b377190cc8b2"
+                    "subscription_id": "5009d3c3-e8ea-4109-bb89-b377190cc8b2",
+                    "tenant_id": ""
                 }
             ]
         }

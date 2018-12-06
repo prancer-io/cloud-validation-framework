@@ -114,61 +114,12 @@ def run_validator_tests(container):
 
     return True
 
-# # operators
-# # left operator - 'attribute' field of the test case
-# # operators - eq, neq, lt, le, gt, ge, not, exist,
-# # right operator
-#
-# # Grammar: Left operator has to be present, i.e 'attribute' field  in the testcase should be present
-# #          operator - has to be present and one of the above.
-# #          Right operator optional and if present will used in python comparison statements.
-# #          Different formats will be evolved as required for the framework.
-# # Sample tests:
-# # Test for existence of an attribute
-# {
-#     "snapshotId": "1",
-#     "attribute":  "location",
-#     "comparison": "exist"
-# }
-# # Test for non-existence of an attribute
-# {
-#     "snapshotId": "1",
-#     "attribute": "location.name",
-#     "comparison":"not exist"
-# }
-# # Test for numerical less than of an attribute,
-# # for string less than quote it in single quotes.
-# # "lt 'Red'"
-# {
-#     "snapshotId": "1",
-#     "attribute": "location",
-#     "comparison": "lt 10"
-# }
-# # Test if the attribute is an array and its length is  gt
-# {
-#     "snapshotId": "1",
-#     "attribute": "location",
-#     "comparison":"gt len(10)"
-# }
-# # Test equality and inequality check for ascii and numeric values
-# {
-#     "snapshotId": "1",
-#     "attribute": "location",
-#     "comparison": "eq 'eastus2'",
-#     "comparison": "neq 'eastus2'",
-#     "comparison": "eq 2",
-#     "comparison": "neq 2"
-# }
-# # Test to compare with other snapshot
-# {
-#     "snapshotId": "1",
-#     "attribute": "location",
-#     "comparison":"eq '{2}.location'"
-# }
 
 def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
     client_id = None
     client_secret = None
+    sub_id = None
+    tenant_id = None
     found = False
     json_test_dir = get_test_json_dir()
     if snapshot_type == 'azure':
@@ -188,6 +139,8 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
                                 if name and name == snapshot_user:
                                     client_id = get_field_value(user, 'client_id')
                                     client_secret = get_field_value(user, 'client_secret')
+                                    sub_id = get_field_value(subscription, 'subscription_id')
+                                    tenant_id = get_field_value(subscription, 'tenant_id')
                                     found = True
                                 if found:
                                     break
@@ -195,7 +148,7 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
                             break
                     if found:
                         break
-    return client_id, client_secret
+    return client_id, client_secret, sub_id, tenant_id
 
 
 def populate_snapshot(container):
@@ -226,13 +179,15 @@ def populate_snapshot(container):
             snapshot_type = get_field_value(snapshot, 'type')
             snapshot_source = get_field_value(snapshot, 'source')
             snapshot_user = get_field_value(snapshot, 'testUser')
-            client_id, client_secret = get_web_client_data(snapshot_type, snapshot_source,
-                                                           snapshot_user)
+            client_id, client_secret, sub_id, tenant_id = \
+                get_web_client_data(snapshot_type,snapshot_source,snapshot_user)
             if not client_id:
                 logger.info("No client_id in the snapshot to access azure resuource!...")
                 continue
-            sub_id = get_field_value(snapshot, 'subscriptionId')
-            tenant_id = get_field_value(snapshot, 'tenantId')
+            # Read sub_id and tenant_id from azureStructure.json, remove them from
+            # snapshot.json file.
+            # sub_id = get_field_value(snapshot, 'subscriptionId')
+            # tenant_id = get_field_value(snapshot, 'tenantId')
             logger.info('Sub:%s, tenant:%s, client: %s', sub_id, tenant_id, client_id)
             add_to_run_config('clientId', client_id)
             add_to_run_config('clientSecret', client_secret)
@@ -243,10 +198,9 @@ def populate_snapshot(container):
             if token:
                 for node in snapshot['nodes']:
                     data = get_node(token, sub_id, node, snapshot_user)
-                    # if 'snapshotId' in node and node['snapshotId']:
-                    #     set_field_value(data, 'snapshotId', node['snapshotId'])
-                    # set_timestamp(data)
                     if data:
+                        # Sort recursively the keys of data so that the document is represented in
+                        # same order.
                         insert_one_document(data, data['collection'], dbname)
                     logger.debug('Type: %s', type(data))
                 delete_from_run_config('clientId')

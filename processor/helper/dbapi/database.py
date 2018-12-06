@@ -1,3 +1,6 @@
+import collections
+import json
+import hashlib
 from pymongo import MongoClient, ASCENDING
 from bson.objectid import ObjectId
 
@@ -37,12 +40,24 @@ def collection_names(dbname):
    return  colls
 
 
+def sort_dict(data):
+    vals = []
+    for key, val in data.items():
+        if isinstance(val, dict):
+            sub_dict = sort_dict(val)
+            vals.append((key, sub_dict))
+        else:
+            vals.append((key, val))
+    sorted_vals = sorted(vals, key=lambda x: x[0])
+    return collections.OrderedDict(sorted_vals)
+
+
 def insert_one_document(doc, collection, dbname):
    """ Insert one document into the collection. """
    doc_id_str = None
    coll = get_collection(dbname, collection)
    if coll and doc:
-       doc_id = coll.insert_one(doc)
+       doc_id = coll.insert_one(sort_dict(doc))
        doc_id_str = str(doc_id.inserted_id)
    return doc_id_str
 
@@ -116,42 +131,59 @@ def index_information(collection, dbname):
 
 
 def main():
-  dbname = 'business'
-  coll = 'reviews'
-  # mongodb(dbname)
-  obj_str = "5bfe2aef7456213682bebaa6"
-  doc = check_document(coll, obj_str, dbname)
-  print(doc)
-  obj_id = ObjectId(obj_str)
-  doc = check_document(coll, obj_id, dbname)
-  print(doc)
-  doc = check_document(coll, None, dbname)
-  print(doc)
-  colls = collection_names(dbname)
-  print(colls)
-  doc = {'name': 'Test name', 'gender': True}
-  newcoll = 'users'
-  user_id = insert_one_document(doc, newcoll, dbname)
-  print(user_id)
-  doc = check_document(newcoll, user_id, dbname)
-  print(doc)
-  docs = [
-          {'name': 'Test1 name', 'gender': True},
-          {'name': 'Test2 name', 'gender': False}
-         ]
-  doc_ids = insert_documents(docs, newcoll, dbname)
-  print(doc_ids)
-  colls = collection_names(dbname)
-  print(colls)
-  docs = get_documents(newcoll, None, dbname)
-  print(docs)
-  count = count_documents(newcoll, None, dbname)
-  print(count)
-  count = count_documents(newcoll, query={'gender': False}, dbname=dbname)
-  print(count)
-  print(index_information(coll, dbname))
-  # print(create_indexes(newcoll, dbname, ['name']))
-  print(index_information(newcoll, dbname))
+  # dbname = 'business'
+  # coll = 'reviews'
+  # # mongodb(dbname)
+  # obj_str = "5bfe2aef7456213682bebaa6"
+  # doc = check_document(coll, obj_str, dbname)
+  # print(doc)
+  # obj_id = ObjectId(obj_str)
+  # doc = check_document(coll, obj_id, dbname)
+  # print(doc)
+  # doc = check_document(coll, None, dbname)
+  # print(doc)
+  # colls = collection_names(dbname)
+  # print(colls)
+  # doc = {'name': 'Test name', 'gender': True}
+  # newcoll = 'users'
+  # user_id = insert_one_document(doc, newcoll, dbname)
+  # print(user_id)
+  # doc = check_document(newcoll, user_id, dbname)
+  # print(doc)
+  # docs = [
+  #         {'name': 'Test1 name', 'gender': True},
+  #         {'name': 'Test2 name', 'gender': False}
+  #        ]
+  # doc_ids = insert_documents(docs, newcoll, dbname)
+  # print(doc_ids)
+  # colls = collection_names(dbname)
+  # print(colls)
+  # docs = get_documents(newcoll, None, dbname)
+  # print(docs)
+  # count = count_documents(newcoll, None, dbname)
+  # print(count)
+  # count = count_documents(newcoll, query={'gender': False}, dbname=dbname)
+  # print(count)
+  # print(index_information(coll, dbname))
+  # # print(create_indexes(newcoll, dbname, ['name']))
+  # print(index_information(newcoll, dbname))
+
+  a = {'a': 1, 'b': 2, 'f': 5, 'c': 3, 'd': 4}
+  b = {'z': a, 'y': {'x': 1, 'a': a}, 'm': 2, 'n': 'abc'}
+  c = { 'n': 'abc', 'y': {'x': 1, 'a': a}, 'z': a, 'm': 2}
+  d = sort_dict(b)
+  e = sort_dict(c)
+  d_str = json.dumps(d)
+  e_str = json.dumps(e)
+  is_match = True if d_str == e_str else False
+  print(b)
+  print(c)
+  print(hashlib.md5(json.dumps(b).encode('utf-8')).hexdigest())
+  print(hashlib.md5(json.dumps(c).encode('utf-8')).hexdigest())
+  print(d_str)
+  print(e_str)
+  print(is_match)
+
   
 
 
