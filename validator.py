@@ -151,6 +151,19 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
     return client_id, client_secret, sub_id, tenant_id
 
 
+def get_version_for_type(node):
+    version = None
+    logger.info("Get type's version")
+    apiversions_file = '%s/../apiVersions.json' % get_test_json_dir()
+    logger.info(apiversions_file)
+    if check_filename(apiversions_file):
+        apiversions = load_json(apiversions_file)
+        if apiversions:
+            if node and 'type' in node and node['type'] in apiversions:
+                version = apiversions[node['type']]['version']
+    return version
+
+
 def populate_snapshot(container):
     """ Get the current snapshot of the resources """
     dbname = get_config('MONGODB', 'dbname')
@@ -180,7 +193,7 @@ def populate_snapshot(container):
             snapshot_source = get_field_value(snapshot, 'source')
             snapshot_user = get_field_value(snapshot, 'testUser')
             client_id, client_secret, sub_id, tenant_id = \
-                get_web_client_data(snapshot_type,snapshot_source,snapshot_user)
+                get_web_client_data(snapshot_type, snapshot_source, snapshot_user)
             if not client_id:
                 logger.info("No client_id in the snapshot to access azure resuource!...")
                 continue
@@ -224,11 +237,12 @@ def get_node(token, sub_id, node, user):
         "collection": collection.replace('.', '').lower(),
         "json": {}
     }
-    if node and 'type' in node:
-        if node['type'] == "Microsoft.Compute/availabilitySets":
-            version = '2018-06-01'
-        elif node['type'] == "Microsoft.Network/virtualNetworks":
-            version = '2018-07-01'
+    # if node and 'type' in node:
+    #     if node['type'] == "Microsoft.Compute/availabilitySets":
+    #         version = '2018-06-01'
+    #     elif node['type'] == "Microsoft.Network/virtualNetworks":
+    #         version = '2018-07-01'
+    version = get_version_for_type(node)
     if sub_id and token and node and node['path'] and version:
         hdrs = {
             'Authorization': 'Bearer %s' % token

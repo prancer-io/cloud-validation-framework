@@ -1,10 +1,8 @@
-[
-    {
-        "type": "",
-        "version": ""
+{
+    "Microsoft.Compute/availabilitySets": {
+        "version": "2018-06-01"
     },
-    {
-        "type": "",
-        "version": ""
+    "Microsoft.Network/virtualNetworks": {
+        "version": "2018-07-01"
     }
-]
+}
