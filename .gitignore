@@ -1,7 +1,11 @@
 .idea
 .python-version
 logs/*.log
+log/*.log
 rundata/*
+.coverage
+p3_requirements.txt
+python3env/*
 __pycache__
 *.pyc
 configdata/mysubscription.json

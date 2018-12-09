@@ -9,7 +9,7 @@ from processor.helper.config.config_utils import RUNCONFIG
 from processor.helper.json.json_utils import load_json, dump_json
 from processor.helper.loglib.log_handler import getlogger, LOGFILENAME
 from processor.helper.file.file_utils import delete_file
-exclude_list = ['token']
+exclude_list = ['token', 'clientSecret']
 
 
 logger = getlogger()
