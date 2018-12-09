@@ -18,7 +18,7 @@ from processor.helper.json.json_utils import get_field_value, get_json_files,\
 from processor.helper.httpapi.restapi_azure import get_access_token, get_web_client_data
 from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import get_config, get_test_json_dir
-from processor.helper.dbapi.database import get_documents, insert_one_document,\
+from processor.database.database import get_documents, insert_one_document,\
     create_indexes
 
 
