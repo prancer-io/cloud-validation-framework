@@ -3,11 +3,13 @@ import os
 import tempfile
 import configparser
 from processor.helper.config.config_utils import SOLUTIONDIR, CONFIGINI
-from processor.helper.config.config_utils import get_solution_dir, load_config, get_config, get_test_json_dir
+from processor.helper.config.config_utils import get_solution_dir, load_config,\
+    get_config, get_test_json_dir
 
 
 TESTSDIR = os.getenv('SOLUTIONDIR',os.path.join(
     os.path.abspath(os.path.dirname(__file__)), '../../../../'))
+
 
 def test_solution_dir():
     os.chdir(TESTSDIR)
@@ -31,12 +33,14 @@ def test_rundata_dir():
     rundata_exists = os.path.exists(tests_rundata) and os.path.isdir(tests_rundata)
     assert rundata_exists == True
 
+
 def test_get_solution_dir():
     os.chdir(TESTSDIR)
     tests_curdir = os.getcwd()
     os.chdir(get_solution_dir())
     prod_curdir = os.getcwd()
     assert tests_curdir == prod_curdir
+
 
 def test_load_config():
     configdata = load_config(None)
@@ -91,4 +95,3 @@ def test_get_test_json_dir():
     os.chdir(get_test_json_dir())
     prod_curdir = os.getcwd()
     assert tests_curdir == prod_curdir
-
