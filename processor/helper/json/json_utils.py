@@ -7,10 +7,10 @@ import time
 import glob
 from collections import OrderedDict
 from processor.helper.file.file_utils import check_filename
-from processor.helper.config.config_utils import get_parameter_file, get_test_json_dir
+from processor.helper.config.config_utils import get_test_json_dir
 from processor.helper.loglib.log_handler import getlogger
 
-
+SNAPSHOT = 'snapshot'
 logger = getlogger()
 
 
@@ -122,11 +122,19 @@ def set_timestamp(json_data, fieldname='timestamp'):
     return True
 
 
-def get_vars_json(container, filename):
-    varsfile = get_parameter_file(container, filename)
-    logger.debug('Original file: %s', varsfile)
-    json_data = load_json(varsfile)
-    return varsfile, json_data
+def get_container_dir(container):
+    json_test_dir = get_test_json_dir()
+    container_dir = '%s/%s' % (json_test_dir, container)
+    container_dir = container_dir.replace('//', '/')
+    logger.info(container_dir)
+    return container_dir
+
+
+def get_container_snapshot_json_files(container):
+    container_dir = get_container_dir(container)
+    snapshot_files = get_json_files(container_dir, SNAPSHOT)
+    return container_dir, snapshot_files
+
 
 def get_json_files(json_dir, filetype):
     file_list = []

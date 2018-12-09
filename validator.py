@@ -10,21 +10,18 @@ import time
 import pymongo
 from processor.helper.file.file_utils import check_filename
 from processor.helper.loglib.log_handler import getlogger
-from processor.helper.config.rundata_utils import (init_config,
-                                                   add_to_run_config,
-                                                   delete_from_run_config,
-                                                   delete_run_config)
+from processor.helper.config.rundata_utils import init_config, add_to_run_config,\
+    delete_from_run_config,delete_run_config
 from processor.helper.comparison.interpreter import Comparator
-from processor.helper.json.json_utils import get_field_value,\
-    set_timestamp, set_field_value, get_json_files, load_json,\
-    dump_output_results
-from processor.helper.httpapi.restapi_azure import get_access_token
+from processor.helper.json.json_utils import get_field_value, get_json_files,\
+    load_json, dump_output_results, get_container_snapshot_json_files
+from processor.helper.httpapi.restapi_azure import get_access_token, get_web_client_data
 from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import get_config, get_test_json_dir
 from processor.helper.dbapi.database import get_documents, insert_one_document,\
     create_indexes
 
-SNAPSHOT = 'snapshot'
+
 JSONTEST = 'test'
 COLLECTION = 'resources'
 logger = getlogger()
@@ -115,42 +112,6 @@ def run_validator_tests(container):
     return True
 
 
-def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
-    client_id = None
-    client_secret = None
-    sub_id = None
-    tenant_id = None
-    found = False
-    json_test_dir = get_test_json_dir()
-    if snapshot_type == 'azure':
-        azure_source = '%s/../%s' % (json_test_dir, snapshot_source)
-        logger.info('Azure source: %s', azure_source)
-        if check_filename(azure_source):
-            sub_data = load_json(azure_source)
-            if sub_data:
-                accounts = get_field_value(sub_data, 'accounts')
-                for account in accounts:
-                    subscriptions = get_field_value(account, 'subscription')
-                    for subscription in subscriptions:
-                        users = get_field_value(subscription, 'users')
-                        if users:
-                            for user in users:
-                                name = get_field_value(user, 'name')
-                                if name and name == snapshot_user:
-                                    client_id = get_field_value(user, 'client_id')
-                                    client_secret = get_field_value(user, 'client_secret')
-                                    sub_id = get_field_value(subscription, 'subscription_id')
-                                    tenant_id = get_field_value(subscription, 'tenant_id')
-                                    found = True
-                                if found:
-                                    break
-                        if found:
-                            break
-                    if found:
-                        break
-    return client_id, client_secret, sub_id, tenant_id
-
-
 def get_version_for_type(node):
     version = None
     logger.info("Get type's version")
@@ -167,12 +128,9 @@ def get_version_for_type(node):
 def populate_snapshot(container):
     """ Get the current snapshot of the resources """
     dbname = get_config('MONGODB', 'dbname')
-    json_test_dir = get_test_json_dir()
-    container_dir = '%s/%s' % (json_test_dir, container)
-    logger.info(container_dir)
-    snapshot_files = get_json_files(container_dir, SNAPSHOT)
+    snapshot_dir, snapshot_files = get_container_snapshot_json_files(container)
     if not snapshot_files:
-        logger.info("No Snapshot files in %s, exiting!...",  container_dir)
+        logger.info("No Snapshot files in %s, exiting!...", snapshot_dir)
         return False
     logger.info('\n'.join(snapshot_files))
     for snapshot_file in snapshot_files:
@@ -197,10 +155,6 @@ def populate_snapshot(container):
             if not client_id:
                 logger.info("No client_id in the snapshot to access azure resuource!...")
                 continue
-            # Read sub_id and tenant_id from azureStructure.json, remove them from
-            # snapshot.json file.
-            # sub_id = get_field_value(snapshot, 'subscriptionId')
-            # tenant_id = get_field_value(snapshot, 'tenantId')
             logger.info('Sub:%s, tenant:%s, client: %s', sub_id, tenant_id, client_id)
             add_to_run_config('clientId', client_id)
             add_to_run_config('clientSecret', client_secret)
@@ -212,8 +166,6 @@ def populate_snapshot(container):
                 for node in snapshot['nodes']:
                     data = get_node(token, sub_id, node, snapshot_user)
                     if data:
-                        # Sort recursively the keys of data so that the document is represented in
-                        # same order.
                         insert_one_document(data, data['collection'], dbname)
                     logger.debug('Type: %s', type(data))
                 delete_from_run_config('clientId')
@@ -237,11 +189,6 @@ def get_node(token, sub_id, node, user):
         "collection": collection.replace('.', '').lower(),
         "json": {}
     }
-    # if node and 'type' in node:
-    #     if node['type'] == "Microsoft.Compute/availabilitySets":
-    #         version = '2018-06-01'
-    #     elif node['type'] == "Microsoft.Network/virtualNetworks":
-    #         version = '2018-07-01'
     version = get_version_for_type(node)
     if sub_id and token and node and node['path'] and version:
         hdrs = {
