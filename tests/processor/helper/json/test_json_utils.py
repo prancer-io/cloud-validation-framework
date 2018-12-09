@@ -151,7 +151,7 @@ def test_set_field_value():
     assert {'a': {'b': 'c'}} == get_field_value(data_new, 'm.n.o')
 
 
-def get_boolean():
+def test_get_boolean():
     assert False == get_boolean(None)
     assert False == get_boolean('False')
     assert True == get_boolean('true')
