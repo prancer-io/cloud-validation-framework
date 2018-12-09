@@ -9,7 +9,7 @@ import hashlib
 import time
 import pymongo
 from processor.helper.file.file_utils import check_filename
-from processor.helper.loglib.log_handler import getlogger
+from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import init_config, add_to_run_config,\
     delete_from_run_config,delete_run_config
 from processor.helper.comparison.interpreter import Comparator

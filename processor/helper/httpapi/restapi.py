@@ -13,7 +13,7 @@ jsonhdr = {
 
 def json_delete_request(url, deldata=None, headers=None, log=False):
     "Delete method sends and accepts JSON format without basic authenication"
-    if log: print "Deleting %s  ......." % url
+    if log: print("Deleting %s  ......." % url)
     data = None
     st_code = None
     if headers:
@@ -25,7 +25,7 @@ def json_delete_request(url, deldata=None, headers=None, log=False):
             resp = requests.delete(url, data=json.dumps(deldata), headers=headers)
         else:
             resp = requests.delete(url, headers=headers)
-        if log: print "Get response: %s" % resp
+        if log: print("Get response: %s" % resp)
         st_code = resp.status_code
         try:
             data = resp.json()
@@ -38,7 +38,7 @@ def json_delete_request(url, deldata=None, headers=None, log=False):
 
 def json_get_request(url, headers=None, log=False):
     "Get method sends and accepts JSON format without basic authenication"
-    if log: print "Getting %s  ......." % url
+    if log: print("Getting %s  ......." % url)
     data = None
     st_code = None
     if headers:
@@ -47,7 +47,7 @@ def json_get_request(url, headers=None, log=False):
         headers = jsonhdr
     if url: #Do something only valid URL
         resp = requests.get(url, headers=headers)
-        if log: print "Get response: %s" % resp
+        if log: print("Get response: %s" % resp)
         st_code = resp.status_code
         try:
             data = resp.json()
@@ -60,7 +60,7 @@ def json_get_request(url, headers=None, log=False):
 
 def json_put_request(url, mapdata, headers=None, log=False):
     "Put method sends and accepts JSON format without basic authenication"
-    if log: print "Putting %s  ......." % url
+    if log: print("Putting %s  ......." % url)
     data = None
     st_code = None
     if headers:
@@ -69,7 +69,7 @@ def json_put_request(url, mapdata, headers=None, log=False):
         headers = jsonhdr
     if url: #Do something only valid URL
         resp = requests.put(url, data=json.dumps(mapdata), headers=headers)
-        if log: print "Get response: %s" % resp
+        if log: print("Get response: %s" % resp)
         st_code = resp.status_code
         try:
             data = resp.json()
@@ -82,7 +82,7 @@ def json_put_request(url, mapdata, headers=None, log=False):
 
 def json_post_request(url, mapdata, headers=None, log=False):
     "Post method sends and accepts JSON format without basic authenication"
-    if log: print "Posting %s  ......." % url
+    if log: print("Posting %s  ......." % url)
     data = None
     st_code = None
     if headers:
@@ -91,7 +91,7 @@ def json_post_request(url, mapdata, headers=None, log=False):
         headers = jsonhdr
     if url: #Do something only valid URL
         resp = requests.post(url, data=json.dumps(mapdata), headers=headers)
-        if log: print "Get response: %s" % resp
+        if log: print("Get response: %s" % resp)
         st_code = resp.status_code
         try:
             data = resp.json()

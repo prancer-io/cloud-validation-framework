@@ -1,7 +1,7 @@
 import collections
 import json
 import hashlib
-from pymongo import MongoClient, ASCENDING
+from pymongo import MongoClient
 from bson.objectid import ObjectId
 
 MONGO = None

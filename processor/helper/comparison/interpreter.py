@@ -6,7 +6,7 @@ instantiation to subclasses.
 import re
 from processor.helper.comparison.comparison_functions import equality,\
     less_than, less_than_equal,greater_than, greater_than_equal, exists
-from processor.helper.loglib.log_handler import getlogger
+from processor.logging.log_handler import getlogger
 
 
 logger = getlogger()

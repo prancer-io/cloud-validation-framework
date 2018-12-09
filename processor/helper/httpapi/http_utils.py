@@ -5,7 +5,7 @@ import json
 from urllib import request, parse
 from urllib.error import HTTPError
 from processor.helper.json.json_utils import load_json_input
-from processor.helper.loglib.log_handler import getlogger
+from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import add_to_run_config
 
 logger = getlogger()

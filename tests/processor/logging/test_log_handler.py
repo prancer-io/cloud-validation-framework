@@ -1,4 +1,4 @@
-from processor.helper.loglib.log_handler import getlogger
+from processor.logging.log_handler import getlogger
 
 
 def test_getlogger():

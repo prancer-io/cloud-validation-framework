@@ -3,7 +3,7 @@
 """
 
 import os
-from processor.helper.loglib.log_handler import getlogger
+from processor.logging.log_handler import getlogger
 from processor.helper.file.file_utils import check_filename
 from processor.helper.config.rundata_utils import get_from_run_config, add_to_run_config
 from processor.helper.httpapi.http_utils import http_post_request

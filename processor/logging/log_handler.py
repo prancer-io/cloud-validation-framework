@@ -47,8 +47,8 @@ def setup_logging(configfile, ):
     if True:
         from logging.handlers import RotatingFileHandler
         logpath = '%slog/' % get_solution_dir()
-        if not os.path.exists(logpath):
-            os.mkdir(logpath)
+        # if not os.path.exists(logpath):
+        #     os.mkdir(logpath)
         LOGFILENAME = '%s%s.log' % (logpath, datetime.datetime.today().strftime(LOGFILE))
         handler = RotatingFileHandler(
             LOGFILENAME,

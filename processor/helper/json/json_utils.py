@@ -8,7 +8,7 @@ import glob
 from collections import OrderedDict
 from processor.helper.file.file_utils import check_filename
 from processor.helper.config.config_utils import get_test_json_dir
-from processor.helper.loglib.log_handler import getlogger
+from processor.logging.log_handler import getlogger
 
 SNAPSHOT = 'snapshot'
 logger = getlogger()
