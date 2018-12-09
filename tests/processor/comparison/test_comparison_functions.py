@@ -1,7 +1,7 @@
 import pytest
 import os.path
 import tempfile
-from processor.helper.comparison.comparison_functions import apply_extras, equality,\
+from processor.comparison.comparison_functions import apply_extras, equality,\
     less_than, less_than_equal, greater_than, greater_than_equal, exists
 
 extras = ['len']

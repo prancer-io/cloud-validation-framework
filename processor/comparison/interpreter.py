@@ -4,7 +4,7 @@ which class to instantiate. Factory Method lets a class defer
 instantiation to subclasses.
 """
 import re
-from processor.helper.comparison.comparison_functions import equality,\
+from processor.comparison.comparison_functions import equality,\
     less_than, less_than_equal,greater_than, greater_than_equal, exists
 from processor.logging.log_handler import getlogger
 
