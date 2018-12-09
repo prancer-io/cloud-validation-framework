@@ -12,7 +12,7 @@ from processor.helper.file.file_utils import check_filename
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import init_config, add_to_run_config,\
     delete_from_run_config,delete_run_config
-from processor.helper.comparison.interpreter import Comparator
+from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
     load_json, dump_output_results, get_container_snapshot_json_files
 from processor.helper.httpapi.restapi_azure import get_access_token, get_web_client_data
