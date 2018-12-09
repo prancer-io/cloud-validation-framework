@@ -35,6 +35,19 @@ def create_temp_json():
     return  create_test_temp_json
 
 
+@pytest.fixture
+def create_temp_text():
+
+    def create_test_temp_text(path):
+        fname = 'a1.txt'
+        fullname = '%s/%s' % (path, fname)
+        with open(fullname, 'w') as f:
+            f.write('abcd')
+        return fname
+
+    return create_test_temp_text
+
+
 def test_dump_json(create_temp_dir):
     newpath = create_temp_dir()
     fname = '%s/a1.json' % newpath
@@ -52,14 +65,20 @@ def test_dump_json(create_temp_dir):
     os.remove(fname)
 
 
-def test_load_json(create_temp_dir, create_temp_json):
+def test_load_json(create_temp_dir, create_temp_json, create_temp_text):
     newpath = create_temp_dir()
+    fname = create_temp_text(newpath)
+    fullpath = '%s/%s' % (newpath, fname)
+    file_exists = os.path.exists(fullpath)
+    assert True == file_exists
+    json_data = load_json(fullpath)
+    assert json_data is None
     fname = create_temp_json(newpath)
     fullpath = '%s/%s' % (newpath, fname)
     file_exists = os.path.exists(fullpath)
     assert True == file_exists
     json_data = load_json(fullpath)
-    assert  json_data is not None
+    assert json_data is not None
     assert isinstance(json_data, collections.OrderedDict)
     json_data = load_json(None)
     assert json_data is None

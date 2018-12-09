@@ -53,17 +53,17 @@ def get_test_json_dir():
     return test_path.replace('//', '/')
 
 
-def main():
-    print(get_config_ini())
-    sol_dir = get_solution_dir()
-    print(sol_dir)
-    cfg_file = '%srealm/config.ini' % sol_dir
-    print(cfg_file)
-    cfg_data = load_config(cfg_file)
-    print(cfg_data)
-    print(get_config('DEFAULT', 'subscription'))
-
-
-if __name__ == "__main__":
-    main()
+# def main():
+#     print(get_config_ini())
+#     sol_dir = get_solution_dir()
+#     print(sol_dir)
+#     cfg_file = '%srealm/config.ini' % sol_dir
+#     print(cfg_file)
+#     cfg_data = load_config(cfg_file)
+#     print(cfg_data)
+#     print(get_config('DEFAULT', 'subscription'))
+#
+#
+# if __name__ == "__main__":
+#     main()
 
