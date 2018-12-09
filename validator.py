@@ -115,7 +115,7 @@ def run_validator_tests(container):
 def get_version_for_type(node):
     version = None
     logger.info("Get type's version")
-    apiversions_file = '%s/../apiVersions.json' % get_test_json_dir()
+    apiversions_file = '%s/../azureApiVersions.json' % get_test_json_dir()
     logger.info(apiversions_file)
     if check_filename(apiversions_file):
         apiversions = load_json(apiversions_file)
@@ -153,7 +153,7 @@ def populate_snapshot(container):
             client_id, client_secret, sub_id, tenant_id = \
                 get_web_client_data(snapshot_type, snapshot_source, snapshot_user)
             if not client_id:
-                logger.info("No client_id in the snapshot to access azure resuource!...")
+                logger.info("No client_id in the snapshot to access azure resource!...")
                 continue
             logger.info('Sub:%s, tenant:%s, client: %s', sub_id, tenant_id, client_id)
             add_to_run_config('clientId', client_id)

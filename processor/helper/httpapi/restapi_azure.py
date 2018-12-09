@@ -48,7 +48,7 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
                                     client_id = get_field_value(user, 'client_id')
                                     client_secret = get_field_value(user, 'client_secret')
                                     sub_id = get_field_value(subscription, 'subscription_id')
-                                    tenant_id = get_field_value(subscription, 'tenant_id')
+                                    tenant_id = get_field_value(account, 'tenant_id')
                                     found = True
                                 if found:
                                     break
