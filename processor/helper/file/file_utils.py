@@ -23,5 +23,6 @@ def delete_file(filename):
     """Delete filename, not checking the existence of the file."""
     try:
         os.remove(filename)
+        return True
     except:
-        pass
+        return False

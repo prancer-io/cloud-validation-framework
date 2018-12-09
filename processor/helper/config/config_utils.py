@@ -5,8 +5,10 @@ import configparser
 import os
 from processor.helper.file.file_utils import check_filename
 
-SOLUTIONDIR = os.getenv('SOLUTIONDIR', os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                                    '../../../'))
+SOLUTIONDIR = os.getenv('SOLUTIONDIR',
+                        os.path.join(
+                            os.path.abspath(os.path.dirname(__file__)),
+                            '../../../'))
 CONFIGINI = '%srealm/config.ini' % SOLUTIONDIR
 RUNCONFIG = '%srundata/rundata' % SOLUTIONDIR
 
@@ -30,15 +32,15 @@ def load_config(config_file):
     return config
 
 
-def get_subscription_file(parentdir=False):
-    """ Return the subscription file"""
-    env_subscription_file = os.getenv('SUBSCRIPTION', None)
-    if env_subscription_file:
-        file_path = '%s/%s' % (SOLUTIONDIR, env_subscription_file)
-        parameter_file = file_path if parentdir else env_subscription_file
-    else:
-        parameter_file = get_config('DEFAULT', 'subscription', parentdir=parentdir)
-    return parameter_file.replace('//', '/')
+# def get_subscription_file(parentdir=False):
+#     """ Return the subscription file"""
+#     env_subscription_file = os.getenv('SUBSCRIPTION', None)
+#     if env_subscription_file:
+#         file_path = '%s/%s' % (SOLUTIONDIR, env_subscription_file)
+#         parameter_file = file_path if parentdir else env_subscription_file
+#     else:
+#         parameter_file = get_config('DEFAULT', 'subscription', parentdir=parentdir)
+#     return parameter_file.replace('//', '/')
 
 
 def get_config(section, key, configfile=CONFIGINI, default=None, parentdir=False):
@@ -46,7 +48,7 @@ def get_config(section, key, configfile=CONFIGINI, default=None, parentdir=False
     config = load_config(configfile)
     retval = default
     if config and section in config:
-        retval = config.get(section, key)
+        retval = config.get(section, key, fallback=default)
     if retval and parentdir:
         return '%s/%s' % (SOLUTIONDIR, retval)
     return retval
@@ -62,11 +64,11 @@ def get_test_json_dir():
     return test_path.replace('//', '/')
 
 
-def get_parameter_file(container, filename):
-    """ Create the absolute path for the filename based on the input parameters."""
-    test_dir = get_test_json_dir()
-    parameterfile = '%s/%s/%s' % (test_dir, container, filename)
-    return parameterfile.replace('//', '/')
+# def get_parameter_file(container, filename):
+#     """ Create the absolute path for the filename based on the input parameters."""
+#     test_dir = get_test_json_dir()
+#     parameterfile = '%s/%s/%s' % (test_dir, container, filename)
+#     return parameterfile.replace('//', '/')
 
 
 def main():
@@ -75,11 +77,13 @@ def main():
     print(sol_dir)
     cfg_file = '%srealm/config.ini' % sol_dir
     print(cfg_file)
-    sub_file = get_subscription_file()
-    print(sub_file)
-    sub_file = get_subscription_file(True)
-    print(sub_file)
-    print(get_parameter_file('container1', 'test1.json'))
+    cfg_data = load_config(cfg_file)
+    print(cfg_data)
+    # sub_file = get_subscription_file()
+    # print(sub_file)
+    # sub_file = get_subscription_file(True)
+    # print(sub_file)
+    # print(get_parameter_file('container1', 'test1.json'))
     print(get_config('DEFAULT', 'subscription'))
 
 
