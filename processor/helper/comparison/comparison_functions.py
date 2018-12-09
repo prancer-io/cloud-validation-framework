@@ -5,7 +5,7 @@ from processor.helper.json.json_utils import check_field_exists, get_field_value
 def apply_extras(value, extras):
     for extra in extras:
         if extra == 'len':
-            value = len(value)
+            value = len(value) if hasattr(value, 'len') or hasattr(value, '__len__') else 0
     return value
 
 
@@ -27,7 +27,7 @@ def less_than(data, loperand, roperand, is_not=False, extras=None):
     """ Compare and return value """
     value = get_field_value(data, loperand)
     lt = False
-    if value and value < roperand:
+    if value:
         if extras:
             value = apply_extras(value, extras)
         if value < roperand:
@@ -55,7 +55,7 @@ def greater_than(data, loperand, roperand, is_not=False, extras=None):
     """ Compare and return value """
     value = get_field_value(data, loperand)
     gt = False
-    if value and value > roperand:
+    if value:
         if extras:
             value = apply_extras(value, extras)
         if value > roperand:
@@ -69,7 +69,7 @@ def greater_than_equal(data, loperand, roperand, is_not=False, extras=None):
     """ Compare and return value """
     value = get_field_value(data, loperand)
     gte = False
-    if value and value >= roperand:
+    if value:
         if extras:
             value = apply_extras(value, extras)
         if value >= roperand:
