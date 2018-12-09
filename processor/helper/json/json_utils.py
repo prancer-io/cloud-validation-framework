@@ -66,7 +66,7 @@ def check_field_exists(data, parameter):
             allfields = True
             for field in fields:
                 if curdata:
-                    if field in curdata:
+                    if field in curdata and isinstance(curdata, dict):
                         curdata = curdata[field]
                     else:
                         allfields = False
@@ -83,7 +83,7 @@ def get_field_value(data, parameter):
         retval = data
         for field in fields:
             if retval:
-                if field in retval:
+                if field in retval and isinstance(retval, dict):
                     retval = retval[field]
                 else:
                     retval = None

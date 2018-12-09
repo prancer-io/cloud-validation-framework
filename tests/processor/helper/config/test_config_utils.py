@@ -7,7 +7,7 @@ from processor.helper.config.config_utils import get_solution_dir, load_config,\
     get_config, get_test_json_dir
 
 
-TESTSDIR = os.getenv('SOLUTIONDIR',os.path.join(
+TESTSDIR = os.getenv('SOLUTIONDIR', os.path.join(
     os.path.abspath(os.path.dirname(__file__)), '../../../../'))
 
 
