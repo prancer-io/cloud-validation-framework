@@ -11,6 +11,8 @@ SOLUTIONDIR = os.getenv('SOLUTIONDIR',
                             '../../../'))
 CONFIGINI = '%srealm/config.ini' % SOLUTIONDIR
 RUNCONFIG = '%srundata/rundata' % SOLUTIONDIR
+DATABASE = 'MONGODB'
+DBNAME = 'dbname'
 
 
 def get_config_ini():

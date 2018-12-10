@@ -8,7 +8,7 @@ from tests.conftest import TESTSDIR
 from processor.helper.json.json_utils import dump_json, load_json,\
     load_json_input, is_json, check_field_exists, get_field_value, set_field_value,\
     get_boolean, set_timestamp, get_container_dir, get_container_snapshot_json_files,\
-    get_json_files, dump_output_results
+    get_json_files, dump_output_results1
 
 data_dict = {'a': 'b', 'c': {'d': 'e'}, 'f': {'g': {'h': 1}}}
 
@@ -211,7 +211,7 @@ def test_dump_output_results():
     file_exists = os.path.exists(outputtest_file)
     if file_exists:
         os.remove(outputtest_file)
-    dump_output_results([], test_file, container)
+    dump_output_results1([], test_file, container)
     file_exists = os.path.exists(outputtest_file)
     assert True == file_exists
     os.remove(outputtest_file)

@@ -146,7 +146,7 @@ def get_json_files(json_dir, filetype):
     return file_list
 
 
-def dump_output_results(results, test_file, container):
+def dump_output_results1(results, test_file, container):
     test_file_parts = test_file.rsplit('/', 1)
     output_file = '%s/%s/output-%s' % (get_test_json_dir(), container, test_file_parts[-1])
     od = OrderedDict()

@@ -1,10 +1,13 @@
 import collections
 import json
 import hashlib
-from pymongo import MongoClient
+from pymongo import MongoClient, TEXT
 from bson.objectid import ObjectId
+from processor.helper.config.config_utils import get_config
+
 
 MONGO = None
+COLLECTION = 'resources'
 
 
 def mongoconnection(dbport=27017):
@@ -14,6 +17,7 @@ def mongoconnection(dbport=27017):
         MONGO = MongoClient(port=dbport)
     return MONGO
 
+
 def mongodb(dbname=None):
    """ Get the dbhandle for the database, if none then default database, 'test' """
    dbconnection = mongoconnection()
@@ -22,6 +26,11 @@ def mongodb(dbname=None):
    else:
       db = dbconnection['test']
    return db
+
+
+def init_db():
+    dbname = get_config('MONGODB', 'dbname')
+    create_indexes(COLLECTION, dbname, [('timestamp', TEXT)])
 
 
 def get_collection(dbname, collection):
