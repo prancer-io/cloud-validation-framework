@@ -16,7 +16,7 @@ def equality(data, loperand, roperand, is_not=False, extras=None):
     if value:
         if extras:
             value = apply_extras(value, extras)
-        if value == roperand:
+        if type(value) == type(roperand) and value == roperand:
             eql = True
     if is_not:
         eql = not eql
@@ -30,7 +30,7 @@ def less_than(data, loperand, roperand, is_not=False, extras=None):
     if value:
         if extras:
             value = apply_extras(value, extras)
-        if value < roperand:
+        if type(value) == type(roperand) and value < roperand:
             lt = True
     if is_not:
          lt = not lt
@@ -44,7 +44,7 @@ def less_than_equal(data, loperand, roperand, is_not=False, extras=None):
     if value:
         if extras:
             value = apply_extras(value, extras)
-        if value <= roperand:
+        if type(value) == type(roperand) and value <= roperand:
             lte = True
     if is_not:
         lte = not lte
@@ -58,7 +58,7 @@ def greater_than(data, loperand, roperand, is_not=False, extras=None):
     if value:
         if extras:
             value = apply_extras(value, extras)
-        if value > roperand:
+        if type(value) == type(roperand) and value > roperand:
             gt = True
     if is_not:
         gt = not gt
@@ -72,7 +72,7 @@ def greater_than_equal(data, loperand, roperand, is_not=False, extras=None):
     if value:
         if extras:
             value = apply_extras(value, extras)
-        if value >= roperand:
+        if type(value) == type(roperand) and value >= roperand:
             gte = True
     if is_not:
         gte = not gte

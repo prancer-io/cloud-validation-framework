@@ -88,7 +88,7 @@ def test_get_config():
 
 
 def test_get_test_json_dir():
-    test_dir = os.getenv('TESTDIR', '/realm/azure/validation/')
+    test_dir = os.getenv('TESTDIR', '/realm/validation/')
     val_dir = '%s/%s' % (TESTSDIR, test_dir)
     os.chdir(val_dir)
     tests_curdir = os.getcwd()

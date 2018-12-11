@@ -50,7 +50,7 @@ def get_test_json_dir():
     soln_dir = get_solution_dir()
     env_test_dir = os.getenv('TESTDIR', None)
     if not env_test_dir:
-        env_test_dir = "/realm/azure/validation/"
+        env_test_dir = "/realm/validation/"
     test_path = '%s/%s' % (soln_dir, env_test_dir)
     return test_path.replace('//', '/')
 

@@ -178,7 +178,7 @@ def test_set_timestamp():
 
 def test_get_container_dir():
     container = 'container1'
-    mytest_dir = '%s/realm/azure/validation/%s' % (TESTSDIR, container)
+    mytest_dir = '%s/realm/validation/%s' % (TESTSDIR, container)
     os.chdir(mytest_dir)
     mytest_curdir = os.getcwd()
     test_dir = get_container_dir(container)
@@ -195,7 +195,7 @@ def test_get_container_snapshot_json_files():
 
 def test_get_json_files():
     container = 'container1'
-    mytest_dir = '%s/realm/azure/validation/%s' % (TESTSDIR, container)
+    mytest_dir = '%s/realm/validation/%s' % (TESTSDIR, container)
     files = get_json_files(mytest_dir, 'snapshot')
     assert True == isinstance(files, list)
     files = get_json_files(mytest_dir, 'test')
@@ -206,8 +206,8 @@ def test_get_json_files():
 
 def test_dump_output_results():
     container = 'container1'
-    test_file = '%s/realm/azure/validation/%s/test1.json' % (TESTSDIR, container)
-    outputtest_file = '%s/realm/azure/validation/%s/output-test1.json' % (TESTSDIR, container)
+    test_file = '%s/realm/validation/%s/test1.json' % (TESTSDIR, container)
+    outputtest_file = '%s/realm/validation/%s/output-test1.json' % (TESTSDIR, container)
     file_exists = os.path.exists(outputtest_file)
     if file_exists:
         os.remove(outputtest_file)
