@@ -121,10 +121,12 @@ class Comparator:
             return Comparator_v0_1(data, loperand, value)
 
     def validate(self):
-        try:
-            return self.comparator.validate()
-        except:
-            return False
+        return self.comparator.validate()
+
+        # try:
+        #     return self.comparator.validate()
+        # except:
+        #     return False
 
 
 class Comparator_v0_1:
@@ -149,49 +151,49 @@ class Comparator_v0_2(Comparator_v0_1):
     Override the validate method to run the comparisons
     """
     def __init__(self, data, loperand, value):
-        super(data, loperand, value)
+        Comparator_v0_1.__init__(self, data, loperand, value)
 
     def validate(self):
-        return super(Comparator_v0_1, self).validate()
+        return Comparator_v0_1.validate(self)
 
 
-def main():
-    comparator = Comparator('0.1', {'a': 'b'}, 'a', 'exist')
-    print(type(comparator))
-    print(type(comparator.comparator))
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b'}, 'b', 'exist')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b'}, 'b', 'not exist')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c':{'d': 1}}, 'c.e', 'not exist')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 1}}, 'c.d', 'not exist')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 1}}, 'c.d', 'exist')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 10}}, 'c.d', 'gt 10')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 10}}, 'c.d', 'eq 10')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 10}}, 'c.d', 'neq 5')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'eq "eastus"')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'eq len(7)')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'neq len(7)')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'gt len(7)')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'gte len(7)')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'lt len(7)')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'lte len(7)')
-    print(comparator.validate())
-    comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', "eq '{2}.location'")
-    print(comparator.validate())
-
-if __name__ == "__main__":
-    main()
+# def main():
+#     comparator = Comparator('0.1', {'a': 'b'}, 'a', 'exist')
+#     print(type(comparator))
+#     print(type(comparator.comparator))
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b'}, 'b', 'exist')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b'}, 'b', 'not exist')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c':{'d': 1}}, 'c.e', 'not exist')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 1}}, 'c.d', 'not exist')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 1}}, 'c.d', 'exist')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 10}}, 'c.d', 'gt 10')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 10}}, 'c.d', 'eq 10')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 10}}, 'c.d', 'neq 5')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'eq "eastus"')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'eq len(7)')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'neq len(7)')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'gt len(7)')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'gte len(7)')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'lt len(7)')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'lte len(7)')
+#     print(comparator.validate())
+#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', "eq '{2}.location'")
+#     print(comparator.validate())
+#
+# if __name__ == "__main__":
+#     main()

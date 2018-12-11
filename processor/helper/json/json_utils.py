@@ -115,7 +115,7 @@ def get_boolean(val):
 
 def set_timestamp(json_data, fieldname='timestamp'):
     """Set the current timestamp for the object."""
-    if not json_data or not isinstance(json_data, dict):
+    if not isinstance(json_data, dict):
         return False
     timestamp = int(time.time() * 1000)
     json_data[fieldname] = timestamp

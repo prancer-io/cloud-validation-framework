@@ -12,14 +12,14 @@ from processor.helper.json.json_utils import dump_json, load_json,\
 
 data_dict = {'a': 'b', 'c': {'d': 'e'}, 'f': {'g': {'h': 1}}}
 
-@pytest.fixture
-def create_temp_dir():
-
-    def create_test_temp_dir():
-        newpath = tempfile.mkdtemp()
-        return newpath
-
-    return create_test_temp_dir
+# @pytest.fixture
+# def create_temp_dir():
+#
+#     def create_test_temp_dir():
+#         newpath = tempfile.mkdtemp()
+#         return newpath
+#
+#     return create_test_temp_dir
 
 
 @pytest.fixture
@@ -161,7 +161,7 @@ def test_get_boolean():
 def test_set_timestamp():
     assert False == set_timestamp(None)
     assert False == set_timestamp([1,2,3])
-    assert False == set_timestamp({})
+    assert True == set_timestamp({})
     time_data = {'a': 1}
     assert True == set_timestamp(time_data)
     ts_exists = True if 'timestamp' in time_data and \

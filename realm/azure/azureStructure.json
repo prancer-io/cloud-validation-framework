@@ -1,9 +1,9 @@
 {
     "companyName": "abcd",
+    "tenant_id": "3959230b-8fb3-4957-baf4-85bd4c26239d",
     "accounts": [
         {
             "department": "abc",
-            "tenant_id": "3959230b-8fb3-4957-baf4-85bd4c26239d",
             "subscription": [
                 {
                     "subscription_name": "Prod",
