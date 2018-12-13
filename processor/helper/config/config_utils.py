@@ -48,9 +48,10 @@ def get_config(section, key, configfile=CONFIGINI, default=None, parentdir=False
 def get_test_json_dir():
     """ Path to check and run the tests from the test containers."""
     soln_dir = get_solution_dir()
-    env_test_dir = os.getenv('TESTDIR', None)
-    if not env_test_dir:
-        env_test_dir = "/realm/validation/"
+    env_test_dir = get_config('TESTS', 'containerFolder')
+    #env_test_dir = os.getenv('TESTDIR', None)
+    #if not env_test_dir:
+    #    env_test_dir = "/realm/validation/"
     test_path = '%s/%s' % (soln_dir, env_test_dir)
     return test_path.replace('//', '/')
 

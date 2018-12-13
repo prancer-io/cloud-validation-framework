@@ -6,11 +6,13 @@ from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_field_value, load_json,\
     get_container_snapshot_json_files
 from processor.connector.snapshot_azure import populate_azure_snapshot
+from processor.connector.snapshot_custom import populate_custom_snapshot
 
 
 logger = getlogger()
 snapshot_fns = {
-    'azure': populate_azure_snapshot
+    'azure': populate_azure_snapshot,
+    'custom': populate_custom_snapshot
 }
 
 

@@ -10,7 +10,7 @@ from processor.helper.config.rundata_utils import add_to_run_config, delete_from
 from processor.helper.json.json_utils import get_field_value, load_json
 from processor.helper.httpapi.restapi_azure import get_access_token, get_web_client_data
 from processor.helper.httpapi.http_utils import http_get_request
-from processor.helper.config.config_utils import get_config, get_test_json_dir
+from processor.helper.config.config_utils import get_config, get_solution_dir
 from processor.database.database import insert_one_document, COLLECTION
 
 
@@ -21,7 +21,7 @@ def get_version_for_type(node):
     """Url version of the resource."""
     version = None
     logger.info("Get type's version")
-    apiversions_file = '%s/../azureApiVersions.json' % get_test_json_dir()
+    apiversions_file = '%s/%s' % (get_solution_dir(), get_config('AZURE', 'api'))
     logger.info(apiversions_file)
     if check_filename(apiversions_file):
         apiversions = load_json(apiversions_file)
