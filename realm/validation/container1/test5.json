@@ -6,18 +6,30 @@
     "testSet": [
         {
             "testName": "test5",
-            "version":"0.1",
+            "version": "0.1",
             "cases": [
                 {
                     "testId": "1",
-                    "rule": "count({1}.firewall.rules[])=13"
+                    "rule":"exist({1}.location)"
                 },
                 {
                     "testId": "2",
-                    "rule": "{1}.firewall.rules['name'='rule1'].port=443"
+                    "rule": "exist({1}.firewall.rules[])"
                 },
                 {
                     "testId": "3",
+                    "rule": "count({1}.firewall.rules[])=13"
+                },
+                {
+                    "testId": "4",
+                    "rule": "count({1}.firewall.rules[]+{2}.firewall.rules[])=13"
+                },
+                {
+                    "testId": "5",
+                    "rule": "{1}.firewall.rules['name'='rule1'].port=443"
+                },
+                {
+                    "testId": "6",
                     "rule": "{1}.firewall.rules['name'='rule1'].port={2}.firewall.rules['name'='rule1'].port"
                 }
             ]
