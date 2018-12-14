@@ -4,8 +4,10 @@
 import json
 import hashlib
 import time
+import os
 from git import Repo
-from processor.helper.file.file_utils import check_filename
+from git import Git
+from processor.helper.file.file_utils import check_filename, check_directory, mkdir_parents
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_field_value, load_json
 from processor.helper.config.config_utils import get_config, get_test_json_dir
@@ -42,7 +44,7 @@ def get_node(repopath, node):
     return db_record
 
 
-def populate_custom_snapshot(snapshot, snapshot_type='custom'):
+def populate_custom_snapshot(snapshot):
     """ Populates the resources from git."""
     dbname = get_config('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
@@ -55,14 +57,47 @@ def populate_custom_snapshot(snapshot, snapshot_type='custom'):
             # print(sub_data)
             giturl = get_field_value(sub_data, 'gitProvider')
             repopath = get_field_value(sub_data, 'repoCloneAddress')
+            ssh_key_file = get_field_value(sub_data, 'sshKeyfile')
             brnch = get_field_value(sub_data, 'branchName')
-            repo = Repo.clone_from(giturl, repopath, branch=brnch)
-            if repo:
-                for node in snapshot['nodes']:
-                    logger.info(node)
-                    data = get_node(repopath, node)
-                    if data:
-                        insert_one_document(data, data['collection'], dbname)
-                return True
+            exists, empty = valid_clone_dir(repopath)
+            if exists and empty:
+                try:
+                    if ssh_key_file and check_filename(ssh_key_file):
+                        git_ssh_cmd = 'ssh -i %s' % ssh_key_file
+                        with Git().custom_environment(GIT_SSH_COMMAND=git_ssh_cmd):
+                            Repo.clone_from(giturl, repopath, branch=brnch)
+                    else:
+                        repo = Repo.clone_from(giturl, repopath, branch=brnch)
+                except Exception as ex:
+                    logger.info('Unable to clone the repo: %s', ex)
+                    repo = None
+                if repo:
+                    for node in snapshot['nodes']:
+                        logger.info(node)
+                        data = get_node(repopath, node)
+                        if data:
+                            insert_one_document(data, data['collection'], dbname)
+                    return True
+            elif exists and not empty:
+                try:
+                    Repo(repopath)
+                    logger.info("A repository exists in this directory: %s", repopath)
+                except:
+                    logger.info("A non-empty directory, clean it and run: %s", repopath)
     return False
 
+
+def valid_clone_dir(dirname):
+    if check_directory(dirname):
+        exists = True
+        if not os.listdir(dirname):
+            empty = True
+        else:
+            empty = False
+    else:
+        exists = mkdir_parents(dirname)
+        if exists and not os.listdir(dirname):
+            empty = True
+        else:
+            empty = False
+    return exists, empty

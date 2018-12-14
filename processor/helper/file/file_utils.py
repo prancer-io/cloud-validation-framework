@@ -26,3 +26,11 @@ def delete_file(filename):
         return True
     except:
         return False
+
+
+def mkdir_parents(dirpath):
+    try:
+        os.makedirs(dirpath)
+        return  check_directory(dirpath)
+    except OSError as exc:  # Python >2.5
+        return False
