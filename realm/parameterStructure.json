@@ -1,7 +1,7 @@
 {
     "companyName": "abcd",
-    "gitProvider": "github",
-    "repoCloneAddress":"",
-    "branchName":"dev",
+    "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
+    "repoCloneAddress":"/tmp/d",
+    "branchName":"master",
     "username":""
 }

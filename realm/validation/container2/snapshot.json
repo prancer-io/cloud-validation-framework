@@ -1,0 +1,23 @@
+{
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "fileType":"snapshot",
+    "snapshots": [
+        {
+            "source": "parameterStructure.json",
+            "type": "custom",
+            "nodes": [
+                {
+                    "snapshotId": "3",
+                    "collection": "Microsoft.Keyvault",
+                    "path": "realm/azure/validation/container1/sample-db-record.json"
+                },
+                {
+                    "snapshotId": "4",
+                    "collection": "custom",
+                    "path": "realm/azure/azureStructure.json"
+                }
+            ]
+        }
+    ]
+}

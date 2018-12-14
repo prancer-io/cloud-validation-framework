@@ -8,7 +8,7 @@ from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
     load_json
 from processor.helper.config.config_utils import get_config, get_test_json_dir,\
-    DATABASE, DBNAME
+    DATABASE, DBNAME, get_solution_dir
 from processor.database.database import get_documents, create_indexes, COLLECTION
 from processor.reporting.json_output import dump_output_results
 
@@ -94,7 +94,8 @@ def run_file_validation_tests(test_file, container):
 
 def run_container_validation_tests(container):
     logger.info("Starting validation tests")
-    json_dir = '%s/%s' % (get_test_json_dir(), container)
+    reporting_path = get_config('REPORTING', 'reportOutputFolder')
+    json_dir = '%s/%s/%s' % (get_solution_dir(), reporting_path, container)
     logger.info(json_dir)
     test_files = get_json_files(json_dir, JSONTEST)
     logger.info('\n'.join(test_files))
