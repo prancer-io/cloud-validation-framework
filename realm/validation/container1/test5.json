@@ -1,0 +1,26 @@
+{
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "fileType": "test",
+    "snapshot": "snapshot.json",
+    "testSet": [
+        {
+            "testName": "test5",
+            "version":"0.1",
+            "cases": [
+                {
+                    "testId": "1",
+                    "rule": "count({1}.firewall.rules[])=13"
+                },
+                {
+                    "testId": "2",
+                    "rule": "{1}.firewall.rules['name'='rule1'].port=443"
+                },
+                {
+                    "testId": "3",
+                    "rule": "{1}.firewall.rules['name'='rule1'].port={2}.firewall.rules['name'='rule1'].port"
+                }
+            ]
+        }
+    ]
+}
