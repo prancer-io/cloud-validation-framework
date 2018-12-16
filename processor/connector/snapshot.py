@@ -16,7 +16,6 @@ snapshot_fns = {
 }
 
 
-
 def populate_snapshot(snapshot):
     snapshot_type = get_field_value(snapshot, 'type')
     if snapshot_type and snapshot_type in snapshot_fns:

@@ -4,13 +4,13 @@ import copy
 import os.path
 import collections
 import tempfile
-from tests.conftest import TESTSDIR
+from tests.conftest import TESTSDIR, data_dict
 from processor.helper.json.json_utils import dump_json, load_json,\
     load_json_input, is_json, check_field_exists, get_field_value, set_field_value,\
     get_boolean, set_timestamp, get_container_dir, get_container_snapshot_json_files,\
     get_json_files, dump_output_results1
 
-data_dict = {'a': 'b', 'c': {'d': 'e'}, 'f': {'g': {'h': 1}}}
+# data_dict = {'a': 'b', 'c': {'d': 'e'}, 'f': {'g': {'h': 1}}}
 
 # @pytest.fixture
 # def create_temp_dir():

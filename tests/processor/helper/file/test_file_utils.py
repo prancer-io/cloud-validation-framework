@@ -4,6 +4,7 @@ import tempfile
 from processor.helper.file.file_utils import check_directory
 from processor.helper.file.file_utils import check_filename
 from processor.helper.file.file_utils import delete_file
+from processor.helper.file.file_utils import mkdir_parents
 
 
 def mock_dirs():
@@ -54,7 +55,8 @@ def test_none_directory():
 def test_dir_exists(monkeypatch):
     monkeypatch.setattr(os.path, 'exists', mock_exists_dir_check)
     monkeypatch.setattr(os.path, 'isdir', mock_is_dir_check)
-    assert True == check_directory('/tmp')
+    assert True == check_directory('~/tmp')
+    assert True == check_directory('~/abc')
     assert False == check_directory('/xyz')
 
 
@@ -73,3 +75,10 @@ def test_delete_file(create_temp_file):
     fname = create_temp_file('a.txt')
     assert True == delete_file(fname)
     assert False == delete_file('/tmp/axzs')
+
+
+def test_mkdir_parents(create_temp_dir):
+    newpath = create_temp_dir()
+    assert True == mkdir_parents('%s/a/b/c' % newpath)
+    assert False == mkdir_parents('/a/b/c')
+

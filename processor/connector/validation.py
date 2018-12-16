@@ -54,6 +54,8 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname):
     snapshot_file = '%s/%s/%s' % (get_test_json_dir(), container, snapshot_file)
     snapshot_data = {}
     snapshot_json_data = load_json(snapshot_file)
+    if not snapshot_json_data:
+        return snapshot_data
     for snapshot in snapshot_json_data['snapshots']:
         for snode in snapshot['nodes']:
             collection = snode['collection'] if 'collection' in snode else COLLECTION
