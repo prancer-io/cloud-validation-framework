@@ -16,7 +16,7 @@ logger = getlogger()
 
 def dump_json(json_data, filename):
     """Dump json data in the filename"""
-    if json_data:
+    if json_data is not None:
         with open(filename, 'w') as jsonwrite:
             jsonwrite.write(json.dumps(json_data, indent=2))
 

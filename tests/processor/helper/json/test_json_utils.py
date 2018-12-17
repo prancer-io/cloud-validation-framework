@@ -55,7 +55,8 @@ def test_dump_json(create_temp_dir):
     assert False == file_exists
     dump_json({}, fname)
     file_exists = os.path.exists(fname)
-    assert False == file_exists
+    assert True == file_exists
+    os.remove(fname)
     dump_json(None, fname)
     file_exists = os.path.exists(fname)
     assert False == file_exists

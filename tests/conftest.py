@@ -30,3 +30,20 @@ def create_temp_json():
 
     return create_test_temp_json
 
+
+@pytest.fixture
+def load_json_file():
+
+    def get_json_data(filepath):
+        json_data = {}
+        if filepath and os.path.exists(filepath):
+            with open(filepath) as f:
+                try:
+                    json_data = json.loads(f.read())
+                except:
+                    json_data = {}
+        return json_data
+
+    return get_json_data
+
+

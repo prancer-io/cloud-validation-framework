@@ -5,10 +5,11 @@ import time
 import datetime
 import json
 import socket
+import os.path
 from processor.helper.config.config_utils import RUNCONFIG
 from processor.helper.json.json_utils import load_json, dump_json
 from processor.logging.log_handler import getlogger, LOGFILENAME
-from processor.helper.file.file_utils import delete_file
+from processor.helper.file.file_utils import delete_file, check_directory, mkdir_parents
 exclude_list = ['token', 'clientSecret']
 
 
@@ -17,6 +18,9 @@ logger = getlogger()
 
 def init_config():
     started = int(time.time() * 1000)
+    rundir = os.path.dirname(RUNCONFIG)
+    if not check_directory(rundir):
+        mkdir_parents(rundir)
     rundata = {
         'start': started,
         'end': started,
@@ -52,7 +56,7 @@ def delete_from_run_config(key):
 def get_from_run_config(key):
     """ Get the data for this key from the rundata"""
     data = None
-    runconfig = load_json(RUNCONFIG)
+    runconfig = get_run_config()
     if key and key in runconfig:
         data = runconfig[key]
     return data

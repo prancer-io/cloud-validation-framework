@@ -4,6 +4,8 @@
 import json
 import hashlib
 import time
+import tempfile
+import shutil
 import os
 from git import Repo
 from git import Git
@@ -56,9 +58,10 @@ def populate_custom_snapshot(snapshot):
         if sub_data:
             # print(sub_data)
             giturl = get_field_value(sub_data, 'gitProvider')
-            repopath = get_field_value(sub_data, 'repoCloneAddress')
+            # repopath = get_field_value(sub_data, 'repoCloneAddress')
             ssh_key_file = get_field_value(sub_data, 'sshKeyfile')
             brnch = get_field_value(sub_data, 'branchName')
+            repopath = tempfile.mkdtemp()
             exists, empty = valid_clone_dir(repopath)
             if exists and empty:
                 try:
@@ -77,6 +80,8 @@ def populate_custom_snapshot(snapshot):
                         data = get_node(repopath, node)
                         if data:
                             insert_one_document(data, data['collection'], dbname)
+                    if os.path.exists(repopath):
+                        shutil.rmtree(repopath)
                     return True
             elif exists and not empty:
                 try:

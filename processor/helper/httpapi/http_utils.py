@@ -40,12 +40,12 @@ def http_delete_request(url, deldata=None, headers=None):
                                      method='DELETE')
         else:
             urlreq = request.Request(url, headers=headers, method='DELETE')
-        urlresp = request.urlopen(urlreq)
-        respdata = urlresp.read()
-        logger.info("DELETE status: %d, response: %s", urlresp.status, respdata)
-        st_code = urlresp.status
-        check_and_add_error(st_code, "Delete Status: %d" % st_code)
         try:
+            urlresp = request.urlopen(urlreq)
+            respdata = urlresp.read()
+            logger.info("DELETE status: %d, response: %s", urlresp.status, respdata)
+            st_code = urlresp.status
+            check_and_add_error(st_code, "Delete Status: %d" % st_code)
             if isinstance(respdata, bytes):
                 respdata = respdata.decode()
             data = load_json_input(respdata)
@@ -99,12 +99,12 @@ def http_put_request(url, mapdata, headers=None):
         logger.info('PUT: data: %s', putdata)
         urlreq = request.Request(url, data=putdata, headers=headers,
                                  method='PUT')
-        urlresp = request.urlopen(urlreq)
-        respdata = urlresp.read()
-        logger.info("PUT status: %d, response: %s", urlresp.status, respdata)
-        st_code = urlresp.status
-        check_and_add_error(st_code, "Put Status: %d" % st_code)
         try:
+            urlresp = request.urlopen(urlreq)
+            respdata = urlresp.read()
+            logger.info("PUT status: %d, response: %s", urlresp.status, respdata)
+            st_code = urlresp.status
+            check_and_add_error(st_code, "Put Status: %d" % st_code)
             if isinstance(respdata, bytes):
                 respdata = respdata.decode()
             data = load_json_input(respdata)
@@ -120,10 +120,8 @@ def http_post_request(url, mapdata, headers=None, json_type=False):
     logger.info("Posting %s  .......", url)
     data = None
     st_code = None
-    # if headers:
-    #     headers = headers.update(hdrs)
-    # else:
-    #     headers = hdrs
+    if not headers:
+        headers = hdrs
     logger.info('POST: header: %s, url: %s', json.dumps(headers), url)
     if url: #Do something only valid URL
         try:
