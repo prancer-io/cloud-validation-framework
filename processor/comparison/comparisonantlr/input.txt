@@ -1,9 +1,22 @@
+count({1}.firewall.rules[]+{2}.firewall.rules[])=13
+{1}.firewall.rules['name'='rule1'].port={2}.firewall.rules['name'='rule1'].port
+count({1}.firewall.rules[])=count({2}.firewall.rules[])
+count(count({1}.firewall.rules[]) + count({1}.firewall.rules[]))=13
+
 exist({1}.location)
+exist({1}.firewall.location)
 exist({1}.firewall.rules[])
 count({1}.firewall.rules[])!=13
 count({1}.firewall.rules[])=13
-count({1}.firewall.rules[]+{2}.firewall.rules[])=13
+{1}.firewall.port=443
+{1}.location='eastus2'
+exist({1}.location)=FAlSE
+{1}.firewall.port   =    443
 {1}.firewall.rules['name'='rule1'].port=443
-{1}.firewall.rules[name=rule1].port=443
-{1}.firewall.rules['name'='rule1'].port={2}.firewall.rules['name'='rule1'].port
-count({1}.firewall.rules[])=count({2}.firewall.rules[])
+{1}.firewall.port={2}.firewall.port
+{1}.firewall.rules[0].port={2}.firewall.port
+exist({1}[0].location)
+exist({1}['name'='abc'])
+{1}.firewall.rules['name'='abc'].port={2}.firewall.port
+{1}.firewall.rules['name'='abc'].ports[2].port={2}.firewall.port
+{1}.firewall.cost=443.25

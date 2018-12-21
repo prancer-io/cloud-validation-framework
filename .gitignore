@@ -8,4 +8,6 @@ p3_requirements.txt
 python3env/*
 __pycache__
 *.pyc
+*.interp
+*.tokens
 configdata/mysubscription.json

@@ -6,11 +6,11 @@ grammar comparator;
 // It's a expression with expression, methodcall with or without comparison 
 expression
     : FMT1 (COMP FMT1)?
-    | FMT1 (COMP NUMBER)?
-    | FMT1 (COMP STRING)?
+    | FMT1 (COMP IPADDRESS|STRING)?
+    | FMT1 (COMP NUMBER|FNUMBER)?
     | FMT1 (COMP METHOD '(' FMT1 (OP FMT1)* ')')?
     | METHOD '(' FMT1 (OP FMT1)* ')' (COMP FMT1)?
-    | METHOD '(' FMT1 (OP FMT1)* ')' (COMP NUMBER)?
+    | METHOD '(' FMT1 (OP FMT1)* ')' (COMP NUMBER|FNUMBER)?
     | METHOD '(' FMT1 (OP FMT1)* ')' (COMP STRING)?
     | METHOD '(' FMT1 (OP FMT1)* ')' (COMP METHOD '(' FMT1 (OP FMT1)* ')')?
     ;
@@ -23,8 +23,7 @@ METHOD
 
 // Define operators between the expressions
 OP
-    : '*'
-    | '+'
+    : '+'
     ;
 
 // Define comparisons for the expression to be compared against with
@@ -40,7 +39,7 @@ COMP
 
 // Define the format of the expression to be parsed.
 FMT1
-    : '{' NUMBER '}' ('.' (ATTRFMT1|ATTRFMT2))+
+    : '{' NUMBER '}' (('.' (ATTRFMT1|ATTRFMT2))|ATTRFMT3)+
     ;
 
 // Define the attribute formats to access the objects.
@@ -52,19 +51,32 @@ ATTRFMT2
     : STRING ('[' (QUOTE)? STRING (QUOTE)?  '=' (QUOTE)? STRING (QUOTE)?']')?
     ;
 
+ATTRFMT3
+    :'['(NUMBER | ((QUOTE)? STRING (QUOTE)?  '=' (QUOTE)? STRING (QUOTE)?))?']'
+    ;
+
 
 // The regular expression starts with a letter
 // and may follow with any number of alphanumerical characters"
 STRING
-    : [a-zA-Z][a-zA-Z0-9]*
+    : [a-zA-Z][a-zA-Z0-9_]*
     ;
 
+QUOTESTRING
+    : QUOTE STRING QUOTE
+    ;
 
 // Number format regular expression
 NUMBER
-    : [1-9][0-9]*
+    : [0-9]+
     ;
 
+//Float Number format regular expression
+FNUMBER
+    : [0-9]+('.'[0-9]+)?
+    ;
+
+IPADDRESS : (QUOTE)?NUMBER '.' NUMBER '.' NUMBER '.' NUMBER ('/'NUMBER)?(QUOTE)?;
 
 QUOTE : '\'';
 
