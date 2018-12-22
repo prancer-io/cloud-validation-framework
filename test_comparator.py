@@ -49,14 +49,16 @@ def main(arg_vals=None):
         logger.debug('Number of Snapshot Documents: %s', len(docs))
         if docs and len(docs):
             doc = docs[0]['json']
-            logger.debug(json.dumps(doc, indent=2))
+            logger.info('#' * 80)
+            logger.info(json.dumps(doc, indent=2))
     test6 = '%s/test6.json' % get_container_dir(args.container)
     test6_json = load_json(test6)
     logger.debug(test6_json)
     otherdata = {'dbname': dbname, 'snapshots': snapshot_ids}
     for testcase in test6_json['testSet'][0]['cases']:
-        rulestr = testcase['rule']
-        main_comparator(rulestr, otherdata)
+        rulestr = get_field_value(testcase, 'rule')
+        if rulestr:
+            main_comparator(rulestr, otherdata)
 
 
 
@@ -91,7 +93,7 @@ def main_comparator(code, otherdata):
     stream = CommonTokenStream(lexer)
     parser = comparatorParser(stream)
     tree = parser.expression()
-    # print(tree.toStringTree(recog=parser))
+    print(tree.toStringTree(recog=parser))
     children = []
     for child in tree.getChildren():
         children.append((child.getText()))
@@ -104,7 +106,7 @@ def main_comparator(code, otherdata):
     # print('!' * 50)
     # # print(r_i.match_method(''.join(r_i.lhs)))
     # # print(r_i.match_method(''.join(r_i.rhs)))
-    # r_i.compare()
+    r_i.compare()
 
 
 if __name__ == '__main__':

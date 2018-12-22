@@ -142,17 +142,25 @@ class RuleInterpreter:
                 vals.append((value[last_idx:idx], ops))
                 last_idx = idx + 1
                 ops = child
+        if last_idx:
+            vals.append((value[last_idx:], ops))
         if not vals:
             vals.append((value, None))
         for val in vals:
             expression_val = self.eval_expression(''.join(val[0]))
             if val[1]:
-                # retval = self.apply_op(val[1], retval, expression_val)
-                retval = expression_val
+                retval = self.apply_op(val[1], retval, expression_val)
+                # retval = expression_val
             else:
                 retval = expression_val
         return retval
 
+    def apply_op(self, op, val1, val2):
+        if op in OPS and val1 and val2 and type(val1) == type(val2):
+            retval = val1 + val2
+        else:
+            retval = val2
+        return retval
 
     def is_method(self, value):
         return True if '(' in value and ')' in value else False

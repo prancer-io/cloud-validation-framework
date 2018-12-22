@@ -8,44 +8,56 @@ import sys
 def serializedATN():
     with StringIO() as buf:
         buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\22")
-        buf.write("n\4\2\t\2\3\2\3\2\3\2\5\2\b\n\2\3\2\3\2\3\2\3\2\5\2\16")
-        buf.write("\n\2\3\2\3\2\3\2\3\2\5\2\24\n\2\3\2\3\2\3\2\3\2\3\2\3")
-        buf.write("\2\3\2\7\2\35\n\2\f\2\16\2 \13\2\3\2\5\2#\n\2\3\2\3\2")
-        buf.write("\3\2\3\2\3\2\7\2*\n\2\f\2\16\2-\13\2\3\2\3\2\3\2\5\2\62")
-        buf.write("\n\2\3\2\3\2\3\2\3\2\3\2\7\29\n\2\f\2\16\2<\13\2\3\2\3")
-        buf.write("\2\3\2\3\2\5\2B\n\2\3\2\3\2\3\2\3\2\3\2\7\2I\n\2\f\2\16")
-        buf.write("\2L\13\2\3\2\3\2\3\2\5\2Q\n\2\3\2\3\2\3\2\3\2\3\2\7\2")
-        buf.write("X\n\2\f\2\16\2[\13\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\7\2d")
-        buf.write("\n\2\f\2\16\2g\13\2\3\2\5\2j\n\2\5\2l\n\2\3\2\2\2\3\2")
-        buf.write("\2\2\2\u0084\2k\3\2\2\2\4\7\7\b\2\2\5\6\7\7\2\2\6\b\7")
-        buf.write("\b\2\2\7\5\3\2\2\2\7\b\3\2\2\2\bl\3\2\2\2\t\r\7\b\2\2")
-        buf.write("\n\13\7\7\2\2\13\16\7\20\2\2\f\16\7\f\2\2\r\n\3\2\2\2")
-        buf.write("\r\f\3\2\2\2\r\16\3\2\2\2\16l\3\2\2\2\17\23\7\b\2\2\20")
-        buf.write("\21\7\7\2\2\21\24\7\16\2\2\22\24\7\17\2\2\23\20\3\2\2")
-        buf.write("\2\23\22\3\2\2\2\23\24\3\2\2\2\24l\3\2\2\2\25\"\7\b\2")
-        buf.write("\2\26\27\7\7\2\2\27\30\7\5\2\2\30\31\7\3\2\2\31\36\7\b")
-        buf.write("\2\2\32\33\7\6\2\2\33\35\7\b\2\2\34\32\3\2\2\2\35 \3\2")
-        buf.write("\2\2\36\34\3\2\2\2\36\37\3\2\2\2\37!\3\2\2\2 \36\3\2\2")
-        buf.write("\2!#\7\4\2\2\"\26\3\2\2\2\"#\3\2\2\2#l\3\2\2\2$%\7\5\2")
-        buf.write("\2%&\7\3\2\2&+\7\b\2\2\'(\7\6\2\2(*\7\b\2\2)\'\3\2\2\2")
-        buf.write("*-\3\2\2\2+)\3\2\2\2+,\3\2\2\2,.\3\2\2\2-+\3\2\2\2.\61")
-        buf.write("\7\4\2\2/\60\7\7\2\2\60\62\7\b\2\2\61/\3\2\2\2\61\62\3")
-        buf.write("\2\2\2\62l\3\2\2\2\63\64\7\5\2\2\64\65\7\3\2\2\65:\7\b")
-        buf.write("\2\2\66\67\7\6\2\2\679\7\b\2\28\66\3\2\2\29<\3\2\2\2:")
-        buf.write("8\3\2\2\2:;\3\2\2\2;=\3\2\2\2<:\3\2\2\2=A\7\4\2\2>?\7")
-        buf.write("\7\2\2?B\7\16\2\2@B\7\17\2\2A>\3\2\2\2A@\3\2\2\2AB\3\2")
-        buf.write("\2\2Bl\3\2\2\2CD\7\5\2\2DE\7\3\2\2EJ\7\b\2\2FG\7\6\2\2")
-        buf.write("GI\7\b\2\2HF\3\2\2\2IL\3\2\2\2JH\3\2\2\2JK\3\2\2\2KM\3")
-        buf.write("\2\2\2LJ\3\2\2\2MP\7\4\2\2NO\7\7\2\2OQ\7\f\2\2PN\3\2\2")
-        buf.write("\2PQ\3\2\2\2Ql\3\2\2\2RS\7\5\2\2ST\7\3\2\2TY\7\b\2\2U")
-        buf.write("V\7\6\2\2VX\7\b\2\2WU\3\2\2\2X[\3\2\2\2YW\3\2\2\2YZ\3")
-        buf.write("\2\2\2Z\\\3\2\2\2[Y\3\2\2\2\\i\7\4\2\2]^\7\7\2\2^_\7\5")
-        buf.write("\2\2_`\7\3\2\2`e\7\b\2\2ab\7\6\2\2bd\7\b\2\2ca\3\2\2\2")
-        buf.write("dg\3\2\2\2ec\3\2\2\2ef\3\2\2\2fh\3\2\2\2ge\3\2\2\2hj\7")
-        buf.write("\4\2\2i]\3\2\2\2ij\3\2\2\2jl\3\2\2\2k\4\3\2\2\2k\t\3\2")
-        buf.write("\2\2k\17\3\2\2\2k\25\3\2\2\2k$\3\2\2\2k\63\3\2\2\2kC\3")
-        buf.write("\2\2\2kR\3\2\2\2l\3\3\2\2\2\21\7\r\23\36\"+\61:AJPYei")
-        buf.write("k")
+        buf.write("\u0088\4\2\t\2\3\2\5\2\6\n\2\3\2\5\2\t\n\2\3\2\3\2\5\2")
+        buf.write("\r\n\2\3\2\3\2\5\2\21\n\2\3\2\5\2\24\n\2\3\2\3\2\5\2\30")
+        buf.write("\n\2\7\2\32\n\2\f\2\16\2\35\13\2\3\2\3\2\3\2\5\2\"\n\2")
+        buf.write("\3\2\3\2\3\2\3\2\5\2(\n\2\3\2\3\2\3\2\3\2\5\2.\n\2\3\2")
+        buf.write("\3\2\3\2\3\2\3\2\3\2\3\2\7\2\67\n\2\f\2\16\2:\13\2\3\2")
+        buf.write("\5\2=\n\2\3\2\3\2\3\2\3\2\3\2\7\2D\n\2\f\2\16\2G\13\2")
+        buf.write("\3\2\3\2\3\2\5\2L\n\2\3\2\3\2\3\2\3\2\3\2\7\2S\n\2\f\2")
+        buf.write("\16\2V\13\2\3\2\3\2\3\2\3\2\5\2\\\n\2\3\2\3\2\3\2\3\2")
+        buf.write("\3\2\7\2c\n\2\f\2\16\2f\13\2\3\2\3\2\3\2\5\2k\n\2\3\2")
+        buf.write("\3\2\3\2\3\2\3\2\7\2r\n\2\f\2\16\2u\13\2\3\2\3\2\3\2\3")
+        buf.write("\2\3\2\3\2\3\2\7\2~\n\2\f\2\16\2\u0081\13\2\3\2\5\2\u0084")
+        buf.write("\n\2\5\2\u0086\n\2\3\2\2\2\3\2\2\2\2\u00a6\2\u0085\3\2")
+        buf.write("\2\2\4\6\7\5\2\2\5\4\3\2\2\2\5\6\3\2\2\2\6\b\3\2\2\2\7")
+        buf.write("\t\7\3\2\2\b\7\3\2\2\2\b\t\3\2\2\2\t\n\3\2\2\2\n\f\7\b")
+        buf.write("\2\2\13\r\7\4\2\2\f\13\3\2\2\2\f\r\3\2\2\2\r\33\3\2\2")
+        buf.write("\2\16\20\7\6\2\2\17\21\7\5\2\2\20\17\3\2\2\2\20\21\3\2")
+        buf.write("\2\2\21\23\3\2\2\2\22\24\7\3\2\2\23\22\3\2\2\2\23\24\3")
+        buf.write("\2\2\2\24\25\3\2\2\2\25\27\7\b\2\2\26\30\7\4\2\2\27\26")
+        buf.write("\3\2\2\2\27\30\3\2\2\2\30\32\3\2\2\2\31\16\3\2\2\2\32")
+        buf.write("\35\3\2\2\2\33\31\3\2\2\2\33\34\3\2\2\2\34!\3\2\2\2\35")
+        buf.write("\33\3\2\2\2\36\37\7\7\2\2\37\"\7\16\2\2 \"\7\17\2\2!\36")
+        buf.write("\3\2\2\2! \3\2\2\2!\"\3\2\2\2\"\u0086\3\2\2\2#\'\7\b\2")
+        buf.write("\2$%\7\7\2\2%(\7\20\2\2&(\7\f\2\2\'$\3\2\2\2\'&\3\2\2")
+        buf.write("\2\'(\3\2\2\2(\u0086\3\2\2\2)-\7\b\2\2*+\7\7\2\2+.\7\16")
+        buf.write("\2\2,.\7\17\2\2-*\3\2\2\2-,\3\2\2\2-.\3\2\2\2.\u0086\3")
+        buf.write("\2\2\2/<\7\b\2\2\60\61\7\7\2\2\61\62\7\5\2\2\62\63\7\3")
+        buf.write("\2\2\638\7\b\2\2\64\65\7\6\2\2\65\67\7\b\2\2\66\64\3\2")
+        buf.write("\2\2\67:\3\2\2\28\66\3\2\2\289\3\2\2\29;\3\2\2\2:8\3\2")
+        buf.write("\2\2;=\7\4\2\2<\60\3\2\2\2<=\3\2\2\2=\u0086\3\2\2\2>?")
+        buf.write("\7\5\2\2?@\7\3\2\2@E\7\b\2\2AB\7\6\2\2BD\7\b\2\2CA\3\2")
+        buf.write("\2\2DG\3\2\2\2EC\3\2\2\2EF\3\2\2\2FH\3\2\2\2GE\3\2\2\2")
+        buf.write("HK\7\4\2\2IJ\7\7\2\2JL\7\b\2\2KI\3\2\2\2KL\3\2\2\2L\u0086")
+        buf.write("\3\2\2\2MN\7\5\2\2NO\7\3\2\2OT\7\b\2\2PQ\7\6\2\2QS\7\b")
+        buf.write("\2\2RP\3\2\2\2SV\3\2\2\2TR\3\2\2\2TU\3\2\2\2UW\3\2\2\2")
+        buf.write("VT\3\2\2\2W[\7\4\2\2XY\7\7\2\2Y\\\7\16\2\2Z\\\7\17\2\2")
+        buf.write("[X\3\2\2\2[Z\3\2\2\2[\\\3\2\2\2\\\u0086\3\2\2\2]^\7\5")
+        buf.write("\2\2^_\7\3\2\2_d\7\b\2\2`a\7\6\2\2ac\7\b\2\2b`\3\2\2\2")
+        buf.write("cf\3\2\2\2db\3\2\2\2de\3\2\2\2eg\3\2\2\2fd\3\2\2\2gj\7")
+        buf.write("\4\2\2hi\7\7\2\2ik\7\f\2\2jh\3\2\2\2jk\3\2\2\2k\u0086")
+        buf.write("\3\2\2\2lm\7\5\2\2mn\7\3\2\2ns\7\b\2\2op\7\6\2\2pr\7\b")
+        buf.write("\2\2qo\3\2\2\2ru\3\2\2\2sq\3\2\2\2st\3\2\2\2tv\3\2\2\2")
+        buf.write("us\3\2\2\2v\u0083\7\4\2\2wx\7\7\2\2xy\7\5\2\2yz\7\3\2")
+        buf.write("\2z\177\7\b\2\2{|\7\6\2\2|~\7\b\2\2}{\3\2\2\2~\u0081\3")
+        buf.write("\2\2\2\177}\3\2\2\2\177\u0080\3\2\2\2\u0080\u0082\3\2")
+        buf.write("\2\2\u0081\177\3\2\2\2\u0082\u0084\7\4\2\2\u0083w\3\2")
+        buf.write("\2\2\u0083\u0084\3\2\2\2\u0084\u0086\3\2\2\2\u0085\5\3")
+        buf.write("\2\2\2\u0085#\3\2\2\2\u0085)\3\2\2\2\u0085/\3\2\2\2\u0085")
+        buf.write(">\3\2\2\2\u0085M\3\2\2\2\u0085]\3\2\2\2\u0085l\3\2\2\2")
+        buf.write("\u0086\3\3\2\2\2\30\5\b\f\20\23\27\33!\'-8<EKT[djs\177")
+        buf.write("\u0083\u0085")
         return buf.getvalue()
 
 
@@ -111,21 +123,6 @@ class comparatorParser ( Parser ):
             else:
                 return self.getToken(comparatorParser.FMT1, i)
 
-        def COMP(self):
-            return self.getToken(comparatorParser.COMP, 0)
-
-        def IPADDRESS(self):
-            return self.getToken(comparatorParser.IPADDRESS, 0)
-
-        def STRING(self):
-            return self.getToken(comparatorParser.STRING, 0)
-
-        def NUMBER(self):
-            return self.getToken(comparatorParser.NUMBER, 0)
-
-        def FNUMBER(self):
-            return self.getToken(comparatorParser.FNUMBER, 0)
-
         def METHOD(self, i:int=None):
             if i is None:
                 return self.getTokens(comparatorParser.METHOD)
@@ -137,6 +134,21 @@ class comparatorParser ( Parser ):
                 return self.getTokens(comparatorParser.OP)
             else:
                 return self.getToken(comparatorParser.OP, i)
+
+        def COMP(self):
+            return self.getToken(comparatorParser.COMP, 0)
+
+        def NUMBER(self):
+            return self.getToken(comparatorParser.NUMBER, 0)
+
+        def FNUMBER(self):
+            return self.getToken(comparatorParser.FNUMBER, 0)
+
+        def IPADDRESS(self):
+            return self.getToken(comparatorParser.IPADDRESS, 0)
+
+        def STRING(self):
+            return self.getToken(comparatorParser.STRING, 0)
 
         def getRuleIndex(self):
             return comparatorParser.RULE_expression
@@ -158,40 +170,107 @@ class comparatorParser ( Parser ):
         self.enterRule(localctx, 0, self.RULE_expression)
         self._la = 0 # Token type
         try:
-            self.state = 105
+            self.state = 131
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,14,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,21,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 2
-                self.match(comparatorParser.FMT1)
-                self.state = 5
+                self.state = 3
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==comparatorParser.COMP:
-                    self.state = 3
-                    self.match(comparatorParser.COMP)
-                    self.state = 4
+                if _la==comparatorParser.METHOD:
+                    self.state = 2
+                    self.match(comparatorParser.METHOD)
+
+
+                self.state = 6
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                if _la==comparatorParser.T__0:
+                    self.state = 5
+                    self.match(comparatorParser.T__0)
+
+
+                self.state = 8
+                self.match(comparatorParser.FMT1)
+                self.state = 10
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                if _la==comparatorParser.T__1:
+                    self.state = 9
+                    self.match(comparatorParser.T__1)
+
+
+                self.state = 25
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                while _la==comparatorParser.OP:
+                    self.state = 12
+                    self.match(comparatorParser.OP)
+                    self.state = 14
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+                    if _la==comparatorParser.METHOD:
+                        self.state = 13
+                        self.match(comparatorParser.METHOD)
+
+
+                    self.state = 17
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+                    if _la==comparatorParser.T__0:
+                        self.state = 16
+                        self.match(comparatorParser.T__0)
+
+
+                    self.state = 19
                     self.match(comparatorParser.FMT1)
+                    self.state = 21
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+                    if _la==comparatorParser.T__1:
+                        self.state = 20
+                        self.match(comparatorParser.T__1)
 
 
+                    self.state = 27
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+
+                self.state = 31
+                self._errHandler.sync(self)
+                token = self._input.LA(1)
+                if token in [comparatorParser.COMP]:
+                    self.state = 28
+                    self.match(comparatorParser.COMP)
+                    self.state = 29
+                    self.match(comparatorParser.NUMBER)
+                    pass
+                elif token in [comparatorParser.FNUMBER]:
+                    self.state = 30
+                    self.match(comparatorParser.FNUMBER)
+                    pass
+                elif token in [comparatorParser.EOF]:
+                    pass
+                else:
+                    pass
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 7
+                self.state = 33
                 self.match(comparatorParser.FMT1)
-                self.state = 11
+                self.state = 37
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [comparatorParser.COMP]:
-                    self.state = 8
+                    self.state = 34
                     self.match(comparatorParser.COMP)
-                    self.state = 9
+                    self.state = 35
                     self.match(comparatorParser.IPADDRESS)
                     pass
                 elif token in [comparatorParser.STRING]:
-                    self.state = 10
+                    self.state = 36
                     self.match(comparatorParser.STRING)
                     pass
                 elif token in [comparatorParser.EOF]:
@@ -202,19 +281,19 @@ class comparatorParser ( Parser ):
 
             elif la_ == 3:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 13
+                self.state = 39
                 self.match(comparatorParser.FMT1)
-                self.state = 17
+                self.state = 43
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [comparatorParser.COMP]:
-                    self.state = 14
+                    self.state = 40
                     self.match(comparatorParser.COMP)
-                    self.state = 15
+                    self.state = 41
                     self.match(comparatorParser.NUMBER)
                     pass
                 elif token in [comparatorParser.FNUMBER]:
-                    self.state = 16
+                    self.state = 42
                     self.match(comparatorParser.FNUMBER)
                     pass
                 elif token in [comparatorParser.EOF]:
@@ -225,33 +304,33 @@ class comparatorParser ( Parser ):
 
             elif la_ == 4:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 19
+                self.state = 45
                 self.match(comparatorParser.FMT1)
-                self.state = 32
+                self.state = 58
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==comparatorParser.COMP:
-                    self.state = 20
+                    self.state = 46
                     self.match(comparatorParser.COMP)
-                    self.state = 21
+                    self.state = 47
                     self.match(comparatorParser.METHOD)
-                    self.state = 22
+                    self.state = 48
                     self.match(comparatorParser.T__0)
-                    self.state = 23
+                    self.state = 49
                     self.match(comparatorParser.FMT1)
-                    self.state = 28
+                    self.state = 54
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     while _la==comparatorParser.OP:
-                        self.state = 24
+                        self.state = 50
                         self.match(comparatorParser.OP)
-                        self.state = 25
+                        self.state = 51
                         self.match(comparatorParser.FMT1)
-                        self.state = 30
+                        self.state = 56
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
 
-                    self.state = 31
+                    self.state = 57
                     self.match(comparatorParser.T__1)
 
 
@@ -259,33 +338,33 @@ class comparatorParser ( Parser ):
 
             elif la_ == 5:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 34
+                self.state = 60
                 self.match(comparatorParser.METHOD)
-                self.state = 35
+                self.state = 61
                 self.match(comparatorParser.T__0)
-                self.state = 36
+                self.state = 62
                 self.match(comparatorParser.FMT1)
-                self.state = 41
+                self.state = 67
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while _la==comparatorParser.OP:
-                    self.state = 37
+                    self.state = 63
                     self.match(comparatorParser.OP)
-                    self.state = 38
+                    self.state = 64
                     self.match(comparatorParser.FMT1)
-                    self.state = 43
+                    self.state = 69
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
 
-                self.state = 44
+                self.state = 70
                 self.match(comparatorParser.T__1)
-                self.state = 47
+                self.state = 73
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==comparatorParser.COMP:
-                    self.state = 45
+                    self.state = 71
                     self.match(comparatorParser.COMP)
-                    self.state = 46
+                    self.state = 72
                     self.match(comparatorParser.FMT1)
 
 
@@ -293,37 +372,37 @@ class comparatorParser ( Parser ):
 
             elif la_ == 6:
                 self.enterOuterAlt(localctx, 6)
-                self.state = 49
+                self.state = 75
                 self.match(comparatorParser.METHOD)
-                self.state = 50
+                self.state = 76
                 self.match(comparatorParser.T__0)
-                self.state = 51
+                self.state = 77
                 self.match(comparatorParser.FMT1)
-                self.state = 56
+                self.state = 82
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while _la==comparatorParser.OP:
-                    self.state = 52
+                    self.state = 78
                     self.match(comparatorParser.OP)
-                    self.state = 53
+                    self.state = 79
                     self.match(comparatorParser.FMT1)
-                    self.state = 58
+                    self.state = 84
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
 
-                self.state = 59
+                self.state = 85
                 self.match(comparatorParser.T__1)
-                self.state = 63
+                self.state = 89
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [comparatorParser.COMP]:
-                    self.state = 60
+                    self.state = 86
                     self.match(comparatorParser.COMP)
-                    self.state = 61
+                    self.state = 87
                     self.match(comparatorParser.NUMBER)
                     pass
                 elif token in [comparatorParser.FNUMBER]:
-                    self.state = 62
+                    self.state = 88
                     self.match(comparatorParser.FNUMBER)
                     pass
                 elif token in [comparatorParser.EOF]:
@@ -334,33 +413,33 @@ class comparatorParser ( Parser ):
 
             elif la_ == 7:
                 self.enterOuterAlt(localctx, 7)
-                self.state = 65
+                self.state = 91
                 self.match(comparatorParser.METHOD)
-                self.state = 66
+                self.state = 92
                 self.match(comparatorParser.T__0)
-                self.state = 67
+                self.state = 93
                 self.match(comparatorParser.FMT1)
-                self.state = 72
+                self.state = 98
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while _la==comparatorParser.OP:
-                    self.state = 68
+                    self.state = 94
                     self.match(comparatorParser.OP)
-                    self.state = 69
+                    self.state = 95
                     self.match(comparatorParser.FMT1)
-                    self.state = 74
+                    self.state = 100
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
 
-                self.state = 75
+                self.state = 101
                 self.match(comparatorParser.T__1)
-                self.state = 78
+                self.state = 104
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==comparatorParser.COMP:
-                    self.state = 76
+                    self.state = 102
                     self.match(comparatorParser.COMP)
-                    self.state = 77
+                    self.state = 103
                     self.match(comparatorParser.STRING)
 
 
@@ -368,51 +447,51 @@ class comparatorParser ( Parser ):
 
             elif la_ == 8:
                 self.enterOuterAlt(localctx, 8)
-                self.state = 80
+                self.state = 106
                 self.match(comparatorParser.METHOD)
-                self.state = 81
+                self.state = 107
                 self.match(comparatorParser.T__0)
-                self.state = 82
+                self.state = 108
                 self.match(comparatorParser.FMT1)
-                self.state = 87
+                self.state = 113
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while _la==comparatorParser.OP:
-                    self.state = 83
+                    self.state = 109
                     self.match(comparatorParser.OP)
-                    self.state = 84
+                    self.state = 110
                     self.match(comparatorParser.FMT1)
-                    self.state = 89
+                    self.state = 115
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
 
-                self.state = 90
+                self.state = 116
                 self.match(comparatorParser.T__1)
-                self.state = 103
+                self.state = 129
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==comparatorParser.COMP:
-                    self.state = 91
+                    self.state = 117
                     self.match(comparatorParser.COMP)
-                    self.state = 92
+                    self.state = 118
                     self.match(comparatorParser.METHOD)
-                    self.state = 93
+                    self.state = 119
                     self.match(comparatorParser.T__0)
-                    self.state = 94
+                    self.state = 120
                     self.match(comparatorParser.FMT1)
-                    self.state = 99
+                    self.state = 125
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     while _la==comparatorParser.OP:
-                        self.state = 95
+                        self.state = 121
                         self.match(comparatorParser.OP)
-                        self.state = 96
+                        self.state = 122
                         self.match(comparatorParser.FMT1)
-                        self.state = 101
+                        self.state = 127
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
 
-                    self.state = 102
+                    self.state = 128
                     self.match(comparatorParser.T__1)
 
 

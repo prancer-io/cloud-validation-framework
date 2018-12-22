@@ -20,6 +20,14 @@
                     "type": "Microsoft.Network/virtualNetworks",
                     "collection": "Microsoft.Network",
                     "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet01"
+
+                },
+                {
+                    "snapshotId": "3",
+                    "type": "Microsoft.Network/virtualNetworks",
+                    "collection": "Microsoft.Network",
+                    "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet02"
+
                 }
             ]
         },
@@ -30,7 +38,7 @@
             "branchName": "master",
             "nodes": [
                 {
-                    "snapshotId": "3",
+                    "snapshotId": "4",
                     "type": "",
                     "collection": "customParameters",
                     "path":"paramters/mno/nonprod/eastus2/shared/vars.rg-1.json"

@@ -31,6 +31,22 @@
                 {
                     "testId": "6",
                     "rule": "{1}.tags.TJX_COST_CENTER={2}.tags.TJX_COST_CENTER"
+                },
+                {
+                    "testId": "7",
+                    "rule": "count({3}.properties.dhcpOptions.dnsServers[])=2"
+                },
+                {
+                    "testId": "8",
+                    "rule": "count({2}.properties.dhcpOptions.dnsServers[]) + count({3}.properties.dhcpOptions.dnsServers[])=4"
+                },
+                {
+                    "testId": "9",
+                    "rule": "{2}.properties.dhcpOptions.dnsServers[] + {3}.properties.dhcpOptions.dnsServers[]=4"
+                },
+                {
+                    "testId": "10",
+                    "rule":"exist({1}.location.name)"
                 }
             ]
         }
