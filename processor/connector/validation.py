@@ -9,7 +9,7 @@ from processor.helper.json.json_utils import get_field_value, get_json_files,\
     load_json
 from processor.helper.config.config_utils import get_config, get_test_json_dir,\
     DATABASE, DBNAME, get_solution_dir
-from processor.database.database import get_documents, create_indexes, COLLECTION
+from processor.database.database import create_indexes, COLLECTION
 from processor.reporting.json_output import dump_output_results
 
 
@@ -17,36 +17,10 @@ JSONTEST = 'test'
 logger = getlogger()
 
 
-def run_validation_test(version, dbname, collection, snapshot_id, testcase):
-
-    if snapshot_id:
-        docs = get_documents(collection, dbname=dbname,
-                             sort=[('timestamp', pymongo.DESCENDING)],
-                             query={'snapshotId': snapshot_id},
-                             limit=1)
-        logger.info('Number of Snapshot Documents: %s', len(docs))
-        if docs and len(docs):
-            comparator = Comparator(version, docs[0]['json'], testcase['attribute'],
-                                    testcase['comparison'])
-            result = comparator.validate()
-            logger.info('Testid: %s, snapshot:%s, attribute: %s, comparison:%s, result: %s',
-                        testcase['testId'], testcase['snapshotId'], testcase['attribute'],
-                        testcase['comparison'], result)
-            result_val = {
-                "result": "passed" if result else "failed"
-            }
-        else:
-            result_val = {
-                "result": "skipped",
-                "reason": "Missing documents for the snapshot"
-            }
-    else:
-        result_val = {
-            "result": "skipped",
-            "reason": "Missing snapshotId for testcase"
-        }
+def run_validation_test(version, dbname, collection_data, testcase):
+    comparator = Comparator(version, dbname, collection_data, testcase)
+    result_val = comparator.validate()
     result_val.update(testcase)
-
     return result_val
 
 
@@ -54,13 +28,20 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname):
     snapshot_file = '%s/%s/%s' % (get_test_json_dir(), container, snapshot_file)
     snapshot_data = {}
     snapshot_json_data = load_json(snapshot_file)
-    if not snapshot_json_data:
+    snapshots = get_field_value(snapshot_json_data, 'snapshots')
+    if not snapshots:
+        logger.info("Snapshot does not contain snapshots...")
         return snapshot_data
-    for snapshot in snapshot_json_data['snapshots']:
-        for snode in snapshot['nodes']:
-            collection = snode['collection'] if 'collection' in snode else COLLECTION
-            snapshot_data[snode['snapshotId']] = collection.replace('.', '').lower()
-            create_indexes(snapshot_data[snode['snapshotId']], dbname, [('timestamp', pymongo.TEXT)])
+    for snapshot in snapshots:
+        nodes = get_field_value(snapshot, 'nodes')
+        if not nodes:
+            logger.info("No nodes in snapshot, continuing to next!...")
+            continue
+        for node in nodes:
+            sid = get_field_value(node, 'snapshotId')
+            collection = node['collection'] if 'collection' in node else COLLECTION
+            snapshot_data[sid] = collection.replace('.', '').lower()
+            create_indexes(collection, dbname, [('timestamp', pymongo.TEXT)])
     return snapshot_data
 
 
@@ -77,19 +58,18 @@ def run_file_validation_tests(test_file, container):
         logger.info("Test file %s does not contain testset, next!...", test_file)
         return False
     dbname = get_config(DATABASE, DBNAME)
-    collection_data = get_snapshot_id_to_collection_dict(test_json_data['snapshot'], container, dbname)
+    # Populate the snapshotId => collection for the snapshot.json in the test file.
+    collection_data = get_snapshot_id_to_collection_dict(test_json_data['snapshot'],
+                                                         container, dbname)
     resultset = []
     for testset in testsets:
         version = get_field_value(testset, 'version')
-        if 'cases' not in testset or not isinstance(testset['cases'], list):
+        testcases = get_field_value(testset, 'cases')
+        if not testcases or not isinstance(testcases, list):
             logger.info("No testcases in testSet!...")
             continue
         for testcase in testset['cases']:
-            snapshot_id = testcase['snapshotId'] if 'snapshotId' in testcase and \
-                                                    testcase['snapshotId'] else None
-            collection = collection_data[snapshot_id] if snapshot_id and \
-                                                         snapshot_id in collection_data else COLLECTION
-            result_val = run_validation_test(version, dbname, collection, snapshot_id, testcase)
+            result_val = run_validation_test(version, dbname, collection_data, testcase)
             resultset.append(result_val)
     dump_output_results(resultset, test_file, container)
 

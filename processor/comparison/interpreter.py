@@ -4,8 +4,17 @@ which class to instantiate. Factory Method lets a class defer
 instantiation to subclasses.
 """
 import re
+import pymongo
+from processor.helper.json.json_utils import get_field_value
+from processor.database.database import COLLECTION, get_documents
 from processor.comparison.comparison_functions import equality,\
     less_than, less_than_equal,greater_than, greater_than_equal, exists
+from antlr4 import InputStream
+from antlr4 import CommonTokenStream
+from processor.comparison.comparisonantlr.comparatorLexer import comparatorLexer
+from processor.comparison.comparisonantlr.comparatorParser import comparatorParser
+from processor.comparison.comparisonantlr.rule_interpreter import RuleInterpreter
+
 from processor.logging.log_handler import getlogger
 
 
@@ -23,6 +32,8 @@ OPERATORS = {
     'exist': exists
 }
 MATHOPERATORS = ['lt', 'le', 'gt', 'ge', 'eq', 'neq']
+TESTCASEV1 = 1
+TESTCASEV2 = 2
 
 
 def version_str(version):
@@ -108,25 +119,20 @@ class Comparator:
     Call the factory method to create the comparator object.
     """
 
-    def __init__(self, version, data, loperand, value):
-        self.comparator = self._factory_method(version, data, loperand, value)
+    def __init__(self, version, dbname, collection_data, testcase):
+        self.comparator = self._factory_method(version, dbname, collection_data, testcase)
 
-    def _factory_method(self, version, data, loperand, value):
+    def _factory_method(self, version, dbname, collection_data, testcase):
         version_val = version_str(version)
         if version_val == COMPARATOR_V0_1:
-            return Comparator_v0_1(data, loperand, value)
+            return Comparator_v0_1(dbname, collection_data, testcase)
         elif version_val == COMPARATOR_V0_2:
-            return Comparator_v0_2(data, loperand, value)
+            return Comparator_v0_2(dbname, collection_data, testcase)
         else:
-            return Comparator_v0_1(data, loperand, value)
+            return Comparator_v0_1(dbname, collection_data, testcase)
 
     def validate(self):
         return self.comparator.validate()
-
-        # try:
-        #     return self.comparator.validate()
-        # except:
-        #     return False
 
 
 class Comparator_v0_1:
@@ -134,24 +140,84 @@ class Comparator_v0_1:
     Override the validate method to return to run comparator
     """
 
-    def __init__(self, data, loperand, value):
-        self.data = data
-        self.loperand = loperand
-        self.is_not, self.op, self.roperand, self.extras = get_operator_roperand(value)
+    def __init__(self, dbname, collection_data, testcase):
+        self.dbname = dbname
+        self.collection_data = collection_data
+        loperand = get_field_value(testcase, 'attribute')
+        value = get_field_value(testcase, 'comparison')
+        rule = get_field_value(testcase, 'rule')
+        if loperand and value:
+            self.format = TESTCASEV1
+            self.snapshot_id = get_field_value(testcase, 'snapshotId')
+            coll_val = get_field_value(self.collection_data, self.snapshot_id)
+            self.collection = coll_val if coll_val else COLLECTION
+            self.loperand = loperand
+            self.is_not, self.op, self.roperand, self.extras = get_operator_roperand(value)
+        elif rule:
+            self.format = TESTCASEV2
+            self.rule = rule
+        else:
+            self.format = None
+
 
     def validate(self):
-        if self.op in OPERATORS and OPERATORS[self.op]:
-            return OPERATORS[self.op](self.data, self.loperand, self.roperand, self.is_not,
-                                      self.extras)
-        return False
+        result_val = {"result": "failed"}
+        if self.format == TESTCASEV1:
+            if self.snapshot_id:
+                docs = get_documents(self.collection, dbname=self.dbname,
+                                     sort=[('timestamp', pymongo.DESCENDING)],
+                                     query={'snapshotId': self.snapshot_id},
+                                     limit=1)
+                logger.info('Number of Snapshot Documents: %s', len(docs))
+                if docs and len(docs):
+                    self.data = docs[0]['json']
+                    if self.op in OPERATORS and OPERATORS[self.op]:
+                        result =  OPERATORS[self.op](self.data, self.loperand, self.roperand,
+                                                     self.is_not, self.extras)
+                        result_val["result"] = "passed" if result else "failed"
+                    else:
+                        result_val['reason'] = 'Unsupported comparison operator: %s' % self.op
+                else:
+                    result_val.update({
+                        "result": "skipped",
+                        "reason": "Missing documents for the snapshot"
+                    })
+            else:
+                result_val.update({
+                    "result": "skipped",
+                    "reason": "Missing snapshotId for testcase"
+                })
+        elif self.format == TESTCASEV2:
+            logger.info('#' * 75)
+            logger.info('Actual Rule: %s', self.rule)
+            inputStream = InputStream(self.rule)
+            lexer = comparatorLexer(inputStream)
+            stream = CommonTokenStream(lexer)
+            parser = comparatorParser(stream)
+            tree = parser.expression()
+            children = []
+            for child in tree.getChildren():
+                children.append((child.getText()))
+            logger.info('*' * 50)
+            logger.debug("All the parsed tokens: %s", children)
+            otherdata = {'dbname': self.dbname, 'snapshots': self.collection_data}
+            r_i = RuleInterpreter(children, **otherdata)
+            result = r_i.compare()
+            result_val["result"] = "passed" if result else "failed"
+        else:
+            result_val.update({
+                "result": "skipped",
+                "reason": "Unsupported testcase format"
+            })
+        return result_val
 
 
 class Comparator_v0_2(Comparator_v0_1):
     """
     Override the validate method to run the comparisons
     """
-    def __init__(self, data, loperand, value):
-        Comparator_v0_1.__init__(self, data, loperand, value)
+    def __init__(self, dbname, collection_data, testcase):
+        Comparator_v0_1.__init__(self, dbname, collection_data, testcase)
 
     def validate(self):
         return Comparator_v0_1.validate(self)

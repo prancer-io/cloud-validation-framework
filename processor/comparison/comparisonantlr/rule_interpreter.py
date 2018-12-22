@@ -26,7 +26,6 @@ class RuleInterpreter:
         self.lhs_operand, self.op, self.rhs_operand = self.rule_operands()
         logger.debug(self.kwargs)
         logger.debug(type(self.kwargs))
-        self.compare()
 
     def rule_operands(self):
         lhs = self.children
@@ -131,7 +130,7 @@ class RuleInterpreter:
         rhs_value = self.get_value(self.rhs_operand)
         # print('RHS value: ', rhs_value)
         logger.info('LHS: %s, OP: %s, RHS: %s', lhs_value, self.op, rhs_value)
-
+        return type(lhs_value) == type(rhs_value) and lhs_value == rhs_value
 
     def get_value(self, value):
         retval = None
