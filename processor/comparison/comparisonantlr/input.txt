@@ -2,7 +2,6 @@ count({1}.firewall.rules[]+{2}.firewall.rules[])=13
 {1}.firewall.rules['name'='rule1'].port={2}.firewall.rules['name'='rule1'].port
 count({1}.firewall.rules[])=count({2}.firewall.rules[])
 count(count({1}.firewall.rules[]) + count({1}.firewall.rules[]))=13
-
 exist({1}.location)
 exist({1}.firewall.location)
 exist({1}.firewall.rules[])

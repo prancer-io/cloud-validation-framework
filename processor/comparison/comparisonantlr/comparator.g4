@@ -5,12 +5,13 @@ grammar comparator;
 // could have called rule but has clashes with existing rule objects.
 // It's a expression with expression, methodcall with or without comparison 
 expression
-    : (METHOD)? ('(')? FMT1 (')')? (OP (METHOD)? ('(')? FMT1 (')')?)* (COMP NUMBER|FNUMBER)?
-    | FMT1 (COMP IPADDRESS|STRING)?
+    : (METHOD)? ('(')? (METHOD)? ('(')? FMT1 (')')? (OP (METHOD)? ('(')? FMT1 (')')?)* (')')? (COMP NUMBER|FNUMBER|BOOL)?
+    | (METHOD)? ('(')? FMT1 (')')? (OP (METHOD)? ('(')? FMT1 (')')?)* (COMP (METHOD)? ('(')? FMT1 (OP FMT1)* (')')?)?
     | FMT1 (COMP NUMBER|FNUMBER)?
+    | FMT1 (COMP IPADDRESS|STRING)?
     | FMT1 (COMP METHOD '(' FMT1 (OP FMT1)* ')')?
+    | METHOD '(' FMT1 (OP FMT1)* ')' (COMP NUMBER|FNUMBER|BOOL)?
     | METHOD '(' FMT1 (OP FMT1)* ')' (COMP FMT1)?
-    | METHOD '(' FMT1 (OP FMT1)* ')' (COMP NUMBER|FNUMBER)?
     | METHOD '(' FMT1 (OP FMT1)* ')' (COMP STRING)?
     | METHOD '(' FMT1 (OP FMT1)* ')' (COMP METHOD '(' FMT1 (OP FMT1)* ')')?
     ;
@@ -19,6 +20,11 @@ expression
 METHOD
     : 'exist'
     | 'count'
+    ;
+
+BOOL
+    : [Ff][Aa][Ll][Ss][Ee]
+    | [Tt][Rr][Uu][Ee]
     ;
 
 // Define operators between the expressions
