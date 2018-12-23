@@ -42,11 +42,31 @@
                 },
                 {
                     "testId": "9",
-                    "rule": "{2}.properties.dhcpOptions.dnsServers[] + {3}.properties.dhcpOptions.dnsServers[]=4"
+                    "rule": "{2}.properties.dhcpOptions.dnsServers[]={3}.properties.dhcpOptions.dnsServers[]"
                 },
                 {
                     "testId": "10",
+                    "rule": "{2}.properties.dhcpOptions.dnsServers[]+{3}.properties.dhcpOptions.dnsServers[]=['172.18.96.214', '172.18.96.216', '172.18.96.214', '172.18.96.216']"
+                },
+                {
+                    "testId": "11",
+                    "rule": "{2}.properties.addressSpace={3}.properties.addressSpace"
+                },
+                {
+                    "testId": "12",
+                    "rule": "{2}.properties.addressSpace={'addressPrefixes': ['172.18.116.0/23']}"
+                },
+                {
+                    "testId": "13",
                     "rule":"exist({1}.location.name)"
+                },
+                {
+                    "testId": "14",
+                    "rule":"exist({1}.locationabc)=false"
+                },
+                {
+                    "testId": "15",
+                    "rule":"exist({1}.location1)=false"
                 }
             ]
         }

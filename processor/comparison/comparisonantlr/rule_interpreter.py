@@ -1,3 +1,4 @@
+import ast
 import re
 import pymongo
 from processor.database.database import COLLECTION, get_documents
@@ -54,14 +55,17 @@ class RuleInterpreter:
             (r'(\d+)(\.\d+)?', self.match_number),
             (r'true|false', self.match_boolean),
             (r'\'.*\'', self.match_string),
+            (r'\[.*\]', self.match_array_string),
             (r'\{(\d+)\}\[(.*)\](\.\S+(\[.*\])?)*', self.match_array_attribute),
-            (r'\{(\d+)\}(\.\S+(\[(.*)\])?)*', self.match_attribute_array)
+            (r'\{(\d+)\}(\.\S+(\[(.*)\])?)*', self.match_attribute_array),
+            (r'\{.*\}', self.match_dictionary_string)
         )
         val = None
         for regex, action in actions:
             m = re.match(regex, value, re.I)
             if m:
-                logger.debug("Regex match- groups:%s, regex:%s, value: %s, function: %s ", m.groups(), regex, value, action)
+                logger.debug("Regex match- groups:%s, regex:%s, value: %s, function: %s ",
+                             m.groups(), regex, value, action)
                 val = action(value, m)
                 break
         return val
@@ -82,6 +86,15 @@ class RuleInterpreter:
     def match_string(self, value, _):
         return value.replace("'", '')
 
+    def match_array_string(self, value, _):
+        str_val = value.replace("'", '')
+        array_vals_str = str_val[1:-1]
+        array_vals_str = array_vals_str.replace(' ', '')
+        return array_vals_str.split(',')
+
+    def match_dictionary_string(self, value, _):
+        val = ast.literal_eval(value)
+        return val
 
     def match_array_attribute(self, value, m):
         grps = m.groups()

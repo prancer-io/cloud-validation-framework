@@ -5,7 +5,7 @@ grammar comparator;
 // could have called rule but has clashes with existing rule objects.
 // It's a expression with expression, methodcall with or without comparison 
 expression
-    : (METHOD)? ('(')? (METHOD)? ('(')? FMT1 (')')? (OP (METHOD)? ('(')? FMT1 (')')?)* (')')? (COMP NUMBER|FNUMBER|BOOL)?
+    : (METHOD)? ('(')? (METHOD)? ('(')? FMT1 (')')? (OP (METHOD)? ('(')? FMT1 (')')?)* (')')? (COMP NUMBER|FNUMBER|BOOL|ARRSTRING|DICTSTRING)?
     | (METHOD)? ('(')? FMT1 (')')? (OP (METHOD)? ('(')? FMT1 (')')?)* (COMP (METHOD)? ('(')? FMT1 (OP FMT1)* (')')?)?
     | FMT1 (COMP NUMBER|FNUMBER)?
     | FMT1 (COMP IPADDRESS|STRING)?
@@ -68,6 +68,12 @@ STRING
     : [a-zA-Z][a-zA-Z0-9_]*
     ;
 
+ARRSTRING
+    : SQOPEN (IPADDRESS|QUOTESTRING) (',' (WS)* IPADDRESS|QUOTESTRING)* SQCLOSE;
+
+DICTSTRING
+    : FLOPEN (.)*? FLCLOSE;
+
 QUOTESTRING
     : QUOTE STRING QUOTE
     ;
@@ -85,6 +91,11 @@ FNUMBER
 IPADDRESS : (QUOTE)?NUMBER '.' NUMBER '.' NUMBER '.' NUMBER ('/'NUMBER)?(QUOTE)?;
 
 QUOTE : '\'';
+SQOPEN : '[';
+SQCLOSE : ']';
+FLOPEN : '{';
+FLCLOSE : '}';
+
 
 // WS represents a whitespace, which is ignored entirely by skip.
 WS

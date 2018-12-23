@@ -39,8 +39,9 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname):
             continue
         for node in nodes:
             sid = get_field_value(node, 'snapshotId')
-            collection = node['collection'] if 'collection' in node else COLLECTION
-            snapshot_data[sid] = collection.replace('.', '').lower()
+            coll = node['collection'] if 'collection' in node else COLLECTION
+            collection = coll.replace('.', '').lower()
+            snapshot_data[sid] = collection
             create_indexes(collection, dbname, [('timestamp', pymongo.TEXT)])
     return snapshot_data
 

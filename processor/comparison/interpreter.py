@@ -151,6 +151,7 @@ class Comparator_v0_1:
             self.snapshot_id = get_field_value(testcase, 'snapshotId')
             coll_val = get_field_value(self.collection_data, self.snapshot_id)
             self.collection = coll_val if coll_val else COLLECTION
+            # self.collection = self.collection.replace('.', '').lower()
             self.loperand = loperand
             self.is_not, self.op, self.roperand, self.extras = get_operator_roperand(value)
         elif rule:

@@ -61,8 +61,6 @@ def main(arg_vals=None):
             main_comparator(rulestr, otherdata)
 
 
-
-
 def populate_snapshots_from_file(snapshot_file):
     """Load the file as json and populate from json file."""
     snapshot_coll = {}
@@ -106,7 +104,7 @@ def main_comparator(code, otherdata):
     # print('!' * 50)
     # # print(r_i.match_method(''.join(r_i.lhs)))
     # # print(r_i.match_method(''.join(r_i.rhs)))
-    r_i.compare()
+    print(r_i.compare())
 
 
 if __name__ == '__main__':
