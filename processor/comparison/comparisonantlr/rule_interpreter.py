@@ -3,14 +3,20 @@ import re
 import pymongo
 from processor.database.database import COLLECTION, get_documents
 from processor.logging.log_handler import getlogger
+from processor.comparison.comparisonantlr.compare_types import EQ, NEQ, GT, GTE, LT, LTE
+from processor.comparison.comparisonantlr.compare_types import compare_none, compare_int,\
+    compare_float, compare_boolean, compare_str, compare_list
 
 
-EQ = '='
-NEQ = '!='
-GT = '>'
-GTE = '>='
-LT = '<'
-LTE = '<='
+comparefuncs = {
+    type(None): compare_none,
+    type(0): compare_int,
+    type(0.1): compare_float,
+    type(True): compare_boolean,
+    type('abcd'): compare_str,
+    type([]): compare_list
+}
+
 COMP = [EQ, NEQ, GT, LT, GTE, LTE]
 STAR = '*'
 PLUS = '+'
@@ -143,7 +149,13 @@ class RuleInterpreter:
         rhs_value = self.get_value(self.rhs_operand)
         # print('RHS value: ', rhs_value)
         logger.info('LHS: %s, OP: %s, RHS: %s', lhs_value, self.op, rhs_value)
-        return type(lhs_value) == type(rhs_value) and lhs_value == rhs_value
+        if type(lhs_value) == type(rhs_value):
+            if type(lhs_value) in comparefuncs:
+                return comparefuncs[type(lhs_value)](lhs_value, rhs_value, self.op)
+            else:
+                return lhs_value == rhs_value
+        else:
+            return False
 
     def get_value(self, value):
         retval = None
