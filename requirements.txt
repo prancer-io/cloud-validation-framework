@@ -1,2 +1,6 @@
+antlr4-python3-runtime==4.7.1
+GitPython==2.1.11
 pymongo==3.7.2
-requests
+pytest==4.0.1
+pytest-cov==2.6.0
+pytest-mock==1.10.0
