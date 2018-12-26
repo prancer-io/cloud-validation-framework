@@ -12,12 +12,12 @@ from processor.comparison.comparisonantlr.comparatorLexer import comparatorLexer
 from processor.comparison.comparisonantlr.comparatorParser import comparatorParser
 from processor.comparison.comparisonantlr.rule_interpreter import RuleInterpreter
 from processor.logging.log_handler import getlogger
-from processor.helper.config.rundata_utils import init_config, delete_run_config
+from processor.helper.config.rundata_utils import init_currentdata, delete_currentdata
 from processor.database.database import init_db
 from processor.helper.json.json_utils import get_container_snapshot_json_files,load_json,\
     get_field_value, get_container_dir
 from processor.database.database import COLLECTION, get_documents
-from processor.helper.config.config_utils import DATABASE, DBNAME, get_config
+from processor.helper.config.config_utils import DATABASE, DBNAME, config_value, framework_config
 
 
 logger = getlogger()
@@ -30,16 +30,16 @@ def main(arg_vals=None):
     cmd_parser.add_argument('container', action='store', help='Container tests directory.')
     args = cmd_parser.parse_args(arg_vals)
     # Delete the rundata at the end of the script.
-    atexit.register(delete_run_config)
+    atexit.register(delete_currentdata)
     logger.info(args)
-    init_config()
+    init_currentdata()
     init_db()
     snapshot_dir, snapshot_files = get_container_snapshot_json_files(args.container)
     if not snapshot_files:
         logger.info("No Snapshot files in %s, exiting!...", snapshot_dir)
         return False
     logger.info('Snapshot files: %s', snapshot_files)
-    dbname = get_config(DATABASE, DBNAME)
+    dbname = config_value(DATABASE, DBNAME)
     for fl in snapshot_files:
         snapshot_ids = populate_snapshots_from_file(fl)
     logger.debug(snapshot_ids)

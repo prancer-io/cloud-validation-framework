@@ -1,72 +1,72 @@
 """
-   Configuration related utilities
+   Framework Configuration utilities
 """
 import configparser
 import os
-from processor.helper.file.file_utils import check_filename
+from processor.helper.file.file_utils import exists_file
 
-SOLUTIONDIR = os.getenv('SOLUTIONDIR',
-                        os.path.join(
-                            os.path.abspath(os.path.dirname(__file__)),
-                            '../../../'))
-CONFIGINI = '%srealm/config.ini' % SOLUTIONDIR
-RUNCONFIG = '%srundata/rundata' % SOLUTIONDIR
+MYDIR = os.path.abspath(os.path.dirname(__file__))
+# FRAMEWORKDIR = os.getenv('FRAMEWORKDIR', os.path.join(MYDIR, '../../../'))
+# FRAMEWORKCONFIG = '%srealm/config.ini' % FRAMEWORKDIR
+# CURRENTDATA = '%scurrentdata/current' % FRAMEWORKDIR
+FRAMEWORKDIR = None
+FRAMEWORKCONFIG = None
+CURRENTDATA = None
 DATABASE = 'MONGODB'
 DBNAME = 'dbname'
 
 
-def get_config_ini():
-    """utility method to return the config ini file."""
-    return CONFIGINI
+def framework_currentdata():
+    """Return the framework rundata."""
+    global CURRENTDATA
+    if CURRENTDATA:
+        return CURRENTDATA
+    CURRENTDATA = '%s/rundata/rundata' % framework_dir()
+    return CURRENTDATA
 
 
-def get_solution_dir():
-    """Return top level config directory"""
-    return SOLUTIONDIR
+def framework_config():
+    """Return the framework config file."""
+    global FRAMEWORKCONFIG
+    if FRAMEWORKCONFIG:
+        return FRAMEWORKCONFIG
+    FRAMEWORKCONFIG = '%s/realm/config.ini' % framework_dir()
+    return FRAMEWORKCONFIG
 
 
-def load_config(config_file):
-    """Load config file in ini format"""
-    config = None
-    if check_filename(config_file):
-        config = configparser.ConfigParser(allow_no_value=True)
-        config.read(config_file)
-    return config
+def framework_dir():
+    """Return top level framework directory"""
+    global FRAMEWORKDIR
+    if FRAMEWORKDIR:
+        return FRAMEWORKDIR
+    fwdir = os.getenv('FRAMEWORKDIR', os.path.join(MYDIR, '../../../'))
+    os.chdir(fwdir)
+    FRAMEWORKDIR = os.getcwd()
+    return FRAMEWORKDIR
 
 
-def get_config(section, key, configfile=CONFIGINI, default=None, parentdir=False):
-    """Get config key from the given section"""
-    config = load_config(configfile)
-    retval = default
-    if config and section in config:
-        retval = config.get(section, key, fallback=default)
-    if retval and parentdir:
-        return '%s/%s' % (SOLUTIONDIR, retval)
-    return retval
+def get_config_data(config_file):
+    """Return config data from the config file."""
+    config_data = None
+    if exists_file(config_file):
+        config_data = configparser.ConfigParser(allow_no_value=True)
+        config_data.read(config_file)
+    return config_data
+
+
+def config_value(section, key, configfile=None, default=None):
+    """Get value for the key from the given config section"""
+    if not configfile:
+        configfile = framework_config()
+    config_data = get_config_data(configfile)
+    if config_data and section in config_data:
+        return config_data.get(section, key, fallback=default)
+    return default
 
 
 def get_test_json_dir():
     """ Path to check and run the tests from the test containers."""
-    soln_dir = get_solution_dir()
-    env_test_dir = get_config('TESTS', 'containerFolder')
-    #env_test_dir = os.getenv('TESTDIR', None)
-    #if not env_test_dir:
-    #    env_test_dir = "/realm/validation/"
-    test_path = '%s/%s' % (soln_dir, env_test_dir)
+    fw_dir = framework_dir()
+    env_test_dir = config_value('TESTS', 'containerFolder')
+    test_path = '%s/%s' % (fw_dir, env_test_dir)
     return test_path.replace('//', '/')
-
-
-# def main():
-#     print(get_config_ini())
-#     sol_dir = get_solution_dir()
-#     print(sol_dir)
-#     cfg_file = '%srealm/config.ini' % sol_dir
-#     print(cfg_file)
-#     cfg_data = load_config(cfg_file)
-#     print(cfg_data)
-#     print(get_config('DEFAULT', 'subscription'))
-#
-#
-# if __name__ == "__main__":
-#     main()
-

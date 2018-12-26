@@ -3,7 +3,7 @@ import json
 import hashlib
 from pymongo import MongoClient, TEXT
 from bson.objectid import ObjectId
-from processor.helper.config.config_utils import get_config
+from processor.helper.config.config_utils import config_value
 
 
 MONGO = None
@@ -29,7 +29,7 @@ def mongodb(dbname=None):
 
 
 def init_db():
-    dbname = get_config('MONGODB', 'dbname')
+    dbname = config_value('MONGODB', 'dbname')
     create_indexes(COLLECTION, dbname, [('timestamp', TEXT)])
 
 

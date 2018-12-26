@@ -1,36 +1,34 @@
-"""
-   File and directory utils.
-"""
+"""Utility functions for file and  directory"""
 
 import os
 
 
-def check_directory(dirname):
-    """Check if it is a directory, then further actions on the directory"""
-    if not dirname or not os.path.exists(dirname) or not os.path.isdir(dirname):
-        return False
-    return True
+def exists_dir(dir):
+    """Check if this path exists and is a directory"""
+    if dir and os.path.exists(dir) and os.path.isdir(dir):
+        return True
+    return False
 
 
-def check_filename(filename):
-    """Check the file if exists before any further operations on it"""
-    if not filename or not os.path.exists(filename) or not os.path.isfile(filename):
-        return False
-    return True
+def exists_file(fname):
+    """Check if path exists and is a file"""
+    if fname and os.path.exists(fname) and os.path.isfile(fname):
+        return True
+    return False
 
 
-def delete_file(filename):
-    """Delete filename, not checking the existence of the file."""
+def remove_file(fname):
+    """Remove the file."""
     try:
-        os.remove(filename)
+        os.remove(fname)
         return True
     except:
         return False
 
 
-def mkdir_parents(dirpath):
+def mkdir_path(dirpath):
     try:
         os.makedirs(dirpath)
-        return  check_directory(dirpath)
-    except OSError as exc:  # Python >2.5
+        return exists_dir(dirpath)
+    except:
         return False

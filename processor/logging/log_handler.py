@@ -1,42 +1,37 @@
-"""
-   Logging related functionality in this module.
-"""
-
-import logging
+"""Helper functions to setup logging for framework."""
 import datetime
+import logging
+from logging.handlers import RotatingFileHandler
 import os
-from processor.helper.config.config_utils import (get_solution_dir,
-                                                  load_config,
-                                                  get_config_ini)
-
-LOGGER = None
-LOGFILE = '%Y%m%d-%H%M%S'
-LOGFILENAME = None
+from processor.helper.config.config_utils import framework_dir,\
+    get_config_data, framework_config
 
 
-def get_logger_config(config):
-    """Return the logging config"""
+FWLOGGER = None
+FWLOGFILENAME = None
+
+
+def logging_fw(fwconfigfile):
+    """Framework file logging"""
+    global FWLOGFILENAME
+    FWLOGFILE = '%Y%m%d-%H%M%S'
+    if not fwconfigfile:
+        fwconfigfile = framework_config()
+    fw_cfg = get_config_data(fwconfigfile)
     logconfig = {
         "level": logging.INFO,
-        "maxbytes": 10,
-        "backupcount": 10,
-        "propagate": True
+        "propagate": True,
+        "size": 10,
+        "backups": 10,
     }
-    if config and 'LOGGING' in config:
-        conf = config['LOGGING']
-        logconfig['level'] = logging.getLevelName(conf['level']) \
-            if 'level' in conf and conf['level'] else logging.INFO
-        logconfig['maxbytes'] = conf.getint('maxbytes') if 'maxbytes' in conf else 10
-        logconfig['backupcount'] = conf.getint('backupcount') if 'backupcount' in conf else 10
-        logconfig['propagate'] = conf.getboolean('propagate') if 'propagate' in conf else True
-    return logconfig
-
-
-def setup_logging(configfile, ):
-    """Setup the logging for the utility"""
-    global LOGFILENAME
-    config = load_config(configfile)
-    logconfig = get_logger_config(config)
+    if fw_cfg and 'LOGGING' in fw_cfg:
+        fwconf = fw_cfg['LOGGING']
+        logconfig['level'] = logging.getLevelName(fwconf['level']) \
+            if 'level' in fwconf and fwconf['level'] else logging.INFO
+        logconfig['size'] = fwconf.getint('size') if 'size' in fwconf else 10
+        logconfig['backups'] = fwconf.getint('backups') if 'backups' in fwconf else 10
+        logconfig['propagate'] = fwconf.getboolean('propagate') if 'propagate' in fwconf \
+            else True
     level = os.getenv('LOGLEVEL', None)
     loglevel = level if level and level in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'] \
         else logconfig['level']
@@ -44,30 +39,24 @@ def setup_logging(configfile, ):
     logging.basicConfig(level=loglevel, format=logformat)
     logger = logging.getLogger(__name__)
     logger.propagate = logconfig['propagate']
-    if True:
-        from logging.handlers import RotatingFileHandler
-        logpath = '%slog/' % get_solution_dir()
-        # if not os.path.exists(logpath):
-        #     os.mkdir(logpath)
-        LOGFILENAME = '%s%s.log' % (logpath, datetime.datetime.today().strftime(LOGFILE))
-        handler = RotatingFileHandler(
-            LOGFILENAME,
-            maxBytes=1024 * 1024 * logconfig['maxbytes'],
-            backupCount=logconfig['backupcount']
-        )
-        handler.setFormatter(logging.Formatter(logformat))
-        handler.setLevel(logconfig['level'])
-        logger.addHandler(handler)
+    logpath = '%s/log/' % framework_dir()
+    FWLOGFILENAME = '%s%s.log' % (logpath, datetime.datetime.today().strftime(FWLOGFILE))
+    handler = RotatingFileHandler(
+        FWLOGFILENAME,
+        maxBytes=1024 * 1024 * logconfig['size'],
+        backupCount=logconfig['backups']
+    )
+    handler.setFormatter(logging.Formatter(logformat))
+    handler.setLevel(logconfig['level'])
+    logger.addHandler(handler)
     return logger
 
 
-def getlogger(configfile=None):
-    """Get the common logger for the application."""
-    global LOGGER
-    if LOGGER:
-        return LOGGER
-    if not configfile:
-        configfile = get_config_ini()
-    LOGGER = setup_logging(configfile)
-    return LOGGER
+def getlogger(fw_cfg=None):
+    """Get the logger for the framework."""
+    global FWLOGGER
+    if FWLOGGER:
+        return FWLOGGER
+    FWLOGGER = logging_fw(fw_cfg)
+    return FWLOGGER
 

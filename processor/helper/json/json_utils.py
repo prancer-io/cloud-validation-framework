@@ -1,12 +1,10 @@
-"""
-   Json related utility files.
-"""
+""" Utility functions for json."""
 
 import json
 import time
 import glob
 from collections import OrderedDict
-from processor.helper.file.file_utils import check_filename
+from processor.helper.file.file_utils import exists_file
 from processor.helper.config.config_utils import get_test_json_dir
 from processor.logging.log_handler import getlogger
 
@@ -25,7 +23,7 @@ def load_json(filename):
     """Load json data from the file."""
     jsondata = None
     try:
-        if check_filename(filename):
+        if exists_file(filename):
             with open(filename) as jsonfile:
                 jsondata = json.loads(jsonfile.read(), object_pairs_hook=OrderedDict)
     except:
@@ -144,23 +142,3 @@ def get_json_files(json_dir, filetype):
             if json_data and 'fileType' in json_data and json_data['fileType'] == filetype:
                 file_list.append(filename)
     return file_list
-
-
-def dump_output_results1(results, test_file, container):
-    test_file_parts = test_file.rsplit('/', 1)
-    output_file = '%s/%s/output-%s' % (get_test_json_dir(), container, test_file_parts[-1])
-    od = OrderedDict()
-    od["$schema"] =  ""
-    od["contentVersion"]  = "1.0.0.0"
-    od["fileType"] = "output"
-    od["timestamp"] = ""
-    od["snapshot"] = "snapshot.json"
-    od["test"] = test_file_parts[-1]
-    od["container"] = container
-    od["results"] = results
-    dump_json(od, output_file)
-
-
-
-
-

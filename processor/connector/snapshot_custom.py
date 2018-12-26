@@ -9,10 +9,10 @@ import shutil
 import os
 from git import Repo
 from git import Git
-from processor.helper.file.file_utils import check_filename, check_directory, mkdir_parents
+from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_field_value, load_json
-from processor.helper.config.config_utils import get_config, get_test_json_dir
+from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.database.database import insert_one_document, COLLECTION
 
 
@@ -35,7 +35,7 @@ def get_node(repopath, node):
     json_path = '%s/%s' % (repopath, node['path'])
     file_path = json_path.replace('//', '/')
     logger.info('File: %s', file_path)
-    if check_filename(file_path):
+    if exists_file(file_path):
         json_data = load_json(file_path)
         if json_data:
             db_record['json'] = json_data
@@ -48,12 +48,12 @@ def get_node(repopath, node):
 
 def populate_custom_snapshot(snapshot):
     """ Populates the resources from git."""
-    dbname = get_config('MONGODB', 'dbname')
+    dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     json_test_dir = get_test_json_dir()
     custom_source = '%s/../%s' % (json_test_dir, snapshot_source)
     logger.info('Custom source: %s', custom_source)
-    if check_filename(custom_source):
+    if exists_file(custom_source):
         sub_data = load_json(custom_source)
         if sub_data:
             # print(sub_data)
@@ -65,7 +65,7 @@ def populate_custom_snapshot(snapshot):
             exists, empty = valid_clone_dir(repopath)
             if exists and empty:
                 try:
-                    if ssh_key_file and check_filename(ssh_key_file):
+                    if ssh_key_file and exists_file(ssh_key_file):
                         git_ssh_cmd = 'ssh -i %s' % ssh_key_file
                         with Git().custom_environment(GIT_SSH_COMMAND=git_ssh_cmd):
                             Repo.clone_from(giturl, repopath, branch=brnch)
@@ -93,14 +93,14 @@ def populate_custom_snapshot(snapshot):
 
 
 def valid_clone_dir(dirname):
-    if check_directory(dirname):
+    if exists_dir(dirname):
         exists = True
         if not os.listdir(dirname):
             empty = True
         else:
             empty = False
     else:
-        exists = mkdir_parents(dirname)
+        exists = mkdir_path(dirname)
         if exists and not os.listdir(dirname):
             empty = True
         else:

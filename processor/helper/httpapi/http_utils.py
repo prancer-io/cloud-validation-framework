@@ -6,7 +6,7 @@ from urllib import request, parse
 from urllib.error import HTTPError
 from processor.helper.json.json_utils import load_json_input
 from processor.logging.log_handler import getlogger
-from processor.helper.config.rundata_utils import add_to_run_config
+from processor.helper.config.rundata_utils import put_in_currentdata
 
 logger = getlogger()
 hdrs = {
@@ -18,7 +18,7 @@ hdrs = {
 def check_and_add_error(status, errmsg):
     if status and isinstance(status, int) and status != 200:
         if status >= 400:
-            add_to_run_config('errors', errmsg)
+            put_in_currentdata('errors', errmsg)
         logger.info(errmsg)
 
 

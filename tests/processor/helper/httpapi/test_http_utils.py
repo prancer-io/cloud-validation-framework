@@ -113,11 +113,11 @@ def test_http_post_request_exception(monkeypatch):
 
 def test_check_and_add_error():
     from processor.helper.httpapi.http_utils import check_and_add_error
-    from processor.helper.config.rundata_utils import save_run_config, get_from_run_config
-    save_run_config(None)
+    from processor.helper.config.rundata_utils import save_currentdata, get_from_currentdata
+    save_currentdata(None)
     check_and_add_error(200, 'Failed http get')
-    value = get_from_run_config('errors')
+    value = get_from_currentdata('errors')
     assert value is None
     check_and_add_error(400, 'Failed http get')
-    value = get_from_run_config('errors')
+    value = get_from_currentdata('errors')
     assert value is not None

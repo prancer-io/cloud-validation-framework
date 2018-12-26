@@ -4,8 +4,8 @@
 
 import os
 from processor.logging.log_handler import getlogger
-from processor.helper.file.file_utils import check_filename
-from processor.helper.config.rundata_utils import get_from_run_config, add_to_run_config
+from processor.helper.file.file_utils import exists_file
+from processor.helper.config.rundata_utils import get_from_currentdata, put_in_currentdata
 from processor.helper.httpapi.http_utils import http_post_request
 from processor.helper.json.json_utils import get_field_value, load_json
 from processor.helper.config.config_utils import get_test_json_dir
@@ -33,7 +33,7 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
     if snapshot_type == 'azure':
         azure_source = '%s/../%s' % (json_test_dir, snapshot_source)
         logger.info('Azure source: %s', azure_source)
-        if check_filename(azure_source):
+        if exists_file(azure_source):
             sub_data = load_json(azure_source)
             if sub_data:
                 accounts = get_field_value(sub_data, 'accounts')
@@ -59,29 +59,29 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
     return client_id, client_secret, sub_id, tenant_id
 
 
-def get_subscription_id_from_runconfig():
+def get_subscription_id():
     """ Return the subscription Id used for the current run"""
-    return get_from_run_config(SUBSCRIPTION)
+    return get_from_currentdata(SUBSCRIPTION)
 
 
-def get_tenant_id_from_runconfig():
+def get_tenant_id():
     """ Return the tenant_id"""
-    return get_from_run_config(TENANT)
+    return get_from_currentdata(TENANT)
 
 
-def get_client_id_from_runconfig():
+def get_client_id():
     """ Return the client Id used for the current run"""
-    return get_from_run_config(CLIENTID)
+    return get_from_currentdata(CLIENTID)
 
 
-def get_resource_group_from_runconfig():
+def get_resource_group():
     """ Return the resource group"""
-    return get_from_run_config(RESOURCEGROUP)
+    return get_from_currentdata(RESOURCEGROUP)
 
 
 def get_client_secret():
     """ Return the client secret used for the current run"""
-    client_secret = get_from_run_config(CLIENTSECRET)
+    client_secret = get_from_currentdata(CLIENTSECRET)
     if not client_secret:
         client_secret = os.getenv('CLIENTKEY', None)
     if not client_secret:
@@ -94,15 +94,14 @@ def get_access_token():
     Get the access token if stored in rundata, otherwise get the token from
     management.azure.com portal for the webapp.
     """
-    token = get_from_run_config(ACCESSTOKEN)
+    token = get_from_currentdata(ACCESSTOKEN)
     if not token:
-        tenant_id = get_tenant_id_from_runconfig()
-        # subid = get_subscription_id_from_runconfig()
-        client_id = get_client_id_from_runconfig()
+        tenant_id = get_tenant_id()
+        client_id = get_client_id()
         if client_id:
             client_secret = get_client_secret()
         else:
-            logger.info('Subscription file should contain client Id for REST API access!')
+            logger.info('client Id required for REST API access!')
             return None
         data = {
             'grant_type': 'client_credentials',
@@ -120,8 +119,8 @@ def get_access_token():
             status, data = http_post_request(url, data, headers=hdrs)
             if status and isinstance(status, int) and status == 200:
                 token = data['access_token']
-                add_to_run_config(ACCESSTOKEN, token)
+                put_in_currentdata(ACCESSTOKEN, token)
             else:
-                add_to_run_config('errors', data)
+                put_in_currentdata('errors', data)
                 logger.info("Get Azure token returned invalid status: %s", status)
     return token

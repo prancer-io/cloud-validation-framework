@@ -7,8 +7,8 @@ from processor.logging.log_handler import getlogger
 from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
     load_json
-from processor.helper.config.config_utils import get_config, get_test_json_dir,\
-    DATABASE, DBNAME, get_solution_dir
+from processor.helper.config.config_utils import config_value, get_test_json_dir,\
+    DATABASE, DBNAME, framework_dir
 from processor.database.database import create_indexes, COLLECTION
 from processor.reporting.json_output import dump_output_results
 
@@ -58,7 +58,7 @@ def run_file_validation_tests(test_file, container):
     if not testsets or not isinstance(testsets, list):
         logger.info("Test file %s does not contain testset, next!...", test_file)
         return False
-    dbname = get_config(DATABASE, DBNAME)
+    dbname = config_value(DATABASE, DBNAME)
     # Populate the snapshotId => collection for the snapshot.json in the test file.
     collection_data = get_snapshot_id_to_collection_dict(test_json_data['snapshot'],
                                                          container, dbname)
@@ -77,8 +77,8 @@ def run_file_validation_tests(test_file, container):
 
 def run_container_validation_tests(container):
     logger.info("Starting validation tests")
-    reporting_path = get_config('REPORTING', 'reportOutputFolder')
-    json_dir = '%s/%s/%s' % (get_solution_dir(), reporting_path, container)
+    reporting_path = config_value('REPORTING', 'reportOutputFolder')
+    json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
     logger.info(json_dir)
     test_files = get_json_files(json_dir, JSONTEST)
     logger.info('\n'.join(test_files))
