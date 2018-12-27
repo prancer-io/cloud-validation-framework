@@ -1,6 +1,4 @@
-"""
-all the base functions for making REST API calls
-"""
+"""all the base functions for making REST API calls"""
 import json
 import requests
 

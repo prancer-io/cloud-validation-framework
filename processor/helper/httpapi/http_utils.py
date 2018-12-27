@@ -2,6 +2,7 @@
    http utils using urllib default packaged with python3.
 """
 import json
+import copy
 from urllib import request, parse
 from urllib.error import HTTPError
 from processor.helper.json.json_utils import json_from_string
@@ -10,140 +11,91 @@ from processor.helper.config.rundata_utils import put_in_currentdata
 
 logger = getlogger()
 hdrs = {
-    'Cache-Control': "no-cache",
+    "Cache-Control": "no-cache",
     "Accept": "application/json"
 }
 
 
 def check_and_add_error(status, errmsg):
+    """Add error based on the status code of the http response"""
     if status and isinstance(status, int) and status != 200:
         if status >= 400:
             put_in_currentdata('errors', errmsg)
         logger.info(errmsg)
 
 
-def http_delete_request(url, deldata=None, headers=None):
-    "Delete method sends and accepts JSON format with basic authentication"
-    logger.info("Deleting %s  .......", url)
-    data = None
-    st_code = None
-    if headers:
-        headers.update(hdrs)
-    else:
-        headers = hdrs
-    logger.info('DELETE: header: %s, url: %s', json.dumps(headers), url)
-    if url: #Do something only valid URL
-        if deldata:
-            encdata = parse.urlencode(deldata).encode()
-            logger.info('DELETE: data: %s', encdata)
-            urlreq = request.Request(url, data=encdata, headers=headers,
-                                     method='DELETE')
-        else:
-            urlreq = request.Request(url, headers=headers, method='DELETE')
-        try:
-            urlresp = request.urlopen(urlreq)
-            respdata = urlresp.read()
-            logger.info("DELETE status: %d, response: %s", urlresp.status, respdata)
-            st_code = urlresp.status
-            check_and_add_error(st_code, "Delete Status: %d" % st_code)
-            if isinstance(respdata, bytes):
-                respdata = respdata.decode()
-            data = json_from_string(respdata)
-        except:
-            pass # Can we do anything here, not anything i can think of immediately
-    else:
-        pass # Do nothing.
+def get_request_headers(headers=None):
+    """Add json and no cache headers to the existing headers if passed."""
+    req_headers = copy.copy(headers) if headers else {}
+    req_headers.update(hdrs)
+    return req_headers
+
+
+def urlopen_request(urlreq, method):
+    """Common utility to trigger the http request."""
+    try:
+        urlresp = request.urlopen(urlreq)
+        respdata = urlresp.read()
+        st_code = urlresp.status
+        logger.debug("%s status: %d, response: %s", method, st_code, respdata)
+        check_and_add_error(st_code, "%s Status: %d" % (method, st_code))
+        if isinstance(respdata, bytes):
+            respdata = respdata.decode()
+        data = json_from_string(respdata)
+        logger.info("%s status: %d", method, st_code)
+    except HTTPError as ex:
+        st_code = ex.code if method == "POST" else None
+        data = ex.msg if method == "POST" else None
+        logger.info("HTTP %s: status: %d", method, st_code)
     return st_code, data
 
 
-def http_get_request(url, headers=None):
-    "Get method sends and accepts JSON format."
-    logger.info("Getting %s  .......", url)
-    data = None
-    st_code = None
-    if headers:
-        headers.update(hdrs)
+def http_delete_request(url, deldata=None, headers=None, name='DELETE'):
+    """Delete method sends and accepts JSON format with basic authentication"""
+    logger.info("HTTP %s %s  .......", name, url)
+    if not url:
+        return None, None
+    if deldata:
+        encdata = parse.urlencode(deldata).encode()
+        logger.info('%s: data: %s', name, encdata)
+        urlreq = request.Request(url, data=encdata, headers=get_request_headers(headers),
+                                 method=name)
     else:
-        headers = hdrs
-    logger.debug('GET: header: %s, url: %s', json.dumps(headers), url)
-    if url: #Do something only valid URL
-        try:
-            urlreq = request.Request(url, headers=headers, method='GET')
-            urlresp = request.urlopen(urlreq)
-            respdata = urlresp.read()
-            logger.debug("GET status: %d, response: %s", urlresp.status, respdata)
-            st_code = urlresp.status
-            check_and_add_error(st_code, "Get Status: %d" % st_code)
-            if isinstance(respdata, bytes):
-                respdata = respdata.decode()
-            data = json_from_string(respdata)
-        except:
-            pass # Can we do anything here, not anything i can think of immediately
-    else:
-        pass # Do nothing.
-    return st_code, data
+        urlreq = request.Request(url, headers=get_request_headers(headers), method=name)
+    return urlopen_request(urlreq, name)
 
 
-def http_put_request(url, mapdata, headers=None):
-    "Put method sends and accepts JSON format."
-    logger.info("Putting %s  .......", url)
-    data = None
-    st_code = None
-    if headers:
-        headers.update(hdrs)
-    else:
-        headers = hdrs
-    logger.info('PUT: header: %s, url: %s', json.dumps(headers), url)
-    if url: #Do something only valid URL
-        putdata = parse.urlencode(mapdata).encode()
-        logger.info('PUT: data: %s', putdata)
-        urlreq = request.Request(url, data=putdata, headers=headers,
-                                 method='PUT')
-        try:
-            urlresp = request.urlopen(urlreq)
-            respdata = urlresp.read()
-            logger.info("PUT status: %d, response: %s", urlresp.status, respdata)
-            st_code = urlresp.status
-            check_and_add_error(st_code, "Put Status: %d" % st_code)
-            if isinstance(respdata, bytes):
-                respdata = respdata.decode()
-            data = json_from_string(respdata)
-        except:
-            pass # Can we do anything here, not anything i can think of immediately
-    else:
-        pass # Do nothing.
-    return st_code, data
+def http_get_request(url, headers=None, name='GET'):
+    """Get method sends and accepts JSON format."""
+    logger.info("HTTP %s %s  .......", name, url)
+    if not url:
+        return None, None
+    urlreq = request.Request(url, headers=get_request_headers(headers), method=name)
+    return urlopen_request(urlreq, name)
 
 
-def http_post_request(url, mapdata, headers=None, json_type=False):
-    "Post method sends and accepts JSON format"
-    logger.info("Posting %s  .......", url)
-    data = None
-    st_code = None
-    if not headers:
-        headers = hdrs
-    logger.info('POST: header: %s, url: %s', json.dumps(headers), url)
-    if url: #Do something only valid URL
-        try:
-            if json_type:
-                postdata = str.encode(json.dumps(mapdata))
-            else:
-                postdata = parse.urlencode(mapdata).encode()
-            logger.debug('POST: data: %s', postdata)
-            urlreq = request.Request(url, data=postdata, headers=headers,
-                                     method='POST')
-            urlresp = request.urlopen(urlreq)
-            respdata = urlresp.read()
-            logger.debug("POST status: %d, response: %s", urlresp.status, respdata)
-            st_code = urlresp.status
-            check_and_add_error(st_code, "POST status: %d" % st_code)
-            if isinstance(respdata, bytes):
-                respdata = respdata.decode()
-            data = json_from_string(respdata)
-        except HTTPError as ex:
-            st_code = ex.code
-            data = ex.msg
-            logger.info("POST status: %d, response: %s", st_code, data)
+def http_put_request(url, mapdata, headers=None, name='PUT'):
+    """Put method sends and accepts JSON format."""
+    logger.info("HTTP %s %s  .......", name, url)
+    if not url:
+        return None, None
+    putdata = parse.urlencode(mapdata).encode()
+    logger.info('%s: data: %s', name, putdata)
+    urlreq = request.Request(url, data=putdata, headers=get_request_headers(headers),
+                             method='PUT')
+    return urlopen_request(urlreq, name)
+
+
+def http_post_request(url, mapdata, headers=None, json_type=False, name='POST'):
+    """Post method sends and accepts JSON format"""
+    logger.info("HTTP %s %s  .......", name, url)
+    if not url:
+        return None, None
+    if json_type:
+        postdata = str.encode(json.dumps(mapdata))
     else:
-        pass # Do nothing.
-    return st_code, data
+        postdata = parse.urlencode(mapdata).encode()
+    logger.debug('%s: data: %s', name, postdata)
+    urlreq = request.Request(url, data=postdata, headers=get_request_headers(headers),
+                             method='POST')
+    return urlopen_request(urlreq, name)

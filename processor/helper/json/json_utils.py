@@ -82,7 +82,8 @@ def get_field_value(data, parameter):
     if data and fields:
         retval = data
         for field in fields:
-            retval = retval[field] if retval and isinstance(retval, dict) else None
+            retval = retval[field] if retval and field in retval and isinstance(retval, dict) \
+                else None
     return retval
 
 
