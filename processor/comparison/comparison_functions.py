@@ -1,8 +1,9 @@
 """All comparison functions."""
-
 from processor.helper.json.json_utils import check_field_exists, get_field_value
 
+
 def apply_extras(value, extras):
+    """Apply any additional functionalities after evaluation."""
     for extra in extras:
         if extra == 'len':
             value = len(value) if hasattr(value, 'len') or hasattr(value, '__len__') else 0
@@ -33,7 +34,7 @@ def less_than(data, loperand, roperand, is_not=False, extras=None):
         if type(value) == type(roperand) and value < roperand:
             lt = True
     if is_not:
-         lt = not lt
+        lt = not lt
     return lt
 
 
@@ -79,11 +80,9 @@ def greater_than_equal(data, loperand, roperand, is_not=False, extras=None):
     return gte
 
 
-def exists(data, loperand, roperand, is_not=False, extras=None):
+def exists(data, loperand, _, is_not=False, extras=None):
     """ Compare and return value """
     present = check_field_exists(data, loperand)
     if is_not:
         present = not present
     return present
-
-

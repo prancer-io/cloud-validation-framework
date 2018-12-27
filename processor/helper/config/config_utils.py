@@ -1,14 +1,10 @@
-"""
-   Framework Configuration utilities
-"""
+"""Framework Configuration utilities"""
 import configparser
 import os
 from processor.helper.file.file_utils import exists_file
 
+
 MYDIR = os.path.abspath(os.path.dirname(__file__))
-# FRAMEWORKDIR = os.getenv('FRAMEWORKDIR', os.path.join(MYDIR, '../../../'))
-# FRAMEWORKCONFIG = '%srealm/config.ini' % FRAMEWORKDIR
-# CURRENTDATA = '%scurrentdata/current' % FRAMEWORKDIR
 FRAMEWORKDIR = None
 FRAMEWORKCONFIG = None
 CURRENTDATA = None
@@ -17,7 +13,7 @@ DBNAME = 'dbname'
 
 
 def framework_currentdata():
-    """Return the framework rundata."""
+    """Return the framework current data."""
     global CURRENTDATA
     if CURRENTDATA:
         return CURRENTDATA

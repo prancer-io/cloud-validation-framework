@@ -8,7 +8,7 @@ import pymongo
 from processor.helper.json.json_utils import get_field_value
 from processor.database.database import COLLECTION, get_documents
 from processor.comparison.comparison_functions import equality,\
-    less_than, less_than_equal,greater_than, greater_than_equal, exists
+    less_than, less_than_equal, greater_than, greater_than_equal, exists
 from antlr4 import InputStream
 from antlr4 import CommonTokenStream
 from processor.comparison.comparisonantlr.comparatorLexer import comparatorLexer
@@ -43,7 +43,7 @@ def version_str(version):
 
 
 def get_operator_roperand(value):
-    roperand = None,
+    roperand = None
     op = 'exist'
     is_not = False
     extras = None
@@ -103,7 +103,7 @@ def interpret_additional_operations(roperand):
         for regex, action in actions:
             m = re.match(regex, roperand, re.I)
             if m:
-                # print(m.groups(), regex)
+                logger.debug(m.groups(), regex)
                 value = action(m, roperand)
                 break
     except:
@@ -122,23 +122,22 @@ class Comparator:
     def __init__(self, version, dbname, collection_data, testcase):
         self.comparator = self._factory_method(version, dbname, collection_data, testcase)
 
-    def _factory_method(self, version, dbname, collection_data, testcase):
+    @staticmethod
+    def _factory_method(version, dbname, collection_data, testcase):
         version_val = version_str(version)
         if version_val == COMPARATOR_V0_1:
-            return Comparator_v0_1(dbname, collection_data, testcase)
+            return ComparatorV01(dbname, collection_data, testcase)
         elif version_val == COMPARATOR_V0_2:
-            return Comparator_v0_2(dbname, collection_data, testcase)
+            return ComparatorV02(dbname, collection_data, testcase)
         else:
-            return Comparator_v0_1(dbname, collection_data, testcase)
+            return ComparatorV01(dbname, collection_data, testcase)
 
     def validate(self):
         return self.comparator.validate()
 
 
-class Comparator_v0_1:
-    """
-    Override the validate method to return to run comparator
-    """
+class ComparatorV01:
+    """Override the validate method to return to run comparator"""
 
     def __init__(self, dbname, collection_data, testcase):
         self.dbname = dbname
@@ -151,7 +150,6 @@ class Comparator_v0_1:
             self.snapshot_id = get_field_value(testcase, 'snapshotId')
             coll_val = get_field_value(self.collection_data, self.snapshot_id)
             self.collection = coll_val if coll_val else COLLECTION
-            # self.collection = self.collection.replace('.', '').lower()
             self.loperand = loperand
             self.is_not, self.op, self.roperand, self.extras = get_operator_roperand(value)
         elif rule:
@@ -159,7 +157,6 @@ class Comparator_v0_1:
             self.rule = rule
         else:
             self.format = None
-
 
     def validate(self):
         result_val = {"result": "failed"}
@@ -173,8 +170,8 @@ class Comparator_v0_1:
                 if docs and len(docs):
                     self.data = docs[0]['json']
                     if self.op in OPERATORS and OPERATORS[self.op]:
-                        result =  OPERATORS[self.op](self.data, self.loperand, self.roperand,
-                                                     self.is_not, self.extras)
+                        result = OPERATORS[self.op](self.data, self.loperand, self.roperand,
+                                                    self.is_not, self.extras)
                         result_val["result"] = "passed" if result else "failed"
                     else:
                         result_val['reason'] = 'Unsupported comparison operator: %s' % self.op
@@ -191,8 +188,8 @@ class Comparator_v0_1:
         elif self.format == TESTCASEV2:
             logger.info('#' * 75)
             logger.info('Actual Rule: %s', self.rule)
-            inputStream = InputStream(self.rule)
-            lexer = comparatorLexer(inputStream)
+            input_stream = InputStream(self.rule)
+            lexer = comparatorLexer(input_stream)
             stream = CommonTokenStream(lexer)
             parser = comparatorParser(stream)
             tree = parser.expression()
@@ -213,54 +210,12 @@ class Comparator_v0_1:
         return result_val
 
 
-class Comparator_v0_2(Comparator_v0_1):
+class ComparatorV02(ComparatorV01):
     """
     Override the validate method to run the comparisons
     """
     def __init__(self, dbname, collection_data, testcase):
-        Comparator_v0_1.__init__(self, dbname, collection_data, testcase)
+        ComparatorV01.__init__(self, dbname, collection_data, testcase)
 
     def validate(self):
-        return Comparator_v0_1.validate(self)
-
-
-# def main():
-#     comparator = Comparator('0.1', {'a': 'b'}, 'a', 'exist')
-#     print(type(comparator))
-#     print(type(comparator.comparator))
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b'}, 'b', 'exist')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b'}, 'b', 'not exist')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c':{'d': 1}}, 'c.e', 'not exist')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 1}}, 'c.d', 'not exist')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 1}}, 'c.d', 'exist')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 10}}, 'c.d', 'gt 10')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 10}}, 'c.d', 'eq 10')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 10}}, 'c.d', 'neq 5')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'eq "eastus"')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'eq len(7)')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'neq len(7)')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'gt len(7)')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'gte len(7)')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'lt len(7)')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', 'lte len(7)')
-#     print(comparator.validate())
-#     comparator = Comparator('0.1', {'a': 'b', 'c': {'d': 'eastus2'}}, 'c.d', "eq '{2}.location'")
-#     print(comparator.validate())
-#
-# if __name__ == "__main__":
-#     main()
+        return ComparatorV01.validate(self)

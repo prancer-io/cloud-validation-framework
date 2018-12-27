@@ -1,6 +1,4 @@
-"""
-   Rest API utils and calls. Fetch access token and make http calls.
-"""
+"""Rest API utils and calls. Fetch access token and make http calls."""
 
 import os
 from processor.logging.log_handler import getlogger

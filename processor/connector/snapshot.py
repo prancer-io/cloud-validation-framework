@@ -56,4 +56,3 @@ def populate_container_snapshots(container):
     for snapshot_file in snapshot_files:
         populate_snapshots_from_file(snapshot_file)
     return True
-

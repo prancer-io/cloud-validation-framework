@@ -10,43 +10,45 @@ from processor.helper.config.config_utils import framework_currentdata
 from processor.helper.json.json_utils import json_from_file, save_json_to_file
 from processor.logging.log_handler import getlogger, FWLOGFILENAME
 from processor.helper.file.file_utils import remove_file, exists_dir, mkdir_path
+
 exclude_list = ['token', 'clientSecret']
-
-
 logger = getlogger()
 
 
 def init_currentdata():
+    """ Initialises data structure to store runtime data. """
     started = int(time.time() * 1000)
-    runcfg = framework_currentdata()
-    rundir = os.path.dirname(runcfg)
-    if not exists_dir(rundir):
-        mkdir_path(rundir)
-    rundata = {
+    runctx = framework_currentdata()
+    run_dir = os.path.dirname(runctx)
+    if not exists_dir(run_dir):
+        mkdir_path(run_dir)
+    run_data = {
         'start': started,
         'end': started,
         'errors': [],
         'host': socket.gethostname(),
         'timestamp': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
-    save_currentdata(rundata)
+    save_currentdata(run_data)
 
 
 def put_in_currentdata(key, value):
+    """Adds a value in the current run data"""
     if key and value:
-        currdata = get_currentdata()
-        if key in currdata:
-            val = currdata[key]
+        curr_data = get_currentdata()
+        if key in curr_data:
+            val = curr_data[key]
             if isinstance(val, list):
                 val.append(value)
             else:
-                currdata[key] = value
+                curr_data[key] = value
         else:
-            currdata[key] = value
-        save_currentdata(currdata)
+            curr_data[key] = value
+        save_currentdata(curr_data)
 
 
 def delete_from_currentdata(key):
+    """Remove a key from the current run data"""
     if key:
         currdata = get_currentdata()
         if key in currdata:
@@ -64,34 +66,33 @@ def get_from_currentdata(key):
 
 
 def get_currentdata():
-    """Get the current currentdata, if present"""
-    runcfg = framework_currentdata()
-    currdata = json_from_file(runcfg)
-    if not currdata:
-        currdata = {}
-    return currdata
+    """Get the current run data, if present else empty json object"""
+    runctx = framework_currentdata()
+    curr_data = json_from_file(runctx)
+    if not curr_data:
+        curr_data = {}
+    return curr_data
 
 
-def save_currentdata(currdata):
+def save_currentdata(curr_data):
     """Save the key value rundata for further access, if None store it empty."""
-    if not currdata:
-        currdata = {}
-    runcfg = framework_currentdata()
-    save_json_to_file(currdata, runcfg)
+    if not curr_data:
+        curr_data = {}
+    runctx = framework_currentdata()
+    save_json_to_file(curr_data, runctx)
 
 
 def delete_currentdata():
-    """Delete the rundata config file when exiting of the script."""
-    rundata = get_currentdata()
-    rundata['end'] = int(time.time() * 1000)
-    rundata['log'] = FWLOGFILENAME
-    rundata['duration'] = '%d seconds' % int((rundata['end'] - rundata['start'])/1000)
-    rundata['start'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(rundata['start']/1000))
-    rundata['end'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(rundata['end']/1000))
+    """Delete the rundata file when exiting of the script."""
+    runctx = get_currentdata()
+    runctx['end'] = int(time.time() * 1000)
+    runctx['log'] = FWLOGFILENAME
+    runctx['duration'] = '%d seconds' % int((runctx['end'] - runctx['start'])/1000)
+    runctx['start'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runctx['start']/1000))
+    runctx['end'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runctx['end']/1000))
     for field in exclude_list:
-        if field in rundata:
-            del rundata[field]
-    logger.info("\033[92m Run Stats: %s\033[00m" % json.dumps(rundata, indent=2))
-    runcfg = framework_currentdata()
-    remove_file(runcfg)
-
+        if field in runctx:
+            del runctx[field]
+    logger.info("\033[92m Run Stats: %s\033[00m" % json.dumps(runctx, indent=2))
+    run_file = framework_currentdata()
+    remove_file(run_file)

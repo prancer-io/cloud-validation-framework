@@ -1,6 +1,4 @@
-"""
-   Common file for running validator functions.
-"""
+"""Common file for running validator functions."""
 import json
 import hashlib
 import time
@@ -68,7 +66,7 @@ def populate_custom_snapshot(snapshot):
                     if ssh_key_file and exists_file(ssh_key_file):
                         git_ssh_cmd = 'ssh -i %s' % ssh_key_file
                         with Git().custom_environment(GIT_SSH_COMMAND=git_ssh_cmd):
-                            Repo.clone_from(giturl, repopath, branch=brnch)
+                            repo = Repo.clone_from(giturl, repopath, branch=brnch)
                     else:
                         repo = Repo.clone_from(giturl, repopath, branch=brnch)
                 except Exception as ex:

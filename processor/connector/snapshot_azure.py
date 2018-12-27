@@ -41,7 +41,7 @@ def get_node(token, sub_id, node, user):
         "node": node,
         "snapshotId": node['snapshotId'],
         "collection": collection.replace('.', '').lower(),
-        "json": {}
+        "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
     version = get_version_for_type(node)
     if sub_id and token and node and node['path'] and version:
@@ -95,4 +95,3 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
         delete_from_currentdata('token')
         return True
     return False
-

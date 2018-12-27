@@ -3,9 +3,9 @@
 import os
 
 
-def exists_dir(dir):
+def exists_dir(dirname):
     """Check if this path exists and is a directory"""
-    if dir and os.path.exists(dir) and os.path.isdir(dir):
+    if dirname and os.path.exists(dirname) and os.path.isdir(dirname):
         return True
     return False
 

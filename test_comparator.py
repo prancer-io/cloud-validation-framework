@@ -14,10 +14,10 @@ from processor.comparison.comparisonantlr.rule_interpreter import RuleInterprete
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import init_currentdata, delete_currentdata
 from processor.database.database import init_db
-from processor.helper.json.json_utils import get_container_snapshot_json_files,load_json,\
-    get_field_value, get_container_dir
+from processor.helper.json.json_utils import get_container_snapshot_json_files,\
+    save_json_to_file, get_field_value, get_container_dir
 from processor.database.database import COLLECTION, get_documents
-from processor.helper.config.config_utils import DATABASE, DBNAME, config_value, framework_config
+from processor.helper.config.config_utils import DATABASE, DBNAME, config_value
 
 
 logger = getlogger()
@@ -40,6 +40,7 @@ def main(arg_vals=None):
         return False
     logger.info('Snapshot files: %s', snapshot_files)
     dbname = config_value(DATABASE, DBNAME)
+    snapshot_ids = []
     for fl in snapshot_files:
         snapshot_ids = populate_snapshots_from_file(fl)
     logger.debug(snapshot_ids)
@@ -52,7 +53,7 @@ def main(arg_vals=None):
             logger.info('#' * 80)
             logger.info(json.dumps(doc, indent=2))
     test6 = '%s/test6.json' % get_container_dir(args.container)
-    test6_json = load_json(test6)
+    test6_json = save_json_to_file(test6)
     logger.debug(test6_json)
     otherdata = {'dbname': dbname, 'snapshots': snapshot_ids}
     for testcase in test6_json['testSet'][0]['cases']:
@@ -64,7 +65,7 @@ def main(arg_vals=None):
 def populate_snapshots_from_file(snapshot_file):
     """Load the file as json and populate from json file."""
     snapshot_coll = {}
-    snapshot_json_data = load_json(snapshot_file)
+    snapshot_json_data = save_json_to_file(snapshot_file)
     if not snapshot_json_data:
         logger.info("Snapshot file %s looks to be empty, next!...", snapshot_file)
         return snapshot_coll
@@ -83,11 +84,12 @@ def populate_snapshots_from_file(snapshot_file):
             snapshot_coll[sid] = collection
     return snapshot_coll
 
+
 def main_comparator(code, otherdata):
     logger.info('#' * 75)
     logger.info('Actual Rule: %s', code)
-    inputStream = InputStream(code)
-    lexer = comparatorLexer(inputStream)
+    inputstream = InputStream(code)
+    lexer = comparatorLexer(inputstream)
     stream = CommonTokenStream(lexer)
     parser = comparatorParser(stream)
     tree = parser.expression()
