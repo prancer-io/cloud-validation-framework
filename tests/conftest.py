@@ -47,3 +47,15 @@ def load_json_file():
     return get_json_data
 
 
+@pytest.fixture
+def create_temp_text():
+
+    def create_test_temp_text(path):
+        fname = 'a1.txt'
+        fullname = '%s/%s' % (path, fname)
+        with open(fullname, 'w') as f:
+            f.write('abcd')
+        return fname
+
+    return create_test_temp_text
+

@@ -7,7 +7,7 @@ import json
 import socket
 import os.path
 from processor.helper.config.config_utils import framework_currentdata
-from processor.helper.json.json_utils import load_json, dump_json
+from processor.helper.json.json_utils import json_from_file, save_json_to_file
 from processor.logging.log_handler import getlogger, FWLOGFILENAME
 from processor.helper.file.file_utils import remove_file, exists_dir, mkdir_path
 exclude_list = ['token', 'clientSecret']
@@ -66,7 +66,7 @@ def get_from_currentdata(key):
 def get_currentdata():
     """Get the current currentdata, if present"""
     runcfg = framework_currentdata()
-    currdata = load_json(runcfg)
+    currdata = json_from_file(runcfg)
     if not currdata:
         currdata = {}
     return currdata
@@ -77,7 +77,7 @@ def save_currentdata(currdata):
     if not currdata:
         currdata = {}
     runcfg = framework_currentdata()
-    dump_json(currdata, runcfg)
+    save_json_to_file(currdata, runcfg)
 
 
 def delete_currentdata():

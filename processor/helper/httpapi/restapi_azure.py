@@ -7,7 +7,7 @@ from processor.logging.log_handler import getlogger
 from processor.helper.file.file_utils import exists_file
 from processor.helper.config.rundata_utils import get_from_currentdata, put_in_currentdata
 from processor.helper.httpapi.http_utils import http_post_request
-from processor.helper.json.json_utils import get_field_value, load_json
+from processor.helper.json.json_utils import get_field_value, json_from_file
 from processor.helper.config.config_utils import get_test_json_dir
 
 
@@ -34,7 +34,7 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
         azure_source = '%s/../%s' % (json_test_dir, snapshot_source)
         logger.info('Azure source: %s', azure_source)
         if exists_file(azure_source):
-            sub_data = load_json(azure_source)
+            sub_data = json_from_file(azure_source)
             if sub_data:
                 accounts = get_field_value(sub_data, 'accounts')
                 for account in accounts:

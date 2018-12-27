@@ -3,7 +3,7 @@
 """
 import json
 from processor.logging.log_handler import getlogger
-from processor.helper.json.json_utils import get_field_value, load_json,\
+from processor.helper.json.json_utils import get_field_value, json_from_file,\
     get_container_snapshot_json_files
 from processor.connector.snapshot_azure import populate_azure_snapshot
 from processor.connector.snapshot_custom import populate_custom_snapshot
@@ -38,7 +38,7 @@ def populate_snapshots_from_json(snapshot_json_data):
 
 def populate_snapshots_from_file(snapshot_file):
     """Load the file as json and populate from json file."""
-    snapshot_json_data = load_json(snapshot_file)
+    snapshot_json_data = json_from_file(snapshot_file)
     if not snapshot_json_data:
         logger.info("Snapshot file %s looks to be empty, next!...", snapshot_file)
         return False

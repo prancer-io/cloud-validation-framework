@@ -11,7 +11,7 @@ from git import Repo
 from git import Git
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor.logging.log_handler import getlogger
-from processor.helper.json.json_utils import get_field_value, load_json
+from processor.helper.json.json_utils import get_field_value, json_from_file
 from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.database.database import insert_one_document, COLLECTION
 
@@ -36,7 +36,7 @@ def get_node(repopath, node):
     file_path = json_path.replace('//', '/')
     logger.info('File: %s', file_path)
     if exists_file(file_path):
-        json_data = load_json(file_path)
+        json_data = json_from_file(file_path)
         if json_data:
             db_record['json'] = json_data
             data_str = json.dumps(json_data)
@@ -54,7 +54,7 @@ def populate_custom_snapshot(snapshot):
     custom_source = '%s/../%s' % (json_test_dir, snapshot_source)
     logger.info('Custom source: %s', custom_source)
     if exists_file(custom_source):
-        sub_data = load_json(custom_source)
+        sub_data = json_from_file(custom_source)
         if sub_data:
             # print(sub_data)
             giturl = get_field_value(sub_data, 'gitProvider')

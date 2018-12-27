@@ -6,7 +6,7 @@ import pymongo
 from processor.logging.log_handler import getlogger
 from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
-    load_json
+    json_from_file
 from processor.helper.config.config_utils import config_value, get_test_json_dir,\
     DATABASE, DBNAME, framework_dir
 from processor.database.database import create_indexes, COLLECTION
@@ -27,7 +27,7 @@ def run_validation_test(version, dbname, collection_data, testcase):
 def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname):
     snapshot_file = '%s/%s/%s' % (get_test_json_dir(), container, snapshot_file)
     snapshot_data = {}
-    snapshot_json_data = load_json(snapshot_file)
+    snapshot_json_data = json_from_file(snapshot_file)
     snapshots = get_field_value(snapshot_json_data, 'snapshots')
     if not snapshots:
         logger.info("Snapshot does not contain snapshots...")
@@ -49,7 +49,7 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname):
 def run_file_validation_tests(test_file, container):
     logger.info("*" * 50)
     logger.info("validator tests: %s", test_file)
-    test_json_data = load_json(test_file)
+    test_json_data = json_from_file(test_file)
     if not test_json_data:
         logger.info("Test file %s looks to be empty, next!...", test_file)
         return False

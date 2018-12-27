@@ -12,46 +12,47 @@ SNAPSHOT = 'snapshot'
 logger = getlogger()
 
 
-def dump_json(json_data, filename):
-    """Dump json data in the filename"""
-    if json_data is not None:
-        with open(filename, 'w') as jsonwrite:
-            jsonwrite.write(json.dumps(json_data, indent=2))
+def save_json_to_file(indata, outfile):
+    """Save json data to the file"""
+    if indata is not None:
+        try:
+            instr = json.dumps(indata, indent=2)
+            with open(outfile, 'w') as jsonwrite:
+                jsonwrite.write(instr)
+        except:
+            pass
 
 
-def load_json(filename):
-    """Load json data from the file."""
+def json_from_file(jsonfile):
+    """ Get json data from the file."""
     jsondata = None
     try:
-        if exists_file(filename):
-            with open(filename) as jsonfile:
-                jsondata = json.loads(jsonfile.read(), object_pairs_hook=OrderedDict)
+        if exists_file(jsonfile):
+            with open(jsonfile) as infile:
+                jsondata = json.loads(infile.read(), object_pairs_hook=OrderedDict)
     except:
-        logger.debug('Failed to load json from file: %s', filename)
-
+        logger.debug('Failed to load json from file: %s', jsonfile)
     return jsondata
 
 
-def load_json_input(result):
-    """Load json data from the passed str."""
-    jsondata = None
+def json_from_string(json_str):
+    """Get json from the string."""
     try:
-        jsondata = json.loads(result)
+        jsondata = json.loads(json_str)
+        return jsondata
     except:
-        logger.debug('Failed to load json data: %s', result)
-    return jsondata
+        logger.debug('Failed to load json data: %s', json_str)
+    return None
 
 
-def is_json(json_input):
-    """ Checks the input is json """
-    status = True
+def valid_json(json_input):
+    """ Checks validity of the json """
     try:
         _ = json.loads(json_input)
+        return True
     except:
-        status = False
         logger.debug('Not a valid json: %s', json_input)
-
-    return status
+    return False
 
 
 def check_field_exists(data, parameter):
@@ -74,27 +75,24 @@ def check_field_exists(data, parameter):
 
 
 def get_field_value(data, parameter):
-    """Utility to get json value from a nested structure."""
+    """get json value for a nested attribute."""
     retval = None
-    if data and parameter:
-        fields = parameter.split('.')
+    parameter = parameter[1:] if parameter and parameter.startswith('.') else parameter
+    fields = parameter.split('.') if parameter else None
+    if data and fields:
         retval = data
         for field in fields:
-            if retval:
-                if field in retval and isinstance(retval, dict):
-                    retval = retval[field]
-                else:
-                    retval = None
+            retval = retval[field] if retval and isinstance(retval, dict) else None
     return retval
 
 
-def set_field_value(json_data, field, value):
-    """Set the value for a multiple depth dictionary."""
+def put_value(json_data, field, value):
+    """Put the value for a multiple depth key."""
     data = json_data
-    field = field[1:] if field.startswith('.') else field
-    flds = field.split('.')
-    for idx, fld in enumerate(flds):
-        if idx == len(flds) - 1:
+    field = field[1:] if field and field.startswith('.') else field
+    fields = field.split('.') if field else []
+    for idx, fld in enumerate(fields):
+        if idx == len(fields) - 1:
             data[fld] = value
         else:
             if fld not in data or not isinstance(data[fld], dict):
@@ -102,13 +100,9 @@ def set_field_value(json_data, field, value):
         data = data[fld]
 
 
-def get_boolean(val):
+def parse_boolean(val):
     """String to boolean type."""
-    retval = False
-    if val:
-        if val.lower() == 'true':
-            retval = True
-    return retval
+    return True if val and val.lower() == 'true' else False
 
 
 def set_timestamp(json_data, fieldname='timestamp'):
@@ -138,7 +132,7 @@ def get_json_files(json_dir, filetype):
     file_list = []
     if json_dir and filetype:
         for filename in glob.glob('%s/*.json' % json_dir.replace('//', '/')):
-            json_data = load_json(filename)
+            json_data = json_from_file(filename)
             if json_data and 'fileType' in json_data and json_data['fileType'] == filetype:
                 file_list.append(filename)
     return file_list

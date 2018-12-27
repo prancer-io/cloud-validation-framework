@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 # from processor.helper.config.config_utils import get_test_json_dir
-from processor.helper.json.json_utils import dump_json
+from processor.helper.json.json_utils import save_json_to_file
 
 
 def dump_output_results(results, test_file, container):
@@ -21,7 +21,7 @@ def dump_output_results(results, test_file, container):
     od["test"] = test_file_parts[-1]
     od["container"] = container
     od["results"] = results
-    dump_json(od, output_file)
+    save_json_to_file(od, output_file)
 
 
 

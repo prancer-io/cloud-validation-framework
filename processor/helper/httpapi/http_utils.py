@@ -4,7 +4,7 @@
 import json
 from urllib import request, parse
 from urllib.error import HTTPError
-from processor.helper.json.json_utils import load_json_input
+from processor.helper.json.json_utils import json_from_string
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata
 
@@ -48,7 +48,7 @@ def http_delete_request(url, deldata=None, headers=None):
             check_and_add_error(st_code, "Delete Status: %d" % st_code)
             if isinstance(respdata, bytes):
                 respdata = respdata.decode()
-            data = load_json_input(respdata)
+            data = json_from_string(respdata)
         except:
             pass # Can we do anything here, not anything i can think of immediately
     else:
@@ -76,7 +76,7 @@ def http_get_request(url, headers=None):
             check_and_add_error(st_code, "Get Status: %d" % st_code)
             if isinstance(respdata, bytes):
                 respdata = respdata.decode()
-            data = load_json_input(respdata)
+            data = json_from_string(respdata)
         except:
             pass # Can we do anything here, not anything i can think of immediately
     else:
@@ -107,7 +107,7 @@ def http_put_request(url, mapdata, headers=None):
             check_and_add_error(st_code, "Put Status: %d" % st_code)
             if isinstance(respdata, bytes):
                 respdata = respdata.decode()
-            data = load_json_input(respdata)
+            data = json_from_string(respdata)
         except:
             pass # Can we do anything here, not anything i can think of immediately
     else:
@@ -139,7 +139,7 @@ def http_post_request(url, mapdata, headers=None, json_type=False):
             check_and_add_error(st_code, "POST status: %d" % st_code)
             if isinstance(respdata, bytes):
                 respdata = respdata.decode()
-            data = load_json_input(respdata)
+            data = json_from_string(respdata)
         except HTTPError as ex:
             st_code = ex.code
             data = ex.msg

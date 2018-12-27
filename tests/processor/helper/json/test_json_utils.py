@@ -1,82 +1,54 @@
-import pytest
-import json
 import copy
 import os.path
 import collections
 from tests.conftest import TESTSDIR, data_dict
-from processor.helper.json.json_utils import dump_json, load_json,\
-    load_json_input, is_json, check_field_exists, get_field_value, set_field_value,\
-    get_boolean, set_timestamp, get_container_dir, get_container_snapshot_json_files,\
+from processor.helper.json.json_utils import save_json_to_file, json_from_file,\
+    json_from_string, valid_json, check_field_exists, get_field_value, put_value,\
+    parse_boolean, set_timestamp, get_container_dir, get_container_snapshot_json_files,\
     get_json_files
 from processor.reporting.json_output import dump_output_results
 
 
-@pytest.fixture
-def create_temp_json():
-
-    def create_test_temp_json(path):
-        fname = 'a1.json'
-        fullname = '%s/%s' % (path, fname)
-        with open(fullname, 'w') as f:
-            f.write(json.dumps(data_dict, indent=2))
-        return fname
-
-    return  create_test_temp_json
-
-
-@pytest.fixture
-def create_temp_text():
-
-    def create_test_temp_text(path):
-        fname = 'a1.txt'
-        fullname = '%s/%s' % (path, fname)
-        with open(fullname, 'w') as f:
-            f.write('abcd')
-        return fname
-
-    return create_test_temp_text
-
-
-def test_dump_json(create_temp_dir):
+def test_save_json_to_file(create_temp_dir):
     newpath = create_temp_dir()
     fname = '%s/a1.json' % newpath
     file_exists = os.path.exists(fname)
     assert False == file_exists
-    dump_json({}, fname)
+    save_json_to_file({}, fname)
     file_exists = os.path.exists(fname)
     assert True == file_exists
     os.remove(fname)
-    dump_json(None, fname)
+    save_json_to_file(None, fname)
     file_exists = os.path.exists(fname)
     assert False == file_exists
-    dump_json({'a': 'b'}, fname)
+    save_json_to_file({'a': 'b'}, fname)
     file_exists = os.path.exists(fname)
     assert True == file_exists
     os.remove(fname)
 
 
-def test_load_json(create_temp_dir, create_temp_json, create_temp_text):
+def test_json_from_file(create_temp_dir, create_temp_json, create_temp_text):
     newpath = create_temp_dir()
     fname = create_temp_text(newpath)
     fullpath = '%s/%s' % (newpath, fname)
     file_exists = os.path.exists(fullpath)
     assert True == file_exists
-    json_data = load_json(fullpath)
+    json_data = json_from_file(fullpath)
     assert json_data is None
     fname = create_temp_json(newpath)
     fullpath = '%s/%s' % (newpath, fname)
     file_exists = os.path.exists(fullpath)
     assert True == file_exists
-    json_data = load_json(fullpath)
+    json_data = json_from_file(fullpath)
     assert json_data is not None
     assert isinstance(json_data, collections.OrderedDict)
-    json_data = load_json(None)
+    json_data = json_from_file(None)
     assert json_data is None
-    json_data = load_json('/tmp/xyza.json')
+    json_data = json_from_file('/tmp/xyza.json')
     assert json_data is None
 
 
-def test_load_json_input(create_temp_dir, create_temp_json):
+def test_json_from_string(create_temp_dir, create_temp_json):
     newpath = create_temp_dir()
     fname = create_temp_json(newpath)
     fullpath = '%s/%s' % (newpath, fname)
@@ -85,16 +57,16 @@ def test_load_json_input(create_temp_dir, create_temp_json):
     with open(fullpath) as f:
         data_str = f.read()
     assert data_str is not None
-    data = load_json_input(data_str)
+    data = json_from_string(data_str)
     assert data is not None
     data_str = 'abcd'
-    data = load_json_input(data_str)
+    data = json_from_string(data_str)
     assert data is None
-    data = load_json_input(None)
+    data = json_from_string(None)
     assert data is None
 
 
-def test_is_json(create_temp_dir, create_temp_json):
+def test_valid_json(create_temp_dir, create_temp_json):
     newpath = create_temp_dir()
     fname = create_temp_json(newpath)
     fullpath = '%s/%s' % (newpath, fname)
@@ -103,12 +75,12 @@ def test_is_json(create_temp_dir, create_temp_json):
     with open(fullpath) as f:
         data_str = f.read()
     assert data_str is not None
-    isjson = is_json(data_str)
+    isjson = valid_json(data_str)
     assert True == isjson
     data_str = 'abcd'
-    isjson = is_json(data_str)
+    isjson = valid_json(data_str)
     assert False == isjson
-    isjson = is_json(None)
+    isjson = valid_json(None)
     assert False == isjson
 
 
@@ -131,21 +103,21 @@ def test_get_field_value():
     assert {'h': 1} == get_field_value(data_dict, 'f.g')
 
 
-def test_set_field_value():
+def test_put_value():
     data_new = copy.deepcopy(data_dict)
-    set_field_value(data_new, 'a.b', 1)
+    put_value(data_new, 'a.b', 1)
     assert 1 == get_field_value(data_new, 'a.b')
-    set_field_value(data_new, '.a.b', 2)
+    put_value(data_new, '.a.b', 2)
     assert 2 == get_field_value(data_new, 'a.b')
-    set_field_value(data_new, 'm.n.o', {'a': {'b': 'c'}})
+    put_value(data_new, 'm.n.o', {'a': {'b': 'c'}})
     assert {'a': {'b': 'c'}} == get_field_value(data_new, 'm.n.o')
 
 
 def test_get_boolean():
-    assert False == get_boolean(None)
-    assert False == get_boolean('False')
-    assert True == get_boolean('true')
-    assert True == get_boolean('TrUE')
+    assert False == parse_boolean(None)
+    assert False == parse_boolean('False')
+    assert True == parse_boolean('true')
+    assert True == parse_boolean('TrUE')
 
 
 def test_set_timestamp():
