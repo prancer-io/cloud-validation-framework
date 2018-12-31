@@ -73,7 +73,7 @@ def compare_list(loperand, roperand, op):
 
 
 def compare_dict(loperand, roperand, op):
-    if type(loperand) is str and type(roperand) is str:
+    if type(loperand) is dict and type(roperand) is dict:
         if op in int_funcs:
             return int_funcs[op](loperand, roperand)
     return False
