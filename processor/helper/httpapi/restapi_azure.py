@@ -1,5 +1,6 @@
 """Rest API utils and calls. Fetch access token and make http calls."""
 
+from builtins import input
 import os
 from processor.logging.log_handler import getlogger
 from processor.helper.file.file_utils import exists_file

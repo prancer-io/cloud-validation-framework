@@ -99,15 +99,15 @@ def interpret_additional_operations(roperand):
     value = None
     actions = ((r'len\(\d+\)', match_array_len),
                (r'\{2\}\.(.*)', fetch_snapshot_attribute))
-    try:
-        for regex, action in actions:
-            m = re.match(regex, roperand, re.I)
-            if m:
-                logger.debug(m.groups(), regex)
-                value = action(m, roperand)
-                break
-    except:
-        pass
+    # try:
+    for regex, action in actions:
+        m = re.match(regex, roperand, re.I)
+        if m:
+            logger.debug(m.groups(), regex)
+            value = action(m, roperand)
+            break
+    # except:
+    #     pass
     return value
 
 
@@ -166,6 +166,19 @@ class ComparatorV01:
                                      sort=[('timestamp', pymongo.DESCENDING)],
                                      query={'snapshotId': self.snapshot_id},
                                      limit=1)
+                # docs = [{
+                # "_id": "5c24af787456217c485ad1e6",
+                # "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+                # "collection": "microsoftcompute",
+                # "json":{
+                #     "id": 124,
+                #     "location": "eastus2",
+                #     "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
+                # },
+                # "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+                # "snapshotId": 1,
+                # "timestamp": 1545908086831
+                # }]
                 logger.info('Number of Snapshot Documents: %s', len(docs))
                 if docs and len(docs):
                     self.data = docs[0]['json']
@@ -173,8 +186,8 @@ class ComparatorV01:
                         result = OPERATORS[self.op](self.data, self.loperand, self.roperand,
                                                     self.is_not, self.extras)
                         result_val["result"] = "passed" if result else "failed"
-                    else:
-                        result_val['reason'] = 'Unsupported comparison operator: %s' % self.op
+                    # else:
+                    #     result_val['reason'] = 'Unsupported comparison operator: %s' % self.op
                 else:
                     result_val.update({
                         "result": "skipped",
@@ -219,3 +232,14 @@ class ComparatorV02(ComparatorV01):
 
     def validate(self):
         return ComparatorV01.validate(self)
+
+
+# if __name__ == "__main__":
+#     comparator = Comparator('0.1', 'validator', {}, {
+#         "testId": "4",
+#         "snapshotId1": "1",
+#         "attribute": "id",
+#         "comparison": "gt0 10"
+#     })
+#     val = comparator.validate()
+#     print(val)

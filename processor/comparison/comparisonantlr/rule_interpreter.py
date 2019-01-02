@@ -62,8 +62,8 @@ class RuleInterpreter:
             (r'true|false', self.match_boolean),
             (r'\'.*\'', self.match_string),
             (r'\[.*\]', self.match_array_string),
-            (r'\{(\d+)\}\[(.*)\](\.\S+(\[.*\])?)*', self.match_array_attribute),
-            (r'\{(\d+)\}(\.\S+(\[(.*)\])?)*', self.match_attribute_array),
+            (r'\{(\d+)\}(\[.*\].*)', self.match_array_attribute),
+            (r'\{(\d+)\}(\..*)*', self.match_attribute_array),
             (r'\{.*\}', self.match_dictionary_string)
         )
         val = None
@@ -106,28 +106,22 @@ class RuleInterpreter:
         grps = m.groups()
         logger.info('matched grps: %s, type(grp0): %s', grps, type(grps[0]))
         doc = self.get_snaphotid_doc(grps[0])
-        if doc:
-            if grps[1]:
-                value = self.get_field_value(doc, grps[1])
-            else:
-                value = doc
-        else:
-            value = None
+        value = None
+        if doc and grps[1]:
+            value = self.get_field_value(doc, grps[1])
         return value
 
 
     def match_attribute_array(self, value, m):
         grps = m.groups()
-        # print(type(grps[0]))
         logger.debug('matched grps: %s, type(grp0): %s', grps, type(grps[0]))
         doc = self.get_snaphotid_doc(grps[0])
+        value = None
         if doc:
             if grps[1]:
                 value = self.get_field_value(doc, grps[1])
             else:
                 value = doc
-        else:
-            value = None
         return value
 
 
@@ -136,6 +130,19 @@ class RuleInterpreter:
         coll = self.kwargs['snapshots'][sid] if sid in self.kwargs['snapshots'] else COLLECTION
         docs = get_documents(coll, {'snapshotId': sid}, dbname,
                              sort=[('timestamp', pymongo.DESCENDING)], limit=1)
+        # docs = [{
+        # "_id": "5c24af787456217c485ad1e6",
+        # "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+        # "collection": "microsoftcompute",
+        # "json":{
+        #     "id": 124,
+        #     "location": "eastus2",
+        #     "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
+        # },
+        # "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+        # "snapshotId": 1,
+        # "timestamp": 1545908086831
+        # }]
         logger.debug('Number of Snapshot Documents: %s', len(docs))
         doc = None
         if docs and len(docs):
@@ -149,13 +156,12 @@ class RuleInterpreter:
         rhs_value = self.get_value(self.rhs_operand)
         # print('RHS value: ', rhs_value)
         logger.info('LHS: %s, OP: %s, RHS: %s', lhs_value, self.op, rhs_value)
+        retval = False
         if type(lhs_value) == type(rhs_value):
             if type(lhs_value) in comparefuncs:
                 return comparefuncs[type(lhs_value)](lhs_value, rhs_value, self.op)
-            else:
-                return lhs_value == rhs_value
-        else:
-            return False
+        return retval
+
 
     def get_value(self, value):
         retval = None
@@ -181,10 +187,9 @@ class RuleInterpreter:
         return retval
 
     def apply_op(self, op, val1, val2):
+        retval = val2
         if op in OPS and val1 and val2 and type(val1) == type(val2):
             retval = val1 + val2
-        else:
-            retval = val2
         return retval
 
     def is_method(self, value):
@@ -213,8 +218,8 @@ class RuleInterpreter:
             val = len(val) if hasattr(val, '__len__') else 0
         return val
 
-
-    def get_field_value(self, data, parameter):
+    @staticmethod
+    def get_field_value(data, parameter):
         """Utility to get json value from a nested structure."""
         retval = None
         parameter = parameter[1:] if parameter.startswith('.') else parameter
@@ -233,29 +238,72 @@ class RuleInterpreter:
                         is_array = True
                         start = field.index('[')
                         indexval = field[start+1:-1]
-                        field = field[:start]
-                    if field in retval and isinstance(retval, dict):
-                        if is_array and isinstance(retval[field], list):
-                            if re.match(r'\d+', indexval, re.I):
+                        newfield = field[:start]
+                        if newfield and newfield in retval and isinstance(retval, dict):
+                            retval = retval[newfield]
+                    if is_array:
+                        if isinstance(retval, list):
+                            if re.match(r'^\d+$', indexval, re.I):
                                 indexval = int(indexval)
-                                fld_list = retval[field]
-                                if indexval < len(fld_list):
-                                    retval = fld_list[indexval]
+                                if indexval < len(retval):
+                                    retval = retval[indexval]
                                 else:
                                     retval = None
-                            else:
+                            elif '=' in indexval:
                                 index_fields = indexval.split('=')
                                 name = index_fields[0].replace("'", '').strip()
                                 value = index_fields[-1].replace("'", '').strip()
                                 arrretval = None
-                                for index_doc in retval[field]:
+                                for index_doc in retval:
                                     if name in index_doc and index_doc[name] == value:
                                         arrretval = index_doc
                                         break
                                 retval = arrretval
+                            else:
+                                retval = None
                         else:
-                            retval = retval[field]
+                            retval = None
+                    elif field in retval and isinstance(retval, dict):
+                        retval = retval[field]
                     else:
                         retval = None
         return retval
+
+
+# if __name__ == "__main__":
+#     # data = [{
+#     #         "id": 124,
+#     #         "location": "eastus2",
+#     #         "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
+#     #     },
+#     #         {
+#     #             "id": 125,
+#     #             "location": "eastus",
+#     #             "name": "mno-nonprod-shared-cet-eastus2-tab-as04"
+#     #         }
+#     # ]
+#     # parameter = '[0].location'
+#     # value = RuleInterpreter.get_field_value(data, parameter)
+#     # print(value)
+#
+#     otherdata = {'dbname': 'validator', 'snapshots': {}}
+#     children = ["{1}[0].location", "=", "'eastus'"]
+#     r_i = RuleInterpreter(children, **otherdata)
+#     val = r_i.get_value(r_i.lhs_operand)
+#     print(val)
+#     otherdata = {'dbname': 'validator', 'snapshots': {}}
+#     # children = ["{1}.location", "=", "'eastus'"]
+#     children = ["{1}.location", "+", "{1}.location", "=", "'eastus'"]
+#     r_i = RuleInterpreter(children, **otherdata)
+#     val = r_i.get_value(r_i.lhs_operand)
+#     print(val)otherdata = {'dbname': 'validator', 'snapshots': {}}
+#     children = ["exist", "(", "{1}.location", ")"]
+#     r_i = RuleInterpreter(children, **otherdata)
+#     val = r_i.eval_expression(''.join(r_i.lhs_operand))
+#     otherdata = {'dbname': 'validator', 'snapshots': {}}
+#     children = ["exist", "(", "{1}.location", ")"]
+#     r_i = RuleInterpreter(children, **otherdata)
+#     data = {'a': 1, 'b': [{'c': 'd'}, {'c': 'f'}]}
+#     val = RuleInterpreter.get_field_value(data, 'b[2]')
+#     print(val)
 

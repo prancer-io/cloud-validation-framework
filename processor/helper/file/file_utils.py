@@ -27,6 +27,7 @@ def remove_file(fname):
 
 
 def mkdir_path(dirpath):
+    """Make directories recursively."""
     try:
         os.makedirs(dirpath)
         return exists_dir(dirpath)

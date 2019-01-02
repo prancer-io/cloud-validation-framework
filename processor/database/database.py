@@ -44,7 +44,8 @@ def get_collection(dbname, collection):
 def collection_names(dbname):
     """ Find all the collections in the databases. """
     db = mongodb(dbname)
-    colls = db.collection_names(include_system_collections=False)
+    # colls = db.collection_names(include_system_collections=False)
+    colls = db.list_collection_names()
     return colls
 
 
@@ -176,11 +177,14 @@ def index_information(collection, dbname):
 #   # # print(create_indexes(newcoll, dbname, ['name']))
 #   # print(index_information(newcoll, dbname))
 #
-#   a = {'a': 1, 'b': 2, 'f': 5, 'c': 3, 'd': 4}
-#   b = {'z': a, 'y': {'x': 1, 'a': a}, 'm': 2, 'n': 'abc'}
-#   c = { 'n': 'abc', 'y': {'x': 1, 'a': a}, 'z': a, 'm': 2}
-#   d = sort_dict(b)
-#   e = sort_dict(c)
+#     a = {'a': 1, 'b': 2, 'f': 5, 'c': 3, 'd': 4}
+#     b = {'z': a, 'y': {'x': 1, 'a': a}, 'm': 2, 'n': 'abc'}
+#     c = { 'n': 'abc', 'y': {'x': 1, 'a': a}, 'z': a, 'm': 2}
+#     d = sort_dict(b)
+#     e = sort_dict(c)
+#     print(d)
+#     print(d.keys())
+#     print(e)
 #   d_str = json.dumps(d)
 #   e_str = json.dumps(e)
 #   is_match = True if d_str == e_str else False
@@ -197,4 +201,4 @@ def index_information(collection, dbname):
 #
 # if __name__ == "__main__":
 #     main()
-#
+

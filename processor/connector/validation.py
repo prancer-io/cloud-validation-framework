@@ -17,13 +17,6 @@ JSONTEST = 'test'
 logger = getlogger()
 
 
-def run_validation_test(version, dbname, collection_data, testcase):
-    comparator = Comparator(version, dbname, collection_data, testcase)
-    result_val = comparator.validate()
-    result_val.update(testcase)
-    return result_val
-
-
 def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname):
     snapshot_file = '%s/%s/%s' % (get_test_json_dir(), container, snapshot_file)
     snapshot_data = {}
@@ -44,6 +37,13 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname):
             snapshot_data[sid] = collection
             create_indexes(collection, dbname, [('timestamp', pymongo.TEXT)])
     return snapshot_data
+
+
+def run_validation_test(version, dbname, collection_data, testcase):
+    comparator = Comparator(version, dbname, collection_data, testcase)
+    result_val = comparator.validate()
+    result_val.update(testcase)
+    return result_val
 
 
 def run_file_validation_tests(test_file, container):
@@ -73,6 +73,7 @@ def run_file_validation_tests(test_file, container):
             result_val = run_validation_test(version, dbname, collection_data, testcase)
             resultset.append(result_val)
     dump_output_results(resultset, test_file, container)
+    return True
 
 
 def run_container_validation_tests(container):

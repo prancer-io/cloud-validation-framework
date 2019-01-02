@@ -26,7 +26,8 @@ def mock_get_multiple_documents(collection, query=None, dbname=None, sort=None, 
         "json": [{
             "id": 124,
             "location": "eastus2",
-            "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
+            "name": "mno-nonprod-shared-cet-eastus2-tab-as03",
+            "addresses":[1,2,3,4]
         },
             {
                 "id": 125,
@@ -190,12 +191,89 @@ def test_match_number(monkeypatch):
     assert val == 'eastus2'
 
 
-def atest_match_array_attribute(monkeypatch):
+def test_match_array_attribute(monkeypatch):
     monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.get_documents', mock_get_multiple_documents)
     from processor.comparison.interpreter import RuleInterpreter
     otherdata = {'dbname': 'validator', 'snapshots': {}}
-    children = ["{1}[0].location", "=", "'eastus'"]
+    children = ["{1}[1].location", "=", "'eastus'"]
     r_i = RuleInterpreter(children, **otherdata)
     val = r_i.get_value(r_i.lhs_operand)
     assert type(val) is str
     assert val == 'eastus'
+    children = ["{1}['name' = 'mno-nonprod-shared-cet-eastus2-tab-as04'].location", "=", "'eastus'"]
+    r_i = RuleInterpreter(children, **otherdata)
+    val = r_i.get_value(r_i.lhs_operand)
+    assert type(val) is str
+    assert val == 'eastus'
+    children = ["exist", "(", "{1}['name' = 'mno-nonprod-shared-cet-eastus2-tab-as04'].location", ")"]
+    r_i = RuleInterpreter(children, **otherdata)
+    val = r_i.get_value(r_i.lhs_operand)
+    assert type(val) is bool
+    assert val == True
+
+
+def test_compare(monkeypatch):
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.get_documents', mock_get_multiple_documents)
+    from processor.comparison.interpreter import RuleInterpreter
+    otherdata = {'dbname': 'validator', 'snapshots': {}}
+    children = ["{1}[1].location", "=", "'eastus'"]
+    r_i = RuleInterpreter(children, **otherdata)
+    val = r_i.compare()
+    assert type(val) is bool
+    assert val == True
+    children = ["{1}['name' = 'mno-nonprod-shared-cet-eastus2-tab-as04'].location", "=", "False"]
+    r_i = RuleInterpreter(children, **otherdata)
+    val = r_i.compare()
+    assert type(val) is bool
+    assert val == False
+
+def test_get_value(monkeypatch):
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.get_documents',
+                        mock_get_documents)
+    from processor.comparison.interpreter import RuleInterpreter
+    otherdata = {'dbname': 'validator', 'snapshots': {}}
+    children = ["{1}.location", "+", "{1}.location", "=", "'eastus'"]
+    r_i = RuleInterpreter(children, **otherdata)
+    val = r_i.get_value(r_i.lhs_operand)
+    assert type(val) is str
+    assert val == 'eastus2eastus2'
+
+
+def test_eval_expression(monkeypatch):
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.get_documents',
+                        mock_get_documents)
+    from processor.comparison.interpreter import RuleInterpreter
+    otherdata = {'dbname': 'validator', 'snapshots': {}}
+    children = ["exist", "(", "{1}.location", ")"]
+    r_i = RuleInterpreter(children, **otherdata)
+    val = r_i.eval_expression(''.join(r_i.lhs_operand))
+    assert type(val) is bool
+    assert val == True
+    children = ["exist", "(", "{1}.location1", ")", "=", "False"]
+    r_i = RuleInterpreter(children, **otherdata)
+    val = r_i.eval_expression(''.join(r_i.lhs_operand))
+    assert type(val) is bool
+    assert val == False
+    children = ["count", "(", "{1}.location", ")", "=", "7"]
+    r_i = RuleInterpreter(children, **otherdata)
+    val = r_i.eval_expression(''.join(r_i.lhs_operand))
+    assert type(val) is int
+    assert val == 7
+
+def test_get_field_value():
+    from processor.comparison.interpreter import RuleInterpreter
+    otherdata = {'dbname': 'validator', 'snapshots': {}}
+    children = ["exist", "(", "{1}.location", ")"]
+    r_i = RuleInterpreter(children, **otherdata)
+    data = {'a': 1 , 'b': [{'c':'d'}, {'c': 'f'}]}
+    val = RuleInterpreter.get_field_value(data, 'b[].c')
+    assert val is None
+    val = RuleInterpreter.get_field_value(data, 'b[2].c')
+    assert val is None
+    val = RuleInterpreter.get_field_value(data, 'b[2d].c')
+    assert val is None
+    data = {'a': 1, 'b': [{'c': 'd'}, {'c': 'f'}], 'c': {'d': 'e'}}
+    val = RuleInterpreter.get_field_value(data, 'c[0].d')
+    assert val is None
+    val = RuleInterpreter.get_field_value(data, 'c.e')
+    assert val is None

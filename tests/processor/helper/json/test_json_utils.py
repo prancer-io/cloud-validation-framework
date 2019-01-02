@@ -25,6 +25,12 @@ def test_save_json_to_file(create_temp_dir):
     file_exists = os.path.exists(fname)
     assert True == file_exists
     os.remove(fname)
+    fname = '%s/a/a1.json' % newpath
+    file_exists = os.path.exists(fname)
+    assert False == file_exists
+    save_json_to_file({'a':'b'}, fname)
+    file_exists = os.path.exists(fname)
+    assert False == file_exists
 
 
 def test_json_from_file(create_temp_dir, create_temp_json, create_temp_text):
