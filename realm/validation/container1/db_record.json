@@ -1,5 +1,5 @@
 {
-	"_id" : ObjectId("5c0b4ff3745621315a8ae6e9"),
+	"_id" : "5c0b4ff3745621315a8ae6e9",
 	"checksum" : "7d814f2f82a32ea91ef37de9e11d0486",
 	"collection" : "microsoftcompute",
 	"json" : {
@@ -40,5 +40,5 @@
 	},
 	"queryuser" : "ajeybk1@kbajeygmail.onmicrosoft.com",
 	"snapshotId" : "1",
-	"timestamp" : NumberLong("1544245235148")
+	"timestamp" : 1544245235148
 }

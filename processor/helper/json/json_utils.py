@@ -9,6 +9,15 @@ from processor.helper.config.config_utils import get_test_json_dir
 from processor.logging.log_handler import getlogger
 
 SNAPSHOT = 'snapshot'
+TEST = 'test'
+OUTPUT = 'output'
+STRUCTURE = 'structure'
+collectiontypes = {
+    TEST: 'TEST',
+    STRUCTURE: 'STRUCTURE',
+    SNAPSHOT: 'SNAPSHOT',
+    OUTPUT: 'OUTPUT'
+}
 logger = getlogger()
 
 

@@ -1,6 +1,6 @@
 """Mongo db driver and utility functions."""
 import collections
-from pymongo import MongoClient, TEXT
+from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
 from bson.objectid import ObjectId
 from processor.helper.config.config_utils import config_value, DATABASE, DBNAME
 
@@ -30,6 +30,7 @@ def mongodb(dbname=None):
 def init_db():
     dbname = config_value(DATABASE, DBNAME)
     create_indexes(COLLECTION, dbname, [('timestamp', TEXT)])
+    return dbname
 
 
 def get_collection(dbname, collection):
@@ -61,13 +62,17 @@ def sort_dict(data):
     return collections.OrderedDict(sorted_vals)
 
 
-def insert_one_document(doc, collection, dbname):
+def insert_one_document(doc, collection, dbname, check_keys=True):
     """ Insert one document into the collection. """
     doc_id_str = None
     coll = get_collection(dbname, collection)
     if coll and doc:
-        doc_id = coll.insert_one(sort_dict(doc))
-        doc_id_str = str(doc_id.inserted_id)
+        if check_keys:
+            doc_id = coll.insert_one(sort_dict(doc))
+            doc_id_str = str(doc_id.inserted_id)
+        else:
+            doc_ids = coll.insert(sort_dict(doc), check_keys=False)
+            doc_id_str = str(doc_ids) if doc_ids else None
     return doc_id_str
 
 
@@ -138,6 +143,8 @@ def index_information(collection, dbname):
         index_info = sorted(list(collection.index_information()))
     return index_info
 
+def sort_field(name, asc=True):
+    return (name, ASCENDING if asc else DESCENDING)
 
 # def main():
 #   # dbname = 'business'

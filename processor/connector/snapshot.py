@@ -4,7 +4,9 @@
 import json
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    get_container_snapshot_json_files
+    get_container_snapshot_json_files, SNAPSHOT, collectiontypes
+from processor.helper.config.config_utils import config_value
+from processor.database.database import DATABASE, DBNAME, get_documents, sort_field
 from processor.connector.snapshot_azure import populate_azure_snapshot
 from processor.connector.snapshot_custom import populate_custom_snapshot
 
@@ -46,7 +48,14 @@ def populate_snapshots_from_file(snapshot_file):
     return populate_snapshots_from_json(snapshot_json_data)
 
 
-def populate_container_snapshots(container):
+def populate_container_snapshots(container, filesystem=True):
+    if filesystem:
+        return populate_container_snapshots_filesystem(container)
+    else:
+        return populate_container_snapshots_database(container)
+
+
+def populate_container_snapshots_filesystem(container):
     """ Get the snapshot files in the container"""
     snapshot_dir, snapshot_files = get_container_snapshot_json_files(container)
     if not snapshot_files:
@@ -55,4 +64,19 @@ def populate_container_snapshots(container):
     logger.info('\n'.join(snapshot_files))
     for snapshot_file in snapshot_files:
         populate_snapshots_from_file(snapshot_file)
+    return True
+
+
+def populate_container_snapshots_database(container):
+    """ Get the snapshot files from the database"""
+    dbname = config_value(DATABASE, DBNAME)
+    collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
+    qry = {'container': container}
+    sort = [sort_field('timestamp', False)]
+    docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
+    logger.info('Number of Snapshot Documents: %s', len(docs))
+    if docs and len(docs):
+        for doc in docs:
+            if doc['json']:
+                populate_snapshots_from_json(doc['json'])
     return True
