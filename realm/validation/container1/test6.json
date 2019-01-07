@@ -1,0 +1,38 @@
+{
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "fileType": "test",
+    "snapshot": "snapshot.json",
+    "testSet": [
+        {
+            "testName": "test5",
+            "version": "0.1",
+            "cases": [
+                {
+                    "testId": "1",
+                    "rule":"exist({1}.location)"
+                },
+                {
+                    "testId": "2",
+                    "rule":"{1}.location='eastus2'"
+                },
+                {
+                    "testId": "3",
+                    "rule": "exist({2}.properties.addressSpace.addressPrefixes[])"
+                },
+                {
+                    "testId": "4",
+                    "rule": "count({2}.properties.dhcpOptions.dnsServers[])=2"
+                },
+                {
+                    "testId": "5",
+                    "rule": "{2}.properties.subnets['name'='GatewaySubnet'].properties.addressPrefix='172.18.116.0/29'"
+                },
+                {
+                    "testId": "6",
+                    "rule": "{1}.tags.TJX_COST_CENTER={2}.tags.TJX_COST_CENTER"
+                }
+            ]
+        }
+    ]
+}
