@@ -15,3 +15,7 @@ export PYTHONPATH=`pwd`:$PYTHONPATH
 echo $PYTHONPATH
 
 python3 validator.py container1
+
+python3 validator.py container1 --db
+
+py.test --cov=processor tests/ --cov-report term-missing

@@ -79,7 +79,7 @@ def test_run_file_validation_tests(create_temp_dir, create_temp_json, monkeypatc
     json_data['testSet'].clear()
     json_data['testSet'].append(testset)
     testfile = create_temp_json(newpath, data=json_data)
-    assert True == run_file_validation_tests('%s/%s' % (newpath, testfile), 'abcd')
+    assert False == run_file_validation_tests('%s/%s' % (newpath, testfile), 'abcd')
     testset = {
         "testName": "test1",
         "version":"0.1",

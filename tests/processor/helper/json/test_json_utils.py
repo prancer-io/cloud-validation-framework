@@ -179,7 +179,7 @@ def test_dump_output_results():
     file_exists = os.path.exists(outputtest_file)
     if file_exists:
         os.remove(outputtest_file)
-    dump_output_results([], test_file, container)
+    dump_output_results([], container, test_file, 'snapshot')
     file_exists = os.path.exists(outputtest_file)
     assert True == file_exists
     os.remove(outputtest_file)
