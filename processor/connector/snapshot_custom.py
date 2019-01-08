@@ -73,14 +73,8 @@ def populate_custom_snapshot(snapshot):
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     sub_data = get_custom_data(snapshot_source)
-    # json_test_dir = get_test_json_dir()
-    # custom_source = '%s/../%s' % (json_test_dir, snapshot_source)
-    # logger.info('Custom source: %s', custom_source)
-    # if exists_file(custom_source):
-    #     sub_data = json_from_file(custom_source)
     if sub_data:
         giturl = get_field_value(sub_data, 'gitProvider')
-        # repopath = get_field_value(sub_data, 'repoCloneAddress')
         ssh_key_file = get_field_value(sub_data, 'sshKeyfile')
         brnch = get_field_value(sub_data, 'branchName')
         repopath = tempfile.mkdtemp()
@@ -105,12 +99,12 @@ def populate_custom_snapshot(snapshot):
                 if os.path.exists(repopath):
                     shutil.rmtree(repopath)
                 return True
-        elif exists and not empty:
-            try:
-                Repo(repopath)
-                logger.info("A repository exists in this directory: %s", repopath)
-            except:
-                logger.info("A non-empty directory, clean it and run: %s", repopath)
+        # elif exists and not empty:
+        #     try:
+        #         Repo(repopath)
+        #         logger.info("A repository exists in this directory: %s", repopath)
+        #     except:
+        #         logger.info("A non-empty directory, clean it and run: %s", repopath)
     return False
 
 

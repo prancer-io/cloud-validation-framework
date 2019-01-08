@@ -33,6 +33,48 @@ def mock_create_indexes(sid, dbname, flds):
     return None
 
 
+def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+    return [{
+        "_id": "5c24af787456217c485ad1e6",
+        "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+        "collection": "microsoftcompute",
+        "json":{
+            "id": 124,
+            "location": "eastus2",
+            "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
+        },
+        "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+        "snapshotId": 1,
+        "timestamp": 1545908086831
+    }]
+
+def mock_test_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+    return [{
+        "_id": "5c24af787456217c485ad1e6",
+        "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+        "collection": "microsoftcompute",
+        "json":{
+            "$schema": "",
+            "contentVersion": "1.0.0.0",
+            "fileType": "test",
+            "snapshot": "snapshot.json",
+            "testSet": []
+        },
+        "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+        "snapshotId": 1,
+        "timestamp": 1545908086831
+    }]
+
+
+def test_get_snapshot_id_to_collection_dict2(monkeypatch):
+    monkeypatch.setattr('processor.connector.validation.create_indexes', mock_create_indexes)
+    monkeypatch.setattr('processor.connector.validation.get_documents', mock_get_documents)
+    monkeypatch.setattr('processor.connector.validation.config_value', mock_config_value)
+    from processor.connector.validation import get_snapshot_id_to_collection_dict
+    val = get_snapshot_id_to_collection_dict('snapshot.json', 'container', 'abcd', False)
+    assert True == isinstance(val, dict)
+
+
 def test_get_snapshot_id_to_collection_dict1(monkeypatch):
     monkeypatch.setattr('processor.connector.validation.create_indexes', mock_create_indexes)
     from processor.connector.validation import get_snapshot_id_to_collection_dict
@@ -129,6 +171,8 @@ def test_run_container_validation_tests(create_temp_dir, create_temp_json, monke
     global frameworkdir
     monkeypatch.setattr('processor.connector.validation.config_value', mock_config_value)
     monkeypatch.setattr('processor.connector.validation.framework_dir', mock_framework_dir)
+    monkeypatch.setattr('processor.connector.validation.get_documents', mock_test_get_documents)
+
     from processor.connector.validation import run_container_validation_tests
     frameworkdir = create_temp_dir()
     json_data = {
@@ -143,3 +187,4 @@ def test_run_container_validation_tests(create_temp_dir, create_temp_json, monke
     os.makedirs(container_dir)
     testfile = create_temp_json(container_dir, data=json_data)
     run_container_validation_tests(container)
+    run_container_validation_tests(container, False)
