@@ -1,0 +1,74 @@
+{
+  "$schema": "",
+  "contentVersion": "1.0.0.0",
+  "fileType": "output",
+  "timestamp": 1546999297809,
+  "snapshot": "snapshot.json",
+  "container": "container3",
+  "test": "test1.json",
+  "results": [
+    {
+      "result": "passed",
+      "testId": "1",
+      "snapshotId": "1",
+      "attribute": "location",
+      "comparison": "exist"
+    },
+    {
+      "result": "failed",
+      "testId": "2",
+      "snapshotId": "1",
+      "attribute": "location.name",
+      "comparison": "exist"
+    },
+    {
+      "result": "passed",
+      "testId": "3",
+      "snapshotId": "1",
+      "attribute": "location.name",
+      "comparison": "not exist"
+    },
+    {
+      "result": "failed",
+      "testId": "4",
+      "snapshotId": "1",
+      "attribute": "location",
+      "comparison": "gt 10"
+    },
+    {
+      "result": "failed",
+      "testId": "5",
+      "snapshotId": "1",
+      "attribute": "location",
+      "comparison": "lt 10"
+    },
+    {
+      "result": "failed",
+      "testId": "6",
+      "snapshotId": "1",
+      "attribute": "location",
+      "comparison": "gt len(10)"
+    },
+    {
+      "result": "passed",
+      "testId": "7",
+      "snapshotId": "1",
+      "attribute": "location",
+      "comparison": "eq 'eastus2'"
+    },
+    {
+      "result": "failed",
+      "testId": "8",
+      "snapshotId": "1",
+      "attribute": "location",
+      "comparison": "neq 'eastus2'"
+    },
+    {
+      "result": "failed",
+      "testId": "9",
+      "snapshotId": "1",
+      "attribute": "location",
+      "comparison": "eq '{2}.location'"
+    }
+  ]
+}

@@ -14,6 +14,11 @@ cd $HOME/projects/upwork/liquware/whitekite
 export PYTHONPATH=`pwd`:$PYTHONPATH
 echo $PYTHONPATH
 
+to start mongoDB at windows subsystem
+screen -d -m mongod --config /etc/mongod.conf # start mongo server
+screen -r # press ctrl+c to stop daemon
+
+
 python3 validator.py container1
 
 python3 validator.py container1 --db

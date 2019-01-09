@@ -28,15 +28,15 @@
                         "id": 1,
                         "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03",
                         "strucutre": "azure",
-                        "source": "subscription-name",
-                        "reference": "azureStructure.json"
+                        "reference": "subscription-name",
+                        "source": "azureStructure.json"
                     },
                     {
                         "id": 2,
                         "path": "paramters/mno/nonprod/eastus2/shared/vars.rg-1.json",
                         "strucutre": "git",
-                        "source": "branch-name",
-                        "reference": "parameterStructure.json"
+                        "reference": "branch-name",
+                        "source": "parameterStructure.json"
                     }
                 ],
                 "result": "passed",
