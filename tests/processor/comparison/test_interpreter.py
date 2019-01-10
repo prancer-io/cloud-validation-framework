@@ -5,6 +5,10 @@ def mock_zero_get_documents(collection, query=None, dbname=None, sort=None, limi
 
 def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{
+        "structure": "azure",
+        "reference": 'abcd',
+        "source": 'snapshot',
+        "path": '/a/b/c',
         "_id": "5c24af787456217c485ad1e6",
         "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
         "collection": "microsoftcompute",
@@ -104,7 +108,7 @@ def test_interpreter(monkeypatch):
         "comparison": "gt 10"
     })
     val = comparator.validate()
-    assert {'result': 'passed'} == val
+    assert 'passed' == val['result']
     comparator = Comparator('0.1', 'validator', {}, {
         "testId": "4",
         "snapshotId1": "1",

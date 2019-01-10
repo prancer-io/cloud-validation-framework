@@ -52,8 +52,11 @@ def populate_json_files(args):
                     filetype = 'structure'
                 logger.info('Storing file:%s from directory: %s', json_dir, filename)
                 db_record = json_record(args.container, filetype, filename, json_data)
-                insert_one_document(db_record, db_record['collection'], dbname, False)
-                logger.debug('DB Record: %s', json.dumps(db_record, indent=2))
+                if validate_json_data(db_record['json'], db_record['type']):
+                    insert_one_document(db_record, db_record['collection'], dbname, False)
+                    logger.debug('DB Record: %s', json.dumps(db_record, indent=2))
+                else:
+                    logger.info('Invalid json for type:%s', db_record['type'])
                 logger.info('*' * 80)
     if args.file:
         logger.info("Populating %s json file.", args.file)
@@ -68,9 +71,28 @@ def populate_json_files(args):
                 filetype = 'structure'
             logger.info('Storing file:%s', json_file)
             db_record = json_record(args.container, filetype, json_file, json_data)
-            insert_one_document(db_record, db_record['collection'], dbname, False)
-            logger.debug('DB Record: %s', json.dumps(db_record, indent=2))
+            if validate_json_data(db_record['json'], db_record['type']):
+                insert_one_document(db_record, db_record['collection'], dbname, False)
+                logger.debug('DB Record: %s', json.dumps(db_record, indent=2))
+            else:
+                logger.info('Invalid json for type:%s', db_record['type'])
             logger.info('*' * 80)
+
+
+def validate_json_data(json_data, filetype):
+    try:
+        valid = json_data['fileType'] == filetype
+        if filetype == 'snapshot':
+            valid = json_data['snapshots'] and isinstance(json_data['snapshots'], list)
+        elif filetype == 'test':
+            valid = json_data['snapshot'] and json_data['testSet'] and \
+                    isinstance(json_data['testSet'], list)
+        elif filetype == 'structure':
+            valid = True if json_data else False
+    except Exception as ex:
+        logger.info('Exception json population: %s', ex)
+        valid = False if filetype != 'structure' else True
+    return valid
 
 
 def main(arg_vals=None):

@@ -41,10 +41,15 @@ def get_custom_data(snapshot_source):
     return sub_data
 
 
-def get_node(repopath, node):
+def get_node(repopath, node, snapshot_source, ref):
     """ Fetch node from the cloned git repository."""
     collection = node['collection'] if 'collection' in node else COLLECTION
+    parts = snapshot_source.split('.')
     db_record = {
+        "structure": "git",
+        "reference": ref,
+        "source": parts[0],
+        "path": node['path'],
         "timestamp": int(time.time() * 1000),
         "queryuser": "",
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
@@ -93,7 +98,7 @@ def populate_custom_snapshot(snapshot):
             if repo:
                 for node in snapshot['nodes']:
                     logger.info(node)
-                    data = get_node(repopath, node)
+                    data = get_node(repopath, node, snapshot_source, brnch)
                     if data:
                         insert_one_document(data, data['collection'], dbname)
                 if os.path.exists(repopath):

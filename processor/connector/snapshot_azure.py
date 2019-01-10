@@ -31,10 +31,15 @@ def get_version_for_type(node):
     return version
 
 
-def get_node(token, sub_id, node, user):
+def get_node(token, sub_name, sub_id, node, user, snapshot_source):
     """ Fetch node from azure portal using rest API."""
     collection = node['collection'] if 'collection' in node else COLLECTION
+    parts = snapshot_source.split('.')
     db_record = {
+        "structure": "azure",
+        "reference": sub_name,
+        "source": parts[0],
+        "path": '',
         "timestamp": int(time.time() * 1000),
         "queryuser": user,
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
@@ -50,6 +55,7 @@ def get_node(token, sub_id, node, user):
         }
         urlstr = 'https://management.azure.com/subscriptions/%s%s?api-version=%s'
         url = urlstr % (sub_id, node['path'], version)
+        db_record['path'] = node['path']
         logger.info('Get Id REST API invoked!')
         status, data = http_get_request(url, hdrs)
         logger.info('Get Id status: %s', status)
@@ -70,7 +76,7 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     snapshot_user = get_field_value(snapshot, 'testUser')
-    client_id, client_secret, sub_id, tenant_id = \
+    client_id, client_secret, sub_name, sub_id, tenant_id = \
         get_web_client_data(snapshot_type, snapshot_source, snapshot_user)
     if not client_id:
         logger.info("No client_id in the snapshot to access azure resource!...")
@@ -84,7 +90,7 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
     logger.debug('TOKEN: %s', token)
     if token:
         for node in snapshot['nodes']:
-            data = get_node(token, sub_id, node, snapshot_user)
+            data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
             if data:
                 insert_one_document(data, data['collection'], dbname)
             logger.debug('Type: %s', type(data))

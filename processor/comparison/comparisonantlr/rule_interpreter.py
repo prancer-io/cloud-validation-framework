@@ -31,8 +31,12 @@ class RuleInterpreter:
         self.children = children if children and isinstance(children, list) else []
         self.kwargs = otherargs
         self.lhs_operand, self.op, self.rhs_operand = self.rule_operands()
+        self.snapshots = []
         logger.debug(self.kwargs)
         logger.debug(type(self.kwargs))
+
+    def get_snapshots(self):
+        return self.snapshots
 
     def rule_operands(self):
         lhs = self.children
@@ -147,6 +151,13 @@ class RuleInterpreter:
         doc = None
         if docs and len(docs):
             doc = docs[0]['json']
+            self.snapshots.append({
+                'id': docs[0]['snapshotId'],
+                'path': docs[0]['path'],
+                'structure': docs[0]['structure'],
+                'reference': docs[0]['reference'],
+                'source': docs[0]['source']
+            })
             # print(doc)
         return doc
 

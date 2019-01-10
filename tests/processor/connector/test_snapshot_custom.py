@@ -43,7 +43,7 @@ def test_get_node(create_temp_json, create_temp_dir):
         'snapshotId': '1',
         'path': "a/b/c"
     }
-    ret = get_node('/tmp', data)
+    ret = get_node('/tmp', data, 'parameterStructure', 'master')
     assert True == isinstance(ret, dict)
     # ret = get_node('abcd', 'xyz', data, 'abc')
     # assert True == isinstance(ret, dict)
@@ -52,7 +52,7 @@ def test_get_node(create_temp_json, create_temp_dir):
     os.makedirs('%s/%s' % (newpath, data['path']))
     fname = create_temp_json('%s/%s' % (newpath, data['path']))
     data['path'] = '%s/%s' % (data['path'], fname)
-    ret = get_node(newpath, data)
+    ret = get_node(newpath, data, 'parameterStructure', 'master')
     assert True == isinstance(ret, dict)
     assert data_dict == ret['json']
 

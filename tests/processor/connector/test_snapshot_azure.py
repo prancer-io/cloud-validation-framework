@@ -52,9 +52,9 @@ def test_get_node_happy(monkeypatch):
                 "Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
 
     }
-    ret = get_node(None, None, data, 'abc')
+    ret = get_node(None, None, None, data, 'abc', 'azureStructure')
     assert True == isinstance(ret, dict)
-    ret = get_node('abcd', 'xyz', data, 'abc')
+    ret = get_node('abcd', 'devtest', 'xyz', data, 'abc', 'azureStructure')
     assert True == isinstance(ret, dict)
     assert {'a': 'b'} == ret['json']
 
@@ -69,9 +69,9 @@ def test_get_node_error(monkeypatch):
                 "Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
 
     }
-    ret = get_node(None, None, data, 'abc')
+    ret = get_node(None, None, None, data, 'abc', 'azureStructure')
     assert True == isinstance(ret, dict)
-    ret = get_node('abcd', 'xyz', data, 'abc')
+    ret = get_node('abcd', 'sub', 'xyz', data, 'abc', 'azureStructure')
     assert True == isinstance(ret, dict)
     assert {} == ret['json']
 

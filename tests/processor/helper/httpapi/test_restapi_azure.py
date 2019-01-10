@@ -60,11 +60,12 @@ def test_web_client_data(monkeypatch):
     monkeypatch.setattr('processor.helper.httpapi.restapi_azure.input', mock_input)
     from processor.helper.httpapi.restapi_azure import get_client_secret, get_web_client_data
     assert 'clientSecret' == get_client_secret()
-    client_id, client_secret, sub_id, tenant_id = \
+    client_id, client_secret, sub_name, sub_id, tenant_id = \
         get_web_client_data('azure', 'azureStructure.json', 'ajeybk1@kbajeygmail.onmicrosoft.com')
     assert client_id is not None
     assert client_secret is not None
     assert sub_id is not None
+    assert sub_name is not None
     assert tenant_id is not None
 
 

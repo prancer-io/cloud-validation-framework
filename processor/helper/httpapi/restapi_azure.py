@@ -48,14 +48,10 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
     client_id = None
     client_secret = None
     sub_id = None
+    sub_name = None
     tenant_id = None
     found = False
-    # json_test_dir = get_test_json_dir()
     if snapshot_type == 'azure':
-        # azure_source = '%s/../%s' % (json_test_dir, snapshot_source)
-        # logger.info('Azure source: %s', azure_source)
-        # if exists_file(azure_source):
-        #     sub_data = json_from_file(azure_source)
         sub_data = get_azure_data(snapshot_source)
         if sub_data:
             accounts = get_field_value(sub_data, 'accounts')
@@ -70,6 +66,7 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
                                 client_id = get_field_value(user, 'client_id')
                                 client_secret = get_field_value(user, 'client_secret')
                                 sub_id = get_field_value(subscription, 'subscription_id')
+                                sub_name = get_field_value(subscription, 'subscription_name')
                                 tenant_id = get_field_value(sub_data, 'tenant_id')
                                 found = True
                             if found:
@@ -78,7 +75,7 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
                         break
                 if found:
                     break
-    return client_id, client_secret, sub_id, tenant_id
+    return client_id, client_secret, sub_name, sub_id, tenant_id
 
 
 def get_subscription_id():

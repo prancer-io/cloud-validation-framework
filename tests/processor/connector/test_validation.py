@@ -15,6 +15,10 @@ def mock_config_value(key, default=None):
 
 def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{
+        "structure": "azure",
+        "reference": 'abcd',
+        "source": 'snapshot',
+        "path": '/a/b/c',
         "_id": "5c24af787456217c485ad1e6",
         "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
         "collection": "microsoftcompute",
@@ -33,20 +37,20 @@ def mock_create_indexes(sid, dbname, flds):
     return None
 
 
-def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
-    return [{
-        "_id": "5c24af787456217c485ad1e6",
-        "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
-        "collection": "microsoftcompute",
-        "json":{
-            "id": 124,
-            "location": "eastus2",
-            "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
-        },
-        "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
-        "snapshotId": 1,
-        "timestamp": 1545908086831
-    }]
+# def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+#     return [{
+#         "_id": "5c24af787456217c485ad1e6",
+#         "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+#         "collection": "microsoftcompute",
+#         "json":{
+#             "id": 124,
+#             "location": "eastus2",
+#             "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
+#         },
+#         "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+#         "snapshotId": 1,
+#         "timestamp": 1545908086831
+#     }]
 
 def mock_test_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{

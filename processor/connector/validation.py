@@ -26,7 +26,6 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
         snapshot_json_data = json_from_file(snapshot_file)
     else:
         parts = snapshot_file.split('.')
-        # dbname = config_value(DATABASE, DBNAME)
         collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
         qry = {'container': container, 'name': parts[0]}
         sort = [sort_field('timestamp', False)]

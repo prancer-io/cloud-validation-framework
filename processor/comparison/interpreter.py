@@ -182,10 +182,20 @@ class ComparatorV01:
                 logger.info('Number of Snapshot Documents: %s', len(docs))
                 if docs and len(docs):
                     self.data = docs[0]['json']
+
+
+
                     if self.op in OPERATORS and OPERATORS[self.op]:
                         result = OPERATORS[self.op](self.data, self.loperand, self.roperand,
                                                     self.is_not, self.extras)
                         result_val["result"] = "passed" if result else "failed"
+                        result_val["snapshots"] = [{
+                            'id': docs[0]['snapshotId'],
+                            'path': docs[0]['path'],
+                            'structure': docs[0]['structure'],
+                            'reference': docs[0]['reference'],
+                            'source': docs[0]['source']
+                        }]
                     # else:
                     #     result_val['reason'] = 'Unsupported comparison operator: %s' % self.op
                 else:
@@ -215,6 +225,7 @@ class ComparatorV01:
             r_i = RuleInterpreter(children, **otherdata)
             result = r_i.compare()
             result_val["result"] = "passed" if result else "failed"
+            result_val['snapshots'] = r_i.get_snapshots()
         else:
             result_val.update({
                 "result": "skipped",
