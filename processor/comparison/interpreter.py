@@ -182,9 +182,6 @@ class ComparatorV01:
                 logger.info('Number of Snapshot Documents: %s', len(docs))
                 if docs and len(docs):
                     self.data = docs[0]['json']
-
-
-
                     if self.op in OPERATORS and OPERATORS[self.op]:
                         result = OPERATORS[self.op](self.data, self.loperand, self.roperand,
                                                     self.is_not, self.extras)

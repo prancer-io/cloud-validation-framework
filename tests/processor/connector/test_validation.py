@@ -9,7 +9,13 @@ def mock_framework_dir():
     return frameworkdir
 
 
-def mock_config_value(key, default=None):
+def mock_config_value(section, key, default=None):
+    if key == 'TEST':
+        return 'tests'
+    elif key == 'SNAPSHOT':
+        return 'snapshots'
+    elif key == 'OUTPUT':
+        return 'outputs'
     return 'pytestdb'
 
 
@@ -37,21 +43,6 @@ def mock_create_indexes(sid, dbname, flds):
     return None
 
 
-# def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
-#     return [{
-#         "_id": "5c24af787456217c485ad1e6",
-#         "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
-#         "collection": "microsoftcompute",
-#         "json":{
-#             "id": 124,
-#             "location": "eastus2",
-#             "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
-#         },
-#         "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
-#         "snapshotId": 1,
-#         "timestamp": 1545908086831
-#     }]
-
 def mock_test_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{
         "_id": "5c24af787456217c485ad1e6",
@@ -68,6 +59,69 @@ def mock_test_get_documents(collection, query=None, dbname=None, sort=None, limi
         "snapshotId": 1,
         "timestamp": 1545908086831
     }]
+
+def mock_validate(self):
+    return {"result": "passed"}
+
+def mock_dump_output_results(results, container, test_file, snapshot, filesystem=True):
+    pass
+
+def mock_test1_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+    if collection == 'tests':
+        return [{
+            "_id": "5c24af787456217c485ad1e6",
+            "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+            "collection": "microsoftcompute",
+            "json":{
+                "$schema": "",
+                "contentVersion": "1.0.0.0",
+                "fileType": "test",
+                "snapshot": "snapshot.json",
+                "testSet": [{
+                    "testName": "test5",
+                    "version": "0.1",
+                    "cases": [
+                        {
+                            "testId": "1",
+                            "rule":"exist({1}.location)"
+                        }
+                    ]
+                }]
+            },
+            "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+            "snapshotId": 1,
+            "timestamp": 1545908086831
+        }]
+    elif collection == 'snapshots':
+        return [{
+            "_id": "5c24af787456217c485ad1e6",
+            "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+            "collection": "microsoftcompute",
+            "json": {
+                "contentVersion": "1.0.0.0",
+                "fileType": "snapshot",
+                "snapshots": [
+                    {
+                        "source": "azureStructure.json",
+                        "type": "azure",
+                        "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+                        "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
+                        "nodes": [
+                            {
+                                "snapshotId": "1",
+                                "type": "Microsoft.Compute/availabilitySets",
+                                "collection": "Microsoft.Compute",
+                                "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+            "snapshotId": 1,
+            "timestamp": 1545908086831
+        }]
+    return None
 
 
 def test_get_snapshot_id_to_collection_dict2(monkeypatch):
@@ -187,8 +241,21 @@ def test_run_container_validation_tests(create_temp_dir, create_temp_json, monke
         "testSet": []
     }
     container = 'abcd'
-    container_dir = '%s/%s/%s' % (frameworkdir, mock_config_value(''), container)
+    container_dir = '%s/%s/%s' % (frameworkdir, mock_config_value('', ''), container)
     os.makedirs(container_dir)
     testfile = create_temp_json(container_dir, data=json_data)
     run_container_validation_tests(container)
     run_container_validation_tests(container, False)
+
+
+def test_run_container_validation_tests_database(monkeypatch):
+    global frameworkdir
+    monkeypatch.setattr('processor.connector.validation.config_value', mock_config_value)
+    monkeypatch.setattr('processor.connector.validation.get_documents', mock_test1_get_documents)
+    monkeypatch.setattr('processor.connector.validation.create_indexes', mock_create_indexes)
+    monkeypatch.setattr('processor.connector.validation.Comparator.validate', mock_validate)
+    monkeypatch.setattr('processor.connector.validation.dump_output_results', mock_dump_output_results)
+    from processor.connector.validation import run_container_validation_tests_database
+    container = 'abcd'
+    val = run_container_validation_tests_database(container)
+    assert val == True

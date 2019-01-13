@@ -1,4 +1,4 @@
-
+import warnings
 
 def mock_config_value(key, default=None):
     return 'pytestdb'
@@ -24,6 +24,10 @@ def test_mongoconnection(monkeypatch):
     assert colls is not None
     val = insert_one_document({'a':'b'}, 'a1', dbname)
     assert val is not None
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        val = insert_one_document({'a': 'b'}, 'a1', dbname, False)
+        assert val is not None
     doc = check_document('a1', val, dbname)
     assert doc is not None
     vals = insert_documents([{'a': 'b'}, {'c': 'd'}], 'a1', dbname)
