@@ -97,7 +97,7 @@ def check_document(collection, docid, dbname=None):
     return doc
 
 
-def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip=0, proj=None,):
+def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip=0, proj=None):
     """ Find the documents based on the query """
     docs = None
     db = mongodb(dbname)

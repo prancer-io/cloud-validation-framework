@@ -8,7 +8,7 @@ def test_mongoconnection(monkeypatch):
     monkeypatch.setattr('processor.database.database.config_value', mock_config_value)
     from processor.database.database import mongoconnection, mongodb, init_db,\
         get_collection, collection_names, insert_one_document, insert_documents,\
-        check_document, get_documents, count_documents, index_information
+        check_document, get_documents, count_documents, index_information, distinct_documents
     # assert MONGO is None
     mongo = mongoconnection()
     assert mongo is not None
@@ -23,6 +23,8 @@ def test_mongoconnection(monkeypatch):
     colls = collection_names(dbname)
     assert colls is not None
     val = insert_one_document({'a':'b'}, 'a1', dbname)
+    assert val is not None
+    val = distinct_documents('a1', 'a', dbname)
     assert val is not None
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=DeprecationWarning)

@@ -2,7 +2,7 @@
 import pymongo
 from flask import Blueprint, jsonify, request
 from processor.api.app_init import app, LOGGER
-from processor.api.utils import ERROR, OK, NOK, STATUS, VALUE
+from processor.api.utils import ERROR, OK, NOK, STATUS, VALUE, parsebool
 from processor.connector.validation import run_container_validation_tests_database
 from processor.database.database import sort_field, get_documents, count_documents,\
     distinct_documents, DATABASE, DBNAME
@@ -47,18 +47,20 @@ def run_framework_test():
     return jsonify(data)
 
 
-@MODAPI.route('/results/<container>/', methods=['GET'])
-@MODAPI.route('/results/<container>/<name>/', methods=['GET'])
+@MODAPI.route('/execute/<container>/', methods=['GET'])
+@MODAPI.route('/execute/<container>/<name>/', methods=['GET'])
 def tests_run(container, name=None):
     data = {STATUS: OK, VALUE: None}
     sort = [(SORTFIELDS[SORTDATE], pymongo.DESCENDING)]
     qry = {'container': container}
+    limit = 10
     if name:
         qry['name'] = name
+        limit = 1
     dbname = config_value(DATABASE, DBNAME)
     collection = config_value(DATABASE, collectiontypes[TEST])
     docs = get_documents(collection, dbname=dbname,
-                         sort=sort, query=qry, limit=1)
+                         sort=sort, query=qry, limit=limit)
     LOGGER.info('Number of test Documents: %s', len(docs))
     if docs and len(docs):
         for doc in docs:
@@ -79,14 +81,15 @@ def tests_run(container, name=None):
 def outputs_container(container, name=None):
     data = {STATUS: OK, VALUE: None}
     indata = request.args if request.args else {}
+    alldata = parsebool(indata['all']) if 'all' in indata else True
     sortval = indata.get('sort', SORTDATE)
     sortfield = SORTFIELDS[sortval] if sortval in SORTFIELDS else SORTFIELDS[SORTDATE]
     sort = [(sortfield, pymongo.DESCENDING)]
     qry = {'container': container}
-    projection = {'_id': 0, 'json': 0}
+    projection = {'_id': 0}
     if name:
         qry['name'] = name
-        projection['json'] = 1
+    projection['json'] = 1 if alldata else 0
     size = int(request.args.get('pagesize', '10'))
     page = int(request.args.get('page', '0'))
     dbname = config_value(DATABASE, DBNAME)
@@ -103,6 +106,7 @@ def outputs_container(container, name=None):
     data['page'] = page
     data['pagesize'] = size
     return jsonify(data)
+
 
 @MODAPI.route('/containers/', methods=['GET'])
 def container_list():

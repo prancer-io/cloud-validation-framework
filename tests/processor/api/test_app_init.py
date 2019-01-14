@@ -3,10 +3,26 @@ from unittest.mock import Mock
 from processor.api.app_init import get_appdata, LOGGER
 
 
+def mock_distinct_documents(collection, field=None, dbname=None):
+    return ['a', 'b', 'c']
+
+def mock_config_value(section, key, configfile=None, default=None):
+    return 'pytestdb'
+
+def mock_count_documents(collection, query=None, dbname=None):
+    return 2
+
+def mock_dump_output_results(results, container, test_file, snapshot, filesystem=True):
+    pass
+
+def mock_run_json_validation_tests(test_json_data, container, filesystem=True):
+    return[{'a':1}]
+
 def mock_run_container_validation_tests_database(container):
     pass
 
-def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10,
+                       skip=0, proj=None):
     return [{
         "_id": "5c24af787456217c485ad1e6",
         "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
@@ -21,7 +37,8 @@ def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10)
         "timestamp": 1545908086831
     }]
 
-def mock_empty_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+def mock_empty_get_documents(collection, query=None, dbname=None, sort=None,
+                             limit=10, skip=0, proj=None):
     return []
 
 def mock_pymongo(app, uri=None, **kwargs):
@@ -158,6 +175,91 @@ def test_empty_run_framework_test(client, monkeypatch):
     }
     val = {'container':'abcd'}
     response = client.post(url_for('MODAPI.run_framework_test'), data=json.dumps(val), headers=headers)
+    assert response.status_code == 200
+    assert response.json is not None
+    assert response.json['status'] == 'OK'
+
+
+def test_tests_run(client, monkeypatch):
+    monkeypatch.setattr('processor.api.apicontroller.run_json_validation_tests',
+                        mock_run_json_validation_tests)
+    monkeypatch.setattr('processor.api.apicontroller.get_documents', mock_get_documents)
+    monkeypatch.setattr('processor.api.apicontroller.dump_output_results', mock_dump_output_results)
+    from flask import url_for
+    mimetype = 'application/json'
+    headers = {
+        'Content-Type': mimetype,
+        'Accept': mimetype
+    }
+    response = client.get(url_for('MODAPI.tests_run', container='abcd'), headers=headers)
+    assert response.status_code == 200
+    assert response.json is not None
+    assert response.json['status'] == 'OK'
+    response = client.get(url_for('MODAPI.tests_run', container='abcd', name='test1'), headers=headers)
+    assert response.status_code == 200
+    assert response.json is not None
+    assert response.json['status'] == 'OK'
+
+def test_empty_tests_run(client, monkeypatch):
+    monkeypatch.setattr('processor.api.apicontroller.get_documents', mock_empty_get_documents)
+    monkeypatch.setattr('processor.api.apicontroller.run_json_validation_tests',
+                        mock_run_json_validation_tests)
+    monkeypatch.setattr('processor.api.apicontroller.dump_output_results', mock_dump_output_results)
+    from flask import url_for
+    mimetype = 'application/json'
+    headers = {
+        'Content-Type': mimetype,
+        'Accept': mimetype
+    }
+    response = client.get(url_for('MODAPI.tests_run', container='abcd'), headers=headers)
+    assert response.status_code == 200
+    assert response.json is not None
+    assert response.json['status'] == 'OK'
+
+def test_outputs_container(client, monkeypatch):
+    monkeypatch.setattr('processor.api.apicontroller.config_value', mock_config_value)
+    monkeypatch.setattr('processor.api.apicontroller.get_documents', mock_get_documents)
+    monkeypatch.setattr('processor.api.apicontroller.count_documents', mock_count_documents)
+    from flask import url_for
+    mimetype = 'application/json'
+    headers = {
+        'Content-Type': mimetype,
+        'Accept': mimetype
+    }
+    response = client.get(url_for('MODAPI.outputs_container', container='abcd',
+                                  name='xyz', page=1, pagesize=2),
+                          headers=headers)
+    assert response.status_code == 200
+    assert response.json is not None
+    assert response.json['status'] == 'OK'
+
+def test_empty_outputs_container(client, monkeypatch):
+    monkeypatch.setattr('processor.api.apicontroller.config_value', mock_config_value)
+    monkeypatch.setattr('processor.api.apicontroller.get_documents', mock_empty_get_documents)
+    monkeypatch.setattr('processor.api.apicontroller.count_documents', mock_count_documents)
+    from flask import url_for
+    mimetype = 'application/json'
+    headers = {
+        'Content-Type': mimetype,
+        'Accept': mimetype
+    }
+    response = client.get(url_for('MODAPI.outputs_container', container='abcd',
+                                  name='xyz', page=1, pagesize=2),
+                          headers=headers)
+    assert response.status_code == 200
+    assert response.json is not None
+    assert response.json['status'] == 'OK'
+
+def test_container_list(client, monkeypatch):
+    monkeypatch.setattr('processor.api.apicontroller.config_value', mock_config_value)
+    monkeypatch.setattr('processor.api.apicontroller.distinct_documents', mock_distinct_documents)
+    from flask import url_for
+    mimetype = 'application/json'
+    headers = {
+        'Content-Type': mimetype,
+        'Accept': mimetype
+    }
+    response = client.get(url_for('MODAPI.container_list'), headers=headers)
     assert response.status_code == 200
     assert response.json is not None
     assert response.json['status'] == 'OK'
