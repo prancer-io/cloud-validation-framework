@@ -97,17 +97,19 @@ def check_document(collection, docid, dbname=None):
     return doc
 
 
-def get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip=0, proj=None,):
     """ Find the documents based on the query """
     docs = None
     db = mongodb(dbname)
     collection = db[collection] if db and collection else None
     if collection:
         query = {} if query is None else query
+        proj = proj if proj else {}
+        proj['_id'] = 0
         if sort:
-            results = collection.find(query).sort(sort).limit(limit)
+            results = collection.find(filter=query, projection=proj).sort(sort).limit(limit).skip(skip)
         else:
-            results = collection.find(query).limit(limit)
+            results = collection.find(query).limit(limit).skip(skip)
         docs = [result for result in results]
     return docs
 
@@ -122,6 +124,15 @@ def count_documents(collection, query=None, dbname=None):
         count = collection.count_documents(query)
     return count
 
+
+def distinct_documents(collection, field=None, dbname=None):
+    """ Count the documents based on the query """
+    count = []
+    db = mongodb(dbname)
+    collection = db[collection] if db and collection else None
+    if collection and field:
+        count = collection.distinct(field)
+    return count
 
 def create_indexes(collection, dbname, fields):
     """ The fields to be indexed """
