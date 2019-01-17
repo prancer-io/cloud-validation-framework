@@ -4,7 +4,7 @@ def mock_config_value(key, default=None):
     return 'pytestdb'
 
 
-def test_mongoconnection(monkeypatch):
+def abctest_mongoconnection(monkeypatch):
     monkeypatch.setattr('processor.database.database.config_value', mock_config_value)
     from processor.database.database import mongoconnection, mongodb, init_db,\
         get_collection, collection_names, insert_one_document, insert_documents,\

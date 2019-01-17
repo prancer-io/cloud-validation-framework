@@ -2,7 +2,7 @@
 .python-version
 logs/*.log
 log/*.log
-rundata/*
+rundata/rundata
 .coverage
 p3_requirements.txt
 python3env/*
