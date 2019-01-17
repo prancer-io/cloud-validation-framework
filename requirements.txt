@@ -4,3 +4,8 @@ pymongo==3.7.2
 pytest==4.0.1
 pytest-cov==2.6.0
 pytest-mock==1.10.0
+Flask==1.0.2
+Flask-PyMongo==2.2.0
+pytest-flask==0.14.0
+python-dateutil==2.7.5
+requests==2.20.1
