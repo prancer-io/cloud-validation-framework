@@ -27,3 +27,4 @@ python3 validator.py container1
 python3 validator.py container1 --db
 
 py.test --cov=processor tests/ --cov-report term-missing
+Added WhiteKite-CI for pipeline tests in br_kbajey_feature branch, on merge of pull request 44, will move it to master.
