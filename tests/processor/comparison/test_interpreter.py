@@ -26,7 +26,7 @@ def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10)
 def test_interpreter(monkeypatch):
     monkeypatch.setattr('processor.comparison.interpreter.get_documents',
                         mock_get_documents)
-    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter', mock_get_documents)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.get_documents', mock_get_documents)
     from processor.comparison.interpreter import Comparator
     comparator = Comparator('0.1', 'validator', {}, {
                     "testId": "1",
