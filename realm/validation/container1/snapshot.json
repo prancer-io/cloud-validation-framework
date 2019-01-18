@@ -31,9 +31,23 @@
             "nodes": [
                 {
                     "snapshotId": "3",
-                    "type": "",
+                    "type": "json",
                     "collection": "customParameters",
                     "path":"paramters/mno/nonprod/eastus2/shared/vars.rg-1.json"
+                }
+            ]
+        },
+        {
+            "source": "parameterStructure.json",
+            "type": "git",
+            "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+            "branchName": "master",
+            "nodes": [
+                {
+                    "snapshotId": "3",
+                    "type": "terraform",
+                    "collection": "customParameters",
+                    "path":"paramters/mno/nonprod/eastus2/shared/vars.rg-1.tfvars"
                 }
             ]
         }
