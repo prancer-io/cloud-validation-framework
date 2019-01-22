@@ -65,7 +65,7 @@ ATTRFMT3
 // The regular expression starts with a letter
 // and may follow with any number of alphanumerical characters"
 STRING
-    : [a-zA-Z][a-zA-Z0-9_]*
+    : [a-zA-Z][a-zA-Z0-9_-]*
     ;
 
 ARRSTRING
