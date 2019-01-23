@@ -39,7 +39,7 @@ def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10)
 def test_get_node(create_temp_json, create_temp_dir):
     from processor.connector.snapshot_custom import get_node
     data = {
-        'type': 'Microsoft.Network/virtualNetworks',
+        'type': 'json',
         'snapshotId': '1',
         'path': "a/b/c"
     }

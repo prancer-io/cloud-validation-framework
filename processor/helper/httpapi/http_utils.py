@@ -46,7 +46,7 @@ def urlopen_request(urlreq, method):
     except HTTPError as ex:
         st_code = ex.code if method == "POST" else None
         data = ex.msg if method == "POST" else None
-        logger.info("HTTP %s: status: %d", method, st_code)
+        logger.info("HTTP %s: status: %s", method, st_code)
     return st_code, data
 
 

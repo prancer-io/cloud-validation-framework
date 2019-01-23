@@ -6,6 +6,7 @@ import tempfile
 TESTSDIR = os.getenv('SOLUTIONDIR', os.path.join(
     os.path.abspath(os.path.dirname(__file__)), '../'))
 data_dict = {'a': 'b', 'c': {'d': 'e'}, 'f': {'g': {'h': 1}}}
+os.environ['UNITTEST'] = "true"
 
 
 @pytest.fixture

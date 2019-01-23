@@ -2,6 +2,7 @@
 .python-version
 logs/*.log
 log/*.log
+junit/*
 rundata/rundata
 .coverage
 p3_requirements.txt

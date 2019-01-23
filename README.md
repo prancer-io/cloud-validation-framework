@@ -6,6 +6,8 @@ sudo pip3 install pymongo
 sudo pip3 install requests
 # Need antlr runtime
 pip install antlr4-python3-runtime
+# Parsing HCL
+pip install pyhcl==0.3.10
 #install requirements
 pip install -r requirements.txt
 
