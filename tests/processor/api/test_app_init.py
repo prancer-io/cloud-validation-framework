@@ -1,6 +1,9 @@
 import json
 from unittest.mock import Mock
 from processor.api.app_init import get_appdata, LOGGER
+import os
+
+os.environ['UNITTEST'] = "True"
 
 
 def mock_distinct_documents(collection, field=None, dbname=None):

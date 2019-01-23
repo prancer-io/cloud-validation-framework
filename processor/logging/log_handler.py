@@ -93,7 +93,7 @@ def logging_fw(fwconfigfile):
     handler.setFormatter(logging.Formatter(logformat))
     handler.setLevel(log_config['level'])
     logger.addHandler(handler)
-    unittest = os.getenv('UNITEST', None)
+    unittest = os.getenv('UNITTEST', None)
     if log_config['db'] and not unittest:
         dblogformat = '%(message)s'
         dbhandler = MongoDBHandler(log_config['db'])
