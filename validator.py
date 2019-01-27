@@ -8,6 +8,7 @@ from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import init_currentdata,\
     delete_currentdata, put_in_currentdata
 from processor.database.database import init_db
+from processor.connector.vault import get_vault_data
 from processor.connector.snapshot import populate_container_snapshots
 from processor.connector.validation import run_container_validation_tests
 
@@ -34,10 +35,11 @@ def main(arg_vals=None):
     else:
         logger.info("Running tests from file system.")
     put_in_currentdata('jsonsource', args.db)
+    val = get_vault_data()
+    logger.info('Secret Value: %s', val)
     status = populate_container_snapshots(args.container, args.db)
     if status:
         run_container_validation_tests(args.container, args.db)
-
 
 if __name__ == "__main__":
     main()

@@ -11,7 +11,7 @@ from processor.helper.json.json_utils import json_from_file, save_json_to_file
 from processor.logging.log_handler import getlogger, FWLOGFILENAME
 from processor.helper.file.file_utils import remove_file, exists_dir, mkdir_path
 
-exclude_list = ['token', 'clientSecret']
+exclude_list = ['token', 'clientSecret', 'vaulttoken']
 logger = getlogger()
 
 

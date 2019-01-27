@@ -4,7 +4,7 @@
 import json
 import copy
 from urllib import request, parse
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from processor.helper.json.json_utils import json_from_string
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata
@@ -44,9 +44,14 @@ def urlopen_request(urlreq, method):
         data = json_from_string(respdata)
         logger.info("%s status: %d", method, st_code)
     except HTTPError as ex:
-        st_code = ex.code if method == "POST" else None
+        # st_code = ex.code if method == "POST" else None
+        st_code = ex.code
         data = ex.msg if method == "POST" else None
-        logger.info("HTTP %s: status: %s", method, st_code)
+        logger.info("HTTP %s: status: %s, ex:%s ", method, st_code, ex)
+    except URLError as ex:
+        st_code = 500
+        data = str(ex)
+        logger.info("HTTP %s: status: %s, ex:%s ", method, st_code, ex)
     return st_code, data
 
 

@@ -39,7 +39,7 @@ def test_http_get_request_exception(monkeypatch):
     from processor.helper.httpapi.http_utils import http_get_request
     st, ret = http_get_request('http://a.b.c')
     assert ret is None
-    assert st is None
+    assert st == 404
 
 
 def test_http_delete_request(monkeypatch):
@@ -61,7 +61,7 @@ def test_http_delete_request_exception(monkeypatch):
     from processor.helper.httpapi.http_utils import http_delete_request
     st, ret = http_delete_request('http://a.b.c')
     assert ret is None
-    assert st is None
+    assert st == 404
 
 
 def test_http_put_request(monkeypatch):
@@ -83,7 +83,7 @@ def test_http_put_request_exception(monkeypatch):
     from processor.helper.httpapi.http_utils import http_put_request
     st, ret = http_put_request('http://a.b.c', {'a': 'b'})
     assert ret is None
-    assert st is None
+    assert st == 404
 
 
 def test_http_post_request(monkeypatch):

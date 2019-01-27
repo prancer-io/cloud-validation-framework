@@ -1,23 +1,26 @@
 """Rest API utils and calls. Fetch access token and make http calls."""
 
 from builtins import input
+import json
 import os
 from processor.logging.log_handler import getlogger
 from processor.helper.file.file_utils import exists_file
 from processor.helper.config.rundata_utils import get_from_currentdata, put_in_currentdata
-from processor.helper.httpapi.http_utils import http_post_request
+from processor.helper.httpapi.http_utils import http_post_request, http_get_request
 from processor.helper.json.json_utils import get_field_value, json_from_file, collectiontypes, STRUCTURE
 from processor.helper.config.config_utils import get_test_json_dir, config_value
 from processor.database.database import DATABASE, DBNAME, sort_field, get_documents
 
 
 ACCESSTOKEN = 'token'
+VAULTACCESSTOKEN = 'vaulttoken'
 SUBSCRIPTION = 'subscriptionId'
 TENANT = 'tenant_id'
 RESOURCEGROUP = 'rg'
 STORAGE = 'storageid'
 CLIENTID = 'clientId'
 CLIENTSECRET = 'clientSecret'
+VAULTCLIENTSECRET = 'vaultClientSecret'
 JSONSOURCE = 'jsonsource'
 
 
@@ -149,3 +152,60 @@ def get_access_token():
                 put_in_currentdata('errors', data)
                 logger.info("Get Azure token returned invalid status: %s", status)
     return token
+
+
+def get_vault_client_secret():
+    """ Return the vault client secret used."""
+    vault_client_secret = get_from_currentdata(VAULTCLIENTSECRET)
+    if not vault_client_secret:
+        vault_client_secret = os.getenv('VAULTCLIENTKEY', None)
+    if not vault_client_secret:
+        vault_client_secret = input('Enter the vault client secret: ')
+    return vault_client_secret
+
+
+def get_vault_access_token(tenant_id, vault_client_id, client_secret=None):
+    """
+    Get the vault access token to get all the other passwords/secrets.
+    """
+    vaulttoken = get_from_currentdata(VAULTACCESSTOKEN)
+    if not vaulttoken:
+        vault_client_secret = client_secret if client_secret else get_vault_client_secret()
+        data = {
+            'grant_type': 'client_credentials',
+            'client_id': vault_client_id,
+            'client_secret': vault_client_secret,
+            'resource': 'https://vault.azure.net'
+        }
+        hdrs = {
+            'Cache-Control': "no-cache",
+            "Accept": "application/json"
+        }
+        if tenant_id:
+            url = 'https://login.microsoftonline.com/%s/oauth2/token' % tenant_id
+            logger.info('Get Azure token REST API invoked!')
+            status, data = http_post_request(url, data, headers=hdrs)
+            if status and isinstance(status, int) and status == 200:
+                vaulttoken = data['access_token']
+                put_in_currentdata(VAULTACCESSTOKEN, vaulttoken)
+            else:
+                put_in_currentdata('errors', data)
+                logger.info("Get Azure token returned invalid status: %s", status)
+    return vaulttoken
+
+
+def get_keyvault_secret(keyvault, secret_key, vaulttoken):
+    hdrs = {
+        'Authorization': 'Bearer %s' % vaulttoken
+    }
+    logger.info('Get Id REST API invoked!')
+    urlstr = 'https://%s.vault.azure.net/secrets/%s?api-version=7.0'
+    url = urlstr % (keyvault, secret_key)
+    status, data = http_get_request(url, hdrs)
+    logger.info('Get Id status: %s', status)
+    if status and isinstance(status, int) and status == 200:
+        logger.debug('Data: %s', data)
+    else:
+        put_in_currentdata('errors', data)
+        logger.info("Get Id returned invalid status: %s", status)
+    return data
