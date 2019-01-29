@@ -9,6 +9,7 @@ from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata, delete_from_currentdata
 from processor.helper.json.json_utils import get_field_value, json_from_file
 from processor.helper.httpapi.restapi_azure import get_access_token, get_web_client_data
+from processor.connector.vault import get_vault_data
 from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import config_value, framework_dir
 from processor.database.database import insert_one_document, COLLECTION
@@ -81,6 +82,9 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
     if not client_id:
         logger.info("No client_id in the snapshot to access azure resource!...")
         return False
+    if not client_secret:
+        client_secret = get_vault_data(client_id)
+        logger.info('Secret: %s', client_secret)
     logger.info('Sub:%s, tenant:%s, client: %s', sub_id, tenant_id, client_id)
     put_in_currentdata('clientId', client_id)
     put_in_currentdata('clientSecret', client_secret)

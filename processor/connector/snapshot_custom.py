@@ -10,6 +10,7 @@ from git import Repo
 from git import Git
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor.logging.log_handler import getlogger
+from processor.connector.vault import get_vault_data
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE
 from processor.helper.config.config_utils import config_value, get_test_json_dir
@@ -91,6 +92,7 @@ def get_node(repopath, node, snapshot_source, ref):
 
 def populate_custom_snapshot(snapshot):
     """ Populates the resources from git."""
+    user_secret = None
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     sub_data = get_custom_data(snapshot_source)
@@ -98,6 +100,10 @@ def populate_custom_snapshot(snapshot):
         giturl = get_field_value(sub_data, 'gitProvider')
         ssh_key_file = get_field_value(sub_data, 'sshKeyfile')
         brnch = get_field_value(sub_data, 'branchName')
+        username = get_field_value(sub_data, 'username')
+        if username:
+            user_secret = get_vault_data(username)
+            logger.info('Secret: %s', user_secret)
         repopath = tempfile.mkdtemp()
         exists, empty = valid_clone_dir(repopath)
         if exists and empty:
@@ -107,6 +113,10 @@ def populate_custom_snapshot(snapshot):
                     with Git().custom_environment(GIT_SSH_COMMAND=git_ssh_cmd):
                         repo = Repo.clone_from(giturl, repopath, branch=brnch)
                 else:
+                    if username and user_secret:
+                        giturl = giturl.replace('https://', 'https://%s:%s@' %(username, user_secret))
+                    elif username:
+                        giturl = giturl.replace('https://', 'https://%s@' % username)
                     repo = Repo.clone_from(giturl, repopath, branch=brnch)
             except Exception as ex:
                 logger.info('Unable to clone the repo: %s', ex)

@@ -8,17 +8,17 @@ from processor.helper.httpapi.restapi_azure import get_vault_access_token, get_k
 logger = getlogger()
 
 
-def get_vault_data():
+def get_vault_data(secret_key=None):
     """Read vault data from config"""
     vaulttype = config_value('VAULT', 'type')
     val = None
     if vaulttype:
         if vaulttype == 'azure':
-            val = get_azure_vault_data()
+            val = get_azure_vault_data(secret_key)
     return val
 
 
-def get_azure_vault_data():
+def get_azure_vault_data(secret_key=None):
     val = None
     client_id = config_value('VAULT', 'client_id')
     client_secret = config_value('VAULT', 'client_secret')
@@ -26,9 +26,9 @@ def get_azure_vault_data():
     logger.info('Id: %s, secret: %s, tenant: %s', client_id, client_secret, tenant_id)
     vaulttoken = get_vault_access_token(tenant_id, client_id, client_secret)
     logger.debug('Vault Token: %s', vaulttoken)
-    if vaulttoken:
+    if vaulttoken and secret_key:
         keyvault = config_value('VAULT', 'keyvault')
-        secret_key = config_value('VAULT', 'secret_key')
+        # secret_key = config_value('VAULT', 'secret_key')
         logger.info('Keyvault: %s, key:%s', keyvault, secret_key)
         secret_data = get_keyvault_secret(keyvault, secret_key, vaulttoken)
         if secret_data and 'value' in secret_data:
