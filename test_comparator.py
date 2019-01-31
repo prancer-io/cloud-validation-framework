@@ -52,7 +52,7 @@ def main(arg_vals=None):
             doc = docs[0]['json']
             logger.info('#' * 80)
             logger.info(json.dumps(doc, indent=2))
-    test6 = '%s/test6.json' % get_container_dir(args.container)
+    test6 = '%s/test8.json' % get_container_dir(args.container)
     test6_json = save_json_to_file(test6)
     logger.debug(test6_json)
     otherdata = {'dbname': dbname, 'snapshots': snapshot_ids}

@@ -98,11 +98,11 @@ def run_json_validation_tests(test_json_data, container, filesystem=True):
     return resultset
 
 
-def run_container_validation_tests(container, filesystem=True):
-    if filesystem:
-        return run_container_validation_tests_filesystem(container)
-    else:
+def run_container_validation_tests(container, dbsystem=True):
+    if dbsystem:
         return run_container_validation_tests_database(container)
+    else:
+        return run_container_validation_tests_filesystem(container)
 
 
 def run_container_validation_tests_filesystem(container):

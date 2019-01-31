@@ -9,12 +9,14 @@ from processor.helper.config.config_utils import config_value
 from processor.database.database import DATABASE, DBNAME, get_documents, sort_field
 from processor.connector.snapshot_azure import populate_azure_snapshot
 from processor.connector.snapshot_custom import populate_custom_snapshot
+from processor.connector.snapshot_aws import populate_aws_snapshot
 
 
 logger = getlogger()
 snapshot_fns = {
     'azure': populate_azure_snapshot,
-    'custom': populate_custom_snapshot
+    'custom': populate_custom_snapshot,
+    'aws': populate_aws_snapshot
 }
 
 
@@ -48,11 +50,11 @@ def populate_snapshots_from_file(snapshot_file):
     return populate_snapshots_from_json(snapshot_json_data)
 
 
-def populate_container_snapshots(container, filesystem=True):
-    if filesystem:
-        return populate_container_snapshots_filesystem(container)
-    else:
+def populate_container_snapshots(container, dbsystem=True):
+    if dbsystem:
         return populate_container_snapshots_database(container)
+    else:
+        return populate_container_snapshots_filesystem(container)
 
 
 def populate_container_snapshots_filesystem(container):
