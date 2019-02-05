@@ -1,0 +1,11 @@
+curl -H "Content-Type:application/json" -X GET "http://localhost:8000/whitekite/api/version/"
+curl -H "Content-Type:application/json" -X POST "http://localhost:8000/whitekite/api/tests/" -d'{"container": "container3"}'
+curl -H "Content-Type:application/json" -X GET "http://localhost:8000/whitekite/api/results/container3/"
+curl -H "Content-Type:application/json" -X GET "http://localhost:8000/whitekite/api/results/container3/?page=1&pagesize=2"
+curl -H "Content-Type:application/json" -X GET "http://localhost:8000/whitekite/api/results/container3/test1/" 
+curl -H "Content-Type:application/json" -X GET "http://localhost:8000/whitekite/api/results/container3/test6/?page=2&pagesize=1"
+curl -H "Content-Type:application/json" -X GET "http://localhost:8000/whitekite/api/results/container3/test6/?all=false"
+curl -H "Content-Type:application/json" -X GET "http://localhost:8000/whitekite/api/execute/container3/test1/" 
+curl -H "Content-Type:application/json" -X GET "http://localhost:8000/whitekite/api/execute/container3/" 
+curl -H "Content-Type:application/json" -X GET "http://localhost:8000/whitekite/api/containers/"
+

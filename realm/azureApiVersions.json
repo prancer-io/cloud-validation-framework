@@ -1,0 +1,8 @@
+{
+    "Microsoft.Compute/availabilitySets": {
+        "version": "2018-06-01"
+    },
+    "Microsoft.Network/virtualNetworks": {
+        "version": "2018-07-01"
+    }
+}

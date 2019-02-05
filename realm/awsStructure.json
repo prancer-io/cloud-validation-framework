@@ -1,0 +1,8 @@
+{
+    "companyName": "abcd",
+    "fileType": "structure",
+    "aws_access_key_id": "AKIAIY7ZSPUJE4XLZ4WA",
+    "aws_secret_access_key": "",
+    "region_name":"us-west-2",
+    "client": "EC2"
+}

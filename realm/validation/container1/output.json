@@ -1,0 +1,19 @@
+{
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "fileType": "output",
+    "timestamp": "",
+    "snapshot": "snapshot1.json",
+    "test": "test1.json",
+    "container":"container1",
+    "results": [
+        {
+            "testId": "1",
+            "result": "passed"
+        },
+        {
+            "testId": "2",
+            "result": "failed"
+        }
+    ]
+}
