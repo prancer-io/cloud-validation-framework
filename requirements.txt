@@ -10,4 +10,5 @@ Flask-PyMongo==2.2.0
 pytest-flask==0.14.0
 python-dateutil==2.7.5
 requests==2.20.1
+ply==3.10
 pyhcl==0.3.10
