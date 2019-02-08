@@ -80,5 +80,5 @@ def populate_container_snapshots_database(container):
     if docs and len(docs):
         for doc in docs:
             if doc['json']:
-                populate_snapshots_from_json(doc['json'])
+                return populate_snapshots_from_json(doc['json'])
     return True

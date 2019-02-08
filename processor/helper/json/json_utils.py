@@ -32,6 +32,16 @@ def save_json_to_file(indata, outfile):
             pass
 
 
+def json_from_string(json_str):
+    """Get json from the string."""
+    try:
+        jsondata = json.loads(json_str)
+        return jsondata
+    except:
+        logger.debug('Failed to load json data: %s', json_str)
+    return None
+
+
 def json_from_file(jsonfile):
     """ Get json data from the file."""
     jsondata = None
@@ -42,16 +52,6 @@ def json_from_file(jsonfile):
     except:
         logger.debug('Failed to load json from file: %s', jsonfile)
     return jsondata
-
-
-def json_from_string(json_str):
-    """Get json from the string."""
-    try:
-        jsondata = json.loads(json_str)
-        return jsondata
-    except:
-        logger.debug('Failed to load json data: %s', json_str)
-    return None
 
 
 def valid_json(json_input):

@@ -85,6 +85,9 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
     if not client_secret:
         client_secret = get_vault_data(client_id)
         logger.info('Secret: %s', client_secret)
+    if not client_secret:
+        logger.info("No client secret in the snapshot to access azure resource!...")
+        return False
     logger.info('Sub:%s, tenant:%s, client: %s', sub_id, tenant_id, client_id)
     put_in_currentdata('clientId', client_id)
     put_in_currentdata('clientSecret', client_secret)
