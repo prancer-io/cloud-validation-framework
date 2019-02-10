@@ -35,8 +35,8 @@ def create_temp_json():
 @pytest.fixture
 def create_terraform():
 
-    def create_test_terraform(path, data):
-        fname = 'a1.tfvars'
+    def create_test_terraform(path, data, fname = 'a1.tfvars'):
+        # fname = 'a1.tfvars'
         fullname = '%s/%s' % (path, fname)
         with open(fullname, 'w') as f:
             f.write(data)
