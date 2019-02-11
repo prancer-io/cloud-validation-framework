@@ -4,7 +4,7 @@
 import json
 import hashlib
 import time
-import boto3
+from boto3 import client
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata
@@ -106,20 +106,22 @@ def populate_aws_snapshot(snapshot):
     snapshot_source = get_field_value(snapshot, 'source')
     sub_data = get_aws_data(snapshot_source)
     if sub_data:
+        logger.debug(sub_data)
         access_key = get_field_value(sub_data, 'aws_access_key_id')
         secret_access = get_field_value(sub_data, 'aws_secret_access_key')
         region = get_field_value(sub_data, 'region_name')
-        client = get_field_value(sub_data, 'client')
+        client_str = get_field_value(sub_data, 'client')
         if not secret_access:
             secret_access = get_vault_data(access_key)
-            logger.info('AWS Secret: %s', secret_access)
-        if client and access_key and secret_access:
+            logger.info('client: %s, key:%s, AWS Secret: %s', client_str, access_key, secret_access)
+        if client_str and access_key and secret_access:
             try:
-                awsclient = boto3.client(client.lower(), aws_access_key_id=access_key,
-                                         aws_secret_access_key=secret_access, region_name=region)
+                awsclient = client(client_str.lower(), aws_access_key_id=access_key,
+                                   aws_secret_access_key=secret_access, region_name=region)
             except Exception as ex:
                 logger.info('Unable to create AWS client: %s', ex)
                 awsclient = None
+            logger.info(awsclient)
             if awsclient:
                 for node in snapshot['nodes']:
                     logger.info(node)

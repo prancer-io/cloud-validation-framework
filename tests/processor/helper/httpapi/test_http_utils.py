@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock, Mock
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 
 def my_side_effect():
@@ -16,7 +16,13 @@ def mock_urlopen_exception(url):
     cm = MagicMock()
     cm.status = 404
     cm.read.side_effect = HTTPError(url, 404, 'not found', {}, None)
-    # cm.raiseError.side_effect = Mock(side_effect=Exception('Test'))
+    return cm
+
+
+def mock_urlopen_URLError_exception(url):
+    cm = MagicMock()
+    cm.status = 500
+    cm.read.side_effect = URLError('Unknown URL Error')
     return cm
 
 
@@ -41,6 +47,13 @@ def test_http_get_request_exception(monkeypatch):
     assert ret is None
     assert st == 404
 
+
+def test_http_get_request_URLError_exception(monkeypatch):
+    monkeypatch.setattr('processor.helper.httpapi.http_utils.request.urlopen', mock_urlopen_URLError_exception)
+    from processor.helper.httpapi.http_utils import http_get_request
+    st, ret = http_get_request('http://a.b.c')
+    assert type(ret) is str
+    assert st == 500
 
 def test_http_delete_request(monkeypatch):
     monkeypatch.setattr('processor.helper.httpapi.http_utils.request.urlopen', mock_urlopen)
