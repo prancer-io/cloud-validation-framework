@@ -1,6 +1,5 @@
 {
-    "organization": "abcd",
-    "tenant_id": "3959230b-8fb3-4957-baf4-85bd4c26239d",
+    "organization": "company1",
     "organization-unit": [
         {
             "name": "abc",
@@ -12,8 +11,7 @@
                     "users": [
                         {
                             "name": "ajeybk1@kbajeygmail.onmicrosoft.com",
-                            "client_id": "919bc6f3-9b6f-4f20-9fa7-098618465e0d",
-                            "client_secret": "aZJrSULOZx280ioDoVjdhMp0R0uDD/sZcms/ei1RZQo="
+                            "access-key": "919bc6f3-9b6f-4f20-9fa7-098618465e0d",
                         }
                     ]
                 }
