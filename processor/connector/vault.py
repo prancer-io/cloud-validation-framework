@@ -1,6 +1,7 @@
 """
    Common file for vault functionality.
 """
+import os
 from processor.logging.log_handler import getlogger
 from processor.helper.config.config_utils import config_value
 from processor.helper.httpapi.restapi_azure import get_vault_access_token, get_keyvault_secret
@@ -18,10 +19,21 @@ def get_vault_data(secret_key=None):
     return val
 
 
+def get_config_value(section, key, env_var, prompt_str=None):
+    """ Return the client secret used for the current run"""
+    client_secret = config_value(section, key)
+    if not client_secret and env_var:
+        client_secret = os.getenv(env_var, None)
+    if not client_secret and prompt_str:
+        client_secret = input(prompt_str)
+    return client_secret
+
 def get_azure_vault_data(secret_key=None):
     val = None
     client_id = config_value('VAULT', 'client_id')
-    client_secret = config_value('VAULT', 'client_secret')
+    client_secret = get_config_value('VAULT', 'client_secret', 'CLIENTKEY',
+                                     'Enter the client secret to access keyvault: ')
+    # client_secret = config_value('VAULT', 'client_secret')
     tenant_id = config_value('VAULT', 'tenant_id')
     logger.info('Id: %s, secret: %s, tenant: %s', client_id, client_secret, tenant_id)
     vaulttoken = get_vault_access_token(tenant_id, client_id, client_secret)

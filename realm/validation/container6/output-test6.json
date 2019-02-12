@@ -1,0 +1,53 @@
+{
+  "$schema": "",
+  "contentVersion": "1.0.0.0",
+  "fileType": "output",
+  "timestamp": 1549970987563,
+  "snapshot": "snapshot.json",
+  "container": "container6",
+  "test": "test6.json",
+  "results": [
+    {
+      "result": "passed",
+      "snapshots": [
+        {
+          "id": "11",
+          "path": "/resourceGroups/NetworkWatcherRG/providers/Microsoft.Storage/storageAccounts/liqteststr01",
+          "structure": "azure",
+          "reference": "whitekite",
+          "source": "azureStructure1"
+        }
+      ],
+      "testId": "1",
+      "rule": "exist({11}.location)"
+    },
+    {
+      "result": "passed",
+      "snapshots": [
+        {
+          "id": "11",
+          "path": "/resourceGroups/NetworkWatcherRG/providers/Microsoft.Storage/storageAccounts/liqteststr01",
+          "structure": "azure",
+          "reference": "whitekite",
+          "source": "azureStructure1"
+        }
+      ],
+      "testId": "2",
+      "rule": "{11}.location='eastus2'"
+    },
+    {
+      "result": "passed",
+      "snapshots": [
+        {
+          "id": "11",
+          "path": "/resourceGroups/NetworkWatcherRG/providers/Microsoft.Storage/storageAccounts/liqteststr01",
+          "structure": "azure",
+          "reference": "whitekite",
+          "source": "azureStructure1"
+        }
+      ],
+      "testId": "3",
+      "rule": "{11}.properties.networkAcls.defaultAction='Allow'"
+    }
+  ]
+}

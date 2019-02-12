@@ -1,0 +1,21 @@
+{
+    "fileType": "structure",
+    "notifications": [
+        {
+            "notificationId": "1",
+            "type": "slack",
+            "webhookkey": "notification-slack-1"
+        },
+        {
+            "notificationId": "2",
+            "type": "email",
+            "user": "ajey.khanapuri@gmail.com",
+            "to": "kbajey@gmail.com",
+            "smtp": {
+                "server": "smtp.gmail.com",
+                "port": 587,
+                "tls": true
+            }
+        }
+    ]
+}

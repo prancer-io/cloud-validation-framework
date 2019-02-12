@@ -1,0 +1,22 @@
+{
+    "companyName": "Liquware",
+    "tenant_id": "f997f2f9-a48f-465a-9677-54e8d1d90e5d",
+    "accounts": [
+        {
+            "department": "Network Security",
+            "subscription": [
+                {
+                    "subscription_name": "whitekite",
+                    "subscription_description": "whitekite",
+                    "subscription_id": "d34d6141-7a19-4458-b0dd-f038bb7760c1",
+                    "users": [
+                        {
+                            "name": "ajey.khanapuri@liquware.com",
+                            "client_id": "b0c3dd39-7fa0-4f7f-9b6b-be8b57e38ef4"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
