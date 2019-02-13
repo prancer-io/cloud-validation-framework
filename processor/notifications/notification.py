@@ -2,7 +2,7 @@
    Common file for notification functionality.
 """
 import platform
-import smtplib
+from smtplib import SMTP
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_json_files, STRUCTURE,\
     json_from_file, get_field_value
@@ -10,6 +10,7 @@ from processor.helper.httpapi.http_utils import http_post_request
 from processor.helper.config.config_utils import config_value, framework_dir
 from processor.api.utils import parsebool
 from processor.connector.vault import get_vault_data
+from processor.api.utils import parseint
 
 
 logger = getlogger()
@@ -33,7 +34,9 @@ def send_notification(container, message):
     reporting_path = config_value('REPORTING', 'reportOutputFolder')
     json_dir = '%s/%s/../' % (framework_dir(), reporting_path)
     logger.info(json_dir)
+    print(json_dir)
     structure_files = get_json_files(json_dir, STRUCTURE)
+    print(structure_files)
     logger.info('\n'.join(structure_files))
     for structure_file in structure_files:
         json_data = json_from_file(structure_file)
@@ -81,10 +84,14 @@ def send_email_notification(notification, message):
     user_key = get_field_value(notification, 'userkey')
     user_pwd = get_vault_data(user_key)
     touser = get_field_value(notification, 'to')
+    logger.info('smtp_cfg: %s, username: %s, pwd: %s, to: %s',
+                smtp_cfg, user_name, user_pwd, touser)
     if smtp_cfg and user_name and user_pwd and touser:
         try:
             # creates SMTP session
-            smtp_session = smtplib.SMTP('smtp.gmail.com', 587)
+            smtp_server = get_field_value(smtp_cfg, 'server')
+            smtp_port = parseint(get_field_value(smtp_cfg, 'port'), 587)
+            smtp_session = SMTP(smtp_server, smtp_port)
             istls = get_field_value(smtp_cfg, "tls")
             if istls:
                 # start TLS for security

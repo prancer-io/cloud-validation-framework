@@ -1,6 +1,7 @@
 """
    Common file for vault functionality.
 """
+from builtins import input
 import os
 from processor.logging.log_handler import getlogger
 from processor.helper.config.config_utils import config_value
