@@ -15,6 +15,11 @@ exclude_list = ['token', 'clientSecret', 'vaulttoken']
 logger = getlogger()
 
 
+def add_to_exclude_list(key):
+    if key not in exclude_list:
+        exclude_list.append(key)
+
+
 def init_currentdata():
     """ Initialises data structure to store runtime data. """
     started = int(time.time() * 1000)

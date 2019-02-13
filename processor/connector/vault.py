@@ -4,8 +4,11 @@
 from builtins import input
 import os
 from processor.logging.log_handler import getlogger
+from processor.helper.config.rundata_utils import get_from_currentdata,\
+    put_in_currentdata, add_to_exclude_list
 from processor.helper.config.config_utils import config_value
-from processor.helper.httpapi.restapi_azure import get_vault_access_token, get_keyvault_secret
+from processor.helper.httpapi.restapi_azure import get_vault_access_token,\
+    get_keyvault_secret
 
 logger = getlogger()
 
@@ -26,8 +29,16 @@ def get_config_value(section, key, env_var, prompt_str=None):
     if not client_secret and env_var:
         client_secret = os.getenv(env_var, None)
     if not client_secret and prompt_str:
-        client_secret = input(prompt_str)
+        key_str = '%s_%s' % (section, key)
+        client_secret = get_from_currentdata(key_str)
+        if not client_secret:
+            client_secret = input(prompt_str)
+            if client_secret:
+                put_in_currentdata(key_str, client_secret)
+                logger.info('Key:%s, sec:%s', key_str, client_secret)
+                add_to_exclude_list(key_str)
     return client_secret
+
 
 def get_azure_vault_data(secret_key=None):
     val = None

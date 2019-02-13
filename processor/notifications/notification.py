@@ -34,9 +34,7 @@ def send_notification(container, message):
     reporting_path = config_value('REPORTING', 'reportOutputFolder')
     json_dir = '%s/%s/../' % (framework_dir(), reporting_path)
     logger.info(json_dir)
-    print(json_dir)
     structure_files = get_json_files(json_dir, STRUCTURE)
-    print(structure_files)
     logger.info('\n'.join(structure_files))
     for structure_file in structure_files:
         json_data = json_from_file(structure_file)
