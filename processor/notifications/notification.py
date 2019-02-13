@@ -91,8 +91,10 @@ def send_email_notification(notification, message):
                 smtp_session.starttls()
             # Authentication
             smtp_session.login(user_name, user_pwd)
+            msg = ("From: %s\r\nTo: %s\r\n\r\n %s\n"
+             % (user_name, touser, message))
             # sending the mail
-            smtp_session.sendmail(user_name, touser, message)
+            smtp_session.sendmail(user_name, touser, msg)
             # terminating the session
             smtp_session.quit()
         except Exception as ex:
