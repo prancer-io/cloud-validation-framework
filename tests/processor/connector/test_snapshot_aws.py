@@ -4,7 +4,7 @@ from unittest.mock import Mock
 snapshot = {
     "source": "awsStructure.json",
     "type": "aws",
-    "testUser": "AKIAIY7ZSPUJE4XLZ4WA",
+    "testUser": "kbajey@gmail.com",
     "nodes": [
         {
             "snapshotId": "8",
@@ -34,16 +34,34 @@ def mock_snapshot_get_documents(collection, query=None, dbname=None, sort=None, 
 
 
 def mock_aws_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
-    return [{'json':
-        {
-            "companyName": "abcd",
-            "fileType": "structure",
-            "aws_access_key_id": "AKIAIY7ZSPUJE4XLZ4WA",
-            "aws_secret_access_key": "",
-            "region_name": "us-west-2",
-            "client": "EC2"
+    return [
+      {
+        'json':{
+          "organization": "company1",
+          "organization-unit": [
+            {
+              "name": "abc",
+              "accounts": [
+                {
+                  "account-name": "Ajey K",
+                  "account-description": "AWS cloud details",
+                  "account-id": "3684074453691",
+                  "users": [
+                    {
+                      "name": "kbajey@gmail.com",
+                      "access-key": "AKIAIY7ZSPUJE4XLZ4WA",
+                      "secret-access": "",
+                      "region": "us-west-2",
+                      "client": "EC2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
-    }]
+      }
+    ]
 
 def mock_describe_security_groups(**kwargs):
     return {'a': 'b'}

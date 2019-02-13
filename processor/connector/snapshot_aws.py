@@ -104,16 +104,20 @@ def populate_aws_snapshot(snapshot):
     """ Populates the resources from aws."""
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
+    snapshot_user = get_field_value(snapshot, 'testUser')
     sub_data = get_aws_data(snapshot_source)
     if sub_data:
         logger.debug(sub_data)
-        access_key = get_field_value(sub_data, 'aws_access_key_id')
-        secret_access = get_field_value(sub_data, 'aws_secret_access_key')
-        region = get_field_value(sub_data, 'region_name')
-        client_str = get_field_value(sub_data, 'client')
+        # access_key = get_field_value(sub_data, 'aws_access_key_id')
+        # secret_access = get_field_value(sub_data, 'aws_secret_access_key')
+        # region = get_field_value(sub_data, 'region_name')
+        # client_str = get_field_value(sub_data, 'client')
+        access_key, secret_access, region, client_str = \
+            get_aws_client_data(sub_data, snapshot_user)
         if not secret_access:
             secret_access = get_vault_data(access_key)
-            logger.info('client: %s, key:%s, AWS Secret: %s', client_str, access_key, secret_access)
+            logger.info('client: %s, key:%s, AWS Secret: %s', client_str, access_key,
+                        secret_access)
         if client_str and access_key and secret_access:
             try:
                 awsclient = client(client_str.lower(), aws_access_key_id=access_key,
@@ -130,3 +134,34 @@ def populate_aws_snapshot(snapshot):
                         insert_one_document(data, data['collection'], dbname)
                 return True
     return False
+
+
+def get_aws_client_data(aws_data, snapshot_user):
+    accesskey = None
+    secret_access = None
+    region = None
+    client_str = None
+    if aws_data and snapshot_user:
+        org_units = get_field_value(aws_data, "organization-unit")
+        if org_units:
+            found = False
+            for org_unit in org_units:
+                accounts = get_field_value(org_unit, 'accounts')
+                if accounts:
+                    for account in accounts:
+                        users = get_field_value(account, 'users')
+                        if users:
+                            for user in users:
+                                username = get_field_value(user, 'name')
+                                if username and username == snapshot_user:
+                                    found = True
+                                    accesskey = get_field_value(user, 'access-key')
+                                    secret_access = get_field_value(user, 'secret-access')
+                                    region = get_field_value(user, 'region')
+                                    client_str = get_field_value(user, 'client')
+                                    break
+                        if found:
+                            break
+                if found:
+                    break
+    return accesskey, secret_access, region, client_str

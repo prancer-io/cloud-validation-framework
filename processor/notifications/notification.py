@@ -78,7 +78,8 @@ def send_email_notification(notification, message):
     """Send notification to emails as configured by the notification."""
     smtp_cfg = get_field_value(notification, 'smtp')
     user_name = get_field_value(notification, 'user')
-    user_pwd = get_vault_data(user_name)
+    user_key = get_field_value(notification, 'userkey')
+    user_pwd = get_vault_data(user_key)
     touser = get_field_value(notification, 'to')
     if smtp_cfg and user_name and user_pwd and touser:
         try:
@@ -89,9 +90,9 @@ def send_email_notification(notification, message):
                 # start TLS for security
                 smtp_session.starttls()
             # Authentication
-            smtp_session.login("sender_email_id", "sender_email_id_password")
+            smtp_session.login(user_name, user_pwd)
             # sending the mail
-            smtp_session.sendmail("sender_email_id", "receiver_email_id", message)
+            smtp_session.sendmail(user_name, touser, message)
             # terminating the session
             smtp_session.quit()
         except Exception as ex:

@@ -10,7 +10,8 @@
             "notificationId": "2",
             "type": "email",
             "user": "ajey.khanapuri@gmail.com",
-            "to": "kbajey@gmail.com",
+            "userkey": "ajey-khanapuri-gmail-com",
+            "to": "ajeybk1@gmail.com",
             "smtp": {
                 "server": "smtp.gmail.com",
                 "port": 587,
