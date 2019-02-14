@@ -80,6 +80,9 @@ class MyMongoClient:
     def drop_database(self, dbname):
         pass
 
+    def list_database_names(self):
+        return []
+
 
 def mock_config_value(key, default=None):
     return 'pytestdb'
