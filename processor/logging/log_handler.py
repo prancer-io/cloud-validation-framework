@@ -6,6 +6,7 @@ import datetime
 import time
 import os
 from pymongo import MongoClient
+from pymongo.errors import ServerSelectionTimeoutError
 from processor.helper.config.config_utils import framework_dir,\
     get_config_data, framework_config
 
@@ -21,16 +22,19 @@ class MongoDBHandler(logging.Handler):
     """
     def __init__(self, dbname):
         logging.Handler.__init__(self)
-        dbconnection = MongoClient(port=27017)
-        if dbname:
-            db = dbconnection[dbname]
-        else:
-            db = dbconnection['test']
-        collection = 'logs_%s' % datetime.datetime.now().strftime('%Y%M%d%H%M%S')
-        if db:
-            coll = db[collection]
-            self.collection = coll
-
+        try:
+            dbconnection = MongoClient(port=27017, serverSelectionTimeoutMS=3000)
+            _ = dbconnection.list_database_names()
+            if dbname:
+                db = dbconnection[dbname]
+            else:
+                db = dbconnection['test']
+            collection = 'logs_%s' % datetime.datetime.now().strftime('%Y%M%d%H%M%S')
+            if db:
+                coll = db[collection]
+                self.collection = coll
+        except ServerSelectionTimeoutError as ex:
+            self.collection = None
 
     def emit(self, record):
         """Add record to the database"""

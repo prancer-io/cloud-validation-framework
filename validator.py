@@ -7,7 +7,7 @@ import atexit
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import init_currentdata,\
     delete_currentdata, put_in_currentdata
-from processor.database.database import init_db
+from processor.database.database import init_db, TIMEOUT
 from processor.connector.snapshot import populate_container_snapshots
 from processor.connector.validation import run_container_validation_tests
 from processor.notifications.notification import check_send_notification
@@ -29,16 +29,20 @@ def main(arg_vals=None):
     atexit.register(delete_currentdata)
     logger.info(args)
     init_currentdata()
-    init_db()
-    if args.db:
-        logger.info("Running tests from the database.")
+    db_init_res = init_db()
+    if db_init_res:
+        if args.db:
+            logger.info("Running tests from the database.")
+        else:
+            logger.info("Running tests from file system.")
+        put_in_currentdata('jsonsource', args.db)
+        status = populate_container_snapshots(args.container, args.db)
+        if status:
+            run_container_validation_tests(args.container, args.db)
+        check_send_notification(args.container, args.db)
     else:
-        logger.info("Running tests from file system.")
-    put_in_currentdata('jsonsource', args.db)
-    status = populate_container_snapshots(args.container, args.db)
-    if status:
-        run_container_validation_tests(args.container, args.db)
-    check_send_notification(args.container, args.db)
+        msg = "Mongo DB connection timed out after %d ms, check the mongo server, exiting!....."
+        logger.info(msg, TIMEOUT)
 
 
 

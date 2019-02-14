@@ -1,19 +1,21 @@
 """Mongo db driver and utility functions."""
 import collections
 from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
+from pymongo.errors import ServerSelectionTimeoutError
 from bson.objectid import ObjectId
 from processor.helper.config.config_utils import config_value, DATABASE, DBNAME
 
 
 MONGO = None
 COLLECTION = 'resources'
+TIMEOUT = 3000
 
 
-def mongoconnection(dbport=27017):
+def mongoconnection(dbport=27017, to=TIMEOUT):
     """ Global connection handle for mongo """
     global MONGO
     if not MONGO:
-        MONGO = MongoClient(port=dbport)
+        MONGO = MongoClient(port=dbport, serverSelectionTimeoutMS=to)
     return MONGO
 
 
@@ -28,9 +30,15 @@ def mongodb(dbname=None):
 
 
 def init_db():
-    dbname = config_value(DATABASE, DBNAME)
-    create_indexes(COLLECTION, dbname, [('timestamp', TEXT)])
-    return dbname
+    try:
+        dbconn = mongoconnection()
+        _ = dbconn.list_database_names()
+        dbname = config_value(DATABASE, DBNAME)
+        create_indexes(COLLECTION, dbname, [('timestamp', TEXT)])
+        db_init = True
+    except ServerSelectionTimeoutError as ex:
+        db_init = False
+    return db_init
 
 
 def get_collection(dbname, collection):
