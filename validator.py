@@ -29,7 +29,7 @@ def main(arg_vals=None):
     atexit.register(delete_currentdata)
     logger.info(args)
     init_currentdata()
-    db_init_res = init_db()
+    _, db_init_res = init_db()
     if db_init_res:
         if args.db:
             logger.info("Running tests from the database.")

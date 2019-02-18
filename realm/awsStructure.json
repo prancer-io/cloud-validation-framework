@@ -1,5 +1,6 @@
 {
     "organization": "company1",
+    "fileType": "structure",
     "organization-unit": [
         {
             "name": "abc",

@@ -30,6 +30,7 @@ def mongodb(dbname=None):
 
 
 def init_db():
+    dbname = None
     try:
         dbconn = mongoconnection()
         _ = dbconn.list_database_names()
@@ -38,7 +39,7 @@ def init_db():
         db_init = True
     except ServerSelectionTimeoutError as ex:
         db_init = False
-    return db_init
+    return dbname, db_init
 
 
 def get_collection(dbname, collection):

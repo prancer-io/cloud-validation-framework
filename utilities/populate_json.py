@@ -113,11 +113,13 @@ def main(arg_vals=None):
     atexit.register(delete_currentdata)
     logger.info(args)
     init_currentdata()
-    dbname = init_db()
-    for _, collection in collectiontypes.items():
-        create_indexes(config_value(DATABASE, collection), dbname, [('timestamp', TEXT)])
-
-    populate_json_files(args)
+    dbname, db_init_res = init_db()
+    if db_init_res:
+        for _, collection in collectiontypes.items():
+            create_indexes(config_value(DATABASE, collection), dbname, [('timestamp', TEXT)])
+        populate_json_files(args)
+    else:
+        logger.error("Error initializing DB, exiting....!")
 
 
 if __name__ == "__main__":

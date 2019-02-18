@@ -10,5 +10,6 @@
     },
     "Microsoft.KeyVault/vaults": {
         "version": "2015-06-01"
-    }
+    },
+    "fileType": "structure"
 }

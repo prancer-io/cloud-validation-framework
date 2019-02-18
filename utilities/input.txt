@@ -5,9 +5,13 @@ python3 utilities/terraform_to_json.py  realm/validation/terraform/terraform.tfv
 python3 utilities/terraform_to_json.py  realm/validation/terraform/terraform.tfvars
 
 # To populate data in the mongodb
-python3 utilities/populate_json.py lq --file ./realm/parameterStructure.json --type structure
-python3 utilities/populate_json.py lq --file ./realm/azureStructure.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/awsStructure.json --type structure
 python3 utilities/populate_json.py lq --file ./realm/azureApiVersions.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/azureStructure.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/azureStructure1.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/notifications.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/parameterStructure.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/parameterStructure1.json --type structure
 python3 utilities/populate_json.py container1 --file ./realm/validation/container1/snapshot.json --type snapshot
 python3 utilities/populate_json.py container1 --file ./realm/validation/container1/test1.json --type test
 python3 utilities/populate_json.py container1 --file ./realm/validation/container1/test2.json --type test

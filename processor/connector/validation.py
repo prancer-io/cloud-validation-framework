@@ -6,7 +6,7 @@ import pymongo
 from processor.logging.log_handler import getlogger
 from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
-    json_from_file, TEST, collectiontypes, SNAPSHOT
+    json_from_file, TEST, collectiontypes, SNAPSHOT, JSONTEST
 from processor.helper.config.config_utils import config_value, get_test_json_dir,\
     DATABASE, DBNAME, framework_dir
 from processor.database.database import create_indexes, COLLECTION,\
@@ -14,7 +14,6 @@ from processor.database.database import create_indexes, COLLECTION,\
 from processor.reporting.json_output import dump_output_results
 
 
-JSONTEST = 'test'
 logger = getlogger()
 
 
@@ -135,3 +134,21 @@ def run_container_validation_tests_database(container):
                     test_file = doc['name'] if 'name' in doc else ''
                     dump_output_results(resultset, container, test_file, snapshot, False)
     return True
+
+
+def container_snapshots_filesystem(container):
+    """Get snapshot list used in test files from the filesystem."""
+    snapshots = []
+    logger.info("Starting to get list of snapshots")
+    reporting_path = config_value('REPORTING', 'reportOutputFolder')
+    json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
+    logger.info(json_dir)
+    test_files = get_json_files(json_dir, JSONTEST)
+    logger.info('\n'.join(test_files))
+    for test_file in test_files:
+        test_json_data = json_from_file(test_file)
+        if test_json_data:
+            snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
+            if snapshot:
+                snapshots.append(snapshot)
+    return snapshots

@@ -4,8 +4,9 @@
 import json
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    get_container_snapshot_json_files, SNAPSHOT, collectiontypes
-from processor.helper.config.config_utils import config_value
+    get_container_snapshot_json_files, SNAPSHOT, JSONTEST,\
+    collectiontypes, get_json_files, TEST
+from processor.helper.config.config_utils import config_value, framework_dir
 from processor.database.database import DATABASE, DBNAME, get_documents, sort_field
 from processor.connector.snapshot_azure import populate_azure_snapshot
 from processor.connector.snapshot_custom import populate_custom_snapshot
@@ -64,8 +65,13 @@ def populate_container_snapshots_filesystem(container):
         logger.info("No Snapshot files in %s, exiting!...", snapshot_dir)
         return False
     logger.info('\n'.join(snapshot_files))
+    snapshots = container_snapshots_filesystem(container)
+    populated = []
     for snapshot_file in snapshot_files:
-        populate_snapshots_from_file(snapshot_file)
+        parts = snapshot_file.rsplit('/', 1)
+        if parts[-1] in snapshots and parts[-1] not in populated:
+            populate_snapshots_from_file(snapshot_file)
+            populated.append(parts[-1])
     return True
 
 
@@ -78,7 +84,49 @@ def populate_container_snapshots_database(container):
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
     logger.info('Number of Snapshot Documents: %s', len(docs))
     if docs and len(docs):
+        snapshots = container_snapshots_database(container)
+        populated = []
         for doc in docs:
             if doc['json']:
-                return populate_snapshots_from_json(doc['json'])
+                snapshot = doc['name']
+                if snapshot in snapshots and snapshot not in populated:
+                    populate_snapshots_from_json(doc['json'])
+                    populated.append(snapshot)
     return True
+
+
+def container_snapshots_filesystem(container):
+    """Get snapshot list used in test files from the filesystem."""
+    snapshots = []
+    logger.info("Starting to get list of snapshots")
+    reporting_path = config_value('REPORTING', 'reportOutputFolder')
+    json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
+    logger.info(json_dir)
+    test_files = get_json_files(json_dir, JSONTEST)
+    logger.info('\n'.join(test_files))
+    for test_file in test_files:
+        test_json_data = json_from_file(test_file)
+        if test_json_data:
+            snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
+            if snapshot:
+                snapshots.append(snapshot)
+    return list(set(snapshots))
+
+
+def container_snapshots_database(container):
+    """Get snapshot list used in test files from the filesystem."""
+    snapshots = []
+    logger.info("Starting to get list of snapshots from database")
+    dbname = config_value(DATABASE, DBNAME)
+    collection = config_value(DATABASE, collectiontypes[TEST])
+    qry = {'container': container}
+    sort = [sort_field('timestamp', False)]
+    docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
+    logger.info('Number of test Documents: %s', len(docs))
+    if docs and len(docs):
+        for doc in docs:
+            if doc['json']:
+                snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
+                if snapshot:
+                    snapshots.append(snapshot)
+    return list(set(snapshots))

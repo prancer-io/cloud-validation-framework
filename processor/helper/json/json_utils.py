@@ -9,6 +9,7 @@ from processor.helper.config.config_utils import get_test_json_dir
 from processor.logging.log_handler import getlogger
 
 SNAPSHOT = 'snapshot'
+JSONTEST = 'test'
 TEST = 'test'
 OUTPUT = 'output'
 STRUCTURE = 'structure'

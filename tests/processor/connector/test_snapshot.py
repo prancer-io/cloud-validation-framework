@@ -22,7 +22,8 @@ def mock_empty_snapshot_get_documents(collection, query=None, dbname=None, sort=
         },
         "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
         "snapshotId": 1,
-        "timestamp": 1545908086831
+        "timestamp": 1545908086831,
+        "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
     }]
 
 
@@ -59,7 +60,8 @@ def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10)
         },
         "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
         "snapshotId": 1,
-        "timestamp": 1545908086831
+        "timestamp": 1545908086831,
+        "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
     }]
 
 
@@ -110,7 +112,7 @@ def test_empty_snapshot_populate_container_snapshots(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_custom.populate_custom_snapshot', mock_populate_custom_snapshot)
     monkeypatch.setattr('processor.connector.snapshot.get_documents', mock_empty_snapshot_get_documents)
     from processor.connector.snapshot import populate_container_snapshots
-    assert False == populate_container_snapshots('abc')
+    assert True == populate_container_snapshots('abc')
 
 
 def test_empty_populate_container_snapshots(monkeypatch):
