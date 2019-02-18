@@ -1,3 +1,10 @@
+# To convert terraform files to json
+python3 utilities/terraform_to_json.py  realm/validation/terraform/terraform.tfvars --output /tmp/a1.json
+# To write in the same directory
+# the json file will be generated in realm/validation/terraform/terraform.json
+python3 utilities/terraform_to_json.py  realm/validation/terraform/terraform.tfvars
+
+# To populate data in the mongodb
 python3 utilities/populate_json.py lq --file ./realm/parameterStructure.json --type structure
 python3 utilities/populate_json.py lq --file ./realm/azureStructure.json --type structure
 python3 utilities/populate_json.py lq --file ./realm/azureApiVersions.json --type structure
