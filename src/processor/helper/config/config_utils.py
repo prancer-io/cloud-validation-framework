@@ -35,7 +35,11 @@ def framework_dir():
     global FRAMEWORKDIR
     if FRAMEWORKDIR:
         return FRAMEWORKDIR
-    fwdir = os.getenv('FRAMEWORKDIR', os.path.join(MYDIR, '../../../../'))
+    fwdir = os.getenv('FRAMEWORKDIR', None)
+    if not fwdir:
+        fwdir = os.path.join(MYDIR, '../../../')
+        if not os.path.exists('%srealm' % fwdir):
+            fwdir = os.path.join(MYDIR, '../../../../')
     os.chdir(fwdir)
     FRAMEWORKDIR = os.getcwd()
     return FRAMEWORKDIR
