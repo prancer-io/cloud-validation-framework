@@ -28,10 +28,11 @@ setup(
         "Topic :: Cloud Validation Framework",
         "License :: OSI Approved :: BSD License",
     ],
-    packages=find_packages(where="processor",
-                           exclude=['realm', 'log', 'rundata', 'utilities', 'tests']),
-    scripts=['validator.py'],
-    package_dir={'': 'processor'},
+    packages=find_packages(where="src",
+                           exclude=['log', 'rundata', 'utilities', 'tests']),
+    scripts=['utilities/populate_json', 'utilities/terraform_to_json',  'utilities/validator'],
+    package_dir={'': 'src'},
+    setup_requires=['ply==3.10'],
     install_requires=required,
     python_requires='>=3.0'
 )
