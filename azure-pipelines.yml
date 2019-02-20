@@ -28,7 +28,10 @@ jobs:
 
   - script: |
       pip install pytest
-      py.test --cov=processor tests/ --cov-report term-missing --junitxml=junit/test-results.xml
+      cd src
+      export PYTHONPATH=`pwd`
+      cd ..
+      py.test --cov=src/processor tests/ --cov-report term-missing --junitxml=junit/test-results.xml
     displayName: 'pytest'
 
   - task: PublishTestResults@2
