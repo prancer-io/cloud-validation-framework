@@ -117,7 +117,7 @@ def getlogger(fw_cfg=None):
     return FWLOGGER
 
 def get_logdir(fw_cfg):
-    logdir = '%s/log/' % os.getcwd()
+    logdir = '%s/log/' % framework_dir()
     if fw_cfg and 'LOGGING' in fw_cfg:
         fwconf = fw_cfg['LOGGING']
         if 'logdir' in fwconf and fwconf['logdir'] and os.path.isdir(fwconf['logdir']):

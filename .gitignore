@@ -1,5 +1,6 @@
 .idea
 .python-version
+tmp/*
 logs/*.log
 log/*.log
 junit/*
