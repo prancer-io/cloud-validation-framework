@@ -1,0 +1,25 @@
+{
+    "organization": "company1",
+    "fileType": "structure",
+    "organization-unit": [
+        {
+            "name": "abc",
+            "accounts": [
+                {
+                    "account-name": "Ajey K",
+                    "account-description": "AWS cloud details",
+                    "account-id": "3684074453691",
+                    "users": [
+                        {
+                            "name": "kbajey@gmail.com",
+                            "access-key": "AKIAIY7ZSPUJE4XLZ4WA",
+                            "secret-access": "",
+                            "region":"us-west-2",
+                            "client": "EC2"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

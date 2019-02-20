@@ -1,0 +1,54 @@
+{
+    "_id": "5c30dfa474562167d5fb900d",
+    "checksum": "99914b932bd37a50b983c5e7c90ae93b",
+    "collection": "outputs",
+    "container": "container3",
+    "json": {
+        "container": "container3",
+        "contentVersion": "1.0.0.0",
+        "fileType": "output",
+        "results": [
+            {
+                "snapshots": [
+                    {
+                        "id": 1,
+                        "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03",
+                        "strucutre": "azure",
+                        "source": "sub-name",
+                        "reference": "azureStructure.json"
+                    }
+                ],
+                "result": "passed",
+                "testId": "1",
+                "rule": "exist({1}.location)"
+            },
+            {
+                "snapshots": [
+                    {
+                        "id": 1,
+                        "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03",
+                        "strucutre": "azure",
+                        "reference": "subscription-name",
+                        "source": "azureStructure.json"
+                    },
+                    {
+                        "id": 2,
+                        "path": "paramters/mno/nonprod/eastus2/shared/vars.rg-1.json",
+                        "strucutre": "git",
+                        "reference": "branch-name",
+                        "source": "parameterStructure.json"
+                    }
+                ],
+                "result": "passed",
+                "testId": "2",
+                "rule": "{1}.location={2}.location"
+            }
+        ],
+        "snapshot": "snapshot.json",
+        "test": "test6",
+        "timestamp": 1546706852414
+    },
+    "name": "test6",
+    "timestamp": 1546706852414,
+    "type": "output"
+}

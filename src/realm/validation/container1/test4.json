@@ -1,0 +1,38 @@
+{
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "fileType": "test",
+    "snapshot": "snapshot.json",
+    "testSet": [
+        {
+            "testName": "test4",
+            "version":"0.1",
+            "cases": [
+                {
+                    "testId": "1",
+                    "snapshotId": "1",
+                    "attribute": "count(firewall.rules[])",
+                    "comparison": "eq 13"
+                },
+                {
+                    "testId": "2",
+                    "snapshotId": "1",
+                    "attribute": "firewall.rules['name'='rule1'].port",
+                    "comparison": "eq 443"
+                },
+                {
+                    "testId": "3",
+                    "snapshotId": "1",
+                    "attribute": "firewall.rules['name'='rule1'].port",
+                    "comparison": "{2}.firewall.rules['name'='rule1'].port"
+                },
+                {
+                    "testId": "4",
+                    "snapshotId": "1",
+                    "attribute": "firewall.rules['name'='rule1'].name",
+                    "comparison": "exist"
+                }
+            ]
+        }
+    ]
+}
