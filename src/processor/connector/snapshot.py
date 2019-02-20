@@ -16,7 +16,7 @@ from processor.connector.snapshot_aws import populate_aws_snapshot
 logger = getlogger()
 snapshot_fns = {
     'azure': populate_azure_snapshot,
-    'custom': populate_custom_snapshot,
+    'git': populate_custom_snapshot,
     'aws': populate_aws_snapshot
 }
 

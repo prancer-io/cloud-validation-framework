@@ -85,8 +85,7 @@ def get_node(repopath, node, snapshot_source, ref):
             db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
     else:
         logger.info('Get requires valid file for snapshot not present!')
-    logger.info('DB: %s', db_record)
-
+    logger.debug('DB: %s', db_record)
     return db_record
 
 
@@ -113,17 +112,17 @@ def populate_custom_snapshot(snapshot):
                     with Git().custom_environment(GIT_SSH_COMMAND=git_ssh_cmd):
                         repo = Repo.clone_from(giturl, repopath, branch=brnch)
                 else:
-                    if username and user_secret:
-                        giturl = giturl.replace('https://', 'https://%s:%s@' %(username, user_secret))
-                    elif username:
-                        giturl = giturl.replace('https://', 'https://%s@' % username)
+                    # if username and user_secret:
+                    #    giturl = giturl.replace('https://', 'https://%s:%s@' %(username, user_secret))
+                    # elif username:
+                    #    giturl = giturl.replace('https://', 'https://%s@' % username)
                     repo = Repo.clone_from(giturl, repopath, branch=brnch)
             except Exception as ex:
                 logger.info('Unable to clone the repo: %s', ex)
                 repo = None
             if repo:
                 for node in snapshot['nodes']:
-                    logger.info(node)
+                    logger.debug(node)
                     data = get_node(repopath, node, snapshot_source, brnch)
                     if data:
                         insert_one_document(data, data['collection'], dbname)
