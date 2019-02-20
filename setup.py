@@ -3,6 +3,21 @@
 
 # setuptools for distribution
 from setuptools import find_packages, setup
+import os
+
+def package_data_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        fpaths = []  # All files in this path.
+        for filename in filenames:
+            fpaths.append(os.path.join(path, filename))
+        paths.append((path, fpaths))
+    return paths
+
+extra_files = package_data_files('realm')
+# print(extra_files)
+
+
 
 with open('requirements.txt') as f:
     required = f.read().splitlines()
@@ -31,7 +46,9 @@ setup(
     packages=find_packages(where="src",
                            exclude=['log', 'rundata', 'utilities', 'tests']),
     scripts=['utilities/populate_json', 'utilities/terraform_to_json',  'utilities/validator'],
+    include_package_data=True,
     package_dir={'': 'src'},
+    data_files=extra_files,
     setup_requires=['ply==3.10'],
     install_requires=required,
     python_requires='>=3.0'
