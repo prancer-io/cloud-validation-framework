@@ -54,6 +54,8 @@ setup(
     entry_points={
         'console_scripts': [
             'validator = processor.helper.utils.cli_validator:validator_main',
+            'populate_json = processor.helper.utils.cli_populate_json:populate_json_main',
+            'terraform_to_json = processor.helper.utils.cli_terraform_to_json:terraform_to_json_main'
         ],
     }
 )
