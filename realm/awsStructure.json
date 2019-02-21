@@ -9,9 +9,10 @@
                     "account-name": "Ajey K",
                     "account-description": "AWS cloud details",
                     "account-id": "3684074453691",
+                    "account-user": "kbajey@gmail.com",
                     "users": [
                         {
-                            "name": "kbajey@gmail.com",
+                            "name": "ajeybk",
                             "access-key": "AKIAIY7ZSPUJE4XLZ4WA",
                             "secret-access": "",
                             "region":"us-west-2",

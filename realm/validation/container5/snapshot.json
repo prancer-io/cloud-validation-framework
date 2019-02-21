@@ -6,7 +6,8 @@
         {
             "source": "awsStructure.json",
             "type": "aws",
-            "testUser": "kbajey@gmail.com",
+            "testUser": "ajeybk",
+            "account-id": "3684074453691",
             "nodes": [
                 {
                     "snapshotId": "8",
