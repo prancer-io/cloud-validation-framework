@@ -41,7 +41,8 @@ setup(
     author_email='ajey.khanapuri@liquware.com',
     classifiers=[
         "Development Status :: 3 - Alpha",
-        "Topic :: Cloud Validation Framework",
+        'Topic :: Software Development :: Libraries :: Application Frameworks',
+        'Topic :: Software Development :: Libraries :: Python Modules',
         "License :: OSI Approved :: BSD License",
     ],
     packages=find_packages(where="src",
