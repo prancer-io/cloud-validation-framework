@@ -26,7 +26,10 @@ def framework_config():
     global FRAMEWORKCONFIG
     if FRAMEWORKCONFIG:
         return FRAMEWORKCONFIG
-    FRAMEWORKCONFIG = '%s/realm/config.ini' % framework_dir()
+    fw_cfg = '%s/realm/config.ini' % framework_dir()
+    if not exists_file(fw_cfg):
+        fw_cfg = '%s/config.ini' % MYDIR
+    FRAMEWORKCONFIG = fw_cfg
     return FRAMEWORKCONFIG
 
 
@@ -36,11 +39,17 @@ def framework_dir():
     if FRAMEWORKDIR:
         return FRAMEWORKDIR
     fwdir = os.getenv('FRAMEWORKDIR', None)
-    if not fwdir:
-        fwdir = os.path.join(MYDIR, '../../../')
-        if not os.path.exists('%srealm' % fwdir):
+    if fwdir:
+        if os.path.isdir(fwdir):
+            os.chdir(fwdir)
+    else:
+        fwdir = os.path.join(MYDIR, '../../../../realm')
+        if os.path.isdir(fwdir):
             fwdir = os.path.join(MYDIR, '../../../../')
-    os.chdir(fwdir)
+            os.chdir(fwdir)
+        # fwdir = os.path.join(MYDIR, '../../../')
+        # if not os.path.exists('%srealm' % fwdir):
+        #     fwdir = os.path.join(MYDIR, '../../../../')
     FRAMEWORKDIR = os.getcwd()
     return FRAMEWORKDIR
 
