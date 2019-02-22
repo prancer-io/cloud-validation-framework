@@ -72,7 +72,7 @@ def test_populate_snapshot(monkeypatch):
     assert False == populate_snapshot({})
     assert False == populate_snapshot({'type': 'azure'})
     assert True == populate_snapshot({'type': 'azure', 'nodes': [{'a': 'b'}]})
-    assert True == populate_snapshot({'type': 'custom', 'nodes': [{'a': 'b'}]})
+    assert True == populate_snapshot({'type': 'git', 'nodes': [{'a': 'b'}]})
 
 
 def test_populate_snapshots_from_json(monkeypatch):
