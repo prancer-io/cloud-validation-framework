@@ -102,3 +102,19 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+.idea
+.python-version
+tmp/*
+logs/*.log
+log/*.log
+junit/*
+rundata/rundata
+.coverage
+p3_requirements.txt
+python3env/*
+penv/*
+__pycache__
+*.pyc
+*.interp
+*.tokens
+configdata/mysubscription.json

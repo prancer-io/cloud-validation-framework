@@ -20,6 +20,12 @@ def mock_json_source():
 def mock_false_json_source():
     return False
 
+def mock_get_vault_data(client_id):
+    return 'abcd'
+
+def mock_empty_get_vault_data(client_id):
+    return None
+
 def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{
         "_id": "5c24af787456217c485ad1e6",
@@ -45,8 +51,6 @@ def test_get_node(create_temp_json, create_temp_dir):
     }
     ret = get_node('/tmp', data, 'parameterStructure', 'master')
     assert True == isinstance(ret, dict)
-    # ret = get_node('abcd', 'xyz', data, 'abc')
-    # assert True == isinstance(ret, dict)
     assert {} == ret['json']
     newpath = create_temp_dir()
     os.makedirs('%s/%s' % (newpath, data['path']))
@@ -56,6 +60,41 @@ def test_get_node(create_temp_json, create_temp_dir):
     assert True == isinstance(ret, dict)
     assert data_dict == ret['json']
 
+
+def test_terraform_get_node(create_terraform, create_temp_dir):
+    from processor.connector.snapshot_custom import get_node
+    data = {
+        "type": "terraform",
+        'snapshotId': '1',
+        'path': "a/b/c"
+    }
+    terr_data = [
+        'name="azrcterrafstr02"',
+        'locatio="neastus2"',
+        'resourceGroup="core-terraf-auto-rg"',
+        'containerName="states"'
+    ]
+    terr_data_dict = {
+        'name': "azrcterrafstr02",
+        'locatio': "neastus2",
+        'resourceGroup': "core-terraf-auto-rg",
+        'containerName': "states"
+    }
+    ret = get_node('/tmp', data, 'terraform', 'master')
+    assert True == isinstance(ret, dict)
+    assert {} == ret['json']
+    newpath = create_temp_dir()
+    os.makedirs('%s/%s' % (newpath, data['path']))
+    fname = create_terraform('%s/%s' % (newpath, data['path']), '\n'.join(terr_data))
+    data['path'] = '%s/%s' % (data['path'], fname)
+    ret = get_node(newpath, data, 'terraform', 'master')
+    assert True == isinstance(ret, dict)
+    assert ret['json'] == terr_data_dict
+
+    data["type"] = "terraform1"
+    ret = get_node(newpath, data, 'terraform', 'master')
+    assert True == isinstance(ret, dict)
+    assert ret['json'] == {}
 
 def test_valid_clone_dir(create_temp_dir):
     from processor.connector.snapshot_custom import valid_clone_dir
@@ -101,6 +140,7 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
     monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
     frameworkdir = '%s/a/b/c' % tmpdir
@@ -110,7 +150,7 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
         "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
         "repoCloneAddress": "/tmp/m",
         "branchName": "master",
-        "username": ""
+        "username": "abcd"
     }
     testfile = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
     snapshot = {
@@ -136,6 +176,40 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
         snapshot_data = populate_custom_snapshot(snapshot1)
         assert snapshot_data == False
 
+
+def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch):
+    global frameworkdir
+    monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
+    monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_empty_get_vault_data)
+    from processor.connector.snapshot_custom import populate_custom_snapshot
+    tmpdir = create_temp_dir()
+    frameworkdir = '%s/a/b/c' % tmpdir
+    os.makedirs(frameworkdir)
+    param_structure = {
+        "companyName": "abcd",
+        "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
+        "repoCloneAddress": "/tmp/m",
+        "branchName": "master",
+        "username": "abcd"
+    }
+    testfile = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
+    snapshot = {
+        "source": testfile,
+        "type": "custom",
+        "nodes": [
+            {
+                "snapshotId": "3",
+                "collection": "Microsoft.Keyvault",
+                "path": "realm/azure/validation/container1/sample-db-record.json"
+            }
+        ]
+    }
+    with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
+        RepoMockHelper.return_value.clone_from.return_value = None
+        snapshot_data = populate_custom_snapshot(snapshot)
+        assert snapshot_data == True
 
 def test_populate_custom_snapshot_exception(create_temp_dir, create_temp_json, monkeypatch):
     global frameworkdir
