@@ -8,4 +8,5 @@ pytest-cov==2.6.0
 pytest-mock==1.10.0
 python-dateutil==2.7.5
 requests==2.20.1
+ply==3.10
 pyhcl==0.3.10
