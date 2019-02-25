@@ -5,7 +5,7 @@
     "snapshots": [
         {
             "source": "parameterStructure1.json",
-            "type": "custom",
+            "type": "git",
             "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
             "branchName": "br_kbajey_feature",
             "nodes": [

@@ -22,14 +22,27 @@ def create_temp_dir():
 @pytest.fixture
 def create_temp_json():
 
-    def create_test_temp_json(path, data=data_dict):
-        fname = 'a1.json'
+    def create_test_temp_json(path, data=data_dict, fname = 'a1.json'):
+        # fname = 'a1.json'
         fullname = '%s/%s' % (path, fname)
         with open(fullname, 'w') as f:
             f.write(json.dumps(data, indent=2))
         return fname
 
     return create_test_temp_json
+
+
+@pytest.fixture
+def create_terraform():
+
+    def create_test_terraform(path, data, fname = 'a1.tfvars'):
+        # fname = 'a1.tfvars'
+        fullname = '%s/%s' % (path, fname)
+        with open(fullname, 'w') as f:
+            f.write(data)
+        return fname
+
+    return create_test_terraform
 
 
 @pytest.fixture

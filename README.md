@@ -1,14 +1,14 @@
-# python3 package manager is pip3, install it for the system.
+--  python3 package manager is pip3, install it for the system.
 sudo apt-get install python3-pip
-# Will require the python mongo client library for interaction
-pip3 install pymongo
-# Will use requests library for http and https
-pip3 install requests
-# Need antlr runtime
+--  Will require the python mongo client library for interaction
+sudo pip3 install pymongo
+--  Will use requests library for http and https
+sudo pip3 install requests
+--  Need antlr runtime
 pip install antlr4-python3-runtime
-# Parsing HCL
+--  Parsing HCL
 pip install pyhcl==0.3.10
-#install requirements
+-- install requirements
 pip install -r requirements.txt
 
 Mongo DB version used - 3.2.21 , can be upgraded to 3.4.18 or even ater 3.6.9. The latest current release is 4.0.4
@@ -30,5 +30,6 @@ python3 validator.py container1
 
 python3 validator.py container1 --db
 
-py.test --cov=processor tests/ --cov-report term-missing
+py.test --cov=src/processor tests/ --cov-report term-missing
+
 Added WhiteKite-CI for pipeline tests in br_kbajey_feature branch, on merge of pull request 44, will move it to master.

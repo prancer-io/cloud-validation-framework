@@ -157,10 +157,17 @@ def test_run_validation_test(monkeypatch):
     assert result['result'] == 'passed'
 
 
-def abctest_run_file_validation_tests(create_temp_dir, create_temp_json, monkeypatch):
+def test_run_file_validation_tests(create_temp_dir, create_temp_json, monkeypatch):
+    global frameworkdir
+    monkeypatch.setattr('processor.connector.validation.create_indexes', mock_create_indexes)
     monkeypatch.setattr('processor.connector.validation.config_value', mock_config_value)
+    monkeypatch.setattr('processor.connector.validation.get_test_json_dir', mock_framework_dir)
+    monkeypatch.setattr('processor.comparison.interpreter.get_documents', mock_get_documents)
     from processor.connector.validation import run_file_validation_tests
-    newpath = create_temp_dir()
+    frameworkdir = create_temp_dir()
+    newpath = frameworkdir
+    testfile = create_temp_json(newpath, data={})
+    assert False == run_file_validation_tests('%s/%s' % (newpath, testfile), 'abcd')
     json_data = {
         "$schema": "",
         "contentVersion": "1.0.0.0",
@@ -180,6 +187,33 @@ def abctest_run_file_validation_tests(create_temp_dir, create_temp_json, monkeyp
     json_data['testSet'].append(testset)
     testfile = create_temp_json(newpath, data=json_data)
     assert False == run_file_validation_tests('%s/%s' % (newpath, testfile), 'abcd')
+
+    snap_data = {
+        "$schema": "",
+        "contentVersion": "1.0.0.0",
+        "fileType": "snapshot",
+        "snapshots": [
+            {
+                "source": "azureStructure.json",
+                "type": "azure",
+                "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+                "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
+                "nodes": [
+                    {
+                        "snapshotId": "1",
+                        "type": "Microsoft.Compute/availabilitySets",
+                        "collection": "Microsoft.Compute",
+                        "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
+                    }
+                ]
+            }
+        ]
+    }
+    container = 'abcd'
+    container_dir = '%s/%s' % (frameworkdir, container)
+    os.makedirs(container_dir)
+    testfile = create_temp_json(container_dir, data=snap_data, fname='snapshot.json')
+
     testset = {
         "testName": "test1",
         "version":"0.1",
@@ -195,11 +229,12 @@ def abctest_run_file_validation_tests(create_temp_dir, create_temp_json, monkeyp
     json_data['testSet'].clear()
     json_data['testSet'].append(testset)
     testfile = create_temp_json(newpath, data=json_data)
-    assert True == run_file_validation_tests('%s/%s' % (newpath, testfile), 'abcd')
+    assert True == run_file_validation_tests('%s/%s' % (newpath, testfile), 'abcd', True)
 
 
 def test_get_snapshot_id_to_collection_dict(create_temp_dir, create_temp_json, monkeypatch):
     global frameworkdir
+    monkeypatch.setattr('processor.connector.validation.create_indexes', mock_create_indexes)
     monkeypatch.setattr('processor.connector.validation.config_value', mock_config_value)
     monkeypatch.setattr('processor.connector.validation.get_test_json_dir', mock_framework_dir)
     from processor.connector.validation import get_snapshot_id_to_collection_dict
@@ -214,7 +249,22 @@ def test_get_snapshot_id_to_collection_dict(create_temp_dir, create_temp_json, m
                 "type": "azure",
                 "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
                 "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
-                "nodes": []
+                "nodes": [
+                    {
+                        "snapshotId": "1",
+                        "type": "Microsoft.Compute/availabilitySets",
+                        "collection": "Microsoft.Compute",
+                        "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
+                    }
+                ]
+            },
+            {
+                "source": "azureStructure1.json",
+                "type": "azure",
+                "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+                "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
+                "nodes": [
+                ]
             }
         ]
     }
@@ -222,7 +272,7 @@ def test_get_snapshot_id_to_collection_dict(create_temp_dir, create_temp_json, m
     container_dir = '%s/%s' % (frameworkdir, container)
     os.makedirs(container_dir)
     testfile = create_temp_json(container_dir, data=json_data)
-    assert {} == get_snapshot_id_to_collection_dict(testfile, container, 'abcd')
+    assert {'1': 'microsoftcompute'} == get_snapshot_id_to_collection_dict(testfile, container, 'abcd')
 
 
 def test_run_container_validation_tests(create_temp_dir, create_temp_json, monkeypatch):

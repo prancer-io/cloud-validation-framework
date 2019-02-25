@@ -2,12 +2,13 @@
     "$schema": "",
     "contentVersion": "1.0.0.0",
     "fileType":"snapshot",
-    "region_name": "us-west-2",
     "snapshots": [
         {
             "source": "awsStructure.json",
             "type": "aws",
             "testUser": "AKIAIY7ZSPUJE4XLZ4WA",
+            "testUser": "ajeybk",
+            "account-id": "3684074453691",
             "nodes": [
                 {
                     "snapshotId": "8",

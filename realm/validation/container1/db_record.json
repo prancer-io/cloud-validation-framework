@@ -16,7 +16,7 @@
 		},
 		"tags" : {
 			"OWNER" : "Cloud-Team",
-			"CENTER" : "Integration",
+			"CENTER" : "Integration"
 		},
 		"type" : "Microsoft.Compute/availabilitySets"
 	},
