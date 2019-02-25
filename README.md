@@ -1,3 +1,5 @@
+[![Build Status](https://ebizframework.visualstudio.com/whitekite/_apis/build/status/github-ci-pipeline?branchName=master)](https://ebizframework.visualstudio.com/whitekite/_build/latest?definitionId=8&branchName=master)
+
 --  python3 package manager is pip3, install it for the system.
 sudo apt-get install python3-pip
 --  Will require the python mongo client library for interaction
