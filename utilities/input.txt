@@ -27,3 +27,9 @@ python3 utilities/populate_json.py container3 --dir ./realm/validation/container
 # Mongo command line utilities
 mongo localhost:27017/validator --eval "db.getCollectionNames()"
 mongo localhost:27017/validator --eval "printjson(db.getCollectionNames())"
+
+# Mongo log dumps
+mkdir logdumps
+mongodump --collection logs_20195931085940 --db whitekite --out /logdumps/
+cd logdumps/whitekite/
+bsondump logs_20195931085940.bson --pretty > ./logs_20195931085940.json
