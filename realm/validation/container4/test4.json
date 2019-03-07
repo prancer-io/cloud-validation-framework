@@ -2,23 +2,24 @@
     "$schema": "",
     "contentVersion": "1.0.0.0",
     "fileType": "test",
-    "snapshot": "snapshot.json",
+    "notification": [],
+    "snapshot": "snapshot4.json",
     "testSet": [
         {
-            "testName": "test5",
+            "testName": "test4",
             "version": "0.1",
             "cases": [
                 {
                     "testId": "1",
-                    "rule":"exist({6}.vnet_name)"
+                    "rule":"exist({41}.vnet_name)"
                 },
                 {
                     "testId": "2",
-                    "rule":"{6}.vnet_name='zah-prod-vnet-2'"
+                    "rule":"{41}.vnet_name='zah-prod-vnet-2'"
                 },
                 {
                     "testId": "3",
-                    "rule":"{6}.tags.Environment='Sandbox'"
+                    "rule":"{41}.tags.Environment='Sandbox'"
                 }
             ]
         }
