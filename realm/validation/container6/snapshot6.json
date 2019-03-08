@@ -7,16 +7,16 @@
             "source": "azureStructure1.json",
             "type": "azure",
             "testUser": "ajey.khanapuri@liquware.com",
-            "subscriptionId": "d34d6141-7a19-4458-b0dd-f038bb7760c1",
+            "subscriptionId": "<Subscription Id>".
             "nodes": [
                 {
-                    "snapshotId": "11",
+                    "snapshotId": "61",
                     "type": "Microsoft.Storage/storageAccounts",
                     "collection": "Microsoft.Storage",
                     "path":"/resourceGroups/NetworkWatcherRG/providers/Microsoft.Storage/storageAccounts/liqteststr01"
                 },
                 {
-                    "snapshotId": "12",
+                    "snapshotId": "62",
                     "type": "Microsoft.KeyVault/vaults",
                     "collection": "Microsoft.KeyVault",
                     "path": "/resourceGroups/secrets-kv-rg/providers/Microsoft.KeyVault/vaults/secrets-kv-whitekite"

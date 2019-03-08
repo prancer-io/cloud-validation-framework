@@ -1,0 +1,45 @@
+{
+  "fileType" : "snapshot",
+  "snapshots" : [
+    {
+      "source" : "azureStructure.json",
+      "type" : "azure",
+      "testUser" : "ajeybk1@kbajeygmail.onmicrosoft.com",
+      "subscriptionId" : "<Subscription Id>",
+      "nodes" : [
+        {
+          "snapshotId" : "11",
+          "type" : "Microsoft.Compute/availabilitySets",
+          "collection" : "Microsoft.Compute",
+          "path" : "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
+        },
+        {
+        "snapshotId" : "12",
+        "type" : "Microsoft.Network/virtualNetworks",
+        "collection" : "Microsoft.Network",
+        "path" : "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet01"
+        }
+      ]
+    },
+    {
+      "source" : "parameterStructure.json",
+      "type" : "git",
+      "testUser" : "ajeybk1@kbajeygmail.onmicrosoft.com",
+      "branchName" : "master",
+      "nodes" : [
+        {
+          "snapshotId" : "13",
+          "type" : "json",
+          "collection" : "customParameters",
+          "path" : "realm/awsStructure.json"
+        },
+        {
+          "snapshotId" : "14",
+          "type" : "terraform",
+          "collection" : "customParameters",
+          "path" : "realm/validation/container4/terraform.tfvars"
+        }
+      ]
+    }
+  ]
+}

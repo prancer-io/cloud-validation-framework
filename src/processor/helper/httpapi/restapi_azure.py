@@ -107,11 +107,11 @@ def json_source():
     return val if val else False
 
 
-def get_client_secret():
+def get_client_secret(key='CLIENTKEY'):
     """ Return the client secret used for the current run"""
     client_secret = get_from_currentdata(CLIENTSECRET)
     if not client_secret:
-        client_secret = os.getenv('CLIENTKEY', None)
+        client_secret = os.getenv(key, None)
     if not client_secret:
         client_secret = input('Enter the client secret for the app: ')
     return client_secret

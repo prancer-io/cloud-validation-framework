@@ -25,11 +25,16 @@ def mock_get_access_token():
 def mock_empty_get_access_token():
     return None
 
-def mock_get_vault_data(client_id):
+def mock_get_vault_data(client_id=None):
     return None
 
 def mock_get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
     return 'client_id', None, 'sub_name', 'sub_id', 'tenant_id'
+
+def mock1_get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
+    if snapshot_user =='abcd':
+        return 'client_id', None, 'sub_name', 'sub_id', 'tenant_id'
+    return 'client_id', 'client_secret', 'sub_name', 'sub_id', 'tenant_id'
 
 def mock_http_get_request_happy(url, headers=None):
     data = {'a': 'b'}
@@ -38,6 +43,9 @@ def mock_http_get_request_happy(url, headers=None):
 def mock_http_get_request_error(url, headers=None):
     data = {'a': 'b'}
     return 400, data
+
+def mock_get_client_secret():
+    return None
 
 def test_get_version_for_type():
     from processor.connector.snapshot_azure import get_version_for_type
@@ -82,6 +90,9 @@ def test_populate_azure_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_azure.http_get_request', mock_http_get_request_happy)
     monkeypatch.setattr('processor.connector.snapshot_azure.get_access_token', mock_get_access_token)
     monkeypatch.setattr('processor.connector.snapshot_azure.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_azure.get_web_client_data', mock1_get_web_client_data)
+    monkeypatch.setattr('processor.connector.snapshot_azure.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_azure.get_client_secret', mock_get_client_secret)
     from processor.connector.snapshot_azure import populate_azure_snapshot
     val = populate_azure_snapshot(snapshot, 'azure')
     assert val == True
@@ -105,6 +116,7 @@ def test_populate_azure_snapshot_invalid_secret(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_azure.insert_one_document', mock_insert_one_document)
     monkeypatch.setattr('processor.connector.snapshot_azure.get_web_client_data', mock_get_web_client_data)
     monkeypatch.setattr('processor.connector.snapshot_azure.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_azure.get_client_secret', mock_get_client_secret)
     from processor.connector.snapshot_azure import populate_azure_snapshot
     snapshot["testUser"] = "ajeybk1@kbajeygmail.onmicrosoft.com"
     val = populate_azure_snapshot(snapshot, 'azure')

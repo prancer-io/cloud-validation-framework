@@ -130,5 +130,5 @@ def test_populate_container_snapshots(monkeypatch):
     from processor.connector.snapshot import populate_container_snapshots
     # assert False == populate_container_snapshots('abc')
     assert True == populate_container_snapshots('container2')
-    assert True == populate_container_snapshots('container2', False)
+    assert True == populate_container_snapshots('container3', False)
     assert False == populate_container_snapshots('container21', False)
