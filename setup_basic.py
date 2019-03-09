@@ -9,19 +9,18 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 LONG_DESCRIPTION = """
- Prancer Enterprise allows to users to run cloud validation using
- web APIs and allows notifications to be posted to the user as configured.
+ Prancer Basic allows to users to run cloud validation.
  The supported cloud frameworks are azure, aws and git.
 """
 
 setup(
-    name='prancer-enterprise',
+    name='Prancer-Basic',
     version='0.1.0',
-    description='Prancer Enterprie, http://prancer.io/',
+    description='Prancer Basic, http://prancer.io/',
     long_description=LONG_DESCRIPTION,
-    license = "Propietary",
+    license = "BSD",
     # The project's main homepage.
-    url='https://ebizframework.visualstudio.com/whitekite',
+    url='https://github.com/prancer-io/cloud-validation-framework',
     # Author(s) details
     author='Farshid M/Ajey Khanapuri',
     author_email='ajey.khanapuri@liquware.com',
@@ -31,12 +30,19 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         "License :: OSI Approved :: BSD License",
     ],
-    packages=find_packages(where="adv",
+    packages=find_packages(where="src",
                            exclude=['log', 'rundata', 'utilities', 'tests']),
     include_package_data=True,
-    package_dir={'': 'adv'},
+    package_dir={'': 'src'},
     setup_requires=['ply==3.10'],
     install_requires=required,
-    python_requires='>=3.0'
+    python_requires='>=3.0',
+    entry_points={
+        'console_scripts': [
+            'validator = processor.helper.utils.cli_validator:validator_main',
+            'populate_json = processor.helper.utils.cli_populate_json:populate_json_main',
+            'terraform_to_json = processor.helper.utils.cli_terraform_to_json:terraform_to_json_main'
+        ],
+    }
 )
 
