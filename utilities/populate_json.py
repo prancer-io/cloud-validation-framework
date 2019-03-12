@@ -1,7 +1,3 @@
-"""
-   Common file for populating json files to json.
-"""
-
 """ Driver file for populating json files to database """
 
 

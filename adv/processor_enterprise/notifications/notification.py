@@ -8,9 +8,9 @@ from processor.helper.json.json_utils import get_json_files, STRUCTURE,\
     json_from_file, get_field_value
 from processor.helper.httpapi.http_utils import http_post_request
 from processor.helper.config.config_utils import config_value, framework_dir
-from processor.api.utils import parsebool
 from processor.connector.vault import get_vault_data
-from processor.api.utils import parseint
+from processor_enterprise.api.utils import parsebool
+from processor_enterprise.api.utils import parseint
 
 
 logger = getlogger()

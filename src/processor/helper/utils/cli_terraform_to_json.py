@@ -1,6 +1,7 @@
 """
    Common utility file to convert terraform to json files.
 """
+
 import argparse
 import sys
 import atexit
@@ -9,8 +10,6 @@ from processor.helper.config.rundata_utils import init_currentdata, delete_curre
 from processor.helper.file.file_utils import exists_file
 from processor.helper.json.json_utils import save_json_to_file
 from processor.connector.snapshot_custom import convert_to_json
-
-
 
 
 def convert_terraform_to_json(terraform, output=None):
