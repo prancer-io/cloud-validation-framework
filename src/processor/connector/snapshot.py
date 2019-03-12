@@ -128,5 +128,9 @@ def container_snapshots_database(container):
             if doc['json']:
                 snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
                 if snapshot:
-                    snapshots.append(snapshot)
+                    if snapshot.endswith('.json'):
+                        parts = snapshot.split('.')
+                        snapshots.append(parts[0])
+                    else:
+                        snapshots.append(snapshot)
     return list(set(snapshots))
