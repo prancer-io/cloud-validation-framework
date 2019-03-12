@@ -94,7 +94,6 @@ def mock_create_indexes(sid, dbname, flds):
 def test_mongoconnection(monkeypatch):
     monkeypatch.setattr('processor.database.database.config_value', mock_config_value)
     monkeypatch.setattr('processor.database.database.MongoClient', MyMongoClient)
-
     from processor.database.database import mongoconnection, mongodb, init_db,\
         get_collection, collection_names, insert_one_document, insert_documents,\
         check_document, get_documents, count_documents, index_information, distinct_documents
@@ -145,7 +144,6 @@ def test_sort_dict():
     d = sort_dict(b)
     # e = sort_dict(c)
     assert ['m', 'n', 'y', 'z'] == list(d.keys())
-
 
 def test_log_DBhandler(monkeypatch, create_temp_dir, create_terraform):
     monkeypatch.setattr('processor.logging.log_handler.MongoClient', MyMongoClient)

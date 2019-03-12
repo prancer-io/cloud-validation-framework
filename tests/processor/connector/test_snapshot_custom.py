@@ -61,7 +61,6 @@ def test_get_node(create_temp_json, create_temp_dir):
     assert data_dict == ret['json']
 
 
-
 def test_terraform_get_node(create_terraform, create_temp_dir):
     from processor.connector.snapshot_custom import get_node
     data = {
@@ -96,8 +95,6 @@ def test_terraform_get_node(create_terraform, create_temp_dir):
     ret = get_node(newpath, data, 'terraform', 'master')
     assert True == isinstance(ret, dict)
     assert ret['json'] == {}
-
-
 
 def test_valid_clone_dir(create_temp_dir):
     from processor.connector.snapshot_custom import valid_clone_dir
@@ -175,7 +172,6 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
     with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
         snapshot_data = populate_custom_snapshot(snapshot)
-
         assert snapshot_data == True
         snapshot_data = populate_custom_snapshot(snapshot1)
         assert snapshot_data == False
