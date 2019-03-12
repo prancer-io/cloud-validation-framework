@@ -28,9 +28,8 @@ jobs:
 
   - script: |
       pip install pytest
-      cd src
-      export PYTHONPATH=`pwd`
-      cd ..
+      CURPWD=`pwd`
+      export PYTHONPATH=$CURPWD/src:$CURPWD/adv
       py.test --cov=src/processor tests/ --cov-report term-missing --junitxml=junit/test-results.xml
     displayName: 'pytest'
 
