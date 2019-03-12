@@ -4,11 +4,13 @@
         {
             "notificationId": "1",
             "type": "slack",
+            "level": "all",
             "webhookkey": "notification-slack-1"
         },
         {
             "notificationId": "2",
             "type": "email",
+            "level": "fail",
             "user": "ajey.khanapuri@gmail.com",
             "userkey": "ajey-khanapuri-gmail-com",
             "to": "kbajey@gmail.com",

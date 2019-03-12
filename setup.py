@@ -31,10 +31,10 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         "License :: OSI Approved :: BSD License",
     ],
-    packages=find_packages(where="adv",
+    packages=find_packages(where="enterprise",
                            exclude=['log', 'rundata', 'utilities', 'tests']),
     include_package_data=True,
-    package_dir={'': 'adv'},
+    package_dir={'': 'enterprise'},
     setup_requires=['ply==3.10'],
     install_requires=required,
     python_requires='>=3.0'
