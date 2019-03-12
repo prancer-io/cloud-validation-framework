@@ -1,11 +1,11 @@
-"""A setup module for prancer-enterprise."""
-
+"""A setup module for prancer-basic."""
 
 # setuptools for distribution
 from setuptools import find_packages, setup
 import os
 
-with open('requirements.txt') as f:
+
+with open('requirements_basic.txt') as f:
     required = f.read().splitlines()
 
 LONG_DESCRIPTION = """
@@ -14,8 +14,8 @@ LONG_DESCRIPTION = """
 """
 
 setup(
-    name='Prancer-Basic',
-    version='0.1.0',
+    name='prancer-basic',
+    version='0.1.1',
     description='Prancer Basic, http://prancer.io/',
     long_description=LONG_DESCRIPTION,
     license = "BSD",
@@ -45,4 +45,3 @@ setup(
         ],
     }
 )
-
