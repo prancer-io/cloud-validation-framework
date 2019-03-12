@@ -1,55 +1,45 @@
 {
-    "$schema": "",
-    "contentVersion": "1.0.0.0",
-    "fileType":"snapshot",
-    "snapshots": [
+  "fileType" : "snapshot",
+  "snapshots" : [
+    {
+      "source" : "azureStructure.json",
+      "type" : "azure",
+      "testUser" : "ajeybk1@kbajeygmail.onmicrosoft.com",
+      "subscriptionId" : "37f11aaf-0b72-44ef-a173-308e990279da",
+      "nodes" : [
         {
-            "source": "azureStructure.json",
-            "type": "azure",
-            "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
-            "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
-            "nodes": [
-                {
-                    "snapshotId": "1",
-                    "type": "Microsoft.Compute/availabilitySets",
-                    "collection": "Microsoft.Compute",
-                    "path":"/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
-                },
-                {
-                    "snapshotId": "2",
-                    "type": "Microsoft.Network/virtualNetworks",
-                    "collection": "Microsoft.Network",
-                    "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet01"
-                }
-            ]
+          "snapshotId" : "11",
+          "type" : "Microsoft.Compute/availabilitySets",
+          "collection" : "Microsoft.Compute",
+          "path" : "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
         },
         {
-            "source": "parameterStructure.json",
-            "type": "git",
-            "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
-            "branchName": "master",
-            "nodes": [
-                {
-                    "snapshotId": "3",
-                    "type": "json",
-                    "collection": "customParameters",
-                    "path":"paramters/mno/nonprod/eastus2/shared/vars.rg-1.json"
-                }
-            ]
-        },
-        {
-            "source": "parameterStructure.json",
-            "type": "git",
-            "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
-            "branchName": "master",
-            "nodes": [
-                {
-                    "snapshotId": "3",
-                    "type": "terraform",
-                    "collection": "customParameters",
-                    "path":"paramters/mno/nonprod/eastus2/shared/vars.rg-1.tfvars"
-                }
-            ]
+        "snapshotId" : "12",
+        "type" : "Microsoft.Network/virtualNetworks",
+        "collection" : "Microsoft.Network",
+        "path" : "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet01"
         }
-    ]
+      ]
+    },
+    {
+      "source" : "parameterStructure.json",
+      "type" : "git",
+      "testUser" : "ajeybk1@kbajeygmail.onmicrosoft.com",
+      "branchName" : "master",
+      "nodes" : [
+        {
+          "snapshotId" : "13",
+          "type" : "json",
+          "collection" : "customParameters",
+          "path" : "realm/awsStructure.json"
+        },
+        {
+          "snapshotId" : "14",
+          "type" : "terraform",
+          "collection" : "customParameters",
+          "path" : "realm/validation/container4/terraform.tfvars"
+        }
+      ]
+    }
+  ]
 }
