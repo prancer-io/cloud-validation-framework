@@ -1,0 +1,36 @@
+{
+    "fileType": "structure",
+    "notifications": [
+        {
+            "notificationId": "1",
+            "type": "slack",
+            "level": "all",
+            "webhookkey": "notification-slack-1"
+        },
+        {
+            "notificationId": "2",
+            "type": "email",
+            "level": "fail",
+            "user": "ajey.khanapuri@gmail.com",
+            "userkey": "ajey-khanapuri-gmail-com",
+            "to": "kbajey@gmail.com",
+            "smtp": {
+                "server": "smtp.gmail.com",
+                "port": 587,
+                "tls": true
+            }
+        },
+        {
+            "notificationId": "3",
+            "type": "email",
+            "user": "azure_b642263c767a632f60ee858374ad859c@azure.com",
+            "userkey": "azure-b642263c767a632f60ee858374ad859c-azure-com",
+            "to": "farshid@liquware.com",
+            "smtp": {
+                "server": "smtp.sendgrid.net",
+                "port": 25,
+                "tls": true
+            }
+        }
+    ]
+}

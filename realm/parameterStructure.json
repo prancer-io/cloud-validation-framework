@@ -1,7 +1,8 @@
 {
+    "fileType": "structure",
     "companyName": "abcd",
     "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
     "repoCloneAddress":"/tmp/m",
-    "branchName":"master",
-    "username":""
+    "branchName":"br_kbajey_feature",
+    "username":"ajey.khanapuri@liquware.com"
 }

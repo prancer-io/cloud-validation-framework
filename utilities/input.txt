@@ -1,15 +1,35 @@
-python utilities/populate_json.py lq --file ./realm/parameterStructure.json --type structure
-python utilities/populate_json.py lq --file ./realm/azureStructure.json --type structure
-python utilities/populate_json.py lq --file ./realm/azureApiVersions.json --type structure
-python utilities/populate_json.py container1 --file ./realm/validation/container1/snapshot.json --type snapshot
-python utilities/populate_json.py container1 --file ./realm/validation/container1/test1.json --type test
-python utilities/populate_json.py container1 --file ./realm/validation/container1/test2.json --type test
-python utilities/populate_json.py container1 --file ./realm/validation/container1/test3.json --type test
-python utilities/populate_json.py container1 --file ./realm/validation/container1/test4.json --type test
-python utilities/populate_json.py container1 --file ./realm/validation/container1/test5.json --type test
-python utilities/populate_json.py container1 --file ./realm/validation/container1/test6.json --type test
-python utilities/populate_json.py container2 --file ./realm/validation/container2/snapshot.json --type snapshot
-python utilities/populate_json.py container2 --file ./realm/validation/container2/test1.json --type test
-python utilities/populate_json.py container3 --dir ./realm/validation/container3
+# To convert terraform files to json
+python3 utilities/terraform_to_json.py  realm/validation/terraform/terraform.tfvars --output /tmp/a1.json
+# To write in the same directory
+# the json file will be generated in realm/validation/terraform/terraform.json
+python3 utilities/terraform_to_json.py  realm/validation/terraform/terraform.tfvars
+
+# To populate data in the mongodb
+python3 utilities/populate_json.py lq --file ./realm/awsStructure.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/azureApiVersions.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/azureStructure.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/azureStructure1.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/notifications.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/parameterStructure.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/parameterStructure1.json --type structure
+python3 utilities/populate_json.py container1 --file ./realm/validation/container1/snapshot.json --type snapshot
+python3 utilities/populate_json.py container1 --file ./realm/validation/container1/test1.json --type test
+python3 utilities/populate_json.py container1 --file ./realm/validation/container1/test2.json --type test
+python3 utilities/populate_json.py container1 --file ./realm/validation/container1/test3.json --type test
+python3 utilities/populate_json.py container1 --file ./realm/validation/container1/test4.json --type test
+python3 utilities/populate_json.py container1 --file ./realm/validation/container1/test5.json --type test
+python3 utilities/populate_json.py container1 --file ./realm/validation/container1/test6.json --type test
+python3 utilities/populate_json.py container2 --file ./realm/validation/container2/snapshot.json --type snapshot
+python3 utilities/populate_json.py container2 --file ./realm/validation/container2/test1.json --type test
+python3 utilities/populate_json.py container3 --dir ./realm/validation/container3
 
 
+# Mongo command line utilities
+mongo localhost:27017/validator --eval "db.getCollectionNames()"
+mongo localhost:27017/validator --eval "printjson(db.getCollectionNames())"
+
+# Mongo log dumps
+mkdir logdumps
+mongodump --collection logs_20195931085940 --db whitekite --out /logdumps/
+cd logdumps/whitekite/
+bsondump logs_20195931085940.bson --pretty > ./logs_20195931085940.json

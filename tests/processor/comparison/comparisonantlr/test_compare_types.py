@@ -5,6 +5,10 @@ from unittest.mock import MagicMock, Mock
 
 def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{
+        "structure": "azure",
+        "reference": 'abcd',
+        "source": 'snapshot',
+        "path": '/a/b/c',
         "_id": "5c24af787456217c485ad1e6",
         "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
         "collection": "microsoftcompute",
@@ -20,6 +24,10 @@ def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10)
 
 def mock_get_multiple_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{
+        "structure": "azure",
+        "reference": 'abcd',
+        "source": 'snapshot',
+        "path": '/a/b/c',
         "_id": "5c24af787456217c485ad1e6",
         "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
         "collection": "microsoftcompute",

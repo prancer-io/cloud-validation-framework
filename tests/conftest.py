@@ -6,6 +6,7 @@ import tempfile
 TESTSDIR = os.getenv('SOLUTIONDIR', os.path.join(
     os.path.abspath(os.path.dirname(__file__)), '../'))
 data_dict = {'a': 'b', 'c': {'d': 'e'}, 'f': {'g': {'h': 1}}}
+os.environ['UNITTEST'] = "true"
 
 
 @pytest.fixture
@@ -21,14 +22,27 @@ def create_temp_dir():
 @pytest.fixture
 def create_temp_json():
 
-    def create_test_temp_json(path, data=data_dict):
-        fname = 'a1.json'
+    def create_test_temp_json(path, data=data_dict, fname = 'a1.json'):
+        # fname = 'a1.json'
         fullname = '%s/%s' % (path, fname)
         with open(fullname, 'w') as f:
             f.write(json.dumps(data, indent=2))
         return fname
 
     return create_test_temp_json
+
+
+@pytest.fixture
+def create_terraform():
+
+    def create_test_terraform(path, data, fname = 'a1.tfvars'):
+        # fname = 'a1.tfvars'
+        fullname = '%s/%s' % (path, fname)
+        with open(fullname, 'w') as f:
+            f.write(data)
+        return fname
+
+    return create_test_terraform
 
 
 @pytest.fixture
@@ -59,3 +73,9 @@ def create_temp_text():
 
     return create_test_temp_text
 
+
+@pytest.fixture
+def app():
+    from processor_enterprise.api.app_init import initapp
+    db, app = initapp()
+    return app

@@ -2,6 +2,16 @@
     "$schema": "",
     "contentVersion": "1.0.0.0",
     "fileType": "test",
+    "notification": [
+        {
+            "type": "slack",
+            "address": "group-name"
+        },
+        {
+            "type": "email",
+            "address": "name@domain.com"
+        }
+    ],
     "snapshot": "snapshot.json",
     "testSet": [
         {
@@ -10,11 +20,11 @@
             "cases": [
                 {
                     "testId": "1",
-                    "rule":"exist({1}.location)"
+                    "rule": "exist({1}.location)"
                 },
                 {
                     "testId": "2",
-                    "rule":"{1}.location='eastus2'"
+                    "rule": "{1}.location='eastus2'"
                 },
                 {
                     "testId": "3",

@@ -4,5 +4,12 @@
     },
     "Microsoft.Network/virtualNetworks": {
         "version": "2018-07-01"
-    }
+    },
+    "Microsoft.Storage/storageAccounts": {
+        "version": "2018-07-01"
+    },
+    "Microsoft.KeyVault/vaults": {
+        "version": "2015-06-01"
+    },
+    "fileType": "structure"
 }
