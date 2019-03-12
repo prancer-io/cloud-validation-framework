@@ -76,6 +76,6 @@ def create_temp_text():
 
 @pytest.fixture
 def app():
-    from processor.api.app_init import initapp
+    from processor_enterprise.api.app_init import initapp
     db, app = initapp()
     return app

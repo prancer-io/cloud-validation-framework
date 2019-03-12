@@ -1,8 +1,8 @@
 "Test controller for test invocation"
 import pymongo
 from flask import Blueprint, jsonify, request
-from processor.api.app_init import app, LOGGER
-from processor.api.utils import ERROR, OK, NOK, STATUS, VALUE, parsebool
+from processor_enterprise.api.app_init import app, LOGGER
+from processor_enterprise.api.utils import ERROR, OK, NOK, STATUS, VALUE, parsebool
 from processor.connector.validation import run_container_validation_tests_database
 from processor.database.database import sort_field, get_documents, count_documents,\
     distinct_documents, DATABASE, DBNAME

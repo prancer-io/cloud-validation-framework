@@ -1,4 +1,4 @@
-from processor.api.utils import gettokentimeout, parseint, parsebool
+from processor_enterprise.api.utils import gettokentimeout, parseint, parsebool
 
 def test_gettokentimeout():
     val = gettokentimeout()

@@ -5,7 +5,7 @@ from flask import Flask, jsonify, session
 from flask_pymongo import PyMongo
 from processor.helper.json.json_utils import json_from_file
 from processor.logging.log_handler import getlogger
-from processor.api.utils import CONFIGFILE, gettokentimeout
+from processor_enterprise.api.utils import CONFIGFILE, gettokentimeout
 
 
 # def setup_logging():
@@ -89,7 +89,7 @@ def unauthorized():
 def register_modules(myapp):
     "Register all the routes from this function"
     # Register blueprint(s)
-    from processor.api.apicontroller import MODAPI
+    from processor_enterprise.api.apicontroller import MODAPI
     myapp.register_blueprint(MODAPI)
 
 
