@@ -10,7 +10,7 @@
         {
             "notificationId": "2",
             "type": "email",
-            "level": "fail",
+            "level": "failed",
             "user": "ajey.khanapuri@gmail.com",
             "userkey": "ajey-khanapuri-gmail-com",
             "to": "kbajey@gmail.com",
@@ -23,9 +23,10 @@
         {
             "notificationId": "3",
             "type": "email",
+            "level": "failed",
             "user": "azure_b642263c767a632f60ee858374ad859c@azure.com",
             "userkey": "azure-b642263c767a632f60ee858374ad859c-azure-com",
-            "to": "farshid@liquware.com",
+            "to": "kbajey@gmail.com",
             "smtp": {
                 "server": "smtp.sendgrid.net",
                 "port": 25,

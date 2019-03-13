@@ -1,7 +1,19 @@
 {
     "$schema": "",
     "contentVersion": "1.0.0.0",
-    "notification": [],
+    "notification": [
+        {
+            "notificationId": "3",
+            "type": "email",
+            "to": "ajey.khanapuri@gmail.com",
+            "level": "passed"
+        },
+        {
+            "notificationId": "1",
+            "type": "slack",
+            "level": "failed"
+        }
+    ],
     "fileType": "test",
     "snapshot": "snapshot6.json",
     "testSet": [

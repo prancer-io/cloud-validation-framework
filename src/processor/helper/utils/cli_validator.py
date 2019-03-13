@@ -12,7 +12,7 @@ from processor.database.database import init_db, TIMEOUT
 from processor.connector.snapshot import populate_container_snapshots
 from processor.connector.validation import run_container_validation_tests
 try:
-    from processor.notifications.notification import check_send_notification
+    from processor_enterprise.notifications.notification import check_send_notification
 except:
     check_send_notification = lambda container, db: None
 
