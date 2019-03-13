@@ -10,20 +10,20 @@
             "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
             "nodes": [
                 {
-                    "snapshotId": "1",
+                    "snapshotId": "31",
                     "type": "Microsoft.Compute/availabilitySets",
                     "collection": "Microsoft.Compute",
                     "path":"/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
                 },
                 {
-                    "snapshotId": "2",
+                    "snapshotId": "32",
                     "type": "Microsoft.Network/virtualNetworks",
                     "collection": "Microsoft.Network",
                     "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet01"
 
                 },
                 {
-                    "snapshotId": "3",
+                    "snapshotId": "33",
                     "type": "Microsoft.Network/virtualNetworks",
                     "collection": "Microsoft.Network",
                     "path": "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet02"
@@ -34,14 +34,14 @@
         {
             "source": "parameterStructure.json",
             "type": "git",
-            "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+            "testUser": "ajey.khanapuri@liquware.com",
             "branchName": "master",
             "nodes": [
                 {
-                    "snapshotId": "4",
+                    "snapshotId": "34",
                     "type": "",
                     "collection": "customParameters",
-                    "path":"paramters/mno/nonprod/eastus2/shared/vars.rg-1.json"
+                    "path":"parameters/mno/nonprod/eastus2/shared/vars.rg1.json"
                 }
             ]
         }
