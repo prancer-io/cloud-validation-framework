@@ -15,6 +15,8 @@ from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME
 from processor.helper.httpapi.restapi_azure import json_source
+from processor.helper.httpapi.restapi_azure import get_client_secret
+
 
 
 logger = getlogger()
@@ -78,8 +80,6 @@ def get_node(awsclient, node, snapshot_source):
                     checksum = get_checksum(data)
                     if checksum:
                         db_record['checksum'] = checksum
-                    # data_str = json.dumps(data)
-                    # db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
                 else:
                     put_in_currentdata('errors', data)
                     logger.info("Describe function does not exist: %s", describe_fn_str)
@@ -108,16 +108,20 @@ def populate_aws_snapshot(snapshot):
     sub_data = get_aws_data(snapshot_source)
     if sub_data:
         logger.debug(sub_data)
-        # access_key = get_field_value(sub_data, 'aws_access_key_id')
-        # secret_access = get_field_value(sub_data, 'aws_secret_access_key')
-        # region = get_field_value(sub_data, 'region_name')
-        # client_str = get_field_value(sub_data, 'client')
         access_key, secret_access, region, client_str = \
             get_aws_client_data(sub_data, snapshot_user)
+        if not access_key:
+            logger.info("No access_key in the snapshot to access aws resource!...")
+            return False
         if not secret_access:
             secret_access = get_vault_data(access_key)
-            logger.info('client: %s, key:%s, AWS Secret: %s', client_str, access_key,
-                        secret_access)
+            logger.info('Vault Secret: %s', secret_access)
+        if not secret_access:
+            secret_access = get_client_secret()
+            logger.info('Environment variable or Standard input, Secret: %s', secret_access)
+        if not secret_access:
+            logger.info("No secret_access in the snapshot to access aws resource!...")
+            return False
         if client_str and access_key and secret_access:
             try:
                 awsclient = client(client_str.lower(), aws_access_key_id=access_key,
