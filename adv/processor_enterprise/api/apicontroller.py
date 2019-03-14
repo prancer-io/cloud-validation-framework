@@ -1,7 +1,7 @@
 "Test controller for test invocation"
 import pymongo
 from flask import Blueprint, jsonify, request
-from processor_enterprise.api.app_init import app, LOGGER
+from processor_enterprise.api.app_init import app, LOGGER, scheduler
 from processor_enterprise.api.utils import ERROR, OK, NOK, STATUS, VALUE, parsebool
 from processor.connector.validation import run_container_validation_tests_database
 from processor.database.database import sort_field, get_documents, count_documents,\
@@ -10,12 +10,72 @@ from processor.helper.json.json_utils import collectiontypes, OUTPUT, TEST
 from processor.helper.config.config_utils import config_value
 from processor.connector.validation import run_json_validation_tests
 from processor.reporting.json_output import dump_output_results
+from processor_enterprise.api.parser_scheduler_value import parse_value
 SORTDATE = 'date'
 SORTFIELDS = {SORTDATE: 'timestamp'}
 
 
 # Define the blueprint: 'test'
 MODAPI = Blueprint('MODAPI', __name__, url_prefix=app.config['APIPREFIX'])
+
+def myjob(indata, idstr):
+    LOGGER.info("Scheduled job invoked!: %s, %s", idstr, indata)
+
+
+def reschedule_action(indata):
+   LOGGER.info("Add the job")
+   schedule_val = indata['schedule']
+   alarm_time, trigger_values = parse_value(schedule_val)
+   id_str = "" + str(indata["id"])
+   if schedule_val.startswith('once'):
+       job_val = scheduler.add_job(myjob, 'date', id=id_str, args=[indata, id_str], **trigger_values)
+   else:
+       trigger_values['start_date'] = alarm_time
+       job_val = scheduler.add_job(myjob, 'cron', id=id_str, args=[indata, id_str], **trigger_values)
+   LOGGER.info("Trigger values: %s", trigger_values)
+   return job_val
+
+def add_action(indata):
+   LOGGER.info("Add the job")
+   schedule_val = indata['schedule']
+   alarm_time, trigger_values = parse_value(schedule_val)
+   id_str = "" + str(indata["id"])
+   if schedule_val.startswith('once'):
+       job_val = scheduler.add_job(myjob, 'date', id=id_str, args=[indata, id_str], **trigger_values)
+   else:
+       trigger_values['start_date'] = alarm_time
+       job_val = scheduler.add_job(myjob, 'cron', id=id_str, args=[indata, id_str], **trigger_values)
+   LOGGER.info("Trigger values: %s", trigger_values)
+   return job_val
+
+
+def delete_action(indata):
+   LOGGER.info("Delete the job")
+   id_str = "" + str(indata["id"])
+   scheduler.remove_job(id_str)
+
+
+@MODAPI.route('/jobs/', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def jobs_scheduled():
+    """Return the jobs scheduled"""
+    LOGGER.info("Method: %s, %s", request.method, request.json)
+    if request.method == 'POST':
+        indata = request.json
+        container = indata.get('container', None) if indata else None
+        LOGGER.info('Input: %s', indata)
+        if container:
+            add_action(indata)
+    elif request.method == 'DELETE':
+        indata = request.json
+        container = indata.get('container', None) if indata else None
+        LOGGER.info('Input: %s', indata)
+        if container:
+            delete_action(indata)
+    jobs = scheduler.get_jobs()
+    print(jobs)
+    data = {STATUS: OK, 'jobs': []}
+    return jsonify(data)
+
 
 @MODAPI.route('/version/', methods=['POST', 'GET'])
 def app_version():

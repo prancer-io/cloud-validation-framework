@@ -5,9 +5,10 @@ import platform
 import json
 import copy
 from smtplib import SMTP
+import tempfile
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_json_files, STRUCTURE,\
-    json_from_file, get_field_value, OUTPUT, TEST, collectiontypes
+    json_from_file, get_field_value, save_json_to_file, OUTPUT, TEST, collectiontypes
 from processor.helper.httpapi.http_utils import http_post_request
 from processor.helper.config.config_utils import config_value, framework_dir,\
     DATABASE, DBNAME
@@ -15,6 +16,11 @@ from processor.database.database import sort_field, get_documents
 from processor.connector.vault import get_vault_data
 from processor_enterprise.api.utils import parsebool
 from processor_enterprise.api.utils import parseint
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 
 logger = getlogger()
@@ -91,7 +97,7 @@ def process_output_notfication(container, output_json, test_json):
                 output_data = copy.copy(output_json)
                 output_data['results'] = new_res
             logger.info('Data: %s', output_data)
-            send_notify(container, json.dumps(output_data), notification)
+            send_notify(container, output_data, notification)
 
 
 def send_notify(container, message, notify):
@@ -116,9 +122,10 @@ def send_notify(container, message, notify):
                     notification_type = get_field_value(noti, 'type')
                     if notification_type:
                         if notification_type == 'slack':
-                            send_slack_notification(noti, message)
+                            send_slack_notification(noti, 'Container: %s test cases result.' % container, message)
                         elif notification_type == 'email':
-                            send_email_notification(noti, message)
+                            # send_email_notification(noti, message)
+                            send_email_attachment(noti, 'Container: %s test cases result.' % container, message)
                         else:
                             logger.info('Unsupported notification type!')
 
@@ -147,16 +154,28 @@ def send_notification(container, message):
                         logger.info('Unsupported notification type!')
 
 
-def send_slack_notification(notification, message):
+def send_slack_notification(notification, message, attachment=None):
     """Send notification to private channel as configured for the user."""
     slackurl = get_field_value(notification, 'webhook')
     if not slackurl:
         slackurlkey = get_field_value(notification, 'webhookkey')
         slackurl = get_vault_data(slackurlkey)
     if slackurl:
-        data = {
-            "text": message
-        }
+        data = {}
+        # data = {
+        #     "text": message
+        # }
+        # "author_name": "Cloud Validation",
+
+        if attachment:
+            data['attachments'] = [
+            {
+                "title": message,
+                "text": json.dumps(attachment, indent=2)
+            }
+            ]
+        else:
+            data["text"] = message
         headers = {
             'Content-type': 'application/json'
         }
@@ -188,11 +207,67 @@ def send_email_notification(notification, message):
             # Authentication
             smtp_session.login(user_name, user_pwd)
             msg = ("From: %s\r\nTo: %s\r\n\r\n %s\n"
-             % (user_name, touser, message))
+             % (user_name, touser, json.dumps(message, indent=2)))
             # sending the mail
             smtp_session.sendmail(user_name, touser, msg)
             # terminating the session
             smtp_session.quit()
+        except Exception as ex:
+            logger.info('Email notification failed exception: %s!', ex)
+    else:
+        logger.info('Invalid email config for notification!')
+
+
+
+def send_email_attachment(notification, message, attachment):
+    """Send notification to emails as configured by the notification."""
+    smtp_cfg = get_field_value(notification, 'smtp')
+    user_name = get_field_value(notification, 'user')
+    user_key = get_field_value(notification, 'userkey')
+    user_pwd = get_vault_data(user_key)
+    touser = get_field_value(notification, 'to')
+    logger.info('smtp_cfg: %s, username: %s, pwd: %s, to: %s',
+                smtp_cfg, user_name, user_pwd, touser)
+    if smtp_cfg and user_name and user_pwd and touser:
+        try:
+
+            msg = MIMEMultipart()  # instance of MIMEMultipart
+            msg['From'] = user_name  # storing the senders email address
+            msg['To'] = touser  # storing the receivers email address
+            msg['Subject'] = message  # storing the subject
+            body = "Cloud validation Framework"  # string to store the body of the mail
+            msg.attach(MIMEText(body, 'plain'))  # attach the body with the msg instance
+            filename = "result.json"  # open the file to be sent
+            tmpdir = tempfile.mkdtemp()
+            fname = '%s/%s' % (tmpdir, filename)
+            save_json_to_file(attachment, fname)
+            file_attachment = open(fname, "rb")
+            mimebase = MIMEBase('application', 'octet-stream')
+            # To change the payload into encoded form
+            mimebase.set_payload((file_attachment).read())# encode into base64
+            encoders.encode_base64(mimebase)
+            mimebase.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+            # attach the instance 'p' to instance 'msg'
+            msg.attach(mimebase)
+            # creates SMTP session
+            smtp_server = get_field_value(smtp_cfg, 'server')
+            smtp_port = parseint(get_field_value(smtp_cfg, 'port'), 587)
+            smtp_session = SMTP(smtp_server, smtp_port)
+            istls = get_field_value(smtp_cfg, "tls")
+            if istls:
+                # start TLS for security
+                smtp_session.starttls()
+            # Authentication
+            smtp_session.login(user_name, user_pwd)
+            # Converts the Multipart msg into a string
+            text = msg.as_string()
+
+            # sending the mail
+            smtp_session.sendmail(user_name, touser, text)
+
+            # terminating the session
+            smtp_session.quit()
+
         except Exception as ex:
             logger.info('Email notification failed exception: %s!', ex)
     else:

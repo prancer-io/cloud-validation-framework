@@ -29,7 +29,7 @@ class MongoDBHandler(logging.Handler):
                 db = dbconnection[dbname]
             else:
                 db = dbconnection['test']
-            collection = 'logs_%s' % datetime.datetime.now().strftime('%Y%M%d%H%M%S')
+            collection = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
             if db:
                 coll = db[collection]
                 self.collection = coll
@@ -37,6 +37,7 @@ class MongoDBHandler(logging.Handler):
             self.collection = None
 
     def emit(self, record):
+
         """Add record to the database"""
         # format the log message so it can be put to db (escape quotes)
         self.log_msg = self.format(record)
