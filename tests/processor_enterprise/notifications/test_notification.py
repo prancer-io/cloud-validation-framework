@@ -40,6 +40,8 @@ def mock_SMTP(*args, **kwargs):
 def mock_exception_SMTP(*args, **kwargs):
     raise Exception("SMTP connection error!")
 
+def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+    return []
 
 def test_send_notification(create_temp_dir, create_temp_json, monkeypatch):
     monkeypatch.setattr('processor_enterprise.notifications.notification.framework_dir', mock_framework_dir)
@@ -52,6 +54,9 @@ def test_send_notification(create_temp_dir, create_temp_json, monkeypatch):
                         mock_exception_SMTP)
     monkeypatch.setattr('processor.connector.validation.get_test_json_dir',
                         mock_framework_dir)
+    monkeypatch.setattr('processor_enterprise.notifications.notification.get_documents',
+                        mock_get_documents)
+
     ns = {
         "fileType": "structure",
         "notifications": [
@@ -90,7 +95,7 @@ def test_send_notification(create_temp_dir, create_temp_json, monkeypatch):
     from processor_enterprise.notifications.notification import send_notification, check_send_notification
     val = send_notification('container6', 'Send Test')
     assert val is None
-    val = check_send_notification('container6', 'Send Test')
+    val = check_send_notification('container6', True)
     assert val is None
 
 

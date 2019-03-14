@@ -35,9 +35,10 @@ def get_appdata():
     return appdata
 
 
-def create_scheduler():
+def create_scheduler(apscheduler):
     """Create background scheduler for tests to be scheduled."""
-
+    if not apscheduler:
+        return None
     # The "apscheduler." prefix is hard coded
     testscheduler = BackgroundScheduler({
         'apscheduler.jobstores.mongo': {
@@ -117,11 +118,11 @@ def register_modules(myapp):
 
 
 # @pytest.fixture
-def initapp():
+def initapp(apscheduler=True):
     "The starting point of the flask application, both for debug and production."
     global app, db, scheduler
     LOGGER.info("START")
-    scheduler = create_scheduler()
+    scheduler = create_scheduler(apscheduler)
     app = create_app()
     db = create_db(app)
     register_modules(app)
