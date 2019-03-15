@@ -100,9 +100,9 @@ def populate_custom_snapshot(snapshot):
         ssh_key_file = get_field_value(sub_data, 'sshKeyfile')
         brnch = get_field_value(sub_data, 'branchName')
         username = get_field_value(sub_data, 'username')
-        if username:
-            user_secret = get_vault_data(username)
-            logger.info('Secret: %s', user_secret)
+        # if username:
+        #     user_secret = get_vault_data(username)
+        #     logger.info('Secret: %s', user_secret)
         repopath = tempfile.mkdtemp()
         exists, empty = valid_clone_dir(repopath)
         if exists and empty:

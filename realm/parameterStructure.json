@@ -1,5 +1,6 @@
 {
     "fileType": "structure",
+    "type": "git",
     "companyName": "abcd",
     "gitProvider": "https://ebizframework.visualstudio.com/azure-python-automation/_git/azure-python-automation",
     "repoCloneAddress":"/tmp/m",

@@ -21,7 +21,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-
+NOTIFICATIONS = 'NOTIFICATIONS'
 
 logger = getlogger()
 
@@ -233,7 +233,7 @@ def send_email_attachment(notification, message, attachment):
 
             msg = MIMEMultipart()  # instance of MIMEMultipart
             msg['From'] = user_name  # storing the senders email address
-            msg['To'] = touser  # storing the receivers email address
+            msg['To'] = ','.join(touser)  # storing the receivers email address
             msg['Subject'] = message  # storing the subject
             body = "Cloud validation Framework"  # string to store the body of the mail
             msg.attach(MIMEText(body, 'plain'))  # attach the body with the msg instance

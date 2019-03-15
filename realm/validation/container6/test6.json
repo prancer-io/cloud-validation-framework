@@ -5,7 +5,7 @@
         {
             "notificationId": "3",
             "type": "email",
-            "to": "ajey.khanapuri@gmail.com",
+            "to": ["ajey.khanapuri@gmail.com", "farshid@liquware.com"],
             "level": "passed"
         },
         {

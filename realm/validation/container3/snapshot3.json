@@ -41,7 +41,7 @@
                     "snapshotId": "34",
                     "type": "",
                     "collection": "customParameters",
-                    "path":"parameters/mno/nonprod/eastus2/shared/vars.rg1.json"
+                    "path":"parameters/abc/nprod/eastus2/shared/permissionConfiguration.json"
                 }
             ]
         }
