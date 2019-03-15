@@ -1,7 +1,7 @@
 "Run the local application"
 import argparse
 import os
-from processor.api.app_init import initapp
+from processor_enterprise.api.app_init import initapp
 
 
 def run_main():

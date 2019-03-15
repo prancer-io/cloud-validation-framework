@@ -55,6 +55,9 @@ def mock_empty_get_documents(collection, query=None, dbname=None, sort=None,
 def mock_pymongo(app, uri=None, **kwargs):
     return {}
 
+def mock_scheduler(data):
+    return Mock()
+
 
 def mock_jsonify(data):
     return data
@@ -151,6 +154,7 @@ def test_register_modules(monkeypatch):
 
 def test_initapp(monkeypatch):
     monkeypatch.setattr('processor_enterprise.api.app_init.PyMongo', mock_pymongo)
+    monkeypatch.setattr('processor_enterprise.api.app_init.BackgroundScheduler', mock_scheduler)
     from processor_enterprise.api.app_init import initapp
     db, app = initapp()
     assert db is not None

@@ -1,25 +1,37 @@
 {
     "$schema": "",
     "contentVersion": "1.0.0.0",
+    "notification": [
+        {
+            "notificationId": "3",
+            "type": "email",
+            "to": "ajey.khanapuri@gmail.com",
+            "level": "passed"
+        },
+        {
+            "notificationId": "1",
+            "type": "slack",
+            "level": "failed"
+        }
+    ],
     "fileType": "test",
-    "snapshot": "snapshot.json",
-    "notification": "",
+    "snapshot": "snapshot6.json",
     "testSet": [
         {
-            "testName": "test5",
+            "testName": "test6",
             "version": "0.1",
             "cases": [
                 {
                     "testId": "1",
-                    "rule":"exist({11}.location)"
+                    "rule":"exist({61}.location)"
                 },
                 {
                     "testId": "2",
-                    "rule":"{11}.location='eastus2'"
+                    "rule":"{61}.location='eastus2'"
                 },
                 {
                     "testId": "3",
-                    "rule": "{11}.properties.networkAcls.defaultAction='Allow'"
+                    "rule": "{61}.properties.networkAcls.defaultAction='Deny'"
                 }
             ]
         }

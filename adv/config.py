@@ -24,6 +24,9 @@ class BaseConfig(object):
     APPVERSION = APPNAME
     APIPREFIX = '/whitekite/api'
 
+    def __init__(self):
+        print("BaseConfig Init....")
+
     def get_session_key(self):
         "Utility method for SESSION"
         return self.CSRF_SESSION_KEY

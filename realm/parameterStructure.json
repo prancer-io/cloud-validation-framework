@@ -1,8 +1,9 @@
 {
     "fileType": "structure",
     "companyName": "abcd",
-    "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
+    "gitProvider": "https://ebizframework.visualstudio.com/azure-python-automation/_git/azure-python-automation",
     "repoCloneAddress":"/tmp/m",
-    "branchName":"br_kbajey_feature",
+    "branchName":"master",
     "username":"ajey.khanapuri@liquware.com"
 }
+
