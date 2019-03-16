@@ -5,6 +5,7 @@ python3 utilities/terraform_to_json.py  realm/validation/terraform/terraform.tfv
 python3 utilities/terraform_to_json.py  realm/validation/terraform/terraform.tfvars
 
 # To populate data in the mongodb
+mongo validator --eval "db.dropDatabase()"
 python3 utilities/populate_json.py lq --file ./realm/azureApiVersions.json --type structure
 python3 utilities/populate_json.py lq --file ./realm/awsStructure.json --type structure
 python3 utilities/populate_json.py lq --file ./realm/azureStructure.json --type structure
@@ -19,8 +20,23 @@ python3 utilities/populate_json.py container3 --dir ./realm/validation/container
 python3 utilities/populate_json.py container4 --dir ./realm/validation/container4
 python3 utilities/populate_json.py container5 --dir ./realm/validation/container5
 python3 utilities/populate_json.py container6 --dir ./realm/validation/container6
-python utilities/validator.py container1 --db
-python utilities/validator.py container3 --db
+sed -i 's/\[VAULT\]/\[VAULT1\]/' realm/config.ini
+a=`sed -nr "/^\[VAULT1\]/ { :l /^client_secret[ ]*=[ ]*/ { s/.*\s+=\s+[ ]*/CLIENTKEY=/; p; q;}; n; b l;}" ./tmp/config1.ini`
+cmd="$a python utilities/validator.py container1 --db"
+echo $cmd
+cmd="$a python utilities/validator.py container3 --db"
+echo $cmd
+sed -i 's/\[VAULT1\]/\[VAULT\]/' realm/config.ini
+a=`sed -nr "/^\[whitekite\-spn\-kv\]/ { :l /^client_secret[ ]*=[ ]*/ { s/.*\s+=\s+[ ]*/CLIENTKEY=/; p; q;}; n; b l;}" ./tmp/config1.ini` 
+cmd="$a python utilities/validator.py container4 --db"
+echo $cmd
+cmd="$a python utilities/validator.py container5 --db"
+echo $cmd
+cmd="$a python utilities/validator.py container6 --db"
+echo $cmd
+/bin/rm -rf dbdumps
+mongodump --db validator --out ./dbdumps/
+tar cvfz dbdumps.tar.gz dbdumps
 
 
 
