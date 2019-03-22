@@ -1,5 +1,6 @@
 {
     "organization": "company1",
+    "type": "aws",
     "fileType": "structure",
     "organization-unit": [
         {

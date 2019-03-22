@@ -1,4 +1,5 @@
 {
+    "type": "azure",
     "fileType": "structure",
     "companyName": "Liquware",
     "tenant_id": "f997f2f9-a48f-465a-9677-54e8d1d90e5d",

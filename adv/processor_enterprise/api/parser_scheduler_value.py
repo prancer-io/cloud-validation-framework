@@ -13,7 +13,7 @@ def parse_minutely(freq_str, start_date):
       if minute_val < 60:
          value['minute'] = '*/%d' % minute_val
    except Exception as ex:
-      print("Execption: %s" % ex)
+      print("Exception: %s" % ex)
    return value
 
 def parse_hourly(freq_str, start_date):

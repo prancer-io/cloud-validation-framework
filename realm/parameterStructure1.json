@@ -1,5 +1,6 @@
 {
     "fileType": "structure",
+    "type": "git",
     "companyName": "abcd",
     "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
     "repoCloneAddress": "/tmp/m",

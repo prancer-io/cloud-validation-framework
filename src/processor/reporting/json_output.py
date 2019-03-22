@@ -5,6 +5,7 @@ from processor.helper.config.config_utils import config_value
 from collections import OrderedDict
 from processor.helper.json.json_utils import save_json_to_file, collectiontypes, OUTPUT
 from processor.database.database import DATABASE, DBNAME, insert_one_document
+from processor.logging.log_handler import get_dblogger
 
 
 def json_record(container, filetype, filename, json_data=None):
@@ -31,6 +32,8 @@ def dump_output_results(results, container, test_file, snapshot, filesystem=True
     od["timestamp"] = int(time.time() * 1000)
     od["snapshot"] = snapshot
     od["container"] = container
+    dblog = get_dblogger()
+    od["log"] = dblog if dblog else ""
     if filesystem:
         test_file_parts = test_file.rsplit('/', 1)
         od["test"] = test_file_parts[-1]

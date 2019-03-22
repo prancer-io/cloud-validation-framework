@@ -14,6 +14,7 @@ from processor.helper.config.config_utils import framework_dir,\
 FWLOGGER = None
 FWLOGFILENAME = None
 MONGOLOGGER = None
+DBLOGGER = None
 
 
 
@@ -21,6 +22,7 @@ class MongoDBHandler(logging.Handler):
     """Customized logging handler that puts logs to the database, pymongo required
     """
     def __init__(self, dbname):
+        global DBLOGGER
         logging.Handler.__init__(self)
         try:
             dbconnection = MongoClient(port=27017, serverSelectionTimeoutMS=3000)
@@ -33,6 +35,7 @@ class MongoDBHandler(logging.Handler):
             if db:
                 coll = db[collection]
                 self.collection = coll
+                DBLOGGER = '%s:%s' % (dbname, collection)
         except ServerSelectionTimeoutError as ex:
             self.collection = None
 
@@ -126,3 +129,6 @@ def get_logdir(fw_cfg):
     if not os.path.exists(logdir):
         os.makedirs(logdir)
     return logdir
+
+def get_dblogger():
+    return DBLOGGER

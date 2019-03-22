@@ -1,0 +1,8 @@
+{
+    "fileType": "notifications",
+    "type": "notifications",
+    "notificationId": "1",
+    "type": "slack",
+    "level": "all",
+    "webhookkey": "notification-slack-1"
+}

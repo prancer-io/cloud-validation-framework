@@ -1,5 +1,6 @@
 {
-    "fileType": "structure",
+    "fileType": "notifications",
+    "type": "notifications",
     "notifications": [
         {
             "notificationId": "1",
@@ -13,7 +14,7 @@
             "level": "failed",
             "user": "ajey.khanapuri@gmail.com",
             "userkey": "ajey-khanapuri-gmail-com",
-            "to": "kbajey@gmail.com",
+            "to": ["kbajey@gmail.com"],
             "smtp": {
                 "server": "smtp.gmail.com",
                 "port": 587,
