@@ -4,7 +4,7 @@
     "fileType":"snapshot",
     "snapshots": [
         {
-            "source": "awsStructure.json",
+            "source": "awsStructure",
             "type": "aws",
             "testUser": "ajeybk",
             "account-id": "3684074453691",

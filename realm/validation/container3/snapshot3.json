@@ -4,7 +4,7 @@
     "fileType":"snapshot",
     "snapshots": [
         {
-            "source": "azureStructure.json",
+            "source": "azureStructure",
             "type": "azure",
             "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
             "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
@@ -32,7 +32,7 @@
             ]
         },
         {
-            "source": "parameterStructure.json",
+            "source": "parameterStructure",
             "type": "git",
             "testUser": "ajey.khanapuri@liquware.com",
             "branchName": "master",

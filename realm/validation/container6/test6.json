@@ -15,7 +15,7 @@
         }
     ],
     "fileType": "test",
-    "snapshot": "snapshot6.json",
+    "snapshot": "snapshot6",
     "testSet": [
         {
             "testName": "test6",

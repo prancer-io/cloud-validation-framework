@@ -4,7 +4,7 @@
     "fileType":"snapshot",
     "snapshots": [
         {
-            "source": "parameterStructure1.json",
+            "source": "parameterStructure1",
             "type": "git",
             "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
             "branchName": "br_kbajey_feature",
