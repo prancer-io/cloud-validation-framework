@@ -1,7 +1,6 @@
 """Rest API utils and calls. Fetch access token and make http calls."""
 
 from builtins import input
-import json
 import os
 from processor.logging.log_handler import getlogger
 from processor.helper.file.file_utils import exists_file
@@ -40,7 +39,9 @@ def get_azure_data(snapshot_source):
             sub_data = docs[0]['json']
     else:
         json_test_dir = get_test_json_dir()
-        azure_source = '%s/../%s' % (json_test_dir, snapshot_source)
+        file_name = '%s.json' % snapshot_source if snapshot_source and not \
+            snapshot_source.endswith('.json') else snapshot_source
+        azure_source = '%s/../%s' % (json_test_dir, file_name)
         logger.info('Azure source: %s', azure_source)
         if exists_file(azure_source):
             sub_data = json_from_file(azure_source)
