@@ -1,5 +1,7 @@
 "Test controller for test invocation"
 import pymongo
+import string
+import random
 from flask import Blueprint, jsonify, request
 from processor_enterprise.api.app_init import app, LOGGER, scheduler
 from processor_enterprise.api.utils import ERROR, OK, NOK, STATUS, VALUE, parsebool
@@ -35,45 +37,82 @@ def reschedule_action(indata):
    LOGGER.info("Trigger values: %s", trigger_values)
    return job_val
 
-def add_action(indata):
+def add_action(indata, name):
    LOGGER.info("Add the job")
    schedule_val = indata['schedule']
    alarm_time, trigger_values = parse_value(schedule_val)
-   id_str = "" + str(indata["id"])
+   # trigger_values['name'] = name
+   id_str = "" + str(indata["id"]) if 'id' in indata else generateid(name)
    if schedule_val.startswith('once'):
-       job_val = scheduler.add_job(myjob, 'date', id=id_str, args=[indata, id_str], **trigger_values)
+       job_val = scheduler.add_job(myjob, 'date', name=name, id=id_str, args=[indata, id_str], **trigger_values)
    else:
        trigger_values['start_date'] = alarm_time
-       job_val = scheduler.add_job(myjob, 'cron', id=id_str, args=[indata, id_str], **trigger_values)
+       job_val = scheduler.add_job(myjob, 'cron', name=name, id=id_str, args=[indata, id_str], **trigger_values)
    LOGGER.info("Trigger values: %s", trigger_values)
    return job_val
+
+
+def generateid(name):
+    pwdSize = 5
+    digits = False
+    chars = string.digits if digits else string.ascii_letters
+    numval = (random.choice(chars) for x in range(pwdSize))
+    pwdSize = 4
+    digits = True
+    chars1 = string.digits if digits else string.ascii_letters
+    charval = (random.choice(chars1) for x in range(pwdSize))
+    idval = '%s_%s_%s' % (name, ''.join(numval), ''.join(charval))
+    return idval.lower()
 
 
 def delete_action(indata):
    LOGGER.info("Delete the job")
    id_str = "" + str(indata["id"])
-   scheduler.remove_job(id_str)
+   try:
+       scheduler.remove_job(id_str)
+       return True
+   except:
+       pass
+   return False
 
 
 @MODAPI.route('/jobs/', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def jobs_scheduled():
     """Return the jobs scheduled"""
     LOGGER.info("Method: %s, %s", request.method, request.json)
+    jbs = []
+    data = {STATUS: NOK, 'jobs': jbs}
     if request.method == 'POST':
         indata = request.json
         container = indata.get('container', None) if indata else None
         LOGGER.info('Input: %s', indata)
         if container:
-            add_action(indata)
+           job = add_action(indata, container)
+           val = {
+               'id': job.id,
+               'name': job.name,
+               'next_run_time': job.next_run_time.strftime('%Y-%m-%d %H:%M:%S')
+           }
+           jbs.append(val)
+           data = {STATUS: OK, 'jobs': jbs}
     elif request.method == 'DELETE':
         indata = request.json
-        container = indata.get('container', None) if indata else None
-        LOGGER.info('Input: %s', indata)
-        if container:
-            delete_action(indata)
-    jobs = scheduler.get_jobs()
-    print(jobs)
-    data = {STATUS: OK, 'jobs': []}
+        idval = indata.get('id', None) if indata else None
+        LOGGER.info('Input: %s', idval)
+        st = OK if delete_action(indata) else NOK
+        data = {STATUS: st, 'jobs': jbs}
+    else:
+        jobs = scheduler.get_jobs()
+        for job in jobs:
+            val = {
+            'id': job.id,
+            # 'args': job.args,
+            'name': job.name,
+            'next_run_time': job.next_run_time.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            jbs.append(val)
+        # print(jobs)
+        data = {STATUS: OK, 'jobs': jbs}
     return jsonify(data)
 
 

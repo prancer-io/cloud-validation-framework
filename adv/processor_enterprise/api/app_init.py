@@ -7,6 +7,8 @@ from processor.helper.json.json_utils import json_from_file
 from processor.logging.log_handler import getlogger
 from processor_enterprise.api.utils import CONFIGFILE, gettokentimeout
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.jobstores.mongodb import MongoDBJobStore
+
 
 # def setup_logging():
 #     "Setup the application wide logging functionality"
@@ -40,21 +42,25 @@ def create_scheduler(apscheduler):
     if not apscheduler:
         return None
     # The "apscheduler." prefix is hard coded
-    testscheduler = BackgroundScheduler({
-        'apscheduler.jobstores.mongo': {
-            'type': 'mongodb'
-        },
-        'apscheduler.executors.default': {
-            'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
-            'max_workers': '20'
-        },
-        'apscheduler.executors.processpool': {
-            'type': 'processpool',
-            'max_workers': '5'
-        },
-        'apscheduler.job_defaults.coalesce': 'false',
-        'apscheduler.job_defaults.max_instances': '3'
-    })
+    # testscheduler = BackgroundScheduler({
+    #     'apscheduler.jobstores.mongo': {
+    #         'type': 'mongodb'
+    #     },
+    #     'apscheduler.executors.default': {
+    #         'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
+    #         'max_workers': '20'
+    #     },
+    #     'apscheduler.executors.processpool': {
+    #         'type': 'processpool',
+    #         'max_workers': '5'
+    #     },
+    #     'apscheduler.job_defaults.coalesce': 'false',
+    #     'apscheduler.job_defaults.max_instances': '3'
+    # })
+    js = {
+        'default': MongoDBJobStore(database='apscheduler', collection='jobs', client=db.cx)
+    }
+    testscheduler = BackgroundScheduler(jobstores=js)
     return testscheduler
 
 def create_db(app):
@@ -122,9 +128,9 @@ def initapp(apscheduler=True):
     "The starting point of the flask application, both for debug and production."
     global app, db, scheduler
     LOGGER.info("START")
-    scheduler = create_scheduler(apscheduler)
     app = create_app()
     db = create_db(app)
+    scheduler = create_scheduler(apscheduler)
     register_modules(app)
     LOGGER.info("DB, App created!")
     if scheduler:
