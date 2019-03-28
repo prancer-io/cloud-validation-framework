@@ -2,29 +2,29 @@
   "fileType" : "snapshot",
   "snapshots" : [
     {
-      "source" : "azureStructure",
+      "source" : "azureStructure1",
       "type" : "azure",
-      "testUser" : "ajeybk1@kbajeygmail.onmicrosoft.com",
-      "subscriptionId" : "37f11aaf-0b72-44ef-a173-308e990279da",
+      "testUser" : "ajey.khanapuri@liquware.com",
+      "subscriptionId" : "d34d6141-7a19-4458-b0dd-f038bb7760c1",
       "nodes" : [
         {
           "snapshotId" : "11",
           "type" : "Microsoft.Compute/availabilitySets",
           "collection" : "Microsoft.Compute",
-          "path" : "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Compute/availabilitySets/mno-nonprod-shared-cet-eastus2-tab-as03"
+          "path" : "/resourceGroups/abc-nprod-dev-eastus2-demorg/providers/Microsoft.Compute/availabilitySets/abc-nprod-dev-eastus2-tab-as03"
         },
         {
         "snapshotId" : "12",
         "type" : "Microsoft.Network/virtualNetworks",
         "collection" : "Microsoft.Network",
-        "path" : "/resourceGroups/mno-nonprod-shared-cet-eastus2-networkWatcher/providers/Microsoft.Network/virtualNetworks/mno-nonprod-shared-cet-eastus2-vnet01"
+        "path" : "/resourceGroups/abc-nprod-dev-eastus2-demorg/providers/Microsoft.Network/virtualNetworks/abc-nprod-dev-eastus2-vnet01"
         }
       ]
     },
     {
       "source" : "parameterStructure",
       "type" : "git",
-      "testUser" : "ajeybk1@kbajeygmail.onmicrosoft.com",
+      "testUser" : "ajey.khanapuri@liquware.com",
       "branchName" : "master",
       "nodes" : [
         {

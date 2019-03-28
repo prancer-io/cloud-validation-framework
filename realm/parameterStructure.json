@@ -2,9 +2,8 @@
     "fileType": "structure",
     "type": "git",
     "companyName": "abcd",
-    "gitProvider": "https://ebizframework.visualstudio.com/azure-python-automation/_git/azure-python-automation",
-    "repoCloneAddress":"/tmp/m",
+    "gitProvider": "Ebizframework@vs-ssh.visualstudio.com:v3/Ebizframework/whitekite/whitekite",
     "branchName":"master",
-    "username":"ajey.khanapuri@liquware.com"
+    "sshKeyfile":"id_rsa_azure"
 }
 
