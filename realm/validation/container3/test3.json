@@ -27,11 +27,11 @@
                 },
                 {
                     "testId": "5",
-                    "rule": "{32}.properties.subnets['name'='GatewaySubnet'].properties.addressPrefix='192.23.26.0/24'"
+                    "rule": "{32}.properties.subnets['name'='abc-nprod-dev-eastus2-Subnet1'].properties.addressPrefix='192.23.26.0/24'"
                 },
                 {
                     "testId": "6",
-                    "rule": "{31}.tags.COST_LOCATION={32}.tags.COST_LOCATION"
+                    "rule": "{32}.tags.COST_LOCATION={33}.tags.COST_LOCATION"
                 },
                 {
                     "testId": "7",

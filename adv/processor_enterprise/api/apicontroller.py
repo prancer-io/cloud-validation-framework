@@ -38,6 +38,7 @@ def reschedule_action(indata):
    return job_val
 
 def add_action(indata, name):
+
    LOGGER.info("Add the job")
    schedule_val = indata['schedule']
    alarm_time, trigger_values = parse_value(schedule_val)
@@ -87,14 +88,14 @@ def jobs_scheduled():
         container = indata.get('container', None) if indata else None
         LOGGER.info('Input: %s', indata)
         if container:
-           job = add_action(indata, container)
+           status, job = add_action(indata, container)
            val = {
                'id': job.id,
                'name': job.name,
                'next_run_time': job.next_run_time.strftime('%Y-%m-%d %H:%M:%S')
            }
            jbs.append(val)
-           data = {STATUS: OK, 'jobs': jbs}
+           data = {STATUS: status, 'jobs': jbs}
     elif request.method == 'DELETE':
         indata = request.json
         idval = indata.get('id', None) if indata else None

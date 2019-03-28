@@ -8,7 +8,7 @@ import hcl
 import os
 from git import Repo
 from git import Git
-from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
+from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path, remove_file
 from processor.logging.log_handler import getlogger
 from processor.connector.vault import get_vault_data
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
@@ -99,9 +99,18 @@ def populate_custom_snapshot(snapshot):
     sub_data = get_custom_data(snapshot_source)
     if sub_data:
         giturl = get_field_value(sub_data, 'gitProvider')
-        ssh_key_file = get_field_value(sub_data, 'sshKeyfile')
+        ssh_file = get_field_value(sub_data, 'sshKeyfile')
         brnch = get_field_value(sub_data, 'branchName')
         username = get_field_value(sub_data, 'username')
+        if ssh_file:
+            if exists_file('%s/%s' % (os.environ['HOME'], ssh_file)):
+                ssh_key_file = '%s/%s' % (os.environ['HOME'], ssh_file)
+            elif exists_file('%s/.ssh/%s' % (os.environ['HOME'], ssh_file)):
+                ssh_key_file = '%s/.ssh/%s' % (os.environ['HOME'], ssh_file)
+            else:
+                ssh_key_file = None
+        else:
+            ssh_key_file = None
         # if username:
         #     user_secret = get_vault_data(username)
         #     logger.info('Secret: %s', user_secret)
@@ -110,6 +119,7 @@ def populate_custom_snapshot(snapshot):
         if exists and empty:
             try:
                 if ssh_key_file and exists_file(ssh_key_file):
+                    make_ssh_dir_before_clone(ssh_key_file)
                     git_ssh_cmd = 'ssh -i %s' % ssh_key_file
                     with Git().custom_environment(GIT_SSH_COMMAND=git_ssh_cmd):
                         repo = Repo.clone_from(giturl, repopath, branch=brnch)
@@ -155,3 +165,33 @@ def valid_clone_dir(dirname):
         else:
             empty = False
     return exists, empty
+
+
+def make_ssh_dir_before_clone(ssh_key_file):
+    restore = False
+    newdir = None
+    olddir = None
+    if ssh_key_file and exists_file(ssh_key_file):
+        restore = True
+        tempdir = tempfile.mkdtemp()
+        # print(tempdir)
+        ssh_parts = ssh_key_file.rsplit('/', 1)
+        new_ssh_key_file = '%s/%s' % (tempdir, ssh_parts[-1])
+        # print(new_ssh_key_file)
+        shutil.copy(ssh_key_file, new_ssh_key_file)
+        olddir = '%s/.ssh' % os.environ['HOME']
+        # print(olddir)
+        if exists_dir(olddir):
+            newdir = '%s_old' % olddir
+            # print(newdir)
+            if exists_dir(newdir):
+                shutil.rmtree(newdir, ignore_errors=True)
+            os.rename(olddir, newdir)
+        os.mkdir(olddir)
+        shutil.copy(new_ssh_key_file, '%s/id_rsa' % olddir)
+        remove_file(new_ssh_key_file)
+        cfg = '%s/config' % olddir
+        with open(cfg, 'w') as f:
+            f.write('Host *\n')
+            f.write('    StrictHostKeyChecking no\n')
+    return restore, olddir, newdir
