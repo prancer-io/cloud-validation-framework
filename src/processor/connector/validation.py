@@ -21,7 +21,9 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
     snapshot_data = {}
     snapshot_json_data = {}
     if filesystem:
-        snapshot_file = '%s/%s/%s' % (get_test_json_dir(), container, snapshot_file)
+        file_name = '%s.json' % snapshot_file if snapshot_file and not \
+            snapshot_file.endswith('.json') else snapshot_file
+        snapshot_file = '%s/%s/%s' % (get_test_json_dir(), container, file_name)
         snapshot_json_data = json_from_file(snapshot_file)
     else:
         parts = snapshot_file.split('.')

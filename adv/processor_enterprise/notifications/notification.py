@@ -7,8 +7,8 @@ import copy
 from smtplib import SMTP
 import tempfile
 from processor.logging.log_handler import getlogger
-from processor.helper.json.json_utils import get_json_files, STRUCTURE,\
-    json_from_file, get_field_value, save_json_to_file, OUTPUT, TEST, collectiontypes
+from processor.helper.json.json_utils import get_json_files, STRUCTURE, NOTIFICATIONS,\
+    json_from_file, get_field_value, save_json_to_file, OUTPUT, TEST,  collectiontypes
 from processor.helper.httpapi.http_utils import http_post_request
 from processor.helper.config.config_utils import config_value, framework_dir,\
     DATABASE, DBNAME
@@ -21,7 +21,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-NOTIFICATIONS = 'NOTIFICATIONS'
+# NOTIFICATIONS = 'NOTIFICATIONS'
 
 logger = getlogger()
 
@@ -62,7 +62,7 @@ def check_send_notification(container, db):
                             logger.info('Number of test Documents: %s', len(testdocs))
                             if testdocs[0]['json']:
                                 test_json = testdocs[0]['json']
-                                process_output_notfication(container, output_json, test_json)
+                                process_output_notfication(container, output_json, test_json, True)
     else:
         reporting_path = config_value('REPORTING', 'reportOutputFolder')
         json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
@@ -77,10 +77,10 @@ def check_send_notification(container, db):
                     # TODO check if filename needs a .json extension
                     test_file = '%s/%s' % (json_dir, test_filename)
                     test_json = json_from_file(test_file)
-                    process_output_notfication(container, output_json, test_json)
+                    process_output_notfication(container, output_json, test_json, False)
 
 
-def process_output_notfication(container, output_json, test_json):
+def process_output_notfication(container, output_json, test_json, db=False):
     """Process the output json and its test json data"""
     if test_json and output_json:
         notifications = get_field_value(test_json, 'notification')
@@ -97,37 +97,52 @@ def process_output_notfication(container, output_json, test_json):
                 output_data = copy.copy(output_json)
                 output_data['results'] = new_res
             logger.info('Data: %s', output_data)
-            send_notify(container, output_data, notification)
+            send_notify(container, output_data, notification, db)
 
 
-def send_notify(container, message, notify):
+def send_notify(container, message, notify, db):
     """Send notification data from config"""
+    notifications = []
     logger.info("Starting notifications for container: %s", container)
-    reporting_path = config_value('REPORTING', 'reportOutputFolder')
-    json_dir = '%s/%s/../' % (framework_dir(), reporting_path)
-    logger.info(json_dir)
-    structure_files = get_json_files(json_dir, STRUCTURE)
-    logger.info('\n'.join(structure_files))
-    for structure_file in structure_files:
-        json_data = json_from_file(structure_file)
-        notifications = get_field_value(json_data, "notifications")
-        notify_id = get_field_value(notify, 'notificationId')
-        if notifications:
-            for notification in notifications:
-                notification_id = get_field_value(notification, 'notificationId')
-                logger.info(notification)
-                if notify_id and notification_id and notify_id == notification_id:
-                    noti = copy.copy(notification)
-                    noti.update(notify)
-                    notification_type = get_field_value(noti, 'type')
-                    if notification_type:
-                        if notification_type == 'slack':
-                            send_slack_notification(noti, 'Container: %s test cases result.' % container, message)
-                        elif notification_type == 'email':
-                            # send_email_notification(noti, message)
-                            send_email_attachment(noti, 'Container: %s test cases result.' % container, message)
-                        else:
-                            logger.info('Unsupported notification type!')
+    if db:
+        dbname = config_value(DATABASE, DBNAME)
+        noticollection = config_value(DATABASE, collectiontypes[NOTIFICATIONS])
+        qry = {}
+        sort = [sort_field('timestamp', False)]
+        notidocs = get_documents(noticollection, dbname=dbname, sort=sort, query=qry)
+        if notidocs:
+            for notidoc in notidocs:
+                notifications.append(notidoc['json'])
+    else:
+        reporting_path = config_value('REPORTING', 'reportOutputFolder')
+        json_dir = '%s/%s/../notifications' % (framework_dir(), reporting_path)
+        logger.info(json_dir)
+        notification_files = get_json_files(json_dir, NOTIFICATIONS)
+        logger.info('\n'.join(notification_files))
+        for notification_file in notification_files:
+            json_data = json_from_file(notification_file)
+            if json_data:
+                notifications.append(json_data)
+    logger.info('Number of system notifications: %s', len(notifications))
+    notify_id = get_field_value(notify, 'notificationId')
+    if notifications:
+        for notification in notifications:
+            notification_id = get_field_value(notification, 'notificationId')
+            logger.info(notification)
+            if notify_id and notification_id and notify_id == notification_id:
+                noti = copy.copy(notification)
+                noti.update(notify)
+                notification_type = get_field_value(noti, 'type')
+                if notification_type:
+                    if notification_type == 'slack':
+                        send_slack_notification(noti, 'Container: %s test cases result.' % container, message)
+                        logger.debug('slack notification type!')
+                    elif notification_type == 'email':
+                        # send_email_notification(noti, message)
+                        send_email_attachment(noti, 'Container: %s test cases result.' % container, message)
+                        logger.debug('email notification type!')
+                    else:
+                        logger.info('Unsupported notification type!')
 
 
 def send_notification(container, message):

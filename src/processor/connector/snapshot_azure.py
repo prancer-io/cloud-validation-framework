@@ -6,13 +6,19 @@ import hashlib
 import time
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
-from processor.helper.config.rundata_utils import put_in_currentdata, delete_from_currentdata
-from processor.helper.json.json_utils import get_field_value, json_from_file
-from processor.helper.httpapi.restapi_azure import get_access_token, get_web_client_data, get_client_secret
+from processor.helper.config.rundata_utils import put_in_currentdata,\
+    delete_from_currentdata
+from processor.helper.json.json_utils import get_field_value, json_from_file,\
+    collectiontypes, STRUCTURE
+from processor.helper.httpapi.restapi_azure import get_access_token,\
+    get_web_client_data, get_client_secret, json_source
 from processor.connector.vault import get_vault_data
 from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import config_value, framework_dir
 from processor.database.database import insert_one_document, COLLECTION
+from processor.database.database import DATABASE, DBNAME, sort_field, get_documents
+
+
 
 
 logger = getlogger()
@@ -22,13 +28,26 @@ def get_version_for_type(node):
     """Url version of the resource."""
     version = None
     logger.info("Get type's version")
-    apiversions_file = '%s/%s' % (framework_dir(), config_value('AZURE', 'api'))
-    logger.info(apiversions_file)
-    if exists_file(apiversions_file):
-        apiversions = json_from_file(apiversions_file)
-        if apiversions:
-            if node and 'type' in node and node['type'] in apiversions:
-                version = apiversions[node['type']]['version']
+    api_source = config_value('AZURE', 'api')
+    if json_source():
+        dbname = config_value(DATABASE, DBNAME)
+        collection = config_value(DATABASE, collectiontypes[STRUCTURE])
+        parts = api_source.rsplit('/')
+        name = parts[-1].split('.')
+        qry = {'name': name[0]}
+        sort = [sort_field('timestamp', False)]
+        docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
+        logger.info('Number of Azure API versions: %s', len(docs))
+        if docs and len(docs):
+            apiversions = docs[0]['json']
+    else:
+        apiversions_file = '%s/%s' % (framework_dir(), api_source)
+        logger.info(apiversions_file)
+        if exists_file(apiversions_file):
+            apiversions = json_from_file(apiversions_file)
+    if apiversions:
+        if node and 'type' in node and node['type'] in apiversions:
+            version = apiversions[node['type']]['version']
     return version
 
 

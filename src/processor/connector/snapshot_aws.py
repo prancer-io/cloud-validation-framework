@@ -36,7 +36,9 @@ def get_aws_data(snapshot_source):
             sub_data = docs[0]['json']
     else:
         json_test_dir = get_test_json_dir()
-        aws_source = '%s/../%s' % (json_test_dir, snapshot_source)
+        file_name = '%s.json' % snapshot_source if snapshot_source and not \
+            snapshot_source.endswith('.json') else snapshot_source
+        aws_source = '%s/../%s' % (json_test_dir, file_name)
         logger.info('AWS source: %s', aws_source)
         if exists_file(aws_source):
             sub_data = json_from_file(aws_source)

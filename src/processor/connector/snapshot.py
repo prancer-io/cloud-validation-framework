@@ -43,7 +43,9 @@ def populate_snapshots_from_json(snapshot_json_data):
 
 def populate_snapshots_from_file(snapshot_file):
     """Load the file as json and populate from json file."""
-    snapshot_json_data = json_from_file(snapshot_file)
+    file_name = '%s.json' % snapshot_file if snapshot_file and not \
+        snapshot_file.endswith('.json') else snapshot_file
+    snapshot_json_data = json_from_file(file_name)
     if not snapshot_json_data:
         logger.info("Snapshot file %s looks to be empty, next!...", snapshot_file)
         return False
@@ -109,7 +111,8 @@ def container_snapshots_filesystem(container):
         if test_json_data:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             if snapshot:
-                snapshots.append(snapshot)
+                file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
+                snapshots.append(file_name)
     return list(set(snapshots))
 
 
