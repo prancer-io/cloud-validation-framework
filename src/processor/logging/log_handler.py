@@ -15,6 +15,7 @@ FWLOGGER = None
 FWLOGFILENAME = None
 MONGOLOGGER = None
 DBLOGGER = None
+dbhandler = None
 
 
 
@@ -31,14 +32,35 @@ class MongoDBHandler(logging.Handler):
                 db = dbconnection[dbname]
             else:
                 db = dbconnection['test']
-            collection = 'logs_%s' % datetime.datetime.now().strftime('%Y%M%d%H%M%S')
+            # collection = 'logs_%s' % datetime.datetime.now().strftime('%Y%M%d%H%M%S')
             if db:
-                coll = db[collection]
-                self.collection = coll
-                # DBLOGGER = '%s:%s' % (dbname, collection)
-                DBLOGGER = collection
+                self.db = db
+                self.set_log_collection()
+            else:
+                self.collection = None
+                self.coll_name = ''
+                # coll = db[collection]
+                # self.db = db
+                # self.collection = coll
+                # # DBLOGGER = '%s:%s' % (dbname, collection)
+                # DBLOGGER = collection
         except ServerSelectionTimeoutError as ex:
             self.collection = None
+
+    def set_log_collection(self):
+        global DBLOGGER
+        coll_name = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        coll = self.db[coll_name]
+        self.collection = coll
+        DBLOGGER = coll_name
+        self.coll_name = coll_name
+
+    def get_log_collection(self):
+        return self.coll_name
+
+    def reset_log_collection(self):
+        self.collection = None
+        self.coll_name = ''
 
     def emit(self, record):
         """Add record to the database"""
@@ -63,7 +85,7 @@ class MongoDBHandler(logging.Handler):
 
 def logging_fw(fwconfigfile):
     """Framework file logging"""
-    global FWLOGFILENAME
+    global FWLOGFILENAME, dbhandler
     fwlogfile = '%Y%m%d-%H%M%S'
     if not fwconfigfile:
         fwconfigfile = framework_config()
@@ -132,4 +154,7 @@ def get_logdir(fw_cfg):
 
 def get_dblogger():
     return DBLOGGER
+
+def get_dblog_handler():
+    return dbhandler
 

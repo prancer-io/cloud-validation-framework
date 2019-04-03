@@ -2,9 +2,11 @@
 import pymongo
 import string
 import random
+import os
 from flask import Blueprint, jsonify, request
-from processor_enterprise.api.app_init import app, LOGGER, scheduler
+from processor_enterprise.api.app_init import app, LOGGER, DBHANDLER, scheduler, before_request, post_request
 from processor_enterprise.api.utils import ERROR, OK, NOK, STATUS, VALUE, parsebool
+from processor.connector.snapshot import populate_container_snapshots
 from processor.connector.validation import run_container_validation_tests_database
 from processor.database.database import sort_field, get_documents, count_documents,\
     distinct_documents, DATABASE, DBNAME
@@ -38,7 +40,6 @@ def reschedule_action(indata):
    return job_val
 
 def add_action(indata, name):
-
    LOGGER.info("Add the job")
    schedule_val = indata['schedule']
    alarm_time, trigger_values = parse_value(schedule_val)
@@ -126,24 +127,36 @@ def app_version():
 
 @MODAPI.route('/tests/', methods=['POST'])
 def run_framework_test():
-    data = {STATUS: OK, VALUE: None}
+    data = {STATUS: OK, VALUE: '', 'log': before_request()}
     indata = request.json
     container = indata.get('container', None) if indata else None
+    populate = parsebool(indata.get('populate', 'True')) if indata else True
     LOGGER.info('Input: %s', indata)
     # test = indata.get('test', None)
     if container:
+        if 'secrets' in indata:
+            for key, value in indata['secrets'].items():
+                os.environ[key] = value
+        if populate:
+            populate_container_snapshots(container, True)
         run_container_validation_tests_database(container)
         qry = {'container': container}
         sort = [sort_field('timestamp', False)]
         docs = get_documents('outputs', dbname='validator', sort=sort, query=qry)
         if docs:
             json = docs[0]['json']
-            data[VALUE] = json
+            # data[VALUE] = json
         else:
-            data[VALUE] = []
+            pass
+            # data[VALUE] = []
+        if 'secrets' in indata:
+            for key, value in indata['secrets'].items():
+                if key in os.environ:
+                    del os.environ[key]
     else:
         data[STATUS] = NOK
         data[ERROR] = 'Need a test container'
+    post_request()
     return jsonify(data)
 
 
