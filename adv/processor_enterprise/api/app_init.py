@@ -4,7 +4,8 @@ import os
 from flask import Flask, jsonify, session
 from flask_pymongo import PyMongo
 from processor.helper.json.json_utils import json_from_file
-from processor.logging.log_handler import getlogger
+from processor.helper.config.rundata_utils import put_in_currentdata
+from processor.logging.log_handler import getlogger, get_dblog_handler
 from processor_enterprise.api.utils import CONFIGFILE, gettokentimeout
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.mongodb import MongoDBJobStore
@@ -24,6 +25,7 @@ from apscheduler.jobstores.mongodb import MongoDBJobStore
 app = None
 db = None
 LOGGER = getlogger()
+DBHANDLER = get_dblog_handler()
 appdata = None
 scheduler = None
 
@@ -89,6 +91,21 @@ def not_found(error):
     return jsonify({"error": "Unknown, %s" % error, 'status': 'NOK'})
 
 
+def before_request():
+    """Log specific request in specific collection"""
+    logname = ""
+    if DBHANDLER:
+        DBHANDLER.set_log_collection()
+        logname = DBHANDLER.get_log_collection()
+    return logname
+
+
+def post_request():
+    """Reset the DB log collection logging."""
+    if DBHANDLER:
+        DBHANDLER.reset_log_collection()
+
+
 def create_app():
     "Create the flask app and its other configuration, register routes from controllers."
     config = {
@@ -104,6 +121,8 @@ def create_app():
     myapp.before_request(make_session_permanent)
     myapp.register_error_handler(404, not_found)
     myapp.add_url_rule('/', 'index', index)
+    # myapp.before_first_request(before_request)
+    # myapp.after_request(post_request)
     return myapp
 
 
@@ -135,4 +154,5 @@ def initapp(apscheduler=True):
     LOGGER.info("DB, App created!")
     if scheduler:
         scheduler.start()
+    put_in_currentdata('jsonsource', True)
     return db, app

@@ -119,10 +119,11 @@ def populate_custom_snapshot(snapshot):
         if exists and empty:
             try:
                 if ssh_key_file and exists_file(ssh_key_file):
-                    make_ssh_dir_before_clone(ssh_key_file)
+                    restore, olddir, newdir = make_ssh_dir_before_clone(ssh_key_file)
                     git_ssh_cmd = 'ssh -i %s' % ssh_key_file
                     with Git().custom_environment(GIT_SSH_COMMAND=git_ssh_cmd):
                         repo = Repo.clone_from(giturl, repopath, branch=brnch)
+                    restore_ssh_dir_after_clone(restore, olddir, newdir)
                 else:
                     # if username and user_secret:
                     #    giturl = giturl.replace('https://', 'https://%s:%s@' %(username, user_secret))
@@ -165,6 +166,13 @@ def valid_clone_dir(dirname):
         else:
             empty = False
     return exists, empty
+
+def restore_ssh_dir_after_clone(restore, olddir, newdir):
+    if restore:
+        if exists_dir(olddir):
+            shutil.rmtree(newdir, ignore_errors=True)
+        if exists_dir(newdir):
+            os.rename(newdir, olddir)
 
 
 def make_ssh_dir_before_clone(ssh_key_file):
