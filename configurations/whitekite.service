@@ -1,0 +1,15 @@
+[Unit]
+Description="Gunicorn application server running Prancer API"
+After=network.target
+
+[Service]
+User=ajeybk
+Group=www-data
+WorkingDirectory=/home/ajeybk/whitekite
+EnvironmentFile=/etc/environment
+Environment="PATH=/home/ajeybk/whitekite/penv/bin"
+ExecStart=/home/ajeybk/whitekite/penv/bin/gunicorn --timeout 600 --capture-output --enable-stdio-inheritance --error-logfile capture.log --log-level DEBUG --log-file ./whitekite.log --workers 2 --bind unix:/home/ajeybk/whitekite/whitekite.sock -m 000 wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
