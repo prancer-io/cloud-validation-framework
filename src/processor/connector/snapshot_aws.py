@@ -1,5 +1,16 @@
 """
-   Common file for running validator functions.
+snapshot connector file for aws type snapshot. When the 'type' is 'aws', the
+resource objects have to be fetched from the AWS interface.
+The connection could use python SDK libraries or https calls or other known methods
+provided by the provider.
+Here in case of AWS, have used boto python SDK released and maintained by AWS.
+boto library provides different 'describe_' functions and using this functionality,
+the snapshot mentions which describe function has to be called, so 'type' could
+be 'security_groups' , 'instances', 'regions' and using python reflection capabilities
+a callable from describe_security_groups gets callable for this function to return security groups.
+The describe_ functions lots of methods to query AWS resources, since we know what resource we need
+we always query by id, so AWS snapshots shall always have {"id": "123de23"} to uniquely
+identify the resource object.
 """
 import json
 import hashlib
@@ -23,6 +34,12 @@ logger = getlogger()
 
 
 def get_aws_data(snapshot_source):
+    """
+    The AWS source object to be fetched from database or the filesystem
+    The initial configuration for database is 'validator' and collection
+    is 'structures', whereas for the filesystem the path to fetch the
+    'structures' is  $SOLUTIONDIR/realm/<structure>.json
+    """
     sub_data = {}
     if json_source():
         dbname = config_value(DATABASE, DBNAME)
@@ -46,7 +63,7 @@ def get_aws_data(snapshot_source):
 
 
 def get_aws_describe_function(node):
-    """Describe function for the node."""
+    """Describe function for the node using python reflection mechanism"""
     describe_fn_str = None
     if node and 'type' in node and node['type']:
         describe_fn_str = 'describe_%s' % node['type']
@@ -54,7 +71,10 @@ def get_aws_describe_function(node):
 
 
 def get_node(awsclient, node, snapshot_source):
-    """ Fetch node from aws using rest API."""
+    """
+    Fetch node from aws using connection. In this case using boto API's
+    describe functions.
+    """
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
     db_record = {
@@ -94,6 +114,7 @@ def get_node(awsclient, node, snapshot_source):
     return db_record
 
 def get_checksum(data):
+    """ Get the checksum for the AWS data fetched."""
     checksum = None
     try:
         data_str = json.dumps(data)
@@ -103,7 +124,14 @@ def get_checksum(data):
     return checksum
 
 def populate_aws_snapshot(snapshot):
-    """ Populates the resources from aws."""
+    """
+    This is an entrypoint for populating a snapshot of type aws.
+    All snapshot connectors should take snapshot object and based on
+    'source' field create a method to connect to the service for the
+    connector.
+    The 'source' field could be used by more than one snapshot, so the
+    'testuser' attribute should match to the user the 'source'
+    """
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     snapshot_user = get_field_value(snapshot, 'testUser')
@@ -143,6 +171,11 @@ def populate_aws_snapshot(snapshot):
 
 
 def get_aws_client_data(aws_data, snapshot_user):
+    """
+    AWS client information as required by the Boto client, viz access_key
+    access_secret, AWS command type like EC2, S3 etc and region
+    The access_secret is either read from structure json or env variable or keyvault
+    """
     accesskey = None
     secret_access = None
     region = None

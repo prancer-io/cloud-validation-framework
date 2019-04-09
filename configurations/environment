@@ -1,0 +1,4 @@
+# In the /etc/environment
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+PYTHONPATH="/home/ajeybk/whitekite/src:/home/ajeybk/whitekite/adv:$PYTHONPATH"
+FRAMEWORKDIR=/home/ajeybk/whitekite
