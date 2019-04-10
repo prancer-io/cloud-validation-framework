@@ -59,13 +59,13 @@ def run_validation_test(version, dbname, collection_data, testcase):
     return result_val
 
 
-def run_file_validation_tests(test_file, container, filesystem=True):
+def run_file_validation_tests(test_file, container, filesystem=True, snapshot_status=None):
     logger.info("*" * 50)
     logger.info("validator tests: %s", test_file)
     test_json_data = json_from_file(test_file)
     if not test_json_data:
         logger.info("Test file %s looks to be empty, next!...", test_file)
-    resultset = run_json_validation_tests(test_json_data, container, filesystem)
+    resultset = run_json_validation_tests(test_json_data, container, filesystem, snapshot_status)
     if resultset:
         snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
         dump_output_results(resultset, container, test_file, snapshot, filesystem)
@@ -74,7 +74,7 @@ def run_file_validation_tests(test_file, container, filesystem=True):
         return False
 
 
-def run_json_validation_tests(test_json_data, container, filesystem=True):
+def run_json_validation_tests(test_json_data, container, filesystem=True, snapshot_status=None):
     resultset = []
     if not test_json_data:
         return resultset
@@ -87,6 +87,10 @@ def run_json_validation_tests(test_json_data, container, filesystem=True):
     # Populate the snapshotId => collection for the snapshot.json in the test file.
     collection_data = get_snapshot_id_to_collection_dict(test_json_data['snapshot'],
                                                          container, dbname, filesystem)
+    if test_json_data['snapshot'] in snapshot_status:
+        current_snapshot_status = snapshot_status[test_json_data['snapshot']]
+    else:
+        current_snapshot_status = {}
     for testset in testsets:
         version = get_field_value(testset, 'version')
         testcases = get_field_value(testset, 'cases')
@@ -94,19 +98,22 @@ def run_json_validation_tests(test_json_data, container, filesystem=True):
             logger.info("No testcases in testSet!...")
             continue
         for testcase in testset['cases']:
-            result_val = run_validation_test(version, dbname, collection_data, testcase)
+            result_val = run_validation_test(version, dbname, collection_data,
+                                             testcase, current_snapshot_status)
             resultset.append(result_val)
     return resultset
 
 
-def run_container_validation_tests(container, dbsystem=True):
+def run_container_validation_tests(container, dbsystem=True, snapshot_status=None):
+    if not snapshot_status:
+        snapshot_status = {}
     if dbsystem:
-        return run_container_validation_tests_database(container)
+        return run_container_validation_tests_database(container, snapshot_status)
     else:
-        return run_container_validation_tests_filesystem(container)
+        return run_container_validation_tests_filesystem(container, snapshot_status)
 
 
-def run_container_validation_tests_filesystem(container):
+def run_container_validation_tests_filesystem(container, snapshot_status=None):
     """Get test files from the filesystem."""
     logger.info("Starting validation tests")
     reporting_path = config_value('REPORTING', 'reportOutputFolder')
@@ -115,11 +122,11 @@ def run_container_validation_tests_filesystem(container):
     test_files = get_json_files(json_dir, JSONTEST)
     logger.info('\n'.join(test_files))
     for test_file in test_files:
-        run_file_validation_tests(test_file, container, True)
+        run_file_validation_tests(test_file, container, True, snapshot_status)
     return True
 
 
-def run_container_validation_tests_database(container):
+def run_container_validation_tests_database(container, snapshot_status=None):
     """ Get the test files from the database"""
     dbname = config_value(DATABASE, DBNAME)
     collection = config_value(DATABASE, collectiontypes[TEST])

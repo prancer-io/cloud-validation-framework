@@ -54,6 +54,7 @@
 import argparse
 import sys
 import atexit
+import json
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import init_currentdata,\
     delete_currentdata, put_in_currentdata
@@ -102,11 +103,12 @@ def validator_main(arg_vals=None):
             logger.debug("Running tests from %s", "the database." if args.db  else "file system.")
             put_in_currentdata('jsonsource', args.db)
             logger.info("Framework dir: %s", framework_dir())
-            status = populate_container_snapshots(args.container, args.db)
-            if status:
+            snapshot_status = populate_container_snapshots(args.container, args.db)
+            print(json.dumps(snapshot_status, indent=2))
+            if snapshot_status:
                 status = run_container_validation_tests(args.container, args.db)
-            retval = 0 if status else 1
-            check_send_notification(args.container, args.db)
+            retval = 0 if snapshot_status else 1
+            # check_send_notification(args.container, args.db)
         except (Exception, KeyboardInterrupt) as ex:
             logger.error("Execution exception: %s", ex)
             retval = 2
