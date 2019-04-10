@@ -89,6 +89,7 @@ def save_currentdata(curr_data):
 
 def delete_currentdata():
     """Delete the rundata file when exiting of the script."""
+    logger.critical("END: Completed the run and cleaning up.")
     runctx = get_currentdata()
     runctx['end'] = int(time.time() * 1000)
     runctx['log'] = FWLOGFILENAME

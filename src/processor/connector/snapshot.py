@@ -83,6 +83,8 @@ def populate_container_snapshots(container, dbsystem=True):
     This function is starting point for snapshot population.
     The default location for snapshots of the container is the database.
     """
+    logger.critical("SNAPSHOTS: Populate snapshots for '%s' container from %s",
+                    container, "the database." if dbsystem  else "file system.")
     if dbsystem:
         return populate_container_snapshots_database(container)
     else:
