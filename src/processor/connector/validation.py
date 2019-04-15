@@ -99,7 +99,7 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
             continue
         for testcase in testset['cases']:
             result_val = run_validation_test(version, dbname, collection_data,
-                                             testcase, current_snapshot_status)
+                                             testcase)
             resultset.append(result_val)
     return resultset
 

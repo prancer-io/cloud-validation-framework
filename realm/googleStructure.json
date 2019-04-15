@@ -1,0 +1,38 @@
+{
+    "organization": "company1",
+    "type": "google",
+    "fileType": "structure",
+    "organization-unit": [
+        {
+            "name": "ABC",
+            "accounts": [
+                {
+                    "account-name": "Ajey Khanapuri",
+                    "account-description": "Google Cloud Engine details",
+                    "project-id": "liqupro",
+                    "account-user": "ajey.khanapuri@gmail.com",
+                    "users": [
+                        {
+                            "name": "ajeybk",
+                            "gce": {
+                                "type": "service_account",
+                                "project_id": "liquproj",
+                                "private_key_id": "d3b2ba3c1b1f5ae0205272f97684a59066c40fde",
+                                "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCrVh3AChvSxhGm\nme14bG/L5zT4MvMT5yUKRWba6q5HqTpQkJnKfR9boY4LndRrB2I3j/iR7p7DjRfN\nxmauuRCcfSv2n9E0792jtThiguKBYhVyaPsgk+f+15zwx8bp581DbEnsRhGwmNto\nhucch8Z2pFo1dcf/dyVrtZFkaiSBq9D61fT0M2FmJIJL2+toJ4aJ3ucA0dNpJpk4\ndTAAbTjLarJ45MTddvJ05DyoTCMAtM2LxxpX2Q1bXZVcXffN/3PElw3pHowjFqHa\ng/U3dlZm83SxzvmpjjyBoF0VJtwpsUT1LABGRkOzcP4uDjZsORUvWobqIILWifX5\n2rzKM21fAgMBAAECggEARhEsj2lS4YpQk5IlU/b8bSV7OvkTAROoyR+CpYoNhY7G\nI0ZPLkim90EFJuj/gll9p/0/iOZNlOjxUByPx2o1SdnCjdPjqUNin10v1tFxsbmb\nzbLy5+q0mDoymyEHzoYWIjl5rZ8mAtMv/voUL02zMreZkH0/MdDWw8p3z9m8Xi5r\nNpNMzDUmHBlfuAI+p09pRQ6cX1n6EqIel8EEDk6gf2MSfMQNfPvFgf6IjmrY3Q4r\n/qduBuGV88Yi1mgCJq9j7pLDuwjVJvSvFSwAKXfU2/c3qbF8lb095oR41Uy3J3tj\nCfLWe3UBa84Vsv7g0NQ0Xf56d/TNKYb4PwrK/GDy4QKBgQDSq11icsHB2rRZhBUK\n5Z4CkAe0K8iQjgwVE/+WIZqrHl1jNRlAW4XL91k0kPzpvsso1SSZyyT0IDw7F6oq\nKc+puee3PiDqb5/H9z1v72+HfAvQbFaJ9kpHJ+ry3tHTCJVAQqze3c0Cbotez1kn\n4+/FodLWRq9+OXqrJF4K0E8NbwKBgQDQNBwHs8+5r5F6XnBlwNzSTnPMLa8Rd4EX\neMvzrwSxcCc+gyqkcuBOQdMHR5SxGxpga0uGl852ncWQDzQn+feKto4JrBCSPRH7\nnesgAgB2czMueAbyoDEneLD/om9k/1kRql5/RYmqj7PVU+h58jKL93PMbiYhUFQF\nMOhkdgKHEQKBgQCkHRcckGVcjPGeIoT5/jJ/sJAvzUPrSJ0k9nVPEVKaJ4d8t2q6\ndhHe+QunJaPAu/8sCg7/N//LpikFp8PKINRDVi2q1F10BA0nC/Xyc0Yg94OElEE+\nLH1kvTYMiYRPsAoFC2v8GjGQyWkNLN45cxngjdXfUyV3YXOsSyJvriNHRQKBgDMR\nhQqSnVITcWCNh4491ywymA6t6fIj2OMz+vrDpCgNtWKM88mwb7piROvVL/CdEEQ0\nLStPUxIfMtVaFVX05zX7/yz6KnpkRmPsYT7RnuFu8k/kmveqOURQQ0IAysgAJg3C\nNzmKifDvHJIn6a73rFROlvW+0tV7CZDYZTg3BfmxAoGAcZH8SYXscqHDBNziIAM3\nfxReK4ZFhG/K3IxCi7CH8fMRlUPneUkDCtno7NCDCVdFqJNPjmBIScZt0MAOD3Kj\nFGjazwr2svRM19mo+QgP9FrrU7Zh69TZHRtHqu9yNsp5b2KyWNpdHUkS9z4zLr7Y\n8H8PSXnhwmS1jS+mLYFmiQs=\n-----END PRIVATE KEY-----\n",
+                                "client_email": "liqu-serv-acc@liquproj.iam.gserviceaccount.com",
+                                "client_id": "105280076153954052335",
+                                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                                "token_uri": "https://oauth2.googleapis.com/token",
+                                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                                "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/liqu-serv-acc%40liquproj.iam.gserviceaccount.com"
+                            },
+                            "project":"liquproj",
+                            "zone":"us-west1-b",
+                            "client": "Compute"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

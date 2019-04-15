@@ -1,0 +1,8 @@
+{
+    "instances": ["project", "zone", "instance"],
+    "projects": ["project"],
+    "zones": ["project", "zone"],
+    "disks": ["project", "zone", "disk"],
+    "fileType": "structure",
+    "type": "others"
+}
