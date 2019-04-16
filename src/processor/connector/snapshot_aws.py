@@ -27,7 +27,7 @@ from processor.database.database import insert_one_document, sort_field, get_doc
     COLLECTION, DATABASE, DBNAME
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.helper.httpapi.restapi_azure import get_client_secret
-
+from processor.connector.snapshot_utils import validate_snapshot_nodes
 
 
 logger = getlogger()
@@ -138,16 +138,21 @@ def populate_aws_snapshot(snapshot):
     The 'source' field could be used by more than one snapshot, so the
     'testuser' attribute should match to the user the 'source'
     """
-    snapshot_data = {}
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     snapshot_user = get_field_value(snapshot, 'testUser')
     sub_data = get_aws_data(snapshot_source)
     snapshot_nodes = get_field_value(snapshot, 'nodes')
-    if snapshot_nodes:
-        for node in snapshot_nodes:
-            snapshot_data[node['snapshotId']] = False
-    if sub_data and snapshot_nodes:
+    snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
+    # valid_snapshotids = True
+    # if snapshot_nodes:
+    #     for node in snapshot_nodes:
+    #         snapshot_data[node['snapshotId']] = False
+    #         if not isinstance(node['snapshotId'], str):
+    #             valid_snapshotids = False
+    # if not valid_snapshotids:
+    #     logger.error('All snap')
+    if valid_snapshotids and sub_data and snapshot_nodes:
         logger.debug(sub_data)
         access_key, secret_access, region, client_str = \
             get_aws_client_data(sub_data, snapshot_user)

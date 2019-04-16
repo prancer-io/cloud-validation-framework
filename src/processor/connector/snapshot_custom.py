@@ -17,6 +17,7 @@ from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME
 from processor.helper.httpapi.restapi_azure import json_source
+from processor.connector.snapshot_utils import validate_snapshot_nodes
 
 
 logger = getlogger()
@@ -97,7 +98,9 @@ def populate_custom_snapshot(snapshot):
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     sub_data = get_custom_data(snapshot_source)
-    if sub_data:
+    snapshot_nodes = get_field_value(snapshot, 'nodes')
+    snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
+    if valid_snapshotids and sub_data and snapshot_nodes:
         giturl = get_field_value(sub_data, 'gitProvider')
         ssh_file = get_field_value(sub_data, 'sshKeyfile')
         brnch = get_field_value(sub_data, 'branchName')
@@ -134,11 +137,12 @@ def populate_custom_snapshot(snapshot):
                 logger.info('Unable to clone the repo: %s', ex)
                 repo = None
             if repo:
-                for node in snapshot['nodes']:
+                for node in snapshot_nodes:
                     logger.debug(node)
                     data = get_node(repopath, node, snapshot_source, brnch)
                     if data:
                         insert_one_document(data, data['collection'], dbname)
+                        snapshot_data[node['snapshotId']] = True
                 if os.path.exists(repopath):
                     logger.info('Repo path: %s', repopath)
                     shutil.rmtree(repopath)

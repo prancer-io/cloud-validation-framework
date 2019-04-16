@@ -17,8 +17,7 @@ from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import config_value, framework_dir
 from processor.database.database import insert_one_document, COLLECTION
 from processor.database.database import DATABASE, DBNAME, sort_field, get_documents
-
-
+from processor.connector.snapshot_utils import validate_snapshot_nodes
 
 
 logger = getlogger()
@@ -117,11 +116,14 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
     put_in_currentdata('tenant_id', tenant_id)
     token = get_access_token()
     logger.debug('TOKEN: %s', token)
-    if token:
-        for node in snapshot['nodes']:
+    snapshot_nodes = get_field_value(snapshot, 'nodes')
+    snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
+    if valid_snapshotids and token and snapshot_nodes:
+        for node in snapshot_nodes:
             data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
             if data:
                 insert_one_document(data, data['collection'], dbname)
+                snapshot_data[node['snapshotId']] = True
             logger.debug('Type: %s', type(data))
         delete_from_currentdata('clientId')
         delete_from_currentdata('client_secret')
