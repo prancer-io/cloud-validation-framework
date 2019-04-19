@@ -310,7 +310,7 @@ If you followed this tutorial without altering the resources to create, then not
 
 ## Conclusion
 
-That's it, you are done.
+That's it, you are done. You now know how to write a basic `Prancer` test related to an existing `AWS` infrastructure.
 
 Thank you for completing this tutorial on `Prancer`.
 
