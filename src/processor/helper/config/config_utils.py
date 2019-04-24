@@ -1,15 +1,16 @@
 """Framework Configuration utilities"""
 import configparser
 import os
-from processor.helper.file.file_utils import exists_file
+from processor.helper.file.file_utils import exists_file, exists_dir
 
-
-MYDIR = os.path.abspath(os.path.dirname(__file__))
 FRAMEWORKDIR = None
 FRAMEWORKCONFIG = None
 CURRENTDATA = None
 DATABASE = 'MONGODB'
+TESTS = 'TESTS'
+DBTESTS = 'database'
 DBNAME = 'dbname'
+CFGFILE = 'config.ini'
 
 
 def framework_currentdata():
@@ -17,7 +18,7 @@ def framework_currentdata():
     global CURRENTDATA
     if CURRENTDATA:
         return CURRENTDATA
-    CURRENTDATA = '%s/rundata/rundata' % framework_dir()
+    CURRENTDATA = '%s/Srundata' % framework_dir()
     return CURRENTDATA
 
 
@@ -26,10 +27,7 @@ def framework_config():
     global FRAMEWORKCONFIG
     if FRAMEWORKCONFIG:
         return FRAMEWORKCONFIG
-    fw_cfg = '%s/realm/config.ini' % framework_dir()
-    if not exists_file(fw_cfg):
-        fw_cfg = '%s/config.ini' % MYDIR
-    FRAMEWORKCONFIG = fw_cfg
+    FRAMEWORKCONFIG = '%s/%s' % (framework_dir(), CFGFILE)
     return FRAMEWORKCONFIG
 
 
@@ -39,18 +37,10 @@ def framework_dir():
     if FRAMEWORKDIR:
         return FRAMEWORKDIR
     fwdir = os.getenv('FRAMEWORKDIR', None)
-    if fwdir:
-        if os.path.isdir(fwdir):
-            os.chdir(fwdir)
+    if fwdir and exists_dir(fwdir):
+        FRAMEWORKDIR = fwdir
     else:
-        fwdir = os.path.join(MYDIR, '../../../../realm')
-        if os.path.isdir(fwdir):
-            fwdir = os.path.join(MYDIR, '../../../../')
-            os.chdir(fwdir)
-        # fwdir = os.path.join(MYDIR, '../../../')
-        # if not os.path.exists('%srealm' % fwdir):
-        #     fwdir = os.path.join(MYDIR, '../../../../')
-    FRAMEWORKDIR = os.getcwd()
+        FRAMEWORKDIR = os.getcwd()
     return FRAMEWORKDIR
 
 
@@ -79,3 +69,9 @@ def get_test_json_dir():
     env_test_dir = config_value('TESTS', 'containerFolder')
     test_path = '%s/%s' % (fw_dir, env_test_dir)
     return test_path.replace('//', '/')
+
+
+def container_exists(container):
+    """ Check if the container directory exists"""
+    container_dir = '%s/%s' % (get_test_json_dir(), container)
+    return True if exists_dir(container_dir) else False

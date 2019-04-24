@@ -68,7 +68,8 @@ def populate_snapshot(snapshot):
         if 'nodes' not in snapshot or not snapshot['nodes']:
             logger.error("No nodes in snapshot to be backed up!...")
             return snapshot_data
-        return snapshot_fns[snapshot_type](snapshot)
+        snapshot_data = snapshot_fns[snapshot_type](snapshot)
+    logger.info('Snapshot: %s', snapshot_data)
     return snapshot_data
 
 
