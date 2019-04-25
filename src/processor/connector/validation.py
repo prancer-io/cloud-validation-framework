@@ -2,6 +2,7 @@
    Common file for running validations.
 """
 import json
+import re
 import pymongo
 from processor.logging.log_handler import getlogger
 from processor.comparison.interpreter import Comparator
@@ -66,12 +67,18 @@ def run_file_validation_tests(test_file, container, filesystem=True, snapshot_st
     if not test_json_data:
         logger.info("Test file %s looks to be empty, next!...", test_file)
     resultset = run_json_validation_tests(test_json_data, container, filesystem, snapshot_status)
+    finalresult = True
     if resultset:
         snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
         dump_output_results(resultset, container, test_file, snapshot, filesystem)
-        return True
+        for result in resultset:
+            if 'result' in result:
+                if not re.match(r'passed', result['result'], re.I):
+                    finalresult = False
+                    break
     else:
-        return False
+        finalresult = False
+    return finalresult
 
 
 def run_json_validation_tests(test_json_data, container, filesystem=True, snapshot_status=None):
@@ -121,9 +128,11 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
     logger.info(json_dir)
     test_files = get_json_files(json_dir, JSONTEST)
     logger.info('\n'.join(test_files))
+    result = True
     for test_file in test_files:
-        run_file_validation_tests(test_file, container, True, snapshot_status)
-    return True
+        val = run_file_validation_tests(test_file, container, True, snapshot_status)
+        result = result and val
+    return result
 
 
 def run_container_validation_tests_database(container, snapshot_status=None):
@@ -133,6 +142,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
     qry = {'container': container}
     sort = [sort_field('timestamp', False)]
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
+    finalresult = True
     if docs and len(docs):
         logger.info('Number of test Documents: %s', len(docs))
         for doc in docs:
@@ -142,7 +152,14 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
                     test_file = doc['name'] if 'name' in doc else ''
                     dump_output_results(resultset, container, test_file, snapshot, False)
-    return True
+                    for result in resultset:
+                        if 'result' in result:
+                            if not re.match(r'passed', result['result'], re.I):
+                                finalresult = False
+                                break
+    else:
+        finalresult = False
+    return finalresult
 
 
 def container_snapshots_filesystem(container):
