@@ -184,6 +184,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
             if retval:
                 logger.critical("Container(%s) is not present in Framework dir: %s",
                                 args.container, framework_dir())
+                # TODO: Log the path the framework looked for.
                 return  retval
         snapshot_status = populate_container_snapshots(args.container, args.db)
         logger.debug(json.dumps(snapshot_status, indent=2))

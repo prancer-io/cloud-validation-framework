@@ -104,10 +104,10 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
         return snapshot_data
     if not client_secret:
         client_secret = get_vault_data(client_id)
-        logger.info('Vault Secret: %s', client_secret)
+        logger.info('Vault Secret: %s', '*' * len(client_secret))
     if not client_secret:
         client_secret = get_client_secret()
-        logger.info('Environment variable or Standard input, Secret: %s', client_secret)
+        logger.info('Environment variable or Standard input, Secret: %s', '*' * len(client_secret))
     if not client_secret:
         logger.info("No client secret in the snapshot to access azure resource!...")
         return snapshot_data

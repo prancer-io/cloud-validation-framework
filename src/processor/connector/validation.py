@@ -77,6 +77,8 @@ def run_file_validation_tests(test_file, container, filesystem=True, snapshot_st
                     finalresult = False
                     break
     else:
+        # TODO: NO test cases in this file.
+        # LOG HERE that no test cases are present in this file.
         finalresult = False
     return finalresult
 
@@ -158,6 +160,8 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                                 finalresult = False
                                 break
     else:
+        # TODO: Didnt find any tests
+        # LOG HERE
         finalresult = False
     return finalresult
 

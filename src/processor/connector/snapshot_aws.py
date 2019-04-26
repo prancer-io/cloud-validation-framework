@@ -161,10 +161,10 @@ def populate_aws_snapshot(snapshot):
             return snapshot_data
         if not secret_access:
             secret_access = get_vault_data(access_key)
-            logger.info('Vault Secret: %s', secret_access)
+            logger.info('Vault Secret: %s', '*' * len(secret_access))
         if not secret_access:
             secret_access = get_client_secret()
-            logger.info('Environment variable or Standard input, Secret: %s', secret_access)
+            logger.info('Environment variable or Standard input, Secret: %s', '*' * len(secret_access))
         if not secret_access:
             logger.info("No secret_access in the snapshot to access aws resource!...")
             return snapshot_data
