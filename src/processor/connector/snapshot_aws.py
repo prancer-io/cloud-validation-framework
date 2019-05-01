@@ -79,6 +79,7 @@ def get_node(awsclient, node, snapshot_source):
     parts = snapshot_source.split('.')
     db_record = {
         "structure": "aws",
+        "error": None,
         "reference": "",
         "source": parts[0],
         "path": '',
@@ -105,13 +106,18 @@ def get_node(awsclient, node, snapshot_source):
                 else:
                     put_in_currentdata('errors', data)
                     logger.info("Describe function does not exist: %s", describe_fn_str)
+                    db_record['error'] = "Describe function does not exist: %s" % describe_fn_str
             except Exception as ex:
                 logger.info('Describe function exception: %s', ex)
+                db_record['error'] = 'Describe function exception: %s' % ex
         else:
             logger.info('Invalid describe function exception: %s', describe_fn_str)
+            db_record['error'] = 'Invalid describe function exception: %s' % describe_fn_str
     else:
         logger.info('Missing describe function')
+        db_record['error'] = 'Missing describe function'
     return db_record
+
 
 def get_checksum(data):
     """ Get the checksum for the AWS data fetched."""
@@ -132,17 +138,22 @@ def populate_aws_snapshot(snapshot):
     The 'source' field could be used by more than one snapshot, so the
     'testuser' attribute should match to the user the 'source'
     """
+    snapshot_data = {}
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     snapshot_user = get_field_value(snapshot, 'testUser')
     sub_data = get_aws_data(snapshot_source)
-    if sub_data:
+    snapshot_nodes = get_field_value(snapshot, 'nodes')
+    if snapshot_nodes:
+        for node in snapshot_nodes:
+            snapshot_data[node['snapshotId']] = False
+    if sub_data and snapshot_nodes:
         logger.debug(sub_data)
         access_key, secret_access, region, client_str = \
             get_aws_client_data(sub_data, snapshot_user)
         if not access_key:
             logger.info("No access_key in the snapshot to access aws resource!...")
-            return False
+            return snapshot_data
         if not secret_access:
             secret_access = get_vault_data(access_key)
             logger.info('Vault Secret: %s', secret_access)
@@ -151,7 +162,7 @@ def populate_aws_snapshot(snapshot):
             logger.info('Environment variable or Standard input, Secret: %s', secret_access)
         if not secret_access:
             logger.info("No secret_access in the snapshot to access aws resource!...")
-            return False
+            return snapshot_data
         if client_str and access_key and secret_access:
             try:
                 awsclient = client(client_str.lower(), aws_access_key_id=access_key,
@@ -165,9 +176,11 @@ def populate_aws_snapshot(snapshot):
                     logger.info(node)
                     data = get_node(awsclient, node, snapshot_source)
                     if data:
+                        error_str = data.pop('error', None)
                         insert_one_document(data, data['collection'], dbname)
-                return True
-    return False
+                        snapshot_data[node['snapshotId']] = False if error_str else True
+                return snapshot_data
+    return snapshot_data
 
 
 def get_aws_client_data(aws_data, snapshot_user):

@@ -5,6 +5,33 @@
    The test file references a snapshot file and snapshot file references a list of snapshots to be
    populated using a connector.
    This file is the entry point for all snapshots population.
+    Different of snapshots supported by the validation framework are:
+    1) azure: Microsoft Azure cloud.
+    2) aws: Amazon cloud servoices.
+   The snapshot structure has callables for each type of supported snapshot.
+   Each snapshot has been implemented in its own file viz aws in snapshot_aws.py, azure in snapshot_azure.py etc.
+   A new snapshot type xyz will have to be implemented in snapshot_xyz.py and callable function for this type 'xyz'
+   of snapshot should be populate_xyz_snapshot
+   A snapshot typically is a structure consisting these:
+   {
+      "source" : "azureStructure1",
+      "type" : "azure",
+      "testUser" : "ajey.khanapuri@liquware.com",
+      "subscriptionId" : "<sub id>",
+      "nodes" : [
+
+      ]
+   }
+   OR
+   {
+        "source": "awsStructure",
+        "type": "aws",
+        "testUser": "ajeybk",
+        "account-id": "<AWS account-id>",
+        "nodes": [
+
+        ]
+   }
 """
 import json
 from processor.logging.log_handler import getlogger
@@ -19,11 +46,7 @@ from processor.connector.snapshot_aws import populate_aws_snapshot
 
 
 logger = getlogger()
-# Different of snapshots supported by the validation framework.
-# The structure has callables for each type of snapshot.
-# Each snapshot has been implemented in its own file.
-# A new snapshot type xyz will have to be implemented in snapshot_xyz.py
-# and callable function for this type of snapshot should be populate_xyz_snapshot
+# Different types of snapshots supported by the validation framework.
 snapshot_fns = {
     'azure': populate_azure_snapshot,
     'git': populate_custom_snapshot,
@@ -37,13 +60,14 @@ def populate_snapshot(snapshot):
     Each node in the nodes list of the snapshot shall have a unique id in this
     container so as not to clash with other node of a snapshots.
     """
+    snapshot_data = {}
     snapshot_type = get_field_value(snapshot, 'type')
     if snapshot_type and snapshot_type in snapshot_fns:
         if 'nodes' not in snapshot or not snapshot['nodes']:
-            logger.info("No nodes in snapshot to be backed up!...")
-            return False
+            logger.error("No nodes in snapshot to be backed up!...")
+            return snapshot_data
         return snapshot_fns[snapshot_type](snapshot)
-    return False
+    return snapshot_data
 
 
 def populate_snapshots_from_json(snapshot_json_data):
@@ -51,13 +75,15 @@ def populate_snapshots_from_json(snapshot_json_data):
     Get the snapshot and validate list of snapshots in the json.
     The json could be from the database or from a filesystem.
     """
+    snapshot_data = {}
     snapshots = get_field_value(snapshot_json_data, 'snapshots')
     if not snapshots:
-        logger.info("Json Snapshot does not contain snapshots, next!...")
-        return False
+        logger.error("Json Snapshot does not contain snapshots, next!...")
+        return snapshot_data
     for snapshot in snapshots:
-        populate_snapshot(snapshot)
-    return True
+        current_data = populate_snapshot(snapshot)
+        snapshot_data.update(current_data)
+    return snapshot_data
 
 
 def populate_snapshots_from_file(snapshot_file):
@@ -69,8 +95,8 @@ def populate_snapshots_from_file(snapshot_file):
         snapshot_file.endswith('.json') else snapshot_file
     snapshot_json_data = json_from_file(file_name)
     if not snapshot_json_data:
-        logger.info("Snapshot file %s looks to be empty, next!...", snapshot_file)
-        return False
+        logger.error("Snapshot file %s looks to be empty, next!...", snapshot_file)
+        return {}
     logger.debug(json.dumps(snapshot_json_data, indent=2))
     return populate_snapshots_from_json(snapshot_json_data)
 
@@ -83,6 +109,8 @@ def populate_container_snapshots(container, dbsystem=True):
     This function is starting point for snapshot population.
     The default location for snapshots of the container is the database.
     """
+    logger.critical("SNAPSHOTS: Populate snapshots for '%s' container from %s",
+                    container, "the database." if dbsystem  else "file system.")
     if dbsystem:
         return populate_container_snapshots_database(container)
     else:
@@ -95,10 +123,11 @@ def populate_container_snapshots_filesystem(container):
     The path for looking into the container is configured in the config.ini, for the
     default location configuration is $SOLUTIONDIR/relam/validation/<container>
     """
+    snapshots_status = {}
     snapshot_dir, snapshot_files = get_container_snapshot_json_files(container)
     if not snapshot_files:
-        logger.info("No Snapshot files in %s, exiting!...", snapshot_dir)
-        return False
+        logger.error("No Snapshot files in %s, exiting!...", snapshot_dir)
+        return snapshots_status
     logger.info('\n'.join(snapshot_files))
     snapshots = container_snapshots_filesystem(container)
     populated = []
@@ -108,9 +137,11 @@ def populate_container_snapshots_filesystem(container):
             # Take the snapshot and populate whether it was susccessful or not.
             # Then pass it back to the validation tests, so that tests for those
             # snapshots that have been susccessfully fetched shall be executed.
-            populate_snapshots_from_file(snapshot_file)
+            snapshot_file_data = populate_snapshots_from_file(snapshot_file)
             populated.append(parts[-1])
-    return True
+            name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
+            snapshots_status[name] = snapshot_file_data
+    return snapshots_status
 
 
 def populate_container_snapshots_database(container):
@@ -119,6 +150,7 @@ def populate_container_snapshots_database(container):
     The table or collection and database is configured in the config.ini, for the default
     location configuration is "validator" database with "snapshots" as its collections.
     """
+    snapshots_status = {}
     dbname = config_value(DATABASE, DBNAME)
     collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
     qry = {'container': container}
@@ -135,9 +167,10 @@ def populate_container_snapshots_database(container):
                     # Take the snapshot and populate whether it was susccessful or not.
                     # Then pass it back to the validation tests, so that tests for those
                     # snapshots that have been susccessfully fetched shall be executed.
-                    populate_snapshots_from_json(doc['json'])
+                    snapshot_file_data = populate_snapshots_from_json(doc['json'])
                     populated.append(snapshot)
-    return True
+                    snapshots_status[snapshot] = snapshot_file_data
+    return snapshots_status
 
 
 def container_snapshots_filesystem(container):
