@@ -114,8 +114,8 @@ def logging_fw(fwconfigfile):
     logger = logging.getLogger(__name__)
     logger.propagate = log_config['propagate']
     # logpath = '%s/log/' % get_logdir(fw_cfg)
-    logpath = get_logdir(fw_cfg)
-    FWLOGFILENAME = '%s%s.log' % (logpath, datetime.datetime.today().strftime(fwlogfile))
+    _, logpath = get_logdir(fw_cfg)
+    FWLOGFILENAME = '%s/%s.log' % (logpath, datetime.datetime.today().strftime(fwlogfile))
     handler = RotatingFileHandler(
         FWLOGFILENAME,
         maxBytes=1024 * 1024 * log_config['size'],
@@ -143,14 +143,32 @@ def getlogger(fw_cfg=None):
     return FWLOGGER
 
 def get_logdir(fw_cfg):
-    logdir = '%s/log/' % framework_dir()
+    log_writeable = True
+    if not fw_cfg:
+        cfgini = framework_config()
+        fw_cfg = get_config_data(cfgini)
+    logdir = '%s' % framework_dir()
     if fw_cfg and 'LOGGING' in fw_cfg:
         fwconf = fw_cfg['LOGGING']
-        if 'logdir' in fwconf and fwconf['logdir'] and os.path.isdir(fwconf['logdir']):
-            logdir = '%s/log/' % fwconf['logdir']
-    if not os.path.exists(logdir):
-        os.makedirs(logdir)
-    return logdir
+        if 'logFolder' in fwconf and fwconf['logFolder'] and os.path.isdir(logdir):
+            logdir = '%s/%s' % (logdir, fwconf['logFolder'])
+            try:
+                if not os.path.exists(logdir):
+                    os.makedirs(logdir)
+            except:
+                log_writeable = False
+    try:
+        if log_writeable:
+            from pathlib import Path
+            testfile = '%s/%d' % (logdir, int(time.time()))
+            Path(testfile).touch()
+            if os.path.exists(testfile):
+                os.remove(testfile)
+            else:
+                log_writeable = False
+    except:
+        log_writeable = False
+    return log_writeable, logdir
 
 def get_dblogger():
     return DBLOGGER

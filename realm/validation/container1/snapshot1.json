@@ -22,7 +22,7 @@
       ]
     },
     {
-      "source" : "parameterStructure",
+      "source" : "parameterStructure1",
       "type" : "git",
       "testUser" : "ajey.khanapuri@liquware.com",
       "branchName" : "master",

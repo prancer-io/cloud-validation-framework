@@ -1,5 +1,31 @@
 """ Tests for snapshot azure"""
 
+def config_value(section, key, configfile=None, default=None):
+    if key == 'TEST':
+        return 'tests'
+    elif key == 'dbname':
+        return 'dbname'
+    return 'pytestdb'
+
+def mock_container_snapshot_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+    if collection == 'tests':
+        return [{
+            "_id": "5c24af787456217c485ad1e6",
+            "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+            "collection": "microsoftcompute",
+            "json":{
+                "fileType": "snapshot",
+                "snapshots": [],
+                "id": 124,
+                "location": "eastus2",
+                "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
+            },
+            "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+            "snapshotId": 1,
+            "timestamp": 1545908086831,
+            "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
+        }]
+
 def mock_populate_azure_snapshot(snapshot, snapshot_type='azure'):
     return True
 

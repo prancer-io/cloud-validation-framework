@@ -9,3 +9,5 @@ pytest-mock==1.10.0
 python-dateutil==2.7.5
 requests==2.20.1
 pyhcl==0.3.10
+google-api-python-client==1.7.8
+oauth2client==4.1.3

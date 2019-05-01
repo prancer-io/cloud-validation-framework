@@ -17,6 +17,7 @@ from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME
 from processor.helper.httpapi.restapi_azure import json_source
+from processor.connector.snapshot_utils import validate_snapshot_nodes
 
 
 logger = getlogger()
@@ -97,7 +98,9 @@ def populate_custom_snapshot(snapshot):
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     sub_data = get_custom_data(snapshot_source)
-    if sub_data:
+    snapshot_nodes = get_field_value(snapshot, 'nodes')
+    snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
+    if valid_snapshotids and sub_data and snapshot_nodes:
         giturl = get_field_value(sub_data, 'gitProvider')
         ssh_file = get_field_value(sub_data, 'sshKeyfile')
         brnch = get_field_value(sub_data, 'branchName')
@@ -119,8 +122,8 @@ def populate_custom_snapshot(snapshot):
         if exists and empty:
             try:
                 if ssh_key_file and exists_file(ssh_key_file):
-                    restore, olddir, newdir = make_ssh_dir_before_clone(ssh_key_file)
-                    git_ssh_cmd = 'ssh -i %s' % ssh_key_file
+                    restore, olddir, newdir, ssh_file = make_ssh_dir_before_clone(ssh_key_file)
+                    git_ssh_cmd = 'ssh -i %s' % ssh_file
                     with Git().custom_environment(GIT_SSH_COMMAND=git_ssh_cmd):
                         repo = Repo.clone_from(giturl, repopath, branch=brnch)
                     restore_ssh_dir_after_clone(restore, olddir, newdir)
@@ -134,22 +137,22 @@ def populate_custom_snapshot(snapshot):
                 logger.info('Unable to clone the repo: %s', ex)
                 repo = None
             if repo:
-                for node in snapshot['nodes']:
+                for node in snapshot_nodes:
                     logger.debug(node)
                     data = get_node(repopath, node, snapshot_source, brnch)
                     if data:
                         insert_one_document(data, data['collection'], dbname)
+                        snapshot_data[node['snapshotId']] = True
                 if os.path.exists(repopath):
                     logger.info('Repo path: %s', repopath)
                     shutil.rmtree(repopath)
-                return True
         # elif exists and not empty:
         #     try:
         #         Repo(repopath)
         #         logger.info("A repository exists in this directory: %s", repopath)
         #     except:
         #         logger.info("A non-empty directory, clean it and run: %s", repopath)
-    return False
+    return snapshot_data
 
 
 def valid_clone_dir(dirname):
@@ -179,6 +182,7 @@ def make_ssh_dir_before_clone(ssh_key_file):
     restore = False
     newdir = None
     olddir = None
+    ssh_file = None
     if ssh_key_file and exists_file(ssh_key_file):
         restore = True
         tempdir = tempfile.mkdtemp()
@@ -196,10 +200,11 @@ def make_ssh_dir_before_clone(ssh_key_file):
                 shutil.rmtree(newdir, ignore_errors=True)
             os.rename(olddir, newdir)
         os.mkdir(olddir)
-        shutil.copy(new_ssh_key_file, '%s/id_rsa' % olddir)
+        ssh_file = '%s/id_rsa' % olddir
+        shutil.copy(new_ssh_key_file, ssh_file)
         remove_file(new_ssh_key_file)
         cfg = '%s/config' % olddir
         with open(cfg, 'w') as f:
             f.write('Host *\n')
             f.write('    StrictHostKeyChecking no\n')
-    return restore, olddir, newdir
+    return restore, olddir, newdir, ssh_file

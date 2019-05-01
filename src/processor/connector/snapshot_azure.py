@@ -17,8 +17,7 @@ from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import config_value, framework_dir
 from processor.database.database import insert_one_document, COLLECTION
 from processor.database.database import DATABASE, DBNAME, sort_field, get_documents
-
-
+from processor.connector.snapshot_utils import validate_snapshot_nodes
 
 
 logger = getlogger()
@@ -96,20 +95,22 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     snapshot_user = get_field_value(snapshot, 'testUser')
+    snapshot_nodes = get_field_value(snapshot, 'nodes')
+    snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     client_id, client_secret, sub_name, sub_id, tenant_id = \
         get_web_client_data(snapshot_type, snapshot_source, snapshot_user)
     if not client_id:
         logger.info("No client_id in the snapshot to access azure resource!...")
-        return False
+        return snapshot_data
     if not client_secret:
         client_secret = get_vault_data(client_id)
-        logger.info('Vault Secret: %s', client_secret)
+        logger.info('Vault Secret: %s', '*' * len(client_secret))
     if not client_secret:
         client_secret = get_client_secret()
-        logger.info('Environment variable or Standard input, Secret: %s', client_secret)
+        logger.info('Environment variable or Standard input, Secret: %s', '*' * len(client_secret))
     if not client_secret:
         logger.info("No client secret in the snapshot to access azure resource!...")
-        return False
+        return snapshot_data
     logger.info('Sub:%s, tenant:%s, client: %s', sub_id, tenant_id, client_id)
     put_in_currentdata('clientId', client_id)
     put_in_currentdata('clientSecret', client_secret)
@@ -117,16 +118,18 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
     put_in_currentdata('tenant_id', tenant_id)
     token = get_access_token()
     logger.debug('TOKEN: %s', token)
-    if token:
-        for node in snapshot['nodes']:
+    # snapshot_nodes = get_field_value(snapshot, 'nodes')
+    # snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
+    if valid_snapshotids and token and snapshot_nodes:
+        for node in snapshot_nodes:
             data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
             if data:
                 insert_one_document(data, data['collection'], dbname)
+                snapshot_data[node['snapshotId']] = True
             logger.debug('Type: %s', type(data))
         delete_from_currentdata('clientId')
         delete_from_currentdata('client_secret')
         delete_from_currentdata('subscriptionId')
         delete_from_currentdata('tenant_id')
         delete_from_currentdata('token')
-        return True
-    return False
+    return snapshot_data
