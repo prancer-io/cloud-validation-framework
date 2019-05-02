@@ -87,6 +87,8 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
     resultset = []
     if not test_json_data:
         return resultset
+    if not snapshot_status:
+        snapshot_status = {}
     logger.debug(json.dumps(test_json_data, indent=2))
     testsets = get_field_value(test_json_data, 'testSet')
     if not testsets or not isinstance(testsets, list):
