@@ -170,7 +170,7 @@ def test_populate_aws_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
     from processor.connector.snapshot_aws import populate_aws_snapshot
     val = populate_aws_snapshot(snapshot)
-    assert val == True
+    assert val == {'8': True}
 
 
 def test_exception_populate_aws_snapshot(monkeypatch):
@@ -182,4 +182,4 @@ def test_exception_populate_aws_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
     from processor.connector.snapshot_aws import populate_aws_snapshot
     val = populate_aws_snapshot(snapshot)
-    assert val == False
+    assert val == {'8': False}
