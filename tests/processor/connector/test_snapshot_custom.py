@@ -172,9 +172,9 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
     with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
         snapshot_data = populate_custom_snapshot(snapshot)
-        assert snapshot_data == True
+        assert snapshot_data == {'3': True}
         snapshot_data = populate_custom_snapshot(snapshot1)
-        assert snapshot_data == False
+        assert snapshot_data == {}
 
 
 def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch):
@@ -209,7 +209,7 @@ def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, mo
     with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
         snapshot_data = populate_custom_snapshot(snapshot)
-        assert snapshot_data == True
+        assert snapshot_data == {'3': True}
 
 def test_populate_custom_snapshot_exception(create_temp_dir, create_temp_json, monkeypatch):
     global frameworkdir
@@ -242,7 +242,7 @@ def test_populate_custom_snapshot_exception(create_temp_dir, create_temp_json, m
     }
     with mock.patch.object(Repo, 'clone_from', autospec=True, side_effect=repo_exception):
         snapshot_data = populate_custom_snapshot(snapshot)
-        assert snapshot_data == False
+        assert snapshot_data == {'3': False}
 
 
 def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monkeypatch):
@@ -282,4 +282,4 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
         with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
             RepoMockHelper.return_value.clone_from.return_value = None
             snapshot_data = populate_custom_snapshot(snapshot)
-            assert snapshot_data == True
+            assert snapshot_data == {'3': True}
