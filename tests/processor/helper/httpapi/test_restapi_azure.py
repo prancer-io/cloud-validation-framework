@@ -36,6 +36,8 @@ def mock_get_from_currentdata(key):
         return 'rg'
     elif key == 'vaultClientSecret':
         return 'vaultClientSecret'
+    elif key == 'jsonsource':
+        return False
     else:
         return None
 
@@ -89,7 +91,7 @@ def test_web_client_data(monkeypatch):
     client_id, client_secret, sub_name, sub_id, tenant_id = \
         get_web_client_data('azure', 'azureStructure.json', '<User name abc@mno.com>')
     assert client_id is not None
-    assert client_secret is None
+    assert client_secret == '<Service Principal Secret, if empty will prompt>'
     assert sub_id is not None
     assert sub_name is not None
     assert tenant_id is not None
