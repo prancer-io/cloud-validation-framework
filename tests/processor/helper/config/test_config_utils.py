@@ -28,7 +28,7 @@ def test_framework_dir():
 
 
 def test_framework_config():
-    configini = '%s/realm/config.ini' % TESTSDIR
+    configini = '%s/config.ini' % TESTSDIR
     with open(configini) as f:
         tests_configini = f.read()
     configfile = framework_config()
@@ -56,7 +56,7 @@ def test_get_config_data():
     assert configdata is None
     configdata = get_config_data('/tmp/asdxz.ini')
     assert configdata is None
-    tests_configini = '%s/realm/config.ini' % TESTSDIR
+    tests_configini = '%s/config.ini' % TESTSDIR
     tests_configdata = get_config_data(tests_configini)
     assert tests_configdata is not None
     prod_configdata = get_config_data(framework_config())
