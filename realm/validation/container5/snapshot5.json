@@ -4,11 +4,17 @@
     "fileType":"snapshot",
     "snapshots": [
         {
-            "source": "awsStructure.json",
+            "source": "awsStructure",
             "type": "aws",
             "testUser": "ajeybk",
             "account-id": "<Account Id>",
             "nodes": [
+                {
+                    "snapshotId": "54",
+                    "type": "security_groups",
+                    "collection": "security_groups",
+                    "id":{"GroupNames": ["launch-wizard-2"]}
+                },
                 {
                     "snapshotId": "51",
                     "type": "security_groups",
@@ -26,8 +32,15 @@
                     "snapshotId": "53",
                     "type": "volumes",
                     "collection": "volumes",
-                    "id": {"VolumeIds":["vol-57e5eee3"]}
+                    "id": {"VolumeIds":["vol-57e5efe3"]}
+                },
+                {
+                    "snapshotId": "55",
+                    "type": "security_group",
+                    "collection": "security_group",
+                    "id":{"GroupNames": ["launch-wizard-1"]}
                 }
+
             ]
         }
     ]
