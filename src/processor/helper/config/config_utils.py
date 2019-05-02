@@ -18,7 +18,7 @@ def framework_currentdata():
     global CURRENTDATA
     if CURRENTDATA:
         return CURRENTDATA
-    CURRENTDATA = '%s/Srundata' % framework_dir()
+    CURRENTDATA = '%s/rundata' % framework_dir()
     return CURRENTDATA
 
 
