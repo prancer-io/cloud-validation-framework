@@ -64,6 +64,26 @@ from processor.helper.config.config_utils import framework_dir, \
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 
+def parseint(value, default=0):
+    intvalue = default
+    try:
+        intvalue = int(value)
+    except:
+        pass
+    return intvalue
+
+
+def parsebool(val, defval=False):
+    "Parse boolean from the input value"
+    retval = defval
+    if val:
+        if isinstance(val, str) and val.lower() in ['false', 'true']:
+            retval = True if val.lower() == 'true' else False
+        else:
+            retval = bool(parseint(val))
+    return retval
+
+
 def console_log(message, cf):
     """Logger like statements only used till logger configuration is read and initialized."""
     filename = getframeinfo(cf).filename
@@ -176,7 +196,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
         if args.db:
             args.db = True if args.db == 'DB' else False
         else:
-            args.db = config_value(TESTS, DBTESTS)
+            args.db = parsebool(config_value(TESTS, DBTESTS), defval=True)
         logger.debug("Running tests from %s", "the database." if args.db else "file system.")
         put_in_currentdata('jsonsource', args.db)
         if not args.db:

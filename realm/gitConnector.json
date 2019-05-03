@@ -1,0 +1,8 @@
+{
+    "fileType": "structure",
+    "companyName": "prancer-test",
+    "gitProvider": "git@github.com:crazycodr/prancer-tests.git",
+    "branchName":"master",
+    "username":"git",
+    "sshKeyfile1":"/home/ajey/.ssh/id_rsa_bitbucket"
+}

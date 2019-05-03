@@ -118,6 +118,7 @@ def populate_custom_snapshot(snapshot):
         #     user_secret = get_vault_data(username)
         #     logger.info('Secret: %s', user_secret)
         repopath = tempfile.mkdtemp()
+        logger.info("Repopath: %s", repopath)
         exists, empty = valid_clone_dir(repopath)
         if exists and empty:
             try:
