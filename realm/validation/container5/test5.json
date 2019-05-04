@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "fileType": "test",
     "notification": [],
-    "snapshot": "snapshot5.json",
+    "snapshot": "snapshot5",
     "testSet": [
         {
             "testName": "test5",

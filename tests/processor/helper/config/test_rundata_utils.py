@@ -22,10 +22,10 @@ set_tests_dir()
 def test_init_config():
     runcfg = framework_currentdata()
     rundir = os.path.dirname(runcfg)
-    if os.path.exists(rundir):
-        shutil.rmtree(rundir)
-    assert False == os.path.exists(rundir)
-    assert False == os.path.exists(runcfg)
+    # if os.path.exists(rundir):
+    #    shutil.rmtree(rundir)
+    # assert False == os.path.exists(rundir)
+    assert True == os.path.exists(runcfg)
     init_currentdata()
     assert True == os.path.exists(rundir)
     assert True == os.path.exists(runcfg)

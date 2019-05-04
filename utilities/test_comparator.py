@@ -1,6 +1,7 @@
 """
    Common file for running validator functions.
 """
+
 import argparse
 import sys
 import json
@@ -15,7 +16,7 @@ from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import init_currentdata, delete_currentdata
 from processor.database.database import init_db
 from processor.helper.json.json_utils import get_container_snapshot_json_files,\
-    save_json_to_file, get_field_value, get_container_dir
+    get_field_value, get_container_dir, json_from_file
 from processor.database.database import COLLECTION, get_documents
 from processor.helper.config.config_utils import DATABASE, DBNAME, config_value
 
@@ -28,6 +29,8 @@ def main(arg_vals=None):
     logger.info("Comand: '%s %s'", sys.executable.rsplit('/', 1)[-1], ' '.join(sys.argv))
     cmd_parser = argparse.ArgumentParser("Comparator functional tests.")
     cmd_parser.add_argument('container', action='store', help='Container tests directory.')
+    cmd_parser.add_argument('testfile', action='store', help='test file in the container')
+
     args = cmd_parser.parse_args(arg_vals)
     # Delete the rundata at the end of the script.
     atexit.register(delete_currentdata)
@@ -52,11 +55,13 @@ def main(arg_vals=None):
             doc = docs[0]['json']
             logger.info('#' * 80)
             logger.info(json.dumps(doc, indent=2))
-    test6 = '%s/test8.json' % get_container_dir(args.container)
-    test6_json = save_json_to_file(test6)
-    logger.debug(test6_json)
+    test6 = '%s/%s' % (get_container_dir(args.container), args.testfile)
+    test_json = json_from_file(test6)
+    if not test_json:
+        return
+    logger.debug(test_json)
     otherdata = {'dbname': dbname, 'snapshots': snapshot_ids}
-    for testcase in test6_json['testSet'][0]['cases']:
+    for testcase in test_json['testSet'][0]['cases']:
         rulestr = get_field_value(testcase, 'rule')
         if rulestr:
             main_comparator(rulestr, otherdata)
@@ -65,7 +70,7 @@ def main(arg_vals=None):
 def populate_snapshots_from_file(snapshot_file):
     """Load the file as json and populate from json file."""
     snapshot_coll = {}
-    snapshot_json_data = save_json_to_file(snapshot_file)
+    snapshot_json_data = json_from_file(snapshot_file)
     if not snapshot_json_data:
         logger.info("Snapshot file %s looks to be empty, next!...", snapshot_file)
         return snapshot_coll
@@ -100,12 +105,6 @@ def main_comparator(code, otherdata):
     logger.info('*' * 50)
     logger.debug("All the parsed tokens: %s", children)
     r_i = RuleInterpreter(children, **otherdata)
-    # print('LHS operand: ', r_i.lhs_operand)
-    # print('Comparator: ', r_i.op)
-    # print('RHS operand: ', r_i.rhs_operand)
-    # print('!' * 50)
-    # # print(r_i.match_method(''.join(r_i.lhs)))
-    # # print(r_i.match_method(''.join(r_i.rhs)))
     print(r_i.compare())
 
 

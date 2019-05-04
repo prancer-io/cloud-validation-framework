@@ -54,11 +54,11 @@ ATTRFMT1
     ;
 
 ATTRFMT2
-    : STRING ('[' (QUOTE)? STRING (QUOTE)?  '=' (QUOTE)? STRING (QUOTE)?']')?
+    : STRING ('[' (QUOTE)? STRING (QUOTE)?  '=' (QUOTE)? (NUMBER|STRING) (QUOTE)?']')?
     ;
 
 ATTRFMT3
-    :'['(NUMBER | ((QUOTE)? STRING (QUOTE)?  '=' (QUOTE)? STRING (QUOTE)?))?']'
+    :'['(NUMBER | ((QUOTE)? STRING (QUOTE)?  '=' (QUOTE)? (NUMBER|STRING) (QUOTE)?))?']'
     ;
 
 

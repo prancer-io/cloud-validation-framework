@@ -2,6 +2,7 @@
    Common file for running validations.
 """
 import json
+import re
 import pymongo
 from processor.logging.log_handler import getlogger
 from processor.comparison.interpreter import Comparator
@@ -21,7 +22,9 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
     snapshot_data = {}
     snapshot_json_data = {}
     if filesystem:
-        snapshot_file = '%s/%s/%s' % (get_test_json_dir(), container, snapshot_file)
+        file_name = '%s.json' % snapshot_file if snapshot_file and not \
+            snapshot_file.endswith('.json') else snapshot_file
+        snapshot_file = '%s/%s/%s' % (get_test_json_dir(), container, file_name)
         snapshot_json_data = json_from_file(snapshot_file)
     else:
         parts = snapshot_file.split('.')
@@ -57,25 +60,35 @@ def run_validation_test(version, dbname, collection_data, testcase):
     return result_val
 
 
-def run_file_validation_tests(test_file, container, filesystem=True):
+def run_file_validation_tests(test_file, container, filesystem=True, snapshot_status=None):
     logger.info("*" * 50)
     logger.info("validator tests: %s", test_file)
     test_json_data = json_from_file(test_file)
     if not test_json_data:
         logger.info("Test file %s looks to be empty, next!...", test_file)
-    resultset = run_json_validation_tests(test_json_data, container, filesystem)
+    resultset = run_json_validation_tests(test_json_data, container, filesystem, snapshot_status)
+    finalresult = True
     if resultset:
         snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
         dump_output_results(resultset, container, test_file, snapshot, filesystem)
-        return True
+        for result in resultset:
+            if 'result' in result:
+                if not re.match(r'passed', result['result'], re.I):
+                    finalresult = False
+                    break
     else:
-        return False
+        # TODO: NO test cases in this file.
+        # LOG HERE that no test cases are present in this file.
+        finalresult = False
+    return finalresult
 
 
-def run_json_validation_tests(test_json_data, container, filesystem=True):
+def run_json_validation_tests(test_json_data, container, filesystem=True, snapshot_status=None):
     resultset = []
     if not test_json_data:
         return resultset
+    if not snapshot_status:
+        snapshot_status = {}
     logger.debug(json.dumps(test_json_data, indent=2))
     testsets = get_field_value(test_json_data, 'testSet')
     if not testsets or not isinstance(testsets, list):
@@ -85,6 +98,10 @@ def run_json_validation_tests(test_json_data, container, filesystem=True):
     # Populate the snapshotId => collection for the snapshot.json in the test file.
     collection_data = get_snapshot_id_to_collection_dict(test_json_data['snapshot'],
                                                          container, dbname, filesystem)
+    if test_json_data['snapshot'] in snapshot_status:
+        current_snapshot_status = snapshot_status[test_json_data['snapshot']]
+    else:
+        current_snapshot_status = {}
     for testset in testsets:
         version = get_field_value(testset, 'version')
         testcases = get_field_value(testset, 'cases')
@@ -92,19 +109,22 @@ def run_json_validation_tests(test_json_data, container, filesystem=True):
             logger.info("No testcases in testSet!...")
             continue
         for testcase in testset['cases']:
-            result_val = run_validation_test(version, dbname, collection_data, testcase)
+            result_val = run_validation_test(version, dbname, collection_data,
+                                             testcase)
             resultset.append(result_val)
     return resultset
 
 
-def run_container_validation_tests(container, dbsystem=True):
+def run_container_validation_tests(container, dbsystem=True, snapshot_status=None):
+    if not snapshot_status:
+        snapshot_status = {}
     if dbsystem:
-        return run_container_validation_tests_database(container)
+        return run_container_validation_tests_database(container, snapshot_status)
     else:
-        return run_container_validation_tests_filesystem(container)
+        return run_container_validation_tests_filesystem(container, snapshot_status)
 
 
-def run_container_validation_tests_filesystem(container):
+def run_container_validation_tests_filesystem(container, snapshot_status=None):
     """Get test files from the filesystem."""
     logger.info("Starting validation tests")
     reporting_path = config_value('REPORTING', 'reportOutputFolder')
@@ -112,18 +132,21 @@ def run_container_validation_tests_filesystem(container):
     logger.info(json_dir)
     test_files = get_json_files(json_dir, JSONTEST)
     logger.info('\n'.join(test_files))
+    result = True
     for test_file in test_files:
-        run_file_validation_tests(test_file, container, True)
-    return True
+        val = run_file_validation_tests(test_file, container, True, snapshot_status)
+        result = result and val
+    return result
 
 
-def run_container_validation_tests_database(container):
+def run_container_validation_tests_database(container, snapshot_status=None):
     """ Get the test files from the database"""
     dbname = config_value(DATABASE, DBNAME)
     collection = config_value(DATABASE, collectiontypes[TEST])
     qry = {'container': container}
     sort = [sort_field('timestamp', False)]
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
+    finalresult = True
     if docs and len(docs):
         logger.info('Number of test Documents: %s', len(docs))
         for doc in docs:
@@ -133,7 +156,16 @@ def run_container_validation_tests_database(container):
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
                     test_file = doc['name'] if 'name' in doc else ''
                     dump_output_results(resultset, container, test_file, snapshot, False)
-    return True
+                    for result in resultset:
+                        if 'result' in result:
+                            if not re.match(r'passed', result['result'], re.I):
+                                finalresult = False
+                                break
+    else:
+        # TODO: Didnt find any tests
+        # LOG HERE
+        finalresult = False
+    return finalresult
 
 
 def container_snapshots_filesystem(container):

@@ -1,6 +1,9 @@
 # Generated from comparator.g4 by ANTLR 4.7.1
 from antlr4 import *
-from processor.comparison.comparisonantlr.comparatorParser import comparatorParser
+if __name__ is not None and "." in __name__:
+    from .comparatorParser import comparatorParser
+else:
+    from comparatorParser import comparatorParser
 
 # This class defines a complete listener for a parse tree produced by comparatorParser.
 class comparatorListener(ParseTreeListener):

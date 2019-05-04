@@ -95,19 +95,21 @@ def test_populate_azure_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_azure.get_client_secret', mock_get_client_secret)
     from processor.connector.snapshot_azure import populate_azure_snapshot
     val = populate_azure_snapshot(snapshot, 'azure')
-    assert val == True
+    assert val == {'1': True}
     snapshot['testUser'] = 'abcd'
     val = populate_azure_snapshot(snapshot, 'azure')
-    assert val == False
+    assert val == {'1': False}
 
 def test_populate_azure_snapshot_invalid_token(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_azure.http_get_request', mock_http_get_request_happy)
     monkeypatch.setattr('processor.connector.snapshot_azure.get_access_token', mock_empty_get_access_token)
     monkeypatch.setattr('processor.connector.snapshot_azure.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_azure.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_azure.get_client_secret', mock_get_client_secret)
     from processor.connector.snapshot_azure import populate_azure_snapshot
     snapshot["testUser"] = "ajeybk1@kbajeygmail.onmicrosoft.com"
     val = populate_azure_snapshot(snapshot, 'azure')
-    assert val == False
+    assert val == {'1': False}
 
 
 def test_populate_azure_snapshot_invalid_secret(monkeypatch):
@@ -120,4 +122,4 @@ def test_populate_azure_snapshot_invalid_secret(monkeypatch):
     from processor.connector.snapshot_azure import populate_azure_snapshot
     snapshot["testUser"] = "ajeybk1@kbajeygmail.onmicrosoft.com"
     val = populate_azure_snapshot(snapshot, 'azure')
-    assert val == False
+    assert val == {'1': False}

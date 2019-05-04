@@ -4,10 +4,10 @@
     "fileType":"snapshot",
     "snapshots": [
         {
-            "source": "parameterStructure1.json",
+            "source": "parameterStructure",
             "type": "git",
-            "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
-            "branchName": "br_kbajey_feature",
+            "testUser": "ajey.khanapuri@liquware.com",
+            "branchName": "master",
             "nodes": [
                 {
                     "snapshotId": "41",

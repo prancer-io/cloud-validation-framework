@@ -1,0 +1,34 @@
+{
+    "fileType": "test",
+    "snapshot": "snapshot",
+    "testSet": [
+        {
+            "testName ": "Ensure port 80 and 443 rules exists",
+            "version": "0.1",
+            "cases": [
+                {
+                    "testId": "1",
+                    "rule": "exist({1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=80])"
+                },
+                {
+                    "testId": "2",
+                    "rule": "exist({1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=443])"
+                }
+            ]
+        },
+        {
+            "testName ": "Ensure port 22 rule exists and is only open to internal",
+            "version": "0.1",
+            "cases": [
+                {
+                    "testId": "3",
+                    "rule": "exist({1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress[])"
+                },
+                {
+                    "testId": "4",
+                    "rule": "{1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'='22'].CidrIp='172.16.0.0/16'"
+                }
+            ]
+        }
+    ]
+}

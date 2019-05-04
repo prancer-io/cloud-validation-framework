@@ -4,7 +4,7 @@
     "fileType":"snapshot",
     "snapshots": [
         {
-            "source": "azureStructure1.json",
+            "source": "azureStructure1",
             "type": "azure",
             "testUser": "ajey.khanapuri@liquware.com",
             "subscriptionId": "<Subscription Id>".

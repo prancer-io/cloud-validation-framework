@@ -211,8 +211,8 @@ class RuleInterpreter:
         if self.is_method(expr):
             method, method_args = self.match_method(expr)
             if method == 'exist':
-                new_args = method_args.rsplit('.', 1)[0]
-                val = self.eval_expression(new_args)
+                # new_args = method_args.rsplit('.', 1)[0]
+                val = self.eval_expression(method_args)
             else:
                 val = self.eval_expression(method_args)
             return self.apply_method(method, val, method_args)
@@ -222,9 +222,10 @@ class RuleInterpreter:
 
     def apply_method(self, method, val, method_args):
         if method == 'exist':
-            new_args = method_args.rsplit('.', 1)[-1]
-            new_args = re.sub(r'\[(.*)\]', '', new_args)
-            val = True if val and new_args in val else False
+            # new_args = method_args.rsplit('.', 1)[-1]
+            # new_args = re.sub(r'\[(.*)\]', '', new_args)
+            # val = True if val and new_args in val else False
+            val = True if val else False
         elif method == 'count':
             val = len(val) if hasattr(val, '__len__') else 0
         return val
@@ -266,7 +267,7 @@ class RuleInterpreter:
                                 value = index_fields[-1].replace("'", '').strip()
                                 arrretval = None
                                 for index_doc in retval:
-                                    if name in index_doc and index_doc[name] == value:
+                                    if name in index_doc and str(index_doc[name]) == value:
                                         arrretval = index_doc
                                         break
                                 retval = arrretval

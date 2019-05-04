@@ -89,6 +89,8 @@ def validate_json_data(json_data, filetype):
                     isinstance(json_data['testSet'], list)
         elif filetype == 'structure':
             valid = True if json_data else False
+        elif filetype == 'notifications':
+            valid = True if json_data else False
     except Exception as ex:
         logger.info('Exception json population: %s', ex)
         valid = False if filetype != 'structure' else True
@@ -106,7 +108,7 @@ def populate_json_main(arg_vals=None):
     cmd_parser.add_argument('--file', action='store', default=None,
                             help='Populate only this file')
     cmd_parser.add_argument('--type', action='store', default='structure',
-                            choices=['test', 'structure', 'snapshot', 'output'])
+                            choices=['test', 'structure', 'snapshot', 'output', 'notifications'])
 
     args = cmd_parser.parse_args(arg_vals)
     # Delete the rundata at the end of the script.

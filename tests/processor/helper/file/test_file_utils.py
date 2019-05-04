@@ -35,19 +35,6 @@ def mock_is_dir_check(dirname):
     return True if dirname in dirs else False
 
 
-@pytest.fixture
-def create_temp_file():
-
-    def create_test_file(fname):
-        newpath = tempfile.mkdtemp()
-        os.chdir(newpath)
-        with open(fname, 'w') as f:
-            f.write('hello')
-        return '%s/%s' % (newpath, fname)
-
-    return create_test_file
-
-
 def test_none_directory():
     assert False == exists_dir(None)
 

@@ -14,6 +14,8 @@ from processor.helper.config.config_utils import framework_dir,\
 FWLOGGER = None
 FWLOGFILENAME = None
 MONGOLOGGER = None
+DBLOGGER = None
+dbhandler = None
 
 
 
@@ -21,6 +23,7 @@ class MongoDBHandler(logging.Handler):
     """Customized logging handler that puts logs to the database, pymongo required
     """
     def __init__(self, dbname):
+        global DBLOGGER
         logging.Handler.__init__(self)
         try:
             dbconnection = MongoClient(port=27017, serverSelectionTimeoutMS=3000)
@@ -29,12 +32,35 @@ class MongoDBHandler(logging.Handler):
                 db = dbconnection[dbname]
             else:
                 db = dbconnection['test']
-            collection = 'logs_%s' % datetime.datetime.now().strftime('%Y%M%d%H%M%S')
+            # collection = 'logs_%s' % datetime.datetime.now().strftime('%Y%M%d%H%M%S')
             if db:
-                coll = db[collection]
-                self.collection = coll
+                self.db = db
+                self.set_log_collection()
+            else:
+                self.collection = None
+                self.coll_name = ''
+                # coll = db[collection]
+                # self.db = db
+                # self.collection = coll
+                # # DBLOGGER = '%s:%s' % (dbname, collection)
+                # DBLOGGER = collection
         except ServerSelectionTimeoutError as ex:
             self.collection = None
+
+    def set_log_collection(self):
+        global DBLOGGER
+        coll_name = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        coll = self.db[coll_name]
+        self.collection = coll
+        DBLOGGER = coll_name
+        self.coll_name = coll_name
+
+    def get_log_collection(self):
+        return self.coll_name
+
+    def reset_log_collection(self):
+        self.collection = None
+        self.coll_name = ''
 
     def emit(self, record):
         """Add record to the database"""
@@ -59,7 +85,7 @@ class MongoDBHandler(logging.Handler):
 
 def logging_fw(fwconfigfile):
     """Framework file logging"""
-    global FWLOGFILENAME
+    global FWLOGFILENAME, dbhandler
     fwlogfile = '%Y%m%d-%H%M%S'
     if not fwconfigfile:
         fwconfigfile = framework_config()
@@ -88,8 +114,8 @@ def logging_fw(fwconfigfile):
     logger = logging.getLogger(__name__)
     logger.propagate = log_config['propagate']
     # logpath = '%s/log/' % get_logdir(fw_cfg)
-    logpath = get_logdir(fw_cfg)
-    FWLOGFILENAME = '%s%s.log' % (logpath, datetime.datetime.today().strftime(fwlogfile))
+    _, logpath = get_logdir(fw_cfg)
+    FWLOGFILENAME = '%s/%s.log' % (logpath, datetime.datetime.today().strftime(fwlogfile))
     handler = RotatingFileHandler(
         FWLOGFILENAME,
         maxBytes=1024 * 1024 * log_config['size'],
@@ -117,11 +143,36 @@ def getlogger(fw_cfg=None):
     return FWLOGGER
 
 def get_logdir(fw_cfg):
-    logdir = '%s/log/' % framework_dir()
+    log_writeable = True
+    if not fw_cfg:
+        cfgini = framework_config()
+        fw_cfg = get_config_data(cfgini)
+    logdir = '%s' % framework_dir()
     if fw_cfg and 'LOGGING' in fw_cfg:
         fwconf = fw_cfg['LOGGING']
-        if 'logdir' in fwconf and fwconf['logdir'] and os.path.isdir(fwconf['logdir']):
-            logdir = '%s/log/' % fwconf['logdir']
-    if not os.path.exists(logdir):
-        os.makedirs(logdir)
-    return logdir
+        if 'logFolder' in fwconf and fwconf['logFolder'] and os.path.isdir(logdir):
+            logdir = '%s/%s' % (logdir, fwconf['logFolder'])
+            try:
+                if not os.path.exists(logdir):
+                    os.makedirs(logdir)
+            except:
+                log_writeable = False
+    try:
+        if log_writeable:
+            from pathlib import Path
+            testfile = '%s/%d' % (logdir, int(time.time()))
+            Path(testfile).touch()
+            if os.path.exists(testfile):
+                os.remove(testfile)
+            else:
+                log_writeable = False
+    except:
+        log_writeable = False
+    return log_writeable, logdir
+
+def get_dblogger():
+    return DBLOGGER
+
+def get_dblog_handler():
+    return dbhandler
+

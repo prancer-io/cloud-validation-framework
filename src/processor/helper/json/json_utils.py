@@ -13,11 +13,13 @@ JSONTEST = 'test'
 TEST = 'test'
 OUTPUT = 'output'
 STRUCTURE = 'structure'
+NOTIFICATIONS = 'notifications'
 collectiontypes = {
     TEST: 'TEST',
     STRUCTURE: 'STRUCTURE',
     SNAPSHOT: 'SNAPSHOT',
-    OUTPUT: 'OUTPUT'
+    OUTPUT: 'OUTPUT',
+    NOTIFICATIONS: 'NOTIFICATIONS'
 }
 logger = getlogger()
 
