@@ -1,0 +1,64 @@
+[{
+  "_id" : "5ccbb91174562101c3ef604e",
+  "checksum" : "64c44dbce45593d36483a5f073c1743a",
+  "collection" : "security_groups",
+  "json" : {
+    "Resources" : {
+      "PrancerTutorialSecGroup" : {
+        "Properties" : {
+          "GroupDescription" : "Slightly more complex SG to show rule matching",
+          "GroupName" : "prancer-tutorial-sg",
+          "SecurityGroupIngress" : [
+          {
+            "CidrIp" : "0.0.0.0/0",
+            "Description" : "Allow anyone to access this port",
+            "FromPort" : 80,
+            "IpProtocol" : "tcp",
+            "ToPort" : 80
+          },
+          {
+            "CidrIp" : "0.0.0.0/0",
+            "Description" : "Allow anyone to access this port from outside",
+            "FromPort" : 443,
+            "IpProtocol" : "tcp",
+            "ToPort" : 443
+          },
+          {
+            "CidrIp" : "172.16.0.0/16",
+            "Description" : "Allow anyone from the VPC to access SSH ports",
+            "FromPort" : 22,
+            "IpProtocol" : "tcp",
+            "ToPort" : 22
+          }
+          ],
+          "VpcId" : {
+            "Ref" : "PrancerTutorialVpc"
+          }
+        },
+        "Type" : "AWS::EC2::SecurityGroup"
+      },
+      "PrancerTutorialVpc" : {
+        "Properties" : {
+          "CidrBlock" : "172.16.0.0/16",
+          "EnableDnsHostnames" : true,
+          "EnableDnsSupport" : true,
+          "InstanceTenancy" : "default"
+        },
+        "Type" : "AWS::EC2::VPC"
+      }
+    }
+  },
+  "node" : {
+    "collection" : "security_groups",
+    "path" : "devops/cf/mytemplate.json",
+    "snapshotId" : "1",
+    "type" : "json"
+  },
+  "path" : "devops/cf/mytemplate.json",
+  "queryuser" : "",
+  "reference" : "master",
+  "snapshotId" : "1",
+  "source" : "gitConnector",
+  "structure" : "git",
+  "timestamp" : 1556855057031
+}]

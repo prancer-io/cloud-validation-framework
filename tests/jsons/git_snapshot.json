@@ -1,0 +1,58 @@
+[
+  {
+    "_id" : "5ca482597456216a40c75cd0",
+    "checksum" : "99914b932bd37a50b983c5e7c90ae93b",
+    "collection" : "snapshots",
+    "container" : "gitcontainer",
+    "json" : {
+      "contentVersion" : "1.0.0.0",
+      "fileType" : "snapshot",
+      "snapshots" : [
+        {
+          "source": "gitConnector",
+          "type": "git",
+          "testUser": "git",
+          "nodes": [
+            {
+              "snapshotId": "1",
+              "type": "json",
+              "collection": "security_groups",
+              "path": "devops/cf/mytemplate.json"
+            }
+          ]
+        }
+      ]
+    },
+    "name" : "snapshot",
+    "timestamp" : "1554285145993",
+    "type" : "snapshot"
+  },
+  {
+	"_id" : "5ca482597456216a40c75cd0",
+	"checksum" : "99914b932bd37a50b983c5e7c90ae93b",
+	"collection" : "snapshots",
+	"container" : "gitcontainer",
+	"json" : {
+      "contentVersion" : "1.0.0.0",
+      "fileType" : "snapshot",
+      "snapshots" : [
+        {
+          "source": "gitConnector",
+          "type": "git",
+          "testUser": "git",
+          "nodes": [
+            {
+              "snapshotId": "2",
+              "type": "json",
+              "collection": "security_groups",
+              "path": "devops/cf/mytemplate.json"
+            }
+          ]
+        }
+      ]
+	},
+	"name" : "snapshot1.json",
+	"timestamp" : "1554285145993",
+	"type" : "snapshot"
+  }
+]

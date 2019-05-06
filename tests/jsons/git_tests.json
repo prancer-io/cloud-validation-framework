@@ -1,0 +1,86 @@
+[
+  {
+    "_id" : "5ca482597456216a40c75cd0",
+    "checksum" : "99914b932bd37a50b983c5e7c90ae93b",
+    "collection" : "tests",
+    "container" : "gitcontainer",
+    "json" : {
+      "fileType": "test",
+      "snapshot": "snapshot",
+      "testSet": [
+        {
+          "testName ": "Ensure port 80 and 443 rules exists",
+          "version": "0.1",
+          "cases": [
+            {
+              "testId": "1",
+              "rule": "exist({1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=80])"
+            },
+            {
+              "testId": "2",
+              "rule": "exist({1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=443])"
+            }
+          ]
+        },
+        {
+          "testName ": "Ensure port 22 rule exists and is only open to internal",
+          "version": "0.1",
+          "cases": [
+            {
+              "testId": "3",
+              "rule": "exist({1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress[])"
+            },
+            {
+              "testId": "4",
+              "rule": "{1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'='22'].CidrIp='172.16.0.0/16'"
+            }
+          ]
+        }
+      ]},
+    "name" : "test",
+    "timestamp" : "1554285145993",
+    "type" : "test"
+  },
+  {
+    "_id" : "5ca482597456216a40c75cd0",
+    "checksum" : "99914b932bd37a50b983c5e7c90ae93b",
+    "collection" : "tests",
+    "container" : "gitcontainer",
+    "json" : {
+      "fileType": "test",
+      "snapshot": "snapshot1.json",
+      "testSet": [
+        {
+          "testName ": "Ensure port 80 and 443 rules exists",
+          "version": "0.1",
+          "cases": [
+            {
+              "testId": "11",
+              "rule": "exist({1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=80])"
+            },
+            {
+              "testId": "12",
+              "rule": "exist({1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=443])"
+            }
+          ]
+        },
+        {
+          "testName ": "Ensure port 22 rule exists and is only open to internal",
+          "version": "0.1",
+          "cases": [
+            {
+              "testId": "13",
+              "rule": "exist({1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress[])"
+            },
+            {
+              "testId": "14",
+              "rule": "{1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'='22'].CidrIp='172.16.0.0/16'"
+            }
+          ]
+        }
+      ]},
+    "name" : "test1",
+    "timestamp" : "1554285145993",
+    "type" : "test"
+  }
+]
