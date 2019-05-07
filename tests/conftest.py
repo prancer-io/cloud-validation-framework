@@ -7,6 +7,7 @@ TESTSDIR = os.getenv('SOLUTIONDIR', os.path.join(
     os.path.abspath(os.path.dirname(__file__)), '../'))
 data_dict = {'a': 'b', 'c': {'d': 'e'}, 'f': {'g': {'h': 1}}}
 os.environ['UNITTEST'] = "true"
+# os.environ['LOGLEVEL'] = 'INFO'
 
 
 @pytest.fixture
@@ -85,4 +86,17 @@ def create_temp_text():
         return fname
 
     return create_test_temp_text
+
+
+def load_test_json(filename):
+    fullname = '%s/tests/jsons/%s' % (TESTSDIR, filename)
+    # print(fullname)
+    jsondata = {}
+    if os.path.exists(fullname) and os.path.isfile(fullname):
+        with open(fullname) as jsonfile:
+            data = jsonfile.read()
+        if data:
+            jsondata = json.loads(data)
+    return jsondata
+
 
