@@ -25,7 +25,7 @@ logger = getlogger()
 def convert_to_json(file_path, node_type):
     json_data = {}
     if node_type == 'json':
-        json_data = json_from_file(file_path)
+        json_data = json_from_file(file_path, escape_chars=['$'])
     elif node_type == 'terraform':
         with open(file_path, 'r') as fp:
             json_data = hcl.load(fp)

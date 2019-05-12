@@ -45,13 +45,17 @@ def json_from_string(json_str):
     return None
 
 
-def json_from_file(jsonfile):
+def json_from_file(jsonfile, escape_chars=None):
     """ Get json data from the file."""
     jsondata = None
     try:
         if exists_file(jsonfile):
             with open(jsonfile) as infile:
-                jsondata = json.loads(infile.read(), object_pairs_hook=OrderedDict)
+                data = infile.read()
+                if escape_chars and isinstance(escape_chars, list):
+                    for escape_char in escape_chars:
+                        data = data.replace(escape_char, '\\\%s' % escape_char)
+                jsondata = json.loads(data, object_pairs_hook=OrderedDict)
     except:
         logger.debug('Failed to load json from file: %s', jsonfile)
     return jsondata
