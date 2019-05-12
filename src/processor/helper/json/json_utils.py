@@ -90,6 +90,12 @@ def check_field_exists(data, parameter):
     return present
 
 
+def get_field_value_with_default(data, parameter, defval):
+    """get json value for a nested attribute, else return default value."""
+    retval = get_field_value(data, parameter)
+    return retval if retval else defval
+
+
 def get_field_value(data, parameter):
     """get json value for a nested attribute."""
     retval = None

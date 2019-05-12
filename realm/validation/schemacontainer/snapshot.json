@@ -10,7 +10,7 @@
                     "snapshotId": "1",
                     "type": "json",
                     "collection": "security_groups",
-                    "path": "devops/cf/mytemplate.json"
+                    "path": "devops/arm/mytemplate.json"
                 }
             ]
         }

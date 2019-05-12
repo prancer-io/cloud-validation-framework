@@ -61,10 +61,12 @@ def main(arg_vals=None):
         return
     logger.debug(test_json)
     otherdata = {'dbname': dbname, 'snapshots': snapshot_ids}
-    for testcase in test_json['testSet'][0]['cases']:
-        rulestr = get_field_value(testcase, 'rule')
-        if rulestr:
-            main_comparator(rulestr, otherdata)
+    # for testcase in test_json['testSet'][0]['cases']:
+    for testset in test_json['testSet']:
+        for testcase in testset['cases']:
+            rulestr = get_field_value(testcase, 'rule')
+            if rulestr:
+                main_comparator(rulestr, otherdata)
 
 
 def populate_snapshots_from_file(snapshot_file):
@@ -98,6 +100,7 @@ def main_comparator(code, otherdata):
     stream = CommonTokenStream(lexer)
     parser = comparatorParser(stream)
     tree = parser.expression()
+    print('#' * 50)
     print(tree.toStringTree(recog=parser))
     children = []
     for child in tree.getChildren():
