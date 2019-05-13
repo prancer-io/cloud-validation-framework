@@ -92,7 +92,7 @@ import shutil
 import hcl
 import re
 import os
-import subprocess
+from subprocess import Popen, PIPE
 import urllib.parse
 from git import Repo
 from git import Git
@@ -333,9 +333,9 @@ def run_subprocess_cmd(cmd, ignoreerror=False, maskoutput=False, outputmask="Err
     if cmd:
         if isinstance(cmd, list):
             cmd = ' '.join(cmd)
-        myprocess = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE,
-                                     stdin=subprocess.PIPE)
+        myprocess = Popen(cmd, shell=True, stdout=PIPE,
+                                     stderr=PIPE,
+                                     stdin=PIPE)
         out, err = myprocess.communicate()
         result = out.rstrip()
         errresult = err.rstrip() if err else None
@@ -343,11 +343,11 @@ def run_subprocess_cmd(cmd, ignoreerror=False, maskoutput=False, outputmask="Err
             result = result.decode()
         if errresult and isinstance(errresult, bytes):
             errresult = errresult.decode()
-            if not ignoreerror and errresult:
-                if maskoutput:
-                    logger.info("OUTPUT: %s, ERROR: %s", outputmask, outputmask)
-                else:
-                    logger.info("CMD: '%s', OUTPUT: %s, ERROR: %s", cmd, result, errresult)
+        if not ignoreerror and errresult:
+            if maskoutput:
+                logger.info("OUTPUT: %s, ERROR: %s", outputmask, outputmask)
+            else:
+                logger.info("CMD: '%s', OUTPUT: %s, ERROR: %s", cmd, result, errresult)
     return errresult, result
 
 
