@@ -1,12 +1,12 @@
 {
   "fileType": "structure",
   "companyName": "prancer-test",
-  "gitProvider": "git@github.com:crazycodr/prancer-tests.git",
+  "gitProvider": "git@github.com:ajeybk/mytest.git",
   "branchName": "master",
   "username": null,
   "password": null,
-  "sshKeyfile": null,
-  "private": false,
+  "sshKeyfile": "/home/ajey/ssh_working/id_rsa_bitbucket",
+  "private": true,
   "sshHost": "github.com",
   "sshUser": "git"
 }

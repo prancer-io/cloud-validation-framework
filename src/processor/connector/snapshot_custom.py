@@ -1,19 +1,108 @@
 """Common file for running validator functions."""
+# 1) github
+# 1a) private
+# HTTP - https://github.com/ajeybk/mytest.git
+# username - kbajey@gmail.com or ajeybk
+# password - prompt and env variable or form in the https url
+# SSH - git@github.com:ajeybk/mytest.git
+# identity file for host - /home/ajey/ssh_working/id_rsa_bitbucket
+
+# 1b) public
+# HTTP - https://github.com/prancer-io/cloud-validation-framework.git
+# username - kbajey@gmail.com or ajeybk
+# password - should not prompt, even if passed should work in url or from env variable, should work
+# SSH - git@github.com:prancer-io/cloud-validation-framework.git
+# identity file for host - /home/ajey/ssh_working/id_rsa_bitbucket
+
+# 2) gitlab
+# 2a) private
+# HTTP - https://gitlab.com/tsdeepak/ulic_backend.git
+# username - kbajey@gmail.com or kbajey
+# password - prompt and env variable or form in the https url
+# SSH - git@gitlab.com:kbajey/myrepo.git
+# identity file for host - /home/ajey/ssh_working/id_rsa_bitbucket
+
+# 2b) public
+# HTTP - https://gitlab.com/kbajey/myrepo.git
+# username - kbajey@gmail.com or kbajey
+# password - prompt and env variable or form in the https url
+# SSH - git@gitlab.com:kbajey/myrepo.git
+# identity file for host - /home/ajey/ssh_working/id_rsa_bitbucket
+
+
+# 3) bitbucket
+# 3a) private
+# HTTP - https://ajeybk@bitbucket.org/ajeybk/azframework.git
+# username - kbajey@gmail.com or ajeybk
+# password - prompt and env variable or form in the https url
+# SSH - git@bitbucket.org:ajeybk/azframework.git
+# identity file for host - /home/ajey/ssh_working/id_rsa_bitbucket
+
+# 3b) public
+# HTTP - https://ajeybk@bitbucket.org/ajeybk/aws-cli.git
+# HTTP - https://ajeybk@bitbucket.org/ajeybk/mytestpub.git
+# username - kbajey@gmail.com or ajeybk
+# password - prompt and env variable or form in the https url
+# SSH - git@bitbucket.org:ajeybk/aws-cli.git
+# SSH - git@bitbucket.org:ajeybk/mytestpub.git
+# identity file for host - /home/ajey/ssh_working/id_rsa_bitbucket
+
+# 4) visualstudio
+# 4a) private
+# HTTP - https://ebizframework.visualstudio.com/whitekite/_git/whitekite
+# HTTP - https://ajey.khanapuri%40liquware.com@ebizframework.visualstudio.com/whitekite/_git/whitekite
+# username - ajey.khanapuri@liquware.com
+# password - prompt and env variable or form in the https url
+# SSH - Ebizframework@vs-ssh.visualstudio.com:v3/Ebizframework/whitekite/whitekite
+# identity file for host - /home/ajey/ssh_working/id_rsa_azure
+# 4b) public
+
+
+
+#### Algorithm
+# Add a attribute 'sshhost' : 'vs-ssh.visualstudio.com' or 'bitbucket.org' or 'gitlab.com' or 'github.com'
+# Add a attribute 'sshuser': 'git' # All git servers expect 'git' as the user, but if there is an exception
+# Add a attribute 'private': true|false
+# For backward compatability it is assumed to be true.
+# If giturl starts with https://, it is https based access otherwise ssh based access.
+
+# For https public repo, username and password do not harm.
+# For private https repo, read username from connector, if not present ignore.
+# For https private repo, if username given, then read user_secret from connector, if present use,
+# then check env variable, then prompt only
+
+# For public ssh repo, ssh_key_file has to be present.
+# Public repo clone with ssh_key_file does not require ssh/config file, whereas StrictHostKeyChecking=no
+# may be required so that the user prompt may come up if githost is not present in known hosts.
+# For private ssh repo with ssh_key_file, ssh/config file has to be created using 'sshhost', 'sshuser',
+#  'ssh_key_file'
+# Host <sshhost>
+#   HostName <sshhost>
+#   User <sshuser>
+#   IdentityFile <ssh_key_file>
+#
+# Host *
+#   IdentitiesOnly yes
+#   ServerAliveInterval 100
 import json
 import hashlib
 import time
 import tempfile
 import shutil
 import hcl
+import re
 import os
+from subprocess import Popen, PIPE
+import urllib.parse
 from git import Repo
 from git import Git
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path, remove_file
 from processor.logging.log_handler import getlogger
 from processor.connector.vault import get_vault_data
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    collectiontypes, STRUCTURE
+    collectiontypes, STRUCTURE, get_field_value_with_default
 from processor.helper.config.config_utils import config_value, get_test_json_dir
+from processor.helper.config.rundata_utils import get_from_currentdata
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME
 from processor.helper.httpapi.restapi_azure import json_source
@@ -25,7 +114,7 @@ logger = getlogger()
 def convert_to_json(file_path, node_type):
     json_data = {}
     if node_type == 'json':
-        json_data = json_from_file(file_path)
+        json_data = json_from_file(file_path, escape_chars=['$'])
     elif node_type == 'terraform':
         with open(file_path, 'r') as fp:
             json_data = hcl.load(fp)
@@ -92,7 +181,7 @@ def get_node(repopath, node, snapshot_source, ref):
     return db_record
 
 
-def populate_custom_snapshot(snapshot):
+def populate_custom_snapshot_orig(snapshot):
     """ Populates the resources from git."""
     user_secret = None
     dbname = config_value('MONGODB', 'dbname')
@@ -156,6 +245,7 @@ def populate_custom_snapshot(snapshot):
     return snapshot_data
 
 
+
 def valid_clone_dir(dirname):
     if exists_dir(dirname):
         exists = True
@@ -170,6 +260,7 @@ def valid_clone_dir(dirname):
         else:
             empty = False
     return exists, empty
+
 
 def restore_ssh_dir_after_clone(restore, olddir, newdir):
     if restore:
@@ -209,3 +300,220 @@ def make_ssh_dir_before_clone(ssh_key_file):
             f.write('Host *\n')
             f.write('    StrictHostKeyChecking no\n')
     return restore, olddir, newdir, ssh_file
+
+
+def create_ssh_config(ssh_dir, ssh_key_file, ssh_host, ssh_user):
+    ssh_config = '%s/config' % ssh_dir
+    if exists_file(ssh_config):
+        logger.error("Git config: %s already exists, cannot modify it!")
+        return None
+    with open(ssh_config, 'w') as f:
+        f.write('Host %s\n' % ssh_host)
+        f.write('   HostName %s\n' % ssh_host)
+        f.write('   User %s\n' % ssh_user)
+        f.write('   IdentityFile %s\n\n' % ssh_key_file)
+        f.write('Host *\n')
+        f.write('    IdentitiesOnly yes\n')
+        f.write('    ServerAliveInterval 100\n')
+    return ssh_config
+
+
+def get_git_pwd(key='GIT_PWD'):
+    """ Return the git password for https connection"""
+    git_pwd = get_from_currentdata('GIT_PWD')
+    if not git_pwd:
+        git_pwd = os.getenv(key, None)
+    return git_pwd
+
+
+def run_subprocess_cmd(cmd, ignoreerror=False, maskoutput=False, outputmask="Error output is masked"):
+    """ Run a sub-process command"""
+    result = ''
+    errresult = None
+    if cmd:
+        if isinstance(cmd, list):
+            cmd = ' '.join(cmd)
+        myprocess = Popen(cmd, shell=True, stdout=PIPE,
+                                     stderr=PIPE,
+                                     stdin=PIPE)
+        out, err = myprocess.communicate()
+        result = out.rstrip()
+        errresult = err.rstrip() if err else None
+        if isinstance(result, bytes):
+            result = result.decode()
+        if errresult and isinstance(errresult, bytes):
+            errresult = errresult.decode()
+        if not ignoreerror and errresult:
+            if maskoutput:
+                logger.info("OUTPUT: %s, ERROR: %s", outputmask, outputmask)
+            else:
+                logger.info("CMD: '%s', OUTPUT: %s, ERROR: %s", cmd, result, errresult)
+    return errresult, result
+
+
+def git_clone_dir(connector):
+    clonedir = None
+    repopath = tempfile.mkdtemp()
+    subdir = False
+    if connector and isinstance(connector, dict):
+        giturl = get_field_value(connector, 'gitProvider')
+        if not giturl:
+            logger.error("Git connector does not have valid git provider URL")
+            return repopath, clonedir
+        brnch = get_field_value_with_default(connector, 'branchName', 'master')
+        isprivate = get_field_value(connector, 'private')
+        isprivate = True if isprivate is None or not isinstance(isprivate, bool) else isprivate
+        logger.info("Repopath: %s", repopath)
+        http_match = re.match(r'^http(s)?://', giturl, re.I)
+        if http_match:
+            logger.info("Http (private:%s) giturl: %s, Repopath: %s", "YES" if isprivate else "NO",
+                        giturl, repopath)
+            username = get_field_value(connector, 'username')
+            if username:
+                pwd = get_field_value(connector, 'password')
+                schema = giturl[:http_match.span()[-1]]
+                other_part = giturl[http_match.span()[-1]:]
+                pwd = pwd if pwd else get_git_pwd()
+                if pwd:
+                    git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username),
+                                                        urllib.parse.quote_plus(pwd), other_part, repopath)
+                else:
+                    git_cmd = 'git clone %s%s@%s %s' % (schema, urllib.parse.quote_plus(username),
+                                                     other_part, repopath)
+            else:
+                git_cmd = 'git clone %s %s' % (giturl, repopath)
+        else:
+            logger.info("SSH (private:%s) giturl: %s, Repopath: %s", "YES" if isprivate else "NO",
+                        giturl, repopath)
+            if isprivate:
+                ssh_key_file = get_field_value(connector, 'sshKeyfile')
+                if not exists_file(ssh_key_file):
+                    logger.error("Git connector points to a non-existent ssh keyfile!")
+                    return repopath, clonedir
+                ssh_host = get_field_value(connector, 'sshHost')
+                ssh_user = get_field_value_with_default(connector, 'sshUser', 'git')
+                if not ssh_host:
+                    logger.error("SSH host not set, could be like github.com, gitlab.com, 192.168.1.45 etc")
+                    return repopath, clonedir
+                ssh_dir = '%s/.ssh' % repopath
+                if exists_dir(ssh_dir):
+                    logger.error("Git ssh dir: %s already exists, cannot recreate it!", ssh_dir)
+                    return repopath, clonedir
+                os.mkdir('%s/.ssh' % repopath, 0o700)
+                ssh_cfg = create_ssh_config(ssh_dir, ssh_key_file, ssh_host, ssh_user)
+                if not ssh_cfg:
+                    logger.error("Creation of Git ssh config in dir: %s failed!", ssh_dir)
+                    return repopath, clonedir
+                git_ssh_cmd = 'ssh -o "StrictHostKeyChecking=no" -F %s' % ssh_cfg
+                git_cmd = 'git clone %s %s/tmpclone' % (giturl, repopath)
+                subdir = True
+            else:
+                git_ssh_cmd = 'ssh -o "StrictHostKeyChecking=no"'
+                git_cmd = 'git clone %s %s' % (giturl, repopath)
+            os.environ['GIT_SSH_COMMAND'] = git_ssh_cmd
+            logger.info("GIT_SSH_COMMAND=%s", git_ssh_cmd)
+        git_cmd = '%s --branch %s' % (git_cmd, brnch)
+        logger.info("os.system(%s)", git_cmd)
+        if git_cmd:
+            run_subprocess_cmd(git_cmd)
+            checkdir = '%s/tmpclone' % repopath if subdir else repopath
+            clonedir = checkdir if exists_dir('%s/.git' % checkdir) else None
+        if 'GIT_SSH_COMMAND' in os.environ:
+            os.environ.pop('GIT_SSH_COMMAND')
+    return repopath, clonedir
+
+
+def populate_custom_snapshot(snapshot):
+    """ Populates the resources from git."""
+    dbname = config_value('MONGODB', 'dbname')
+    snapshot_source = get_field_value(snapshot, 'source')
+    sub_data = get_custom_data(snapshot_source)
+    snapshot_nodes = get_field_value(snapshot, 'nodes')
+    snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
+    if valid_snapshotids and sub_data and snapshot_nodes:
+        baserepo, repopath = git_clone_dir(sub_data)
+        if repopath:
+            brnch = get_field_value_with_default(sub_data, 'branchName', 'master')
+            for node in snapshot_nodes:
+                logger.debug(node)
+                data = get_node(repopath, node, snapshot_source, brnch)
+                if data:
+                    insert_one_document(data, data['collection'], dbname)
+                    snapshot_data[node['snapshotId']] = True
+        if os.path.exists(baserepo):
+            logger.info('Repo path: %s', baserepo)
+            shutil.rmtree(baserepo)
+    return snapshot_data
+
+
+def main():
+    connectors = [
+        {
+            "fileType": "structure",
+            "companyName": "prancer-test",
+            "gitProvider": "https://github.com/ajeybk/mytest.git",
+            "branchName": "master",
+            "username": None,
+            "password": None,
+            "sshKeyfile": None,
+            "private": True,
+            "sshHost": "github.com",
+            "sshUser": "git"
+        },
+        {
+            "fileType": "structure",
+            "companyName": "prancer-test",
+            "gitProvider": "https://github.com/ajeybk/mytest.git",
+            "branchName": "master",
+            "username": "kbajey@gmail.com",
+            "password": None,
+            "sshKeyfile": None,
+            "private": True,
+            "sshHost": "github.com",
+            "sshUser": "git"
+        },
+        {
+            "fileType": "structure",
+            "companyName": "prancer-test",
+            "gitProvider": "https://github.com/ajeybk/mytest.git",
+            "branchName": "master",
+            "username": "ajeybk",
+            "password": None,
+            "sshKeyfile": None,
+            "private": True,
+            "sshHost": "github.com",
+            "sshUser": "git"
+        },
+        {
+            "fileType": "structure",
+            "companyName": "prancer-test",
+            "gitProvider": "git@github.com:ajeybk/mytest.git",
+            "branchName": "master",
+            "username": "ajeybk",
+            "sshKeyfile": "/home/ajey/ssh_working/id_rsa_bitbucket",
+            "private": True,
+            "sshHost": "github.com",
+            "sshUser": "git"
+        },
+        {
+            "fileType": "structure",
+            "companyName": "prancer-test",
+            "gitProvider": "https://github.com/prancer-io/cloud-validation-framework.git",
+            "branchName": "master",
+            "username": "kbajey@gmail.com",
+            "password": None,
+            "sshKeyfile": None,
+            "private": False,
+            "sshHost": "github.com",
+            "sshUser": "git"
+        }
+    ]
+    for conn in connectors:
+        logger.info('#' * 50)
+        repodir, clonedir = git_clone_dir(conn)
+        logger.info("Delete: %s, clonedir: %s", repodir, clonedir)
+
+
+
+if __name__ == "__main__":
+    main()

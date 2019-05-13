@@ -5,6 +5,15 @@ from unittest import mock
 
 frameworkdir = '/tmp'
 
+class Popen:
+
+    def __init__(self, cmd, **kwargs):
+        self.cmd = cmd
+
+    def communicate(self, input=None, timeout=None):
+        return "", None
+
+
 def repo_exception():
     raise Exception("Repo clone Exception")
 
@@ -141,6 +150,7 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
     monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
     frameworkdir = '%s/a/b/c' % tmpdir
@@ -172,7 +182,7 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
     with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
         snapshot_data = populate_custom_snapshot(snapshot)
-        assert snapshot_data == {'3': True}
+        assert snapshot_data == {'3': False}
         snapshot_data = populate_custom_snapshot(snapshot1)
         assert snapshot_data == {}
 
@@ -183,6 +193,7 @@ def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, mo
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
     monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_empty_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
     frameworkdir = '%s/a/b/c' % tmpdir
@@ -209,13 +220,14 @@ def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, mo
     with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
         snapshot_data = populate_custom_snapshot(snapshot)
-        assert snapshot_data == {'3': True}
+        assert snapshot_data == {'3': False}
 
 def test_populate_custom_snapshot_exception(create_temp_dir, create_temp_json, monkeypatch):
     global frameworkdir
     monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
     from git import Repo
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
@@ -250,6 +262,7 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
     monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
     from git import Git
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
@@ -282,4 +295,4 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
         with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
             RepoMockHelper.return_value.clone_from.return_value = None
             snapshot_data = populate_custom_snapshot(snapshot)
-            assert snapshot_data == {'3': True}
+            assert snapshot_data == {'3': False}
