@@ -64,15 +64,11 @@ def populate_snapshot(snapshot):
     """
     snapshot_data = {}
     snapshot_type = get_field_value(snapshot, 'type')
-    print('67: snapshot_type: %s' % snapshot_type)
     if snapshot_type and snapshot_type in snapshot_fns:
         if 'nodes' not in snapshot or not snapshot['nodes']:
-            print('70: snapshot: %s' % snapshot)
             logger.error("No nodes in snapshot to be backed up!...")
             return snapshot_data
-        print('73: snapshot: %s' % snapshot)
         snapshot_data = snapshot_fns[snapshot_type](snapshot)
-    print('75: Snapshot: %s' % snapshot_data)
     logger.info('Snapshot: %s', snapshot_data)
     return snapshot_data
 
@@ -87,12 +83,8 @@ def populate_snapshots_from_json(snapshot_json_data):
     if not snapshots:
         logger.error("Json Snapshot does not contain snapshots, next!...")
         return snapshot_data
-    print('snapshots: %s' % snapshots)
     for snapshot in snapshots:
-        print('#' * 50)
-        print('snapshot: %s' % snapshot)
         current_data = populate_snapshot(snapshot)
-        print('current_data: %s' % current_data)
         snapshot_data.update(current_data)
     return snapshot_data
 
@@ -104,14 +96,11 @@ def populate_snapshots_from_file(snapshot_file):
     """
     file_name = '%s.json' % snapshot_file if snapshot_file and not \
         snapshot_file.endswith('.json') else snapshot_file
-    print("snapshot_file: %s" % snapshot_file)
     snapshot_json_data = json_from_file(file_name)
-    print("snapshot_json_data: %s" % snapshot_json_data)
     if not snapshot_json_data:
         logger.error("Snapshot file %s looks to be empty, next!...", snapshot_file)
         return {}
     logger.debug(json.dumps(snapshot_json_data, indent=2))
-    print(json.dumps(snapshot_json_data, indent=2))
     return populate_snapshots_from_json(snapshot_json_data)
 
 
@@ -144,8 +133,6 @@ def populate_container_snapshots_filesystem(container):
         return snapshots_status
     logger.info('\n'.join(snapshot_files))
     snapshots = container_snapshots_filesystem(container)
-    print('*' * 50)
-    print("Snapshots to be populated: %s" %  snapshots)
     populated = []
     for snapshot_file in snapshot_files:
         parts = snapshot_file.rsplit('/', 1)
@@ -172,20 +159,15 @@ def populate_container_snapshots_database(container):
     qry = {'container': container}
     sort = [sort_field('timestamp', False)]
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
-    print('*' * 50)
-    print("Snapshots to be populated: %s" % docs)
     if docs and len(docs):
         logger.info('Number of Snapshot Documents: %s', len(docs))
         snapshots = container_snapshots_database(container)
-        print('Container snapshots: %s' % snapshots)
         populated = []
         for doc in docs:
             if doc['json']:
-                print('183: %s' % ('#' * 50, ))
-                print(json.dumps(doc))
                 snapshot = doc['name']
                 if snapshot in snapshots and snapshot not in populated:
-                    # Take the snapshot and populate whether it was successful or not.
+                    # Take the snapshot and populate whether it was susccessful or not.
                     # Then pass it back to the validation tests, so that tests for those
                     # snapshots that have been susccessfully fetched shall be executed.
                     snapshot_file_data = populate_snapshots_from_json(doc['json'])
@@ -233,7 +215,6 @@ def container_snapshots_database(container):
     sort = [sort_field('timestamp', False)]
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
     logger.info('Number of test Documents: %s', len(docs))
-    print('container_snapshots_database: Number of test Documents: %s' % len(docs))
     if docs and len(docs):
         for doc in docs:
             if doc['json']:
