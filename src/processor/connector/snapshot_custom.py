@@ -302,19 +302,20 @@ def make_ssh_dir_before_clone(ssh_key_file):
     return restore, olddir, newdir, ssh_file
 
 
-def create_ssh_config(ssh_dir, ssh_key_file, ssh_host, ssh_user):
+def create_ssh_config(ssh_dir, ssh_key_file, ssh_user):
     ssh_config = '%s/config' % ssh_dir
     if exists_file(ssh_config):
         logger.error("Git config: %s already exists, cannot modify it!")
         return None
     with open(ssh_config, 'w') as f:
-        f.write('Host %s\n' % ssh_host)
-        f.write('   HostName %s\n' % ssh_host)
+        f.write('Host *\n')
+        # f.write('Host %s\n' % ssh_host)
+        # f.write('   HostName %s\n' % ssh_host)
         f.write('   User %s\n' % ssh_user)
         f.write('   IdentityFile %s\n\n' % ssh_key_file)
-        f.write('Host *\n')
-        f.write('    IdentitiesOnly yes\n')
-        f.write('    ServerAliveInterval 100\n')
+        # f.write('Host *\n')
+        f.write('   IdentitiesOnly yes\n')
+        f.write('   ServerAliveInterval 100\n')
     return ssh_config
 
 
@@ -368,9 +369,9 @@ def git_clone_dir(connector):
         if http_match:
             logger.info("Http (private:%s) giturl: %s, Repopath: %s", "YES" if isprivate else "NO",
                         giturl, repopath)
-            username = get_field_value(connector, 'username')
+            username = get_field_value(connector, 'httpsUser')
             if username:
-                pwd = get_field_value(connector, 'password')
+                pwd = get_field_value(connector, 'httpsPassword')
                 schema = giturl[:http_match.span()[-1]]
                 other_part = giturl[http_match.span()[-1]:]
                 pwd = pwd if pwd else get_git_pwd()
@@ -400,7 +401,7 @@ def git_clone_dir(connector):
                     logger.error("Git ssh dir: %s already exists, cannot recreate it!", ssh_dir)
                     return repopath, clonedir
                 os.mkdir('%s/.ssh' % repopath, 0o700)
-                ssh_cfg = create_ssh_config(ssh_dir, ssh_key_file, ssh_host, ssh_user)
+                ssh_cfg = create_ssh_config(ssh_dir, ssh_key_file, ssh_user)
                 if not ssh_cfg:
                     logger.error("Creation of Git ssh config in dir: %s failed!", ssh_dir)
                     return repopath, clonedir
