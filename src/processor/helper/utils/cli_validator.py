@@ -179,7 +179,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
         check_send_notification = lambda container, db: None
 
     logger.info("Comand: '%s %s'", sys.executable.rsplit('/', 1)[-1], ' '.join(sys.argv))
-    cmd_parser = argparse.ArgumentParser("Validator functional tests")
+    cmd_parser = argparse.ArgumentParser("Prancer Basic Functionality")
     cmd_parser.add_argument('container', action='store', help='Container tests directory.')
     cmd_parser.add_argument('--db', action='store', default=None,
                             choices=['DB', 'FS'],
