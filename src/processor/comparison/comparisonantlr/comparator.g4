@@ -19,6 +19,7 @@ expression
 // Define allowed method in the expression for comparison
 METHOD
     : 'exist'
+    | 'exists'
     | 'count'
     ;
 

@@ -56,8 +56,8 @@ def json_from_file(jsonfile, escape_chars=None):
                     for escape_char in escape_chars:
                         data = data.replace(escape_char, '\\\%s' % escape_char)
                 jsondata = json.loads(data, object_pairs_hook=OrderedDict)
-    except:
-        logger.debug('Failed to load json from file: %s', jsonfile)
+    except Exception as ex:
+        logger.debug('Failed to load json from file: %s, exception: %s', jsonfile, ex)
     return jsondata
 
 
