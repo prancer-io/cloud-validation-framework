@@ -3,10 +3,9 @@
   "companyName": "prancer-test",
   "gitProvider": "git@github.com:crazycodr/prancer-tests.git",
   "branchName": "master",
-  "username": null,
-  "password": null,
+  "httpsUser": null,
+  "httpsPassword": null,
   "sshKeyfile": null,
   "private": false,
-  "sshHost": "github.com",
   "sshUser": "git"
 }

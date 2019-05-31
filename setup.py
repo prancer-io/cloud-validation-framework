@@ -16,7 +16,7 @@ LONG_DESCRIPTION = """
 
 setup(
     name='prancer-basic',
-    version='0.1.1',
+    version='0.1.2',
     description='Prancer Basic, http://prancer.io/',
     long_description=LONG_DESCRIPTION,
     license = "BSD",
@@ -41,6 +41,7 @@ setup(
     entry_points={
         'console_scripts': [
             'validator = processor.helper.utils.cli_validator:validator_main',
+            'prancer = processor.helper.utils.cli_validator:validator_main',
             'populate_json = processor.helper.utils.cli_populate_json:populate_json_main',
             'terraform_to_json = processor.helper.utils.cli_terraform_to_json:terraform_to_json_main'
         ],
