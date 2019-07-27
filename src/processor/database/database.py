@@ -3,7 +3,7 @@ import collections
 from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
 from pymongo.errors import ServerSelectionTimeoutError
 from bson.objectid import ObjectId
-from processor.helper.config.config_utils import config_value, DATABASE, DBNAME
+from processor.helper.config.config_utils import config_value, DATABASE, DBNAME, DBURL
 
 
 MONGO = None
@@ -15,7 +15,11 @@ def mongoconnection(dbport=27017, to=TIMEOUT):
     """ Global connection handle for mongo """
     global MONGO
     if not MONGO:
-        MONGO = MongoClient(port=dbport, serverSelectionTimeoutMS=to)
+        dburl = config_value(DATABASE, DBURL)
+        if dburl:
+            MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
+        else:
+            MONGO = MongoClient(port=dbport, serverSelectionTimeoutMS=to)
     return MONGO
 
 

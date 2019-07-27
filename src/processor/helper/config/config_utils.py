@@ -10,6 +10,7 @@ DATABASE = 'MONGODB'
 TESTS = 'TESTS'
 DBTESTS = 'database'
 DBNAME = 'dbname'
+DBURL = 'dburl'
 CFGFILE = 'config.ini'
 
 
