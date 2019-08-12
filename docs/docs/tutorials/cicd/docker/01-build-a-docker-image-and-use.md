@@ -12,13 +12,11 @@ Then, you can follow these steps:
 4. Trigger a failure
 5. Cleanup and rejoice
 
-# Create a **Prancer** image for **Docker**
-
-First, we'll need to setup **Prancer** into a **Docker** image. Let's create the standard `Dockerfile` and add the following content to it:
-
 > <NoteTitle>Shortcut</NoteTitle>
 >
-> You can just use [https://github.com/prancer-io/prancer-docker-tutorial](https://github.com/prancer-io/prancer-docker-tutorial) if you want, it contains exactly the same thing.
+> You can use [https://github.com/prancer-io/prancer-docker-tutorial](https://github.com/prancer-io/prancer-docker-tutorial) instead of writting the files yourself. This repository contains exactly the same file structure and content.
+
+# Create a **Prancer** image for **Docker**
 
 **tests/prancer/docker/Dockerfile**
 
@@ -67,12 +65,6 @@ We can now build our **Prancer** project.
 # Create a **Prancer** project
 
 Next, we'll need a **Prancer** project. To run tests against a **Git** repository, well, you need a **Git** repository with files in it. This portion will create such as repository along with the files for the **Prancer** project. We'll commit files to it and then configure the **Git** connector for that specific repository and project.
-
-> <NoteTitle>Shortcut</NoteTitle>
->
-> You can just use [https://github.com/prancer-io/prancer-docker-tutorial](https://github.com/prancer-io/prancer-docker-tutorial) if you want, it contains exactly the same thing.
-
-If you prefer to use your own files, copy and paste all the following content to their respective files:
 
 **data/config.json**
 
@@ -193,14 +185,19 @@ And you can set the `dburl` in your configuration file to:
 
     dburl=mongodb://prancer-mongodb-server:27017/validator
 
-Thats it!
+Thats it, you now have a dockerized **MongoDB** server.
 
 ## Running a Prancer test
 
 Once you are ready to execute your tests, you can run the following command to start a snapshot and a testing phase. If you are using a connected container for **MongoDB**, add the `--network prancer` argument to it before the `prancer` image name.
 
+    # First ensure you are in the root of the repository / the folder containing the `tests/prancer`:
+    cd "root-of-whole-project"
+
+    # Without dockerized mongodb server
     docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" prancer prancer git
-    # or
+
+    # or with dockerized mongodb server
     docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" --network prancer prancer prancer git
 
 Let's deconstruct this to understand each part:
