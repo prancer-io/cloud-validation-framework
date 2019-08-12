@@ -16,18 +16,22 @@ Then, you can follow these steps:
 
 First, we'll need to setup **Prancer** into a **Docker** image. Let's create the standard `Dockerfile` and add the following content to it:
 
+> <NoteTitle>Shortcut</NoteTitle>
+>
+> You can just use [https://github.com/prancer-io/prancer-docker-tutorial](https://github.com/prancer-io/prancer-docker-tutorial) if you want, it contains exactly the same thing.
+
 **tests/prancer/docker/Dockerfile**
 
     FROM ubuntu
 
     RUN DEBIAN_FRONTEND=noninteractive apt update -y && \
-        DEBIAN_FRONTEND=noninteractive apt install -y python3 python3-pip mongodb git && \
+        DEBIAN_FRONTEND=noninteractive apt install -y python3 python3-pip git && \
         pip3 install prancer-basic
 
     CMD prancer
     WORKDIR /prancer/project
 
-This creates a simple image that contains **Prancer**, **MongoDB** and **Git**. Depending on the configuration of your projet, you may need additional tools installed.
+This creates a simple image that contains **Prancer** and **Git**. Depending on the configuration of your projet, you may need additional tools installed.
 
 Now let's build the image:
 
@@ -60,15 +64,15 @@ If you list your images, you should see the **Prancer** image we just built:
 
 We can now build our **Prancer** project.
 
-> <NoteTitle>Limitation</NoteTitle>
->
-> There is a known limitation with the software right now, you cannot setup **MongoDB** anywhere else than on the machine you run **Prancer**. This is why we are installing **MongoDB** server directly into the container.
->
-> There are workarounds such as reverse tunneling the port 27017 into a container or server but that makes it even more complex. We are actively working on a solution!
-
 # Create a **Prancer** project
 
 Next, we'll need a **Prancer** project. To run tests against a **Git** repository, well, you need a **Git** repository with files in it. This portion will create such as repository along with the files for the **Prancer** project. We'll commit files to it and then configure the **Git** connector for that specific repository and project.
+
+> <NoteTitle>Shortcut</NoteTitle>
+>
+> You can just use [https://github.com/prancer-io/prancer-docker-tutorial](https://github.com/prancer-io/prancer-docker-tutorial) if you want, it contains exactly the same thing.
+
+If you prefer to use your own files, copy and paste all the following content to their respective files:
 
 **data/config.json**
 
@@ -93,6 +97,7 @@ Next, we'll need a **Prancer** project. To run tests against a **Git** repositor
     dbname = whitekite
 
     [MONGODB]
+    dburl = mongodb://prancer-mongodb-server/validator
     dbname = validator
 
     [REPORTING]
@@ -166,16 +171,37 @@ Then commit this setup to a repository that is accessible using git such as on *
 
 Following this, you should be able to see your code on your repository.
 
-> <NoteTitle>Shortcut</NoteTitle>
->
-> You can just use [https://github.com/prancer-io/prancer-docker-tutorial](https://github.com/prancer-io/prancer-docker-tutorial) if you want, it contains exactly the same thing.
-
-
 # Run the tests
 
-Once you are ready to execute your tests, you can run the following command to start a snapshot and a testing phase:
+Before running the tests, we'll need a **MongoDB** server. If you are using your own and properly updated the configuration files, perfect. On the other hand, if you need a server, the best solution is to just start one in a **Docker** container. Skip the next step if you already have a server that is reachable.
 
-    docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" prancer bash -c "service mongodb restart && prancer git"
+## Starting a MongoDB in a docker container
+
+Starting a **MongoDB** server is easy but because you want to have multiple containers communicating, you'll need to create a network to link both of them together.
+
+    docker network create prancer
+
+Then we can start the MongoDB server in that network:
+
+    docker run -d --name prancer-mongodb-server -it --network prancer mongo
+
+Now that you have a docker container with **MongoDB** running in it, you can add, to your next docker command line, the network, using:
+
+    docker ... --network prancer ...
+
+And you can set the `dburl` in your configuration file to:
+
+    dburl=mongodb://prancer-mongodb-server:27017/validator
+
+Thats it!
+
+## Running a Prancer test
+
+Once you are ready to execute your tests, you can run the following command to start a snapshot and a testing phase. If you are using a connected container for **MongoDB**, add the `--network prancer` argument to it before the `prancer` image name.
+
+    docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" prancer prancer git
+    # or
+    docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" --network prancer prancer prancer git
 
 Let's deconstruct this to understand each part:
 
@@ -189,15 +215,17 @@ Let's deconstruct this to understand each part:
 
     Note that by binding this, your logs will be put in the mounted volume which means you won't lose them once the process is done. Because of the **MongoDB** limitation though, you will lose your **MongoDB** data if you don't add an additional `-v "$(pwd)/mongo:/data/db". This isn't critical but can be favorable depending on your testing approach.
 
-3. `prancer`
+3. `--network prancer`
+
+    This optional part tells **Docker** to use a special network to link all containers together. This has the advantage of allowing you to resolve special hostnames within containers that could refer to other containers. Those names are the name that you give to a container. For example, if you use the containerized **MongoDB**, we suggest to call this container `--name prancer-mongodb-server` so the hostname would be `prancer-mongodb-server` when you are in the **Prancer** container.
+
+4. `prancer`
 
     This is simply the image name. If you tagged the image name differently when you built it earlier, change this.
 
-4. `bash -c "service mongodb restart && prancer git"`
+5. `prancer git`
 
-    This is the command that we'll execute in the container. The command needs to be complex in this case because we have a limitation due to **MongoDB** needing to be started when the container gets activated. If you do not string the 2 commands back to back like this, **Prancer** will complain that it cannot connect to **MongoDB**.
-
-    The last part of the command is the **Prancer** container to validate. In this case, we called it `git`. If you renamed the container in `tests/prancer/project/validation` then you need to change this here.
+    This is the command that we'll execute in the container. It tells the **Prancer** which container to validate, in this case, we called it `git`. If you renamed the container in `tests/prancer/project/validation` then you need to change this here.
 
 Once this has run, you can find a `tests/prancer/project/validation/git/output-test.json` in the container folder and a log file in the `log/` folder. The exit code of the tool (`echo ?$`) should return 0 stating that everything went well. The log should look something like:
 
@@ -214,6 +242,17 @@ Once this has run, you can find a `tests/prancer/project/validation/git/output-t
     }
 
 Which shows that the test ran fine trying to compare port 80 to port 80.
+
+## Checking the MongoDB server did record information
+
+If you used a container for **MongoDB**, it would be nice to check if the data did make it in there. To do so, we'll need to run the client as a container connecting to it:
+
+    docker run -it --network prancer --rm mongo mongo --host prancer-mongodb-server validator
+
+This will get you in the MongoDB server, you can then list the collections which should show `security_groups`. If you find all content in there, you should see our snapshots:
+
+    show collections;
+    db.security_groups.find().pretty();
 
 # Triggering a failure
 
@@ -246,7 +285,11 @@ Which shows that the test ran fine trying to compare port 443 to port 80, which 
 
 Because this tutorial asked you to create a temporary **Git** repository on a public service, it would be good if you destroyed it since you won't need it anymore.
 
-Apart from that, no other resources should have been created.
+Furthermore, if you have used the containerized **MongoDB**, it would be wise to drop it and the related network using:
+
+    docker stop prancer-mongodb-server
+    docker rm prancer-mongodb-server
+    docker network remove prancer
 
 # Conclusion
 
