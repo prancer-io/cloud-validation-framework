@@ -72,7 +72,15 @@ Then it means everything worked fine.
 
 # Installing MongoDB
 
-Another tool you have install is a **MongoDB** server. You need to install this to store snapshots of your resources but also, some of the configurations can be stored on it instead of files. You can use the community edition of **MongoDB** and provided you are on a popular **Linux** distribution, it should be as simple as:
+Another tool you have install is a **MongoDB** server. You need a **MongoDB** server to store snapshots of your resources but also, some of the configurations can be stored on it instead of in files. 
+
+> <NoteTitle>Optional dependency</NoteTitle>
+>
+> You can specify a remote **MongoDB** server url in your configuration files. Therefore, you do not need to install it on your system. We will assume, in all examples, that you have such a server installed locally. 
+>
+> If you don't and want to use a distant server, remember to configure the `dburl` setting. See this in the [configuration page](configuration/basics.md).
+
+You can use the community edition of **MongoDB** and provided you are on a popular **Linux** distribution, it should be as simple as:
 
     sudo apt install mongodb
 

@@ -48,13 +48,14 @@ Example:
 
 # Database configuration
 
-We use **MongoDB** for the No-SQL storage solution. You must configure the location of the server through this section.
+We use **MongoDB** to store run data. You must configure the location of the server through this section plus a few various other behaviors.
 
 The `INI` section to use in the configuration file is `[MONGODB]` and here are all the possible configurations you can use:
 
 | Key | Possible values | Explanation |
 |------|:-------:|-----------|
-| dbname | *string* | The name of the database to connect to when storing snapshots or when reading configuration files using the `--db` switch |
+| dburl | *string* | The connection string to the mongodb server. If none, **Prancer** will connect to localhost on port 27017. Also used when reading configuration files using the `--db` switch |
+| dbname | *string* | The name of the database to connect to when storing snapshots. Also used when reading configuration files using the `--db` switch |
 | NOTIFICATIONS | *string* | Name of the collection where notifications are stored in database driven mode |
 | SNAPSHOT | *string* | Name of the collection where snapshot configurations are stored in database driven mode |
 | TEST | *string* | Name of the collection where test configurations are stored in database driven mode |
@@ -64,6 +65,7 @@ The `INI` section to use in the configuration file is `[MONGODB]` and here are a
 Example:
 
     [MONGODB]
+    dburl = mongodb://localhost:27017/prancer
     dbname = myprancerdatabase
     NOTIFICATIONS = prancernotifications
     SNAPSHOT = prancersnapshot
