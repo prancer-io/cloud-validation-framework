@@ -18,7 +18,7 @@ For the current release the installation has to be done from github. Following a
 - Set the virtual environment. `source cloudenv/bin/activate`
 - Upgrade the package manager `pip install -U pip`
 - Install the dependent packages as present in requirements.txt `pip install -r requirements.txt`
-- Install mongo server and start the service.
+- Install mongo server and start the service. (The mongoDB could be local or remote and you can set it in config.ini file "dburl")
 - Update config.ini to reflect the database server settings.
 - Run the tests from the filesystem. `python3 validator.py container3`
 - Populate snapshot, test and structure json and then run the tests from database. `python3 validator.py container3 --db`
