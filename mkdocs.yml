@@ -1,0 +1,51 @@
+site_name: Prancer documentation
+site_url: https://prancer.io
+google_analytics: ['UA-133762205-1', 'prancer.io']
+docs_dir: docs/docs
+site_dir: docs/build
+extra_css: ['extra.css']
+theme:
+  custom_dir: docs/theme
+  name: readthedocs
+nav:
+  - Getting Started!: index.md
+  - Terminology: terminology.md
+  - Workflow: workflow.md
+  - Installation: installation.md
+  - Configuration:
+    - Basics: configuration/basics.md
+    - Logging: configuration/logging.md
+    - Secrets: configuration/secrets.md
+  - Connectors:
+    - AWS connector: connectors/aws.md
+    - Azure connector: connectors/azure.md
+    - Git connector: connectors/git.md
+  - Snapshots:
+    - AWS snapshot: snapshots/aws.md
+    - Azure snapshot: snapshots/azure.md
+    - Json snapshot: snapshots/json.md
+    - Terraform snapshot: snapshots/terraform.md
+  - Tests:
+    - Test basics: tests/basics.md
+    - Looking for test data: tests/look-for-data.md
+    - Rule syntax: tests/syntax.md
+    - Test ouput files: tests/outputs.md
+  - Limitations & workarounds:
+    - AWS resources: limitations/aws-limitations.md
+    - AWS CloudFormation templates: limitations/aws-cloudformation-template-limitations.md
+    - Azure ARM templates: limitations/azure-arm-templates-limitations.md
+    - Json: limitations/json-limitations.md
+  - Enterprise edition:
+    - Features: enterprise/basics.md
+    - Use case: enterprise/use-case.md
+    - Backup & export: enterprise/backup-export.md
+  - Connector Tutorials:
+    - AWS - Security group monitoring: tutorials/connectors/aws/01-security-group.md
+    - AWS - Testing values in CloudFormation templates: tutorials/connectors/aws/02-testing-values-in-cloudformation-templates.md
+    - Azure - Security group monitoring: tutorials/connectors/azure/01-security-group.md
+    - Azure - Testing values in an ARM templates: tutorials/connectors/azure/02-testing-values-in-an-arm-templates.md
+  - CI/CD Tutorials:
+    - AWS CodeBuild - Basic CI/CD integration: tutorials/cicd/codebuild/01-basic-setup.md
+    - Jenkins - Basic CI/CD integration: tutorials/cicd/jenkins/01-basic-setup.md
+    - Travis - Basic CI/CD integration: tutorials/cicd/travis/01-basic-setup.md
+    - Docker - Basic image creation and usage: tutorials/cicd/docker/01-build-a-docker-image-and-use.md
