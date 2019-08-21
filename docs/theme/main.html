@@ -14,3 +14,24 @@ the blocks defined in base.html and its included child templates.
     <a href="//www.prancer.io"><img src="/images/logo.png" /></a>
 </div>
 {%- endblock %}
+
+{%- block site_meta %}
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% if page and page.is_homepage %}<meta name="description" content="{{ config.site_description }}" />{% endif %}
+{% if config.site_author %}<meta name="author" content="{{ config.site_author }}" />{% endif %}
+{% if page and page.canonical_url %}<link rel="canonical" href="{{ page.canonical_url }}" />{% endif %}
+{% if config.site_favicon %}<link rel="shortcut icon" href="{{ config.site_favicon|url }}" />
+{% else %}<link rel="shortcut icon" href="{{ 'img/favicon.ico'|url }}" />{% endif %}
+<meta name="og:title" content="{{ page.title }} - Prancer Validation Framework" />
+<meta name="og:site_name" content="Prancer Validation Framework" />
+<meta name="og:description" content="Prancer is a cloud infrastructure validation framework used to satisfy cloud governance requirements. Prancer is a pre-deployment and post-deployment validation engine to verify your cloud resources. It integrates to your current DevOps process to validate the required guardrails in place." />
+<meta name="og:type" content="website" />
+<meta name="og:image" content="https://prancer.io/wp-content/uploads/2019/01/logo.png" />
+<meta name="og:url" content="{{ page.canonical_url }}" />
+<meta name="twitter:title" content="{{ page.title }} - Prancer Validation Framework">
+<meta name="twitter:description" content="Prancer is a cloud infrastructure validation framework used to satisfy cloud governance requirements. Prancer is a pre-deployment and post-deployment validation engine to verify your cloud resources. It integrates to your current DevOps process to validate the required guardrails in place.">
+<meta name="twitter:image" content="https://prancer.io/wp-content/uploads/2019/01/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+{%- endblock %}
