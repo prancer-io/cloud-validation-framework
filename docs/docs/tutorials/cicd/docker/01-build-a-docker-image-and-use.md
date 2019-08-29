@@ -6,17 +6,26 @@ Before taking this tutorial, ensure the following:
 
 Then, you can follow these steps:
 
-1. Create a **Prancer** image for **Docker**
-2. Create a **Prancer** project
-3. Run the tests
-4. Trigger a failure
-5. Cleanup and rejoice
+1. Checkout example files
+2. Create a **Prancer** image for **Docker**
+3. Create a **Prancer** project
+4. Run the tests
+5. Trigger a failure
+6. Cleanup and rejoice
 
-> <NoteTitle>Shortcut</NoteTitle>
->
-> You can use [https://github.com/prancer-io/prancer-docker-tutorial](https://github.com/prancer-io/prancer-docker-tutorial) instead of writting the files yourself. This repository contains exactly the same file structure and content.
+# Checkout example files
+
+We have all the files already prepared for you in a public read-only repository. 
+
+We'll still show all the content of each files in this tutorial and explain some tweaks you can and should do. You can use your own repository and write the files yourself but it'll be easier and faster if you checkout ours:
+
+    cd <working directory>
+    git clone https://github.com/prancer-io/prancer-docker-tutorial
+    cd prancer-docker-tutorial
 
 # Create a **Prancer** image for **Docker**
+
+The first step is to create the `Dockerfile` that will generate the **Docker** image that we'll use to run **Prancer**.
 
 **tests/prancer/docker/Dockerfile**
 
@@ -29,31 +38,12 @@ Then, you can follow these steps:
     CMD prancer
     WORKDIR /prancer/project
 
-This creates a simple image that contains **Prancer** and **Git**. Depending on the configuration of your projet, you may need additional tools installed.
-
-Now let's build the image:
+This file describes how to build a basic **Ubuntu** image that contains **Prancer** and **Git**. Now let's build the image by running:
 
      cd tests/prancer
      docker build docker --tag prancer
 
-Once this is done, you'll have the image built and tagged into your system. It should output a log that looks like this:
-
-    Sending build context to Docker daemon  22.53kB
-    Step 1/4 : FROM ubuntu
-    ---> 4c108a37151f
-    Step 2/4 : RUN DEBIAN_FRONTEND=noninteractive apt update -y && DEBIAN_FRONTEND=noninteractive apt install -y python3 python3-pip mongodb git && pip3 install prancer-basic
-    ---> Using cache
-    ---> d8f616cda4d4
-    Step 3/4 : CMD prancer
-    ---> Using cache
-    ---> 48cae0b129df
-    Step 4/4 : WORKDIR /prancer/project
-    ---> Using cache
-    ---> b34102a2985a
-    Successfully built b34102a2985a
-    Successfully tagged prancer:latest
-
-If you list your images, you should see the **Prancer** image we just built:
+Once **Docker** is done building the image, you'll have a new image in your local Docker image repository tagged with the name `prancer`. If you list your images, you should see it in the list:
 
     docker images
 
@@ -64,9 +54,11 @@ We can now build our **Prancer** project.
 
 # Create a **Prancer** project
 
-Next, we'll need a **Prancer** project. To run tests against a **Git** repository, well, you need a **Git** repository with files in it. This portion will create such as repository along with the files for the **Prancer** project. We'll commit files to it and then configure the **Git** connector for that specific repository and project.
+Next, we'll need a **Prancer** project. This is where all the configuration and test files will live. Here's the content of each file with a brief description.
 
-**data/config.json**
+## data/config.json
+
+This file contains the data that we want to test using **Prancer**.
 
     {
         "webserver": {
@@ -74,13 +66,17 @@ Next, we'll need a **Prancer** project. To run tests against a **Git** repositor
         }
     }
 
-**tests/prancer/project/.gitignore**
+## tests/prancer/project/.gitignore
+
+This is a simple .gitignore file that ensures we are not commiting files we don't want in our project. Prancer will output many files such as logs and reports, you want to have such a file.
 
     log/*
     *.log
     output-*json
 
-**tests/prancer/project/config.ini**
+## tests/prancer/project/config.ini
+
+This is the configuration file. You can change many things in here but the default configuration we provide should suffice. If you want to use your own **MongoDB** server then you should change the `dburl` property.
 
     [LOGGING]
     level = DEBUG
@@ -99,7 +95,9 @@ Next, we'll need a **Prancer** project. To run tests against a **Git** repositor
     containerFolder = validation
     database = false
 
-**tests/prancer/project/gitConnector.json**
+## tests/prancer/project/gitConnector.json
+
+This is the configuration file that leads to the files **Prancer** will need to check out when running tests. It is currently pointing to our public read-only repository. If you want to use your own, feel free to remap the remote once you checked out our files and push the files somewhere else.
 
     {
         "fileType": "structure",
@@ -109,11 +107,9 @@ Next, we'll need a **Prancer** project. To run tests against a **Git** repositor
         "private": false
     }
 
-> <NoteTitle>Changes</NoteTitle>
->
-> Remember to substitute the **gitProvider** with your own!
+## tests/prancer/project/validation/git/snapshot.json
 
-**tests/prancer/project/validation/git/snapshot.json**
+This file describes the information we want to test, you shouldn't need to change anything here.
 
     {
         "fileType": "snapshot",
@@ -134,7 +130,9 @@ Next, we'll need a **Prancer** project. To run tests against a **Git** repositor
         ]
     }
 
-**tests/prancer/project/validation/git/test.json**
+## tests/prancer/project/validation/git/test.json
+
+This file describes the tests we want to achieve on the information we took a snapshot of. This is related to the previous file!
 
     {
         "fileType": "test",
@@ -153,51 +151,30 @@ Next, we'll need a **Prancer** project. To run tests against a **Git** repositor
         ]
     }
 
-Then commit this setup to a repository that is accessible using git such as on **GitHub**. Note that you must create the repository beforehand.
-
-    git init
-    git remote add origin git@github.com:your-user/prancer-docker-tutorial.git
-    git add .
-    git commit -m "Tutorial on jenkins"
-    git push
-
-Following this, you should be able to see your code on your repository.
-
 # Run the tests
 
-Before running the tests, we'll need a **MongoDB** server. If you are using your own and properly updated the configuration files, perfect. On the other hand, if you need a server, the best solution is to just start one in a **Docker** container. Skip the next step if you already have a server that is reachable.
+Before running the tests, we'll need a **MongoDB** server. If you are using your own and updated the configuration files in the previous section, perfect, skip to **Running a prancer test**. On the other hand, if you need a server, the best solution is to just start one in a **Docker** container. This will make it easily discardable!
 
-## Starting a MongoDB in a docker container
+## Starting a MongoDB in a Docker container
 
-Starting a **MongoDB** server is easy but because you want to have multiple containers communicating, you'll need to create a network to link both of them together.
+Starting a **MongoDB** server using **Docker** is easy but because we want to have multiple containers communicating together, we'll need to create a network to link both of them together. Once created, we can start the **MongoDB** server inside that network:
 
     docker network create prancer
-
-Then we can start the MongoDB server in that network:
-
     docker run -d --name prancer-mongodb-server -it --network prancer mongo
-
-Now that you have a docker container with **MongoDB** running in it, you can add, to your next docker command line, the network, using:
-
-    docker ... --network prancer ...
-
-And you can set the `dburl` in your configuration file to:
-
-    dburl=mongodb://prancer-mongodb-server:27017/validator
 
 Thats it, you now have a dockerized **MongoDB** server.
 
 ## Running a Prancer test
 
-Once you are ready to execute your tests, you can run the following command to start a snapshot and a testing phase. If you are using a connected container for **MongoDB**, add the `--network prancer` argument to it before the `prancer` image name.
+Once you are ready to execute your tests, you can run the following command to start a snapshot and a testing phase. If you are using a container for the **MongoDB** server run the second version of the **Prancer** command:
 
     # First ensure you are in the root of the repository / the folder containing the `tests/prancer`:
     cd "root-of-whole-project"
 
-    # Without dockerized mongodb server
+    # Run Prancer WITHOUT the dockerized MongoDB server
     docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" prancer prancer git
 
-    # or with dockerized mongodb server
+    # Run Prancer WITH the dockerized MongoDB server
     docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" --network prancer prancer prancer git
 
 Let's deconstruct this to understand each part:
@@ -253,6 +230,30 @@ This will get you in the MongoDB server, you can then list the collections which
 
 # Triggering a failure
 
+## Using our repository
+
+Because our repository is read-only, you can't create a real configuration drift. Therefore, we'll adjust the command you use to run **Prancer** and use a different test that is already programmed to fail by default. Simply run:
+
+    docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" --network prancer prancer prancer git-fail
+
+You should have a failing state proving that the drift was indeed detected. The log should look something like:
+
+    2019-07-22 18:08:58,837(rule_interpreter: 169) - LHS: 80, OP: =, RHS: 443
+    2019-07-22 18:08:58,837(rundata_utils:  92) - END: Completed the run and cleaning up.
+    2019-07-22 18:08:58,838(rundata_utils: 102) -  Run Stats: {
+        "start": "2019-07-22 18:08:57",
+        "end": "2019-07-22 18:08:58",
+        "errors": [],
+        "host": "8531f1a4c4f0",
+        "timestamp": "2019-07-22 18:08:57",
+        "log": "/prancer/project/log/20190722-180857.log",
+        "duration": "1 seconds"
+    }
+
+Which shows that the test ran fine trying to compare port 80 to port 443, which obviously fails!
+
+## Using your own repository
+
 Now that we have passing tests, let's trigger a simple failure to see how everything fits together. To achieve this, we'll need to create a configuration drift, that is, change something in the `data/config.json` file that doesn't match the expected tests.
 
 1. Change the port `80` in there for `443`
@@ -280,13 +281,14 @@ Which shows that the test ran fine trying to compare port 443 to port 80, which 
 
 # Cleanup your resources
 
-Because this tutorial asked you to create a temporary **Git** repository on a public service, it would be good if you destroyed it since you won't need it anymore.
+Depending on your choices, you will have different cleanup steps:
 
-Furthermore, if you have used the containerized **MongoDB**, it would be wise to drop it and the related network using:
+1. If you used your own **Git** repository, then feel free to destroy it if you want.
+2. If you used a **Docker** container for **MongoDB**, then you need to stop it and drop the network:
 
-    docker stop prancer-mongodb-server
-    docker rm prancer-mongodb-server
-    docker network remove prancer
+        docker stop prancer-mongodb-server
+        docker rm prancer-mongodb-server
+        docker network remove prancer
 
 # Conclusion
 
