@@ -148,9 +148,9 @@ This file describes the tests we want to achieve on the information we took a sn
 
 Next, we need to indicate Travis which repository to watch to run the tests.
 
-## Create a repository on GitHub and reconfigure project
+## Create a repository on GitHub and push your code
 
-First, login to your GitHub account and create a repository named something like `prancer-travis-tutorial`. 
+First, login to your GitHub account and create a repository named `prancer-travis-tutorial`. 
 
 Then, in the file `tests/prancer/project/gitConnector.json`, change the `gitProvider` to use your own repository. Remember to use the **https** version if you don't have ssh access to that repository as you won't have a key on **Travis**. The file should now look like:
 
