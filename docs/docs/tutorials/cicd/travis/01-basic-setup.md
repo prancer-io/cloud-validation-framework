@@ -8,65 +8,78 @@ Before taking this tutorial, ensure the following:
 
 Then, you can follow these steps:
 
-1. Create a **Prancer** project
-2. Create a **Travis CI** build project
-3. Run the build job
-4. Trigger a failure
-5. Cleanup and rejoice
+1. Checkout example files
+2. Create your own GitHub repository for Travis
+3. Create a **Prancer** project
+4. Create a **Travis CI** build project
+5. Run the build job
+6. Trigger a failure
+7. Cleanup and rejoice
+
+# Checkout example files
+
+We have all the files already prepared for you in a public read-only repository. 
+
+We'll still show all the content of each files in this tutorial and explain some tweaks you can and should do. You can use your own repository and write the files yourself but it'll be easier and faster if you checkout ours:
+
+    cd <working directory>
+    git clone https://github.com/prancer-io/prancer-travis-tutorial
+    cd prancer-travis-tutorial
 
 # Create a **Prancer** project
 
-First, we'll need a **Prancer** project. We'll store all of our **Prancer** project file in what would be a standard web application project. We'll add to that a JSON file that contains data to validate and our **Travis CI** `.travis.yml` file.
+First, we'll need a **Prancer** project. This is where all the configuration and test files will live. Here's the content of each file with a brief description.
 
-> <NoteTitle>Shortcut</NoteTitle>
->
-> You can use [https://github.com/prancer-io/prancer-travis-tutorial](https://github.com/prancer-io/prancer-travis-tutorial) if you want, it contains exactly the same thing that you will be creating below but you still need to change some configuration in it.
+## .travis.yml
 
-Create an empty directory and copy all the following files in their proper location as indicated by the filenames:
-
-**.travis.yml**
+This is the file **Travis** uses to run the building and testing process.
 
     language: python
     python:
-        - "3.6"
+       - "3.6"
     services:
-        - docker
+       - docker
     install:
-        - pip install prancer-basic
-        - pip install --upgrade pyasn1-modules
+       - pip install prancer-basic
+       - pip install --upgrade pyasn1-modules
     script:
-        - docker run -d --name prancer_mongo -p 27017:27017 mongo
-        - cd tests/prancer
-        - prancer git-container
+       - docker run -d --name prancer_mongo -p 27017:27017 mongo
+       - cd tests/prancer
+       - prancer git-container
 
-**data/json/valid-file.json**
+> If you copy paste this, you may have to reformat the file. YAML files use 2 spaces for each "tab".
+
+## data/config.json
+
+This file contains the data that we want to test using **Prancer**.
 
     {
-        "someobject": {
-            "configuration": {
-                "hello": "world"
-            }
+        "webserver": {
+            "port": 80
         }
     }
 
-**data/json/invalid-file.json**
+## tests/prancer/project/.gitignore
 
-    {
-        "someobject": {
-            "configuration": {
-                "hello": "hell"
-            }
-        }
-    }
+This is a simple .gitignore file that ensures we are not commiting files we don't want in our project. Prancer will output many files such as logs and reports, you want to have such a file.
 
-**tests/prancer/config.ini**
+    log/*
+    *.log
+    output-*json
 
-    [MONGODB]
-    dbname = prancer
+## tests/prancer/project/config.ini
+
+This is the configuration file. You can change many things in here but the default configuration we provide should suffice. If you want to use your own **MongoDB** server then you should change the `dburl` property.
 
     [LOGGING]
     level = DEBUG
+    propagate = true
     logFolder = log
+    dbname = whitekite
+
+    [MONGODB]
+    dburl = mongodb://localhost:27017/validator
+    dbname = validator
 
     [REPORTING]
     reportOutputFolder = validation
@@ -75,19 +88,21 @@ Create an empty directory and copy all the following files in their proper locat
     containerFolder = validation
     database = false
 
-**tests/prancer/gitConnector.json**
+## tests/prancer/project/gitConnector.json
+
+This is the configuration file that leads to the files **Prancer** will need to check out when running tests. It is currently pointing to our public read-only repository. If you want to use your own, feel free to remap the remote once you checked out our files and push the files somewhere else.
 
     {
         "fileType": "structure",
-        "companyName": "Organization name",
+        "companyName": "prancer-test",
         "gitProvider": "https://github.com/prancer-io/prancer-travis-tutorial.git",
-        "branchName": "master",
+        "branchName":"master",
         "private": false
     }
 
-Remember to substitute the `gitProvider` for your own repository.
+## tests/prancer/project/validation/git/snapshot.json
 
-**tests/prancer/validation/git-container/snapshot.json**
+This file describes the information we want to test, you shouldn't need to change anything here.
 
     {
         "fileType": "snapshot",
@@ -96,51 +111,70 @@ Remember to substitute the `gitProvider` for your own repository.
                 "source": "gitConnector",
                 "type": "git",
                 "testUser": "git",
-                "branchName": "master",
                 "nodes": [
                     {
                         "snapshotId": "1",
                         "type": "json",
-                        "collection": "json_data",
-                        "path": "data/json/valid-file.json"
+                        "collection": "security_groups",
+                        "path": "data/config.json"
                     }
                 ]
             }
         ]
     }
 
-**tests/prancer/validation/git-container/test.json**
+## tests/prancer/project/validation/git/test.json
+
+This file describes the tests we want to achieve on the information we took a snapshot of.
 
     {
         "fileType": "test",
         "snapshot": "snapshot",
         "testSet": [
             {
-                "testName ": "Ensure salutes the world",
+                "testName ": "Ensure configuration uses port 80",
                 "version": "0.1",
                 "cases": [
                     {
                         "testId": "1",
-                        "rule": "{1}.someobject.configuration.hello = 'world'"
+                        "rule": "{1}.webserver.port=80"
                     }
                 ]
             }
         ]
     }
 
-Then commit this setup to a repository that is accessible using git such as on **GitHub** or **CodeCommit**. Note that you must create the repository beforehand.
+# Create your own GitHub repository for Travis
 
-    git init
-    git remote add origin git@github.com:your-user/some-repo.git
+Next, we need to indicate Travis which repository to watch to run the tests.
+
+## Create a repository on GitHub and reconfigure project
+
+First, login to your GitHub account and create a repository named something like `prancer-travis-tutorial`. 
+
+Then, in the file `tests/prancer/project/gitConnector.json`, change the `gitProvider` to use your own repository. Remember to use the **https** version if you don't have ssh access to that repository as you won't have a key on **Travis**. The file should now look like:
+
+    {
+        "fileType": "structure",
+        "companyName": "prancer-test",
+        "gitProvider": "https://github.com/crazycodr/prancer-travis-tutorial.git",
+        "branchName":"master",
+        "private": false
+    }
+
+Finally, push the files you have on disk to that repository. Remember to commit your changes to `tests/prancer/project/gitConnector.json` before your push your files. You should run:
+
+    git remote rm origin
+    git remote add origin <your-github-clone-url>
     git add .
-    git commit -m "Tutorial on Travis CI"
+    git commit -m "Adjust configuration for my repository"
     git push
 
-Following this, you should be able to see your code on your repository.
+This should push your files to your repository. Refresh the **GitHub** page to confirm your files are there!
 
-# Create a **Travis CI** build project
+## Create a **Travis CI** build project
 
-The next part is to create your **Travis CI** project to run **Prancer** tests.
+The next part is to bind **Travis CI** to your repository:
 
 1. Visit the [GitHub Marketplace](https://github.com/marketplace) and search for the **Travis** application
 
@@ -151,6 +185,9 @@ The next part is to create your **Travis CI** project to run **Prancer** tests.
     ![Travis CI project name](/images/travis-add-app.png)
 
 3. Click `Install it for free`
+
+    > If you already installed it before for other projects, it will be impossible to install. Just skip to the next step!
+
 4. Visit the [repositories](https://travis-ci.com/account/repositories) page on **Travis** and click the `Settings` button on the repository where your code is stored
 
     ![Travis CI project name](/images/travis-repositories.png)
@@ -163,7 +200,7 @@ The next part is to create your **Travis CI** project to run **Prancer** tests.
 
 Now let's run the job to ensure the test works:
 
-1. Go to the job's page (Something like [https://travis-ci.com/prancer-io/prancer-travis-tutorial](https://travis-ci.com/prancer-io/prancer-travis-tutorial)
+1. Go to the job's page (Something like [https://travis-ci.com/prancer-io/prancer-travis-tutorial](https://travis-ci.com/prancer-io/prancer-travis-tutorial) but for your repository
 
 2. Click on the button `More options` in the top right and select `Trigger build`. Alternatively, you can just commit something on your branch and push it.
 
@@ -176,118 +213,51 @@ This will trigger the build. It can take a few seconds to complete as there are 
 3. It will pull the **MongoDB** docker image and start the container
 4. It will run the **Prancer** tests
 
-You should see a log of all this as it goes, and it should look something like:
+You should see a log of all this as it goes, and it should look something like in the end:
 
-    Worker information
-    Build system information
-    docker stop/waiting
-    resolvconf stop/waiting
-    0.01s$ sudo service docker start
-    0.58s$ git clone --depth=50 --branch=master https://github.com/prancer-io/prancer-travis-tutorial.git prancer-io/prancer-travis-tutorial
-    0.01s$ source ~/virtualenv/python3.6/bin/activate
-    $ python --version
-    Python 3.6.3
-    $ pip --version
-    pip 9.0.1 from /home/travis/virtualenv/python3.6.3/lib/python3.6/site-packages (python 3.6)
-    install.1
-    15.61s$ pip install prancer-basic
-    0.60s$ pip install --upgrade pyasn1-modules
-    11.17s$ docker run -d --name prancer_mongo -p 27017:27017 mongo
-    Unable to find image 'mongo:latest' locally
-    latest: Pulling from library/mongo
-    Status: Downloaded newer image for mongo:latest
-    5b1004b33d219bb0a7bdc4b73984b533ee2ab1777283382afb690ca11b0d5e30
-    The command "docker run -d --name prancer_mongo -p 27017:27017 mongo" exited with 0.
-    0.00s$ cd tests/prancer
-    The command "cd tests/prancer" exited with 0.
-    1.88s$ prancer git-container
-    2019-06-20 01:07:27,646(cli_validator: 170) - START: Argument parsing and Run Initialization.
-    2019-06-20 01:07:27,722(cmd: 722) - Popen(['git', 'version'], cwd=/home/travis/build/prancer-io/prancer-travis-tutorial/tests/prancer, universal_newlines=False, shell=None)
-    2019-06-20 01:07:27,726(cmd: 722) - Popen(['git', 'version'], cwd=/home/travis/build/prancer-io/prancer-travis-tutorial/tests/prancer, universal_newlines=False, shell=None)
-    2019-06-20 01:07:27,993(cli_validator: 181) - Comand: 'python /home/travis/virtualenv/python3.6.3/bin/prancer git-container'
-    2019-06-20 01:07:27,995(cli_validator: 189) - Args: Namespace(container='git-container', db=None)
+    2019-09-01 17:24:04,864(interpreter: 209) - ###########################################################################
+    2019-09-01 17:24:04,865(interpreter: 210) - Actual Rule: {1}.webserver.port=80
+    2019-09-01 17:24:04,877(interpreter: 219) - **************************************************
+    2019-09-01 17:24:04,878(interpreter: 220) - All the parsed tokens: ['{1}.webserver.port', '=', '80']
+    2019-09-01 17:24:04,879(rule_interpreter:  35) - {'dbname': 'validator', 'snapshots': {'1': 'security_groups'}}
+    2019-09-01 17:24:04,880(rule_interpreter:  36) - <class 'dict'>
+    2019-09-01 17:24:04,883(rule_interpreter:  78) - Regex match- groups:('1', '.webserver.port'), regex:\{(\d+)\}(\..*)*, value: {1}.webserver.port, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f91e6a700f0>> 
+    2019-09-01 17:24:04,884(rule_interpreter: 121) - matched grps: ('1', '.webserver.port'), type(grp0): <class 'str'>
+    2019-09-01 17:24:04,886(rule_interpreter: 150) - Number of Snapshot Documents: 1
+    2019-09-01 17:24:04,887(rule_interpreter:  78) - Regex match- groups:('80', None), regex:(\d+)(\.\d+)?, value: 80, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f91e6a700f0>> 
+    2019-09-01 17:24:04,889(rule_interpreter: 169) - LHS: 80, OP: =, RHS: 80
+    2019-09-01 17:24:04,890(rundata_utils:  92) - END: Completed the run and cleaning up.
 
-
-If the build passes, the log will end with something like:
-
-    2019-06-20 01:07:28,419(interpreter: 209) - ###########################################################################
-    2019-06-20 01:07:28,419(interpreter: 210) - Actual Rule: {1}.someobject.configuration.hello = 'world'
-    line 1:37 no viable alternative at input '{1}.someobject.configuration.hello='world''
-    2019-06-20 01:07:28,432(interpreter: 219) - **************************************************
-    2019-06-20 01:07:28,432(interpreter: 220) - All the parsed tokens: ['{1}.someobject.configuration.hello', '=', "'world'"]
-    2019-06-20 01:07:28,432(rule_interpreter:  35) - {'dbname': 'prancer', 'snapshots': {'1': 'json_data'}}
-    2019-06-20 01:07:28,433(rule_interpreter:  36) - <class 'dict'>
-    2019-06-20 01:07:28,434(rule_interpreter:  78) - Regex match- groups:('1', '.someobject.configuration.hello'), regex:\{(\d+)\}(\..*)*, value: {1}.someobject.configuration.hello, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7ff512a1ca20>> 
-    2019-06-20 01:07:28,435(rule_interpreter: 121) - matched grps: ('1', '.someobject.configuration.hello'), type(grp0): <class 'str'>
-    2019-06-20 01:07:28,436(rule_interpreter: 150) - Number of Snapshot Documents: 1
-    2019-06-20 01:07:28,437(rule_interpreter:  78) - Regex match- groups:(), regex:\'.*\', value: 'world', function: <bound method RuleInterpreter.match_string of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7ff512a1ca20>> 
-    2019-06-20 01:07:28,437(rule_interpreter: 169) - LHS: world, OP: =, RHS: world
-    2019-06-20 01:07:28,438(rundata_utils:  92) - END: Completed the run and cleaning up.
-    2019-06-20 01:07:28,439(rundata_utils: 102) -  Run Stats: {
-        "start": "2019-06-20 01:07:27",
-        "end": "2019-06-20 01:07:28",
-        "errors": [],
-        "host": "travis-job-586d94e0-203d-4dfa-bb4e-83ea3bf2e309",
-        "timestamp": "2019-06-20 01:07:27",
-        "log": "/home/travis/build/prancer-io/prancer-travis-tutorial/tests/prancer/log/20190620-010727.log",
-        "duration": "0 seconds"
-    }
-    The command "prancer git-container" exited with 0.
-    Done. Your build exited with 0.
-
-As you can see here, the rule interpreter ran fine:
-
-    2019-06-20 01:07:28,437(rule_interpreter: 169) - LHS: world, OP: =, RHS: world
-
-Which ended up as a success!
+As you can see here, the rule interpreter ran fine and compared `80` to `80` which ended up as a success!
 
 # Trigger a failure
 
-Now that we have a working example, let's simulate a failure by changing the file we are inspecting and use the wrong file instead.
+Now that we have a working example, let's simulate a failure by changing the file we are inspecting and use a wrong value.
 
-1. In `tests/prancer/validation/git-container/snapshot.json`, change the reference of `valid-file.json`  to `invalid-file.json`:
+1. In `data/config.json`, change the port value for `443` instead of `80`, it should look like this instead:
 
         {
-            "snapshotId": "1",
-            "type": "json",
-            "collection": "json_data",
-            "path": "data/json/invalid-file.json"
+            "webserver": {
+                "port": 443
+            }
         }
 
-2. Commit and push to the repository
+2. Commit and push to your repository. **Travis** will build this new commit and it will end in an error with something like this:
 
-This should automatically start a build. Once the build is complete, it should be in a failed state. The log will end with something like:
+        2019-09-01 17:32:27,480(interpreter: 209) - ###########################################################################
+        2019-09-01 17:32:27,481(interpreter: 210) - Actual Rule: {1}.webserver.port=80
+        2019-09-01 17:32:27,493(interpreter: 219) - **************************************************
+        2019-09-01 17:32:27,494(interpreter: 220) - All the parsed tokens: ['{1}.webserver.port', '=', '80']
+        2019-09-01 17:32:27,495(rule_interpreter:  35) - {'dbname': 'validator', 'snapshots': {'1': 'security_groups'}}
+        2019-09-01 17:32:27,496(rule_interpreter:  36) - <class 'dict'>
+        2019-09-01 17:32:27,499(rule_interpreter:  78) - Regex match- groups:('1', '.webserver.port'), regex:\{(\d+)\}(\..*)*, value: {1}.webserver.port, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7ff2722d2c18>> 
+        2019-09-01 17:32:27,500(rule_interpreter: 121) - matched grps: ('1', '.webserver.port'), type(grp0): <class 'str'>
+        2019-09-01 17:32:27,502(rule_interpreter: 150) - Number of Snapshot Documents: 1
+        2019-09-01 17:32:27,503(rule_interpreter:  78) - Regex match- groups:('80', None), regex:(\d+)(\.\d+)?, value: 80, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7ff2722d2c18>> 
+        2019-09-01 17:32:27,504(rule_interpreter: 169) - LHS: 443, OP: =, RHS: 80
+        2019-09-01 17:32:27,506(rundata_utils:  92) - END: Completed the run and cleaning up.
 
-    2019-06-21 13:08:27,698(interpreter: 209) - ###########################################################################
-    2019-06-21 13:08:27,699(interpreter: 210) - Actual Rule: {1}.someobject.configuration.hello = 'world'
-    line 1:37 no viable alternative at input '{1}.someobject.configuration.hello='world''
-    2019-06-21 13:08:27,712(interpreter: 219) - **************************************************
-    2019-06-21 13:08:27,712(interpreter: 220) - All the parsed tokens: ['{1}.someobject.configuration.hello', '=', "'world'"]
-    2019-06-21 13:08:27,712(rule_interpreter:  35) - {'dbname': 'prancer', 'snapshots': {'1': 'json_data'}}
-    2019-06-21 13:08:27,712(rule_interpreter:  36) - <class 'dict'>
-    2019-06-21 13:08:27,714(rule_interpreter:  78) - Regex match- groups:('1', '.someobject.configuration.hello'), regex:\{(\d+)\}(\..*)*, value: {1}.someobject.configuration.hello, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f607ddc09e8>> 
-    2019-06-21 13:08:27,714(rule_interpreter: 121) - matched grps: ('1', '.someobject.configuration.hello'), type(grp0): <class 'str'>
-    2019-06-21 13:08:27,716(rule_interpreter: 150) - Number of Snapshot Documents: 1
-    2019-06-21 13:08:27,716(rule_interpreter:  78) - Regex match- groups:(), regex:\'.*\', value: 'world', function: <bound method RuleInterpreter.match_string of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f607ddc09e8>> 
-    2019-06-21 13:08:27,717(rule_interpreter: 169) - LHS: hell, OP: =, RHS: world
-    2019-06-21 13:08:27,717(rundata_utils:  92) - END: Completed the run and cleaning up.
-    2019-06-21 13:08:27,718(rundata_utils: 102) -  Run Stats: {
-        "start": "2019-06-21 13:08:27",
-        "end": "2019-06-21 13:08:27",
-        "errors": [],
-        "host": "travis-job-f31bb1f6-b9ea-4835-8d57-cde1ddeb50c1",
-        "timestamp": "2019-06-21 13:08:27",
-        "log": "/home/travis/build/prancer-io/prancer-travis-tutorial/tests/prancer/log/20190621-130826.log",
-        "duration": "0 seconds"
-    }
-    The command "prancer git-container" exited with 1.
-    Done. Your build exited with 1.
-
-As you can see here, the rule interpreter ran the rule ok but found a mismatch:
-
-    2019-06-21 13:08:27,717(rule_interpreter: 169) - LHS: hell, OP: =, RHS: world
-
-Therefore, **Prancer** fails the build!
+    As you can see here, the rule interpreter ran fine and compared `443` to `80` which ended up as a failure!
 
 # Cleanup and rejoice
 
@@ -299,12 +269,6 @@ None of the resources created should cost anything to keep unless you used a tea
 # Conclusion
 
 That's it, you are done. You now know how to setup a basic `Prancer` test in **Travis CI**.
-
-Things to remember:
-
-1. **Prancer** exits with a proper exit code regarding success or failure. This means that any CI server, not just **Travis CI**, will catch the error code and stop right there if it receives an exit code that is not 0.
-2. Running **Prancer** from a CI doesn't do anything else than if you ran it from your machine, you still need to build your tests and ensure they work beforehand.
-3. Running tests without saving the artifacts of the tests, mostly when there are failures, will make it harder to figure out what failed. Read on the next tutorials to learn how to save your artifacts for later review.
 
 Thank you for completing this tutorial on **Prancer**.
 

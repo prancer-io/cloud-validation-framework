@@ -66,6 +66,16 @@ This file contains the data that we want to test using **Prancer**.
         }
     }
 
+## data/config-fails.json
+
+This file contains the data that we want to test using **Prancer**. This file is used in the failure scenario!
+
+    {
+        "webserver": {
+            "port": 443
+        }
+    }
+
 ## tests/prancer/project/.gitignore
 
 This is a simple .gitignore file that ensures we are not commiting files we don't want in our project. Prancer will output many files such as logs and reports, you want to have such a file.
@@ -132,7 +142,51 @@ This file describes the information we want to test, you shouldn't need to chang
 
 ## tests/prancer/project/validation/git/test.json
 
-This file describes the tests we want to achieve on the information we took a snapshot of. This is related to the previous file!
+This file describes the tests we want to achieve on the information we took a snapshot of.
+
+    {
+        "fileType": "test",
+        "snapshot": "snapshot",
+        "testSet": [
+            {
+                "testName ": "Ensure configuration uses port 80",
+                "version": "0.1",
+                "cases": [
+                    {
+                        "testId": "1",
+                        "rule": "{1}.webserver.port=80"
+                    }
+                ]
+            }
+        ]
+    }
+
+## tests/prancer/project/validation/git-fails/snapshot.json
+
+This file describes the information we want to test, you shouldn't need to change anything here. This file is used in the failure scenario!
+
+    {
+        "fileType": "snapshot",
+        "snapshots": [
+            {
+                "source": "gitConnector",
+                "type": "git",
+                "testUser": "git",
+                "nodes": [
+                    {
+                        "snapshotId": "1",
+                        "type": "json",
+                        "collection": "security_groups",
+                        "path": "data/config.json"
+                    }
+                ]
+            }
+        ]
+    }
+
+## tests/prancer/project/validation/git-fails/test.json
+
+This file describes the tests we want to achieve on the information we took a snapshot of. This file is used in the failure scenario!
 
     {
         "fileType": "test",
@@ -153,142 +207,74 @@ This file describes the tests we want to achieve on the information we took a sn
 
 # Run the tests
 
-Before running the tests, we'll need a **MongoDB** server. If you are using your own and updated the configuration files in the previous section, perfect, skip to **Running a prancer test**. On the other hand, if you need a server, the best solution is to just start one in a **Docker** container. This will make it easily discardable!
+Before running the tests, we'll need a **MongoDB** server. If you are using your own and updated the configuration files in the previous section, perfect, skip to **Running a Prancer test** but remove the `--network prancer` in the **Docker** call. On the other hand, if you need a server, the best solution is to just start one in a **Docker** container. This will make it easily discardable!
 
 ## Starting a MongoDB in a Docker container
 
 Starting a **MongoDB** server using **Docker** is easy but because we want to have multiple containers communicating together, we'll need to create a network to link both of them together. Once created, we can start the **MongoDB** server inside that network:
 
     docker network create prancer
-    docker run -d --name prancer-mongodb-server -it --network prancer mongo
+    docker run --rm -it --name prancer-mongodb-server --network prancer mongo
 
 Thats it, you now have a dockerized **MongoDB** server.
 
 ## Running a Prancer test
 
-Once you are ready to execute your tests, you can run the following command to start a snapshot and a testing phase. If you are using a container for the **MongoDB** server run the second version of the **Prancer** command:
+Once you are ready to execute your tests, you can run the following command to start a snapshot and a testing phase.
 
-    # First ensure you are in the root of the repository / the folder containing the `tests/prancer`:
     cd "root-of-whole-project"
-
-    # Run Prancer WITHOUT the dockerized MongoDB server
-    docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" prancer prancer git
-
-    # Run Prancer WITH the dockerized MongoDB server
     docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" --network prancer prancer prancer git
-
-Let's deconstruct this to understand each part:
-
-1. `docker run --rm -it`
-
-    The standard command that will run an image with terminal emulation, input support and kill the container once the process is done!
-
-2. `-v "$(pwd)/tests/prancer/project:/prancer/project"`
-
-    This part tells **Docker** to map the current directory's `/tests/prancer/project` folder to `/prancer/project` inside the container. This is necessary because **Prancer** is configured to execute from that directory. You can override the working directory using `-w <folder>` and map the project somewhere else but it won't give you any added benefit.
-
-    Note that by binding this, your logs will be put in the mounted volume which means you won't lose them once the process is done. Because of the **MongoDB** limitation though, you will lose your **MongoDB** data if you don't add an additional `-v "$(pwd)/mongo:/data/db". This isn't critical but can be favorable depending on your testing approach.
-
-3. `--network prancer`
-
-    This optional part tells **Docker** to use a special network to link all containers together. This has the advantage of allowing you to resolve special hostnames within containers that could refer to other containers. Those names are the name that you give to a container. For example, if you use the containerized **MongoDB**, we suggest to call this container `--name prancer-mongodb-server` so the hostname would be `prancer-mongodb-server` when you are in the **Prancer** container.
-
-4. `prancer`
-
-    This is simply the image name. If you tagged the image name differently when you built it earlier, change this.
-
-5. `prancer git`
-
-    This is the command that we'll execute in the container. It tells the **Prancer** which container to validate, in this case, we called it `git`. If you renamed the container in `tests/prancer/project/validation` then you need to change this here.
 
 Once this has run, you can find a `tests/prancer/project/validation/git/output-test.json` in the container folder and a log file in the `log/` folder. The exit code of the tool (`echo ?$`) should return 0 stating that everything went well. The log should look something like:
 
-    2019-07-22 18:04:47,533(rule_interpreter: 169) - LHS: 80, OP: =, RHS: 80
-    2019-07-22 18:04:47,533(rundata_utils:  92) - END: Completed the run and cleaning up.
-    2019-07-22 18:04:47,533(rundata_utils: 102) -  Run Stats: {
-        "start": "2019-07-22 18:04:46",
-        "end": "2019-07-22 18:04:47",
-        "errors": [],
-        "host": "3eb17c24a573",
-        "timestamp": "2019-07-22 18:04:46",
-        "log": "/prancer/project/log/20190722-180445.log",
-        "duration": "1 seconds"
-    }
+    2019-09-01 16:16:19,142(interpreter: 209) - ###########################################################################
+    2019-09-01 16:16:19,143(interpreter: 210) - Actual Rule: {1}.webserver.port=80
+    2019-09-01 16:16:19,158(interpreter: 219) - **************************************************
+    2019-09-01 16:16:19,158(interpreter: 220) - All the parsed tokens: ['{1}.webserver.port', '=', '80']
+    2019-09-01 16:16:19,158(rule_interpreter:  35) - {'dbname': 'validator', 'snapshots': {'1': 'security_groups'}}
+    2019-09-01 16:16:19,158(rule_interpreter:  36) - <class 'dict'>
+    2019-09-01 16:16:19,160(rule_interpreter:  78) - Regex match- groups:('1', '.webserver.port'), regex:\{(\d+)\}(\..*)*, value: {1}.webserver.port, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f50d65cc5f8>> 
+    2019-09-01 16:16:19,160(rule_interpreter: 121) - matched grps: ('1', '.webserver.port'), type(grp0): <class 'str'>
+    2019-09-01 16:16:19,161(rule_interpreter: 150) - Number of Snapshot Documents: 1
+    2019-09-01 16:16:19,162(rule_interpreter:  78) - Regex match- groups:('80', None), regex:(\d+)(\.\d+)?, value: 80, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f50d65cc5f8>> 
+    2019-09-01 16:16:19,162(rule_interpreter: 169) - LHS: 80, OP: =, RHS: 80
+    2019-09-01 16:16:19,163(rundata_utils:  92) - END: Completed the run and cleaning up
 
-Which shows that the test ran fine trying to compare port 80 to port 80.
-
-## Checking the MongoDB server did record information
-
-If you used a container for **MongoDB**, it would be nice to check if the data did make it in there. To do so, we'll need to run the client as a container connecting to it:
-
-    docker run -it --network prancer --rm mongo mongo --host prancer-mongodb-server validator
-
-This will get you in the MongoDB server, you can then list the collections which should show `security_groups`. If you find all content in there, you should see our snapshots:
-
-    show collections;
-    db.security_groups.find().pretty();
+Which shows that the test ran fine trying to compare port `80` to port `80`.
 
 # Triggering a failure
 
-## Using our repository
-
 Because our repository is read-only, you can't create a real configuration drift. Therefore, we'll adjust the command you use to run **Prancer** and use a different test that is already programmed to fail by default. Simply run:
 
-    docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" --network prancer prancer prancer git-fail
+    cd "root-of-whole-project"
+    docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" --network prancer prancer prancer git-fails
 
 You should have a failing state proving that the drift was indeed detected. The log should look something like:
 
-    2019-07-22 18:08:58,837(rule_interpreter: 169) - LHS: 80, OP: =, RHS: 443
-    2019-07-22 18:08:58,837(rundata_utils:  92) - END: Completed the run and cleaning up.
-    2019-07-22 18:08:58,838(rundata_utils: 102) -  Run Stats: {
-        "start": "2019-07-22 18:08:57",
-        "end": "2019-07-22 18:08:58",
-        "errors": [],
-        "host": "8531f1a4c4f0",
-        "timestamp": "2019-07-22 18:08:57",
-        "log": "/prancer/project/log/20190722-180857.log",
-        "duration": "1 seconds"
-    }
+    2019-09-01 16:17:56,492(interpreter: 209) - ###########################################################################
+    2019-09-01 16:17:56,492(interpreter: 210) - Actual Rule: {1}.webserver.port=80
+    2019-09-01 16:17:56,502(interpreter: 219) - **************************************************
+    2019-09-01 16:17:56,502(interpreter: 220) - All the parsed tokens: ['{1}.webserver.port', '=', '80']
+    2019-09-01 16:17:56,502(rule_interpreter:  35) - {'dbname': 'validator', 'snapshots': {'1': 'security_groups'}}
+    2019-09-01 16:17:56,502(rule_interpreter:  36) - <class 'dict'>
+    2019-09-01 16:17:56,504(rule_interpreter:  78) - Regex match- groups:('1', '.webserver.port'), regex:\{(\d+)\}(\..*)*, value: {1}.webserver.port, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f27d5d8a5c0>> 
+    2019-09-01 16:17:56,504(rule_interpreter: 121) - matched grps: ('1', '.webserver.port'), type(grp0): <class 'str'>
+    2019-09-01 16:17:56,505(rule_interpreter: 150) - Number of Snapshot Documents: 1
+    2019-09-01 16:17:56,505(rule_interpreter:  78) - Regex match- groups:('80', None), regex:(\d+)(\.\d+)?, value: 80, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f27d5d8a5c0>> 
+    2019-09-01 16:17:56,505(rule_interpreter: 169) - LHS: 443, OP: =, RHS: 80
+    2019-09-01 16:17:56,506(rundata_utils:  92) - END: Completed the run and cleaning up.
 
-Which shows that the test ran fine trying to compare port 80 to port 443, which obviously fails!
+Which shows that the test ran fine trying to compare port `443` to port `80`, which obviously fails!
 
-## Using your own repository
-
-Now that we have passing tests, let's trigger a simple failure to see how everything fits together. To achieve this, we'll need to create a configuration drift, that is, change something in the `data/config.json` file that doesn't match the expected tests.
-
-1. Change the port `80` in there for `443`
-2. Save and push the changes to your git repository
-
-Now, if you run the tests again:
-
-    docker run --rm -it -v "$(pwd)/tests/prancer/project:/prancer/project" prancer bash -c "service mongodb restart && prancer git"
-
-You should have a failing state proving that the drift was indeed detected. The log should look something like:
-
-    2019-07-22 18:08:58,837(rule_interpreter: 169) - LHS: 443, OP: =, RHS: 80
-    2019-07-22 18:08:58,837(rundata_utils:  92) - END: Completed the run and cleaning up.
-    2019-07-22 18:08:58,838(rundata_utils: 102) -  Run Stats: {
-        "start": "2019-07-22 18:08:57",
-        "end": "2019-07-22 18:08:58",
-        "errors": [],
-        "host": "8531f1a4c4f0",
-        "timestamp": "2019-07-22 18:08:57",
-        "log": "/prancer/project/log/20190722-180857.log",
-        "duration": "1 seconds"
-    }
-
-Which shows that the test ran fine trying to compare port 443 to port 80, which obviously fails!
+> If you are using your own repository, you can create a true configuration drift by changing the test or the config file and push the changes to your repo. You don't need to use the `git-fails` container in the validation call.
 
 # Cleanup your resources
 
-Depending on your choices, you will have different cleanup steps:
+Here is a list of things to cleanup if you followed the tutorial without any changes:
 
-1. If you used your own **Git** repository, then feel free to destroy it if you want.
-2. If you used a **Docker** container for **MongoDB**, then you need to stop it and drop the network:
-
-        docker stop prancer-mongodb-server
-        docker rm prancer-mongodb-server
-        docker network remove prancer
+1. In the terminal windows that runs the **MongoDB** server, press `CTRL+C` to shut it down and destroy the container
+2. Destroy the network: `docker network rm prancer`
+3. You may also want to delete the prancer image: `docker rmi prancer`
 
 # Conclusion
 

@@ -6,28 +6,32 @@ Before taking this tutorial, you will need to follow some more generic steps:
 
 Then, you can follow these steps:
 
-1. Setup a **Jenkins** server
-2. Create a **Prancer** project where our files will exist
-3. Create a **Jenkins** job
-4. Run the job
-5. Trigger a failure
-6. Cleanup and rejoice
+1. Checkout example files
+2. Setup a **Jenkins** server
+3. Create a **Prancer** project where our files will exist
+4. Create a **Jenkins** job
+5. Run the job
+6. Trigger a failure
+7. Cleanup and rejoice
+
+# Checkout example files
+
+We have all the files already prepared for you in a public read-only repository. 
+
+We'll still show all the content of each files in this tutorial and explain some tweaks you can and should do. You can use your own repository and write the files yourself but it'll be easier and faster if you checkout ours:
+
+    cd <working directory>
+    git clone https://github.com/prancer-io/prancer-jenkins-tutorial
+    cd prancer-jenkins-tutorial
 
 # Setup a **Jenkins** server
 
 ## Get the Jenkins container running
 
-> <NoteTitle>Previous runs</NoteTitle>
->
-> If you are restarting this tutorial and already ran it before, you will not have the administrator password shown. You will need to `docker volume rm jenkins_home` to start from scratch.
-
 To get our integration running, we need a **Jenkins** server. Let's start one using **Docker**:
 
     docker network create prancer
-
-    docker run -p 8080:8080 --name prancer-jenkins-tutorial --network prancer -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
-
-Feel free to change the mapped ports, volume or network.
+    docker run --rm --name prancer-jenkins-tutorial -p 8080:8080 -p 50000:50000 --network prancer jenkins/jenkins:lts
 
 Once the server has started, look at the log for the administrator password. It should look something like:
 
@@ -48,58 +52,40 @@ Once the server has started, look at the log for the administrator password. It 
 
 Copy this string in memory, you will need it in a few seconds.
 
-Once **Jenkins** is ready (you should see a "Jenkins is fully up and running" in the log), visit the [server](http://localhost:8080). It will ask you to unlock your **Jenkins** server. Paste in the code you copied from the log. Then, following the instructions below:
+Once **Jenkins** is ready (you should see a `Jenkins is fully up and running` in the log), visit the [server](http://localhost:8080). It will ask you to unlock your **Jenkins** server. Paste in the code you copied from the log. Then, following the instructions below:
 
 1. Click on `Install suggested plugins`
-2. Create an `admin` user (Keep it simple for this demo, we suggest to use `admin` for both username and password)
+2. Create a user with username and password both set to `admin`
 3. Set the proper URL if not properly set
 4. Confirm the start of **Jenkins**
 
 ## Get a MongoDB container running
 
-The next step is to create a **MongoDB** server to store your results. We'll add that to the previously created **Docker** network:
+The next step is to create a **MongoDB** server to store your results. We'll add that to the previously created **Docker** network. Create a new terminal window and run:
 
-    docker run -d --name prancer-mongodb-server -it --network prancer mongo
-
-Later, you will have to configure the `dburl` in your configuration file to:
-
-    dburl=mongodb://prancer-mongodb-server:27017/validator
+    docker run --rm -it --name prancer-mongodb-server --network prancer mongo
 
 Thats it, you now have a dockerized **MongoDB** server.
 
 ## Configure the master / slave node with Prancer
 
-The final step to setting up your instance is to install **Prancer** on the master / slave node (The **Jenkins** server). We named our node `prancer-jenkins-tutorial`, using the `--name` switch, we can execute simple root commands to install **Prancer** on that container.
+The final step to setting up your instance is to install **Prancer** on the master node (The **Jenkins** server). We named our node `prancer-jenkins-tutorial`, therefore, using the `--name` switch, we can execute simple root commands to install **Prancer** on that container:
 
-    # Update your container's apt cache
+    # Update your container's apt cache and install prancer
 	docker exec -itu 0 prancer-jenkins-tutorial apt update -y
-
-    # Install python and pip
     docker exec -itu 0 prancer-jenkins-tutorial apt install -y python3 python3-pip
-
-    # Install prancer-basic and upgrade some modules
     docker exec -itu 0 prancer-jenkins-tutorial pip3 install prancer-basic
     docker exec -itu 0 prancer-jenkins-tutorial pip3 install --upgrade pyasn1-modules
 
-At this point, your master node should be setup properly to run Prancer!
-
-> <NoteTitle>Alternatives</NoteTitle>
->
-> There are other ways to install **Prancer** on your master node but this is a straighforward and easy to undertand way. The better approach would be to use slave nodes which we'll cover in a later tutorial.
+At this point, your master node should be setup properly to run **Prancer**!
 
 # Create a Prancer project
 
-Next, we'll need a prancer project where we store our json file that will be tested. Open a new directory and create the sub directories and the `template.json` file with the following content. If you have cloned our repository as previously suggested, you don't need to do this but you can look at the instructions.
+Next, we'll need a **Prancer** project. This is where all the configuration and test files will live. Here's the content of each file with a brief description.
 
-First run:
+## data/config.json
 
-    cd "<root-directory-of-your-project>"
-    mkdir -p tests/prancer/validation/git
-    mkdir -p data
-
-Then, let's create the content for each file:
-
-**data/config.json**
+This file contains the data that we want to test using **Prancer**.
 
     {
         "webserver": {
@@ -107,13 +93,27 @@ Then, let's create the content for each file:
         }
     }
 
-**tests/prancer/project/.gitignore**
+## data/config-fails.json
+
+This file contains the data that we want to test using **Prancer**. This file is used in the failure scenario!
+
+    {
+        "webserver": {
+            "port": 443
+        }
+    }
+
+## tests/prancer/project/.gitignore
+
+This is a simple .gitignore file that ensures we are not commiting files we don't want in our project. Prancer will output many files such as logs and reports, you want to have such a file.
 
     log/*
     *.log
     output-*json
 
-**tests/prancer/project/config.ini**
+## tests/prancer/project/config.ini
+
+This is the configuration file. You can change many things in here but the default configuration we provide should suffice. If you want to use your own **MongoDB** server then you should change the `dburl` property.
 
     [LOGGING]
     level = DEBUG
@@ -132,21 +132,21 @@ Then, let's create the content for each file:
     containerFolder = validation
     database = false
 
-**tests/prancer/project/gitConnector.json**
+## tests/prancer/project/gitConnector.json
+
+This is the configuration file that leads to the files **Prancer** will need to check out when running tests. It is currently pointing to our public read-only repository. If you want to use your own, feel free to remap the remote once you checked out our files and push the files somewhere else.
 
     {
         "fileType": "structure",
         "companyName": "prancer-test",
-        "gitProvider": "https://github.com/prancer-io/prancer-docker-tutorial.git",
+        "gitProvider": "https://github.com/prancer-io/prancer-jenkins-tutorial.git",
         "branchName":"master",
         "private": false
     }
 
-> <NoteTitle>Changes</NoteTitle>
->
-> Remember to substitute the **gitProvider** with your own!
+## tests/prancer/project/validation/git/snapshot.json
 
-**tests/prancer/project/validation/git/snapshot.json**
+This file describes the information we want to test, you shouldn't need to change anything here.
 
     {
         "fileType": "snapshot",
@@ -167,7 +167,9 @@ Then, let's create the content for each file:
         ]
     }
 
-**tests/prancer/project/validation/git/test.json**
+## tests/prancer/project/validation/git/test.json
+
+This file describes the tests we want to achieve on the information we took a snapshot of.
 
     {
         "fileType": "test",
@@ -186,15 +188,49 @@ Then, let's create the content for each file:
         ]
     }
 
-Then, commit this setup to a repository that is accessible using git such as on GitHub. Note that you must create the repository beforehand.
+## tests/prancer/project/validation/git-fails/snapshot.json
 
-    git init
-    git remote add origin git@github.com:your-user/some-repo.git
-    git add .
-    git commit -m "Tutorial on jenkins"
-    git push
+This file describes the information we want to test, you shouldn't need to change anything here. This file is used in the failure scenario!
 
-Following this, you should be able to see your code on your repository.
+    {
+        "fileType": "snapshot",
+        "snapshots": [
+            {
+                "source": "gitConnector",
+                "type": "git",
+                "testUser": "git",
+                "nodes": [
+                    {
+                        "snapshotId": "1",
+                        "type": "json",
+                        "collection": "security_groups",
+                        "path": "data/config-fails.json"
+                    }
+                ]
+            }
+        ]
+    }
+
+## tests/prancer/project/validation/git-fails/test.json
+
+This file describes the tests we want to achieve on the information we took a snapshot of. This file is used in the failure scenario!
+
+    {
+        "fileType": "test",
+        "snapshot": "snapshot",
+        "testSet": [
+            {
+                "testName ": "Ensure configuration uses port 80",
+                "version": "0.1",
+                "cases": [
+                    {
+                        "testId": "1",
+                        "rule": "{1}.webserver.port=80"
+                    }
+                ]
+            }
+        ]
+    }
 
 # Create a **Jenkins** job
 
@@ -262,23 +298,24 @@ This will trigger a build and within seconds, thanks to our very simple project,
 
 It should show the same log as if you ran **Prancer** from your machine but instead it was run as a CI job on your **Jenkins** server.
 
-    2019-06-10 14:23:47,962(interpreter: 209) - ###########################################################################
-    2019-06-10 14:23:47,963(interpreter: 210) - Actual Rule: {1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=22].CidrIp= '172.16.0.0/16'
-    2019-06-10 14:23:47,965(interpreter: 219) - **************************************************
-    2019-06-10 14:23:47,966(interpreter: 220) - All the parsed tokens: ["{1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=22].CidrIp", '=', "'172.16.0.0/16'"]
-    2019-06-10 14:23:47,967(rule_interpreter:  35) - {'dbname': 'validator', 'snapshots': {'1': 'security_groups'}}
-    2019-06-10 14:23:47,967(rule_interpreter:  36) - <class 'dict'>
-    2019-06-10 14:23:47,967(rule_interpreter:  78) - Regex match- groups:('1', ".Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=22].CidrIp"), regex:\{(\d+)\}(\..*)*, value: {1}.Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=22].CidrIp, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f023e7f0d30>> 
-    2019-06-10 14:23:47,968(rule_interpreter: 121) - matched grps: ('1', ".Resources.PrancerTutorialSecGroup.Properties.SecurityGroupIngress['FromPort'=22].CidrIp"), type(grp0): <class 'str'>
-    2019-06-10 14:23:47,969(rule_interpreter: 150) - Number of Snapshot Documents: 1
-    2019-06-10 14:23:47,969(rule_interpreter:  78) - Regex match- groups:(), regex:\'.*\', value: '172.16.0.0/16', function: <bound method RuleInterpreter.match_string of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f023e7f0d30>> 
-    2019-06-10 14:23:47,970(rule_interpreter: 169) - LHS: 172.16.0.0/16, OP: =, RHS: 172.16.0.0/16
+    2019-09-01 16:08:02,760(interpreter: 209) - ###########################################################################
+    2019-09-01 16:08:02,760(interpreter: 210) - Actual Rule: {1}.webserver.port=80
+    2019-09-01 16:08:02,778(interpreter: 219) - **************************************************
+    2019-09-01 16:08:02,779(interpreter: 220) - All the parsed tokens: ['{1}.webserver.port', '=', '80']
+    2019-09-01 16:08:02,779(rule_interpreter:  35) - {'snapshots': {'1': 'security_groups'}, 'dbname': 'validator'}
+    2019-09-01 16:08:02,779(rule_interpreter:  36) - <class 'dict'>
+    2019-09-01 16:08:02,780(rule_interpreter:  78) - Regex match- groups:('1', '.webserver.port'), regex:\{(\d+)\}(\..*)*, value: {1}.webserver.port, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f2e9dde3748>> 
+    2019-09-01 16:08:02,780(rule_interpreter: 121) - matched grps: ('1', '.webserver.port'), type(grp0): <class 'str'>
+    2019-09-01 16:08:02,782(rule_interpreter: 150) - Number of Snapshot Documents: 1
+    2019-09-01 16:08:02,782(rule_interpreter:  78) - Regex match- groups:('80', None), regex:(\d+)(\.\d+)?, value: 80, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f2e9dde3748>> 
+    2019-09-01 16:08:02,783(rule_interpreter: 169) - LHS: 80, OP: =, RHS: 80
+    2019-09-01 16:08:02,783(rundata_utils:  92) - END: Completed the run and cleaning up.
 
-You can see here, in the last rule interpreted, that the LHS is **172.16.0.0/16** so the comparison between **172.16.0.0/16** and **172.16.0.0/16** passes and so the test succeeds.
+You can see here, in the last rule interpreted, that the LHS is **80** so the comparison between **80** and **80** passes and so the test succeeds.
 
 # Trigger a failure
 
-Now that we have a working example, let's simulate a failure by changing the test that is run with another that cannot succeed:
+Now that we have a working example, let's simulate a failure by changing the test that is ran with another that cannot succeed:
 
 1. Go to the job's page (Something like [http://localhost:8080/job/prancer-jenkins-tutorial/](http://localhost:8080/job/prancer-jenkins-tutorial/))
 2. Click on the `Configure` option in the sidebar
@@ -298,13 +335,13 @@ Now that we have a working example, let's simulate a failure by changing the tes
             stage('Build') { 
                 steps { 
                     git url: 'https://github.com/prancer-io/prancer-jenkins-tutorial.git',
-                        branch: 'fails'
+                        branch: 'master'
                 }
             }
             stage('Test'){
                 steps {
                     dir("tests/prancer/project") {
-                        sh "prancer git"
+                        sh "prancer git-fails"
                     }
                 }
             }
@@ -333,40 +370,32 @@ This will trigger a build and within seconds, thanks to our very simple project,
 
 It should show the same log as if you ran **Prancer** from your machine but instead it was run as a CI job on your **Jenkins** server.
 
-    ###########################################################################
-    2019-08-12 14:22:03,680(interpreter: 210) - Actual Rule: {1}.webserver.port=80
-    2019-08-12 14:22:03,697(interpreter: 219) - **************************************************
-    2019-08-12 14:22:03,698(interpreter: 220) - All the parsed tokens: ['{1}.webserver.port', '=', '80']
-    2019-08-12 14:22:03,698(rule_interpreter:  35) - {'snapshots': {'1': 'security_groups'}, 'dbname': 'validator'}
-    2019-08-12 14:22:03,698(rule_interpreter:  36) - <class 'dict'>
-    2019-08-12 14:22:03,699(rule_interpreter:  78) - Regex match- groups:('1', '.webserver.port'), regex:\{(\d+)\}(\..*)*, value: {1}.webserver.port, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f9d90845748>> 
-    2019-08-12 14:22:03,699(rule_interpreter: 121) - matched grps: ('1', '.webserver.port'), type(grp0): <class 'str'>
-    2019-08-12 14:22:03,700(rule_interpreter: 150) - Number of Snapshot Documents: 1
-    2019-08-12 14:22:03,701(rule_interpreter:  78) - Regex match- groups:('80', None), regex:(\d+)(\.\d+)?, value: 80, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f9d90845748>> 
-    2019-08-12 14:22:03,701(rule_interpreter: 169) - LHS: 8080, OP: =, RHS: 80
+    2019-09-01 16:10:10,723(interpreter: 209) - ###########################################################################
+    2019-09-01 16:10:10,723(interpreter: 210) - Actual Rule: {1}.webserver.port=80
+    2019-09-01 16:10:10,737(interpreter: 219) - **************************************************
+    2019-09-01 16:10:10,737(interpreter: 220) - All the parsed tokens: ['{1}.webserver.port', '=', '80']
+    2019-09-01 16:10:10,737(rule_interpreter:  35) - {'snapshots': {'1': 'security_groups'}, 'dbname': 'validator'}
+    2019-09-01 16:10:10,737(rule_interpreter:  36) - <class 'dict'>
+    2019-09-01 16:10:10,738(rule_interpreter:  78) - Regex match- groups:('1', '.webserver.port'), regex:\{(\d+)\}(\..*)*, value: {1}.webserver.port, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f02463805c0>> 
+    2019-09-01 16:10:10,738(rule_interpreter: 121) - matched grps: ('1', '.webserver.port'), type(grp0): <class 'str'>
+    2019-09-01 16:10:10,739(rule_interpreter: 150) - Number of Snapshot Documents: 1
+    2019-09-01 16:10:10,740(rule_interpreter:  78) - Regex match- groups:('80', None), regex:(\d+)(\.\d+)?, value: 80, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f02463805c0>> 
+    2019-09-01 16:10:10,740(rule_interpreter: 169) - LHS: 443, OP: =, RHS: 80
+    2019-09-01 16:10:10,741(rundata_utils:  92) - END: Completed the run and cleaning up.
 
-You can see here that the LHS is 8080 and it is compared to 80 so the test fails.
+You can see here that the LHS is 443 and it is compared to 80 so the test fails.
 
 # Cleanup and rejoice
 
-If you followed this tutorial without altering the resources to create, then it should be relatively easy to cleanup, here is a list:
+Here is a list of things to cleanup if you followed the tutorial without any changes:
 
-1. Kill the **Jenkins** docker container, you can simply `CTRL+C` out of it
-2. Destroy the docker container: `docker rm prancer-jenkins-tutorial`
-3. Destroy the docker volume: `docker volume rm jenkins_home`
-4. Destroy the **MongoDB** container: `docker stop prancer-mongodb-server` && `docker rm prancer-mongodb-server`
-5. Destroy the network: `docker network rm prancer`
-6. Destroy the useless repositories such as `prancer-tests` and `prancer-cicd-tutorial` if you used your own
+1. In the terminal windows that runs the **Jenkins** server, press `CTRL+C` to shut it down and destroy the container
+2. In the terminal windows that runs the **MongoDB** server, press `CTRL+C` to shut it down and destroy the container
+3. Destroy the network: `docker network rm prancer`
 
 # Conclusion
 
 That's it, you are done. You now know how to setup a basic `Prancer` test in **Jenkins**.
-
-Things to remember:
-
-1. **Prancer** exits with a proper exit code regarding success or failure. This means that any CI server, not just **Jenkins**, will catch the error code and stop right there if it receives an exit code that is not 0.
-2. Running **Prancer** from a CI doesn't do anything else than if you ran it from your machine, you still need to build your tests and ensure they work beforehand.
-3. Running tests without saving the artifacts of the tests, mostly when there are failures, will make it harder to figure out what failed. Read on the next tutorials to learn how to save your artifacts for later review.
 
 Thank you for completing this tutorial on **Prancer**.
 
