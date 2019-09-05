@@ -3,7 +3,7 @@
 """
 from builtins import input
 import os
-import subprocess
+from subprocess import Popen, PIPE
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import get_from_currentdata,\
     put_in_currentdata, add_to_exclude_list
@@ -74,14 +74,12 @@ def get_cyberark_data(secret_key=None):
     if ca_object and ca_exe and ca_appid:
         cmd_args = '%s  GetPassword -p AppDescs.AppID=%s -p Query="Safe=%s;Folder=Root;Object=%s-%s" -o Password' \
                   % (ca_exe, ca_appid, ca_safe, ca_object, secret_key)
-        my_process = subprocess.Popen(cmd_args, shell=True, stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE,
-                                     stdin=subprocess.PIPE)
+        my_process = Popen(cmd_args, shell=True, stdout=PIPE,
+                                     stderr=PIPE,
+                                     stdin=PIPE)
         out, err = my_process.communicate()
-        val = out.rstrip()
         err_result = err.rstrip() if err else None
-        if isinstance(val, bytes):
-            val = val.decode()
+        val = out.decode() if isinstance(out, bytes) else out.rstrip()
         if err_result:
             val = None
         else:
