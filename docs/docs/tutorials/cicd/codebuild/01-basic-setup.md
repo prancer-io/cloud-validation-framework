@@ -4,34 +4,44 @@ Before taking this tutorial, ensure the following:
 
 1. You have an **AWS** account
 2. You can create **VPC** and **EC2** resources on this account
+3. You can create **AWS CodeCommit** repositories to store the copy of your code to test
+4. You can create **AWS CodeBuild** jobs to test your infrastructure
 
 Then, you can follow these steps:
 
-1. Create a **Prancer** project
-2. Setup the monitored **AWS** environment
-3. Create an **AWS CodeBuild** build project
-4. Run the build job
-5. Trigger a failure
-6. Cleanup and rejoice
+1. Checkout example files
+2. Create a **Prancer** project
+3. Setup your **AWS** account
+4. Setup the monitored **AWS** environment
+5. Create an **AWS CodeBuild** build project
+6. Run the build job
+7. Trigger a failure
+8. Cleanup and rejoice
+
+# Checkout example files
+
+We have all the files already prepared for you in a public read-only repository. 
+
+We'll still show all the content of each files in this tutorial and explain some tweaks you can and should do. You can use your own repository and write the files yourself but it'll be easier and faster if you checkout ours:
+
+    cd <working directory>
+    git clone https://github.com/prancer-io/prancer-aws-codebuild-tutorial
+    cd prancer-aws-codebuild-tutorial
 
 # Create a **Prancer** project
 
-First, we'll need a **Prancer** project. We'll store all of our **Prancer** project file in what would be a standard web application project. We'll add to that our **AWS CloudFormation** template and our **AWS CodeBuild** `buildspec.yml` file.
+First, we'll need a **Prancer** project. This is where all the configuration and test files will live. Here's the content of each file with a brief description.
 
-> <NoteTitle>Shortcut</NoteTitle>
->
-> You can use [https://github.com/prancer-io/prancer-code-build-tutorial](https://github.com/prancer-io/prancer-code-build-tutorial) if you want, it contains exactly the same thing that you will be creating below but you still need to setup the security in it.
+## buildspec.yml
 
-Create an empty directory and copy all the following files in their proper location as indicated by the filenames:
-
-**buildspec.yml**
+This file drives the AWS CodeBuild job that will test your virtual cloud infrastructure.
 
     version: 0.2
                 
     phases:
         install:
             runtime-versions:
-                python: 3.7
+                python: 3.6
                 docker: 18
             commands:
                 - pip3 install prancer-basic
@@ -41,10 +51,12 @@ Create an empty directory and copy all the following files in their proper locat
         post_build:
             commands:
                 - docker run -d --name prancer_mongo -p 27017:27017 mongo
-                - cd tests/prancer
-                - prancer aws-container
+                - cd tests/prancer/project
+                - prancer aws
 
-**devops/aws/template.yaml**
+## devops/aws/template.yml
+
+This file is the AWS CloudFormation template used to provision a small virtual infrastructure that will be tested.
 
     Resources:
         PrancerTutorialVPC:
@@ -72,14 +84,27 @@ Create an empty directory and copy all the following files in their proper locat
                         ToPort: 22
                         CidrIp: 172.16.0.0/16
 
-**tests/prancer/config.ini**
+## tests/prancer/project/.gitignore
 
-    [MONGODB]
-    dbname = prancer
+This is a simple .gitignore file that ensures we are not commiting files we don't want in our project. Prancer will output many files such as logs and reports, you want to have such a file.
+
+    log/*
+    *.log
+    output-*json
+
+## tests/prancer/project/config.ini
+
+This is the configuration file. You can change many things in here but the default configuration we provide should suffice. If you want to use your own **MongoDB** server then you should change the `dburl` property.
 
     [LOGGING]
     level = DEBUG
+    propagate = true
     logFolder = log
+    dbname = whitekite
+
+    [MONGODB]
+    dburl = mongodb://localhost:27017/validator
+    dbname = validator
 
     [REPORTING]
     reportOutputFolder = validation
@@ -88,29 +113,31 @@ Create an empty directory and copy all the following files in their proper locat
     containerFolder = validation
     database = false
 
-**tests/prancer/awsConnector.json**
+
+
+## tests/prancer/project/awsConnector.json
 
 > <NoteTitle>Setup beforehand</NoteTitle>
 >
-> If you haven't done it yet, you'll need to follow the steps in [AWS Connector](/connectors/aws) to setup your basic IAM user.
+> If you haven't done it yet, you'll need to follow the steps in [AWS Connector](/connectors/aws) to setup your basic IAM user. If you change the username, remember to update the `prancer_ro` in this file and the following!
 
     {
-        "organization": "Organization name",
+        "organization": "organization",
         "fileType": "structure",
         "organization-unit": [
             {
-                "name": "Unit/Department name",
+                "name": "unit",
                 "accounts": [
                     {
-                        "account-name": "Account name",
-                        "account-description": "Description of account",
+                        "account-name": "prancer-io",
+                        "account-description": "account description",
                         "account-id": "<account-id>",
                         "users": [
                             {
-                                "name": "<iam-user>",
-                                "access-key": "<iam-access-key>",
-                                "secret-access": "<secret-access-key>",
-                                "region":"<region>",
+                                "name": "prancer_ro",
+                                "access-key": "<console-access-key>",
+                                "secret-access": "<console-secret-key>",
+                                "region":"<account-region>",
                                 "client": "EC2"
                             }
                         ]
@@ -120,18 +147,20 @@ Create an empty directory and copy all the following files in their proper locat
         ]
     }
 
-Remember to substitute all values in this file that looks like a `<tag>` such as:
+You to substitute all values in this file that looks like a `<tag>` such as:
 
 | tag | What to put there |
 |-----|-------------------|
-| account-id | Your **AWS** account id, find this in the **AWS console** account menu drop-down |
-| iam-user | Name of the **IAM** user, we suggest `prancer_ro` |
-| iam-access-key | The programmatic **access key** associated to that user |
-| secret-access-key | The programmatic **secret** associated to the access key |
+| `account-id` | Your **AWS** account id, find this in the **AWS console** account menu drop-down |
+| `console-access-key` | The programmatic **access key** associated to that user |
+| `console-secret-key` | The programmatic **secret** associated to the access key |
+| `account-region` | The region that you are operating from, for example: `us-east-1` |
 
-If you do not have access to an **access key** or to the **secret** you will have to create a new access key and decommission the old one.
+> If you do not have access to an **access key** or to the **secret** you will have to create a new access key and decommission the old one.
 
-**tests/prancer/validation/aws-container/snapshot.json**
+## tests/prancer/project/validation/aws/snapshot.json
+
+This file describes the information we want to test, you shouldn't need to change anything here.
 
     {
         "fileType": "snapshot",
@@ -139,7 +168,7 @@ If you do not have access to an **access key** or to the **secret** you will hav
             {
                 "source": "awsConnector",
                 "type": "aws",
-                "testUser": "<iam-user>",
+                "testUser": "prancer_ro",
                 "nodes": [
                     {
                         "snapshotId": "1",
@@ -163,13 +192,9 @@ If you do not have access to an **access key** or to the **secret** you will hav
         ]
     }
 
-Remember to substitute all values in this file that looks like a `<tag>` such as:
+## tests/prancer/project/validation/aws/test.json
 
-| tag | What to put there |
-|-----|-------------------|
-| iam-user | Name of the **IAM** user, we suggest `prancer_ro` |
-
-**tests/prancer/validation/aws-container/test.json**
+This file describes the tests we want to achieve on the information we took a snapshot of.
 
     {
         "fileType": "test",
@@ -188,53 +213,60 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
         ]
     }
 
-Then commit this setup to a repository that is accessible using git such as on **GitHub** or **CodeCommit**. Note that you must create the repository beforehand.
+# Setup your **AWS** account
 
-    git init
-    git remote add origin git@github.com:your-user/some-repo.git
-    git add .
-    git commit -m "Tutorial on AWS CodeBuild"
-    git push
+Next, you need to create the infrastructure to observe, then push your code to **AWS CodeCommit** and finally create the build job on **AWS CodeBuild**.
 
-Following this, you should be able to see your code on your repository.
+## Launch your virtual infrastructure
 
-# Setup the monitored AWS environment
+To run these tests, you need a virtual infrastructure. This step will instruct you how to do so using a **CloudFormation** template provided with this tutorial.
 
-To run tests against an environment, well, you need an environment. To create the environment that we'll work with, we'll use a simple custom **CloudFormation** template.
+1. Visit [CloudFormation](https://console.aws.amazon.com/cloudformation/home) and click `Create stack`.
+2. Upload the template using: `Template is ready` -> `Upload a template file` -> `Choose file`. The file to upload is in `devops/aws/template.yml`.
+3. Click `Next`.
+4. Name your stack `PrancerCodeBuildTutorial` and click `Next`.
+5. Skip to the bottom and click `Next`.
+6. Skip to the bottom and click `Create stack`.
+7. Wait for **CloudFormation** to finish it's job. Once you see that the stack has been created, you can move on.
 
-> <NoteTitle>Note</NoteTitle>
->
-> The **CloudFormation** template is available in the previous files we created under `devops/aws/template.yml`. You should use that one or adjust the snapshot and test files based on your modifications if any.
+## Create a repository on CodeCommit and push your code
 
-1. Visit [CloudFormation](https://console.aws.amazon.com/cloudformation/home) and click `Create a new stack`.
-2. Upload the file we created by choosing `Upload a template to Amazon S3` and click `Next`.
-3. Give your stack a simple name such as `PrancerCodeBuildTutorial` and click `Next`.
-4. Skip to the bottom and click `Next`.
-5. Skip to the bottom and click `Create`.
-6. Wait for **CloudFormation** to finish it's job. Once you see that the stack has been created, you can move on.
+Now you need to store your code on **AWS CodeCommit**:
 
-# Create an **AWS CodeBuild** build project
+1. Visit [CodeCommit](https://console.aws.amazon.com/codesuite/codecommit/repositories) and click `Create repository`.
+2. Name your repository `prancer-aws-codebuild-tutorial` and click `Create`.
+3. Copy the proper clone URL (HTTPS or SSH) at your convienience. If you use SSH, you will need special SSH configuration. All instructions are present on the SSH tab. This is the recommended approach.
+4. Next the checked out files to your **AWS CodeCommit** repository instead of **Prancer's**:
 
-The next part is to create your **CodeBuild** project to run **Prancer** tests.
+        git remote rm origin
+        git remote add origin <your-aws-codecommit-clone-url>
+        git add .
+        git commit -m "Adjust configuration for my repository"
+        git push
+
+This should push your files to your repository. Refresh the **AWS CodeCommit** page to confirm your files are there!
+
+## Create an **AWS CodeBuild** build project
+
+The last part is to create your **AWS CodeBuild** build job to run **Prancer** tests.
 
 1. Visit [CodeBuild](https://console.aws.amazon.com/codesuite/codebuild/projects) and click `Create build project`.
-2. Name your project as you wish, we named it "prancer-aws-codebuild-tutorial"
+2. Name your project `prancer-aws-codebuild-tutorial`
+3. Configure the source provider to the **AWS CodeCommit** and point it to the repository `prancer-aws-codebuild-tutorial`
+4. Select the `master` branch
+5. Configure the environment to use the `Ubuntu` operating system, use the `Standard` runtime and select the `aws/codebuild/standard:2.0` image. 
 
-    ![CodeBuild project name](/images/codebuild-name.png)
-
-3. Configure the source provider to the repository that you uploaded your code into. Here we used CodeCommit.
-
-    ![CodeBuild project name](/images/codebuild-source.png)
-
-4. Configure the environment to use the "Ubuntu Standard 2.0" image. **Very important: Check the box about elevated privileges**. We already had a role created but you probably will need to create one!
+    > **Very important: Check the box about elevated privileges**.
 
     ![CodeBuild project name](/images/codebuild-environment.png)
 
-5. Leave the option to use the default `buildspec.yml` file
+6. If you do not already have a codebuild service role, create one with default settings. We already had one created when we built this example.
+
+7. Leave the option to use the default `buildspec.yml` file
 
     ![CodeBuild project name](/images/codebuild-buildspec.png)
 
-6. Click the `Create build project` at the bottom
+8. Skip to the bottom and click `Create build project`
 
 # Run the build job
 
@@ -258,68 +290,20 @@ This will trigger the build. It can take a few seconds to complete as there are 
 
 You should see a log of all this as it goes, and it should look something like:
 
-    [Container] 2019/06/19 15:10:51 Waiting for agent ping 
-    [Container] 2019/06/19 15:10:53 Waiting for DOWNLOAD_SOURCE 
-    [Container] 2019/06/19 15:10:55 Phase is DOWNLOAD_SOURCE 
-    [Container] 2019/06/19 15:10:55 CODEBUILD_SRC_DIR=/codebuild/output/src977770363/src/git-codecommit.us-east-1.amazonaws.com/v1/repos/prancer_test 
-    [Container] 2019/06/19 15:10:55 YAML location is /codebuild/output/src977770363/src/git-codecommit.us-east-1.amazonaws.com/v1/repos/prancer_test/buildspec.yml 
-    [Container] 2019/06/19 15:10:55 Processing environment variables 
-    [Container] 2019/06/19 15:10:55 Moving to directory /codebuild/output/src977770363/src/git-codecommit.us-east-1.amazonaws.com/v1/repos/prancer_test 
-    [Container] 2019/06/19 15:10:55 Registering with agent 
-    [Container] 2019/06/19 15:10:55 Phases found in YAML: 3 
-    [Container] 2019/06/19 15:10:55  PRE_BUILD: 1 commands 
-    [Container] 2019/06/19 15:10:55  POST_BUILD: 3 commands 
-    [Container] 2019/06/19 15:10:55  INSTALL: 1 commands 
-    [Container] 2019/06/19 15:10:55 Phase complete: DOWNLOAD_SOURCE State: SUCCEEDED 
-    [Container] 2019/06/19 15:10:55 Phase context status code:  Message:  
-    [Container] 2019/06/19 15:10:55 Entering phase INSTALL 
-    [Container] 2019/06/19 15:10:55 Running command echo "Installing Docker version 18 ..." 
-    Installing Docker version 18 ... 
-    
-    [Container] 2019/06/19 15:10:55 Running command echo "Installing Python version 3.7 ..." 
-    Installing Python version 3.7 ... 
-    
-    [Container] 2019/06/19 15:10:55 Running command pip3 install prancer-basic 
-    Collecting prancer-basic 
-    Downloading https://files.pythonhosted.org/packages/d6/97/fd4c18564dce23e648e2a6e25aaad738267ba54d214fa70aa30f896fa7f0/prancer_basic-0.1.2-py3-none-any.whl (65kB) 
-    Collecting ply==3.10 (from prancer-basic) 
-    Downloading https://files.pythonhosted.org/packages/ce/3d/1f9ca69192025046f02a02ffc61bfbac2731aab06325a218370fd93e18df/ply-3.10.tar.gz (150kB) 
-    Collecting pymongo==3.7.2 (from prancer-basic) 
-    Downloading https://files.pythonhosted.org/packages/99/18/b50834fbfd557eaf07985c2a657b03efc691462ecba62d03e32c2fc4f640/pymongo-3.7.2-cp37-cp37m-manylinux1_x86_64.whl (406kB) 
+    2019-09-01 19:16:39,687(interpreter: 209) - ########################################################################### 
+    2019-09-01 19:16:39,687(interpreter: 210) - Actual Rule: count({1}.SecurityGroups[0].IpPermissions[0].IpRanges)=2 
+    2019-09-01 19:16:39,704(interpreter: 219) - ************************************************** 
+    2019-09-01 19:16:39,705(interpreter: 220) - All the parsed tokens: ['count', '(', '{1}.SecurityGroups[0].IpPermissions[0].IpRanges', ')', '=', '2'] 
+    2019-09-01 19:16:39,706(rule_interpreter:  35) - {'dbname': 'validator', 'snapshots': {'1': 'security_groups'}} 
+    2019-09-01 19:16:39,706(rule_interpreter:  36) - <class 'dict'> 
+    2019-09-01 19:16:39,708(rule_interpreter:  78) - Regex match- groups:('1', '.SecurityGroups[0].IpPermissions[0].IpRanges'), regex:\{(\d+)\}(\..*)*, value: {1}.SecurityGroups[0].IpPermissions[0].IpRanges, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f379b2fc208>>  
+    2019-09-01 19:16:39,708(rule_interpreter: 121) - matched grps: ('1', '.SecurityGroups[0].IpPermissions[0].IpRanges'), type(grp0): <class 'str'> 
+    2019-09-01 19:16:39,710(rule_interpreter: 150) - Number of Snapshot Documents: 1 
+    2019-09-01 19:16:39,711(rule_interpreter:  78) - Regex match- groups:('2', None), regex:(\d+)(\.\d+)?, value: 2, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f379b2fc208>>  
+    2019-09-01 19:16:39,711(rule_interpreter: 169) - LHS: 2, OP: =, RHS: 2 
+    2019-09-01 19:16:39,712(rundata_utils:  92) - END: Completed the run and cleaning up.
 
-
-If the build passes, the log will end with something like:
-
-    2019-06-19 15:11:27,526(interpreter: 209) - ########################################################################### 
-    2019-06-19 15:11:27,527(interpreter: 210) - Actual Rule: count({1}.SecurityGroups[0].IpPermissions[0].IpRanges)=2 
-    2019-06-19 15:11:27,542(interpreter: 219) - ************************************************** 
-    2019-06-19 15:11:27,543(interpreter: 220) - All the parsed tokens: ['count', '(', '{1}.SecurityGroups[0].IpPermissions[0].IpRanges', ')', '=', '2'] 
-    2019-06-19 15:11:27,543(rule_interpreter:  35) - {'dbname': 'prancer', 'snapshots': {'1': 'security_groups'}} 
-    2019-06-19 15:11:27,543(rule_interpreter:  36) - <class 'dict'> 
-    2019-06-19 15:11:27,543(rule_interpreter:  78) - Regex match- groups:('1', '.SecurityGroups[0].IpPermissions[0].IpRanges'), regex:\{(\d+)\}(\..*)*, value: {1}.SecurityGroups[0].IpPermissions[0].IpRanges, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f0597f28fd0>>  
-    2019-06-19 15:11:27,544(rule_interpreter: 121) - matched grps: ('1', '.SecurityGroups[0].IpPermissions[0].IpRanges'), type(grp0): <class 'str'> 
-    2019-06-19 15:11:27,545(rule_interpreter: 150) - Number of Snapshot Documents: 1 
-    2019-06-19 15:11:27,545(rule_interpreter:  78) - Regex match- groups:('2', None), regex:(\d+)(\.\d+)?, value: 2, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f0597f28fd0>>  
-    2019-06-19 15:11:27,545(rule_interpreter: 169) - LHS: 2, OP: =, RHS: 2 
-    2019-06-19 15:11:27,545(rundata_utils:  92) - END: Completed the run and cleaning up. 
-    2019-06-19 15:11:27,546(rundata_utils: 102) - ·[92m Run Stats: { 
-    "start": "2019-06-19 15:11:27", 
-    "end": "2019-06-19 15:11:27", 
-    "errors": [], 
-    "host": "88023f46b7d2", 
-    "timestamp": "2019-06-19 15:11:27", 
-    "log": "/codebuild/output/src977770363/src/git-codecommit.us-east-1.amazonaws.com/v1/repos/prancer_test/tests/prancer/log/20190619-151126.log", 
-    "duration": "0 seconds" 
-    }·[00m 
-    
-    [Container] 2019/06/19 15:11:27 Phase complete: POST_BUILD State: SUCCEEDED 
-    [Container] 2019/06/19 15:11:27 Phase context status code:  Message:
-
-As you can see here, the rule interpreter ran fine:
-
-    2019-06-19 15:11:27,545(rule_interpreter: 169) - LHS: 2, OP: =, RHS: 2
-
-Which ended up as a success!
+Which shows that the test ran fine trying to compare port `80` to port `80`.
 
 # Trigger a failure
 
@@ -345,39 +329,21 @@ Now let's run the job again to ensure the test fails:
 
 3. Use the default for everything and click `Start build` at the bottom
 
-You should see a log of all this as it goes. Once the build is complete, it should be in a failed state. The log will end with something like:
+    You should see a log of all this as it goes. Once the build is complete, it should be in a failed state. The log will end with something like:
 
-    2019-06-19 15:20:05,834(interpreter: 209) - ########################################################################### 
-    2019-06-19 15:20:05,834(interpreter: 210) - Actual Rule: count({1}.SecurityGroups[0].IpPermissions[0].IpRanges)=2 
-    2019-06-19 15:20:05,850(interpreter: 219) - ************************************************** 
-    2019-06-19 15:20:05,850(interpreter: 220) - All the parsed tokens: ['count', '(', '{1}.SecurityGroups[0].IpPermissions[0].IpRanges', ')', '=', '2'] 
-    2019-06-19 15:20:05,850(rule_interpreter:  35) - {'dbname': 'prancer', 'snapshots': {'1': 'security_groups'}} 
-    2019-06-19 15:20:05,850(rule_interpreter:  36) - <class 'dict'> 
-    2019-06-19 15:20:05,851(rule_interpreter:  78) - Regex match- groups:('1', '.SecurityGroups[0].IpPermissions[0].IpRanges'), regex:\{(\d+)\}(\..*)*, value: {1}.SecurityGroups[0].IpPermissions[0].IpRanges, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f33478ab668>>  
-    2019-06-19 15:20:05,851(rule_interpreter: 121) - matched grps: ('1', '.SecurityGroups[0].IpPermissions[0].IpRanges'), type(grp0): <class 'str'> 
-    2019-06-19 15:20:05,852(rule_interpreter: 150) - Number of Snapshot Documents: 1 
-    2019-06-19 15:20:05,852(rule_interpreter:  78) - Regex match- groups:('2', None), regex:(\d+)(\.\d+)?, value: 2, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7f33478ab668>>  
-    2019-06-19 15:20:05,852(rule_interpreter: 169) - LHS: 1, OP: =, RHS: 2 
-    2019-06-19 15:20:05,853(rundata_utils:  92) - END: Completed the run and cleaning up. 
-    2019-06-19 15:20:05,853(rundata_utils: 102) - ·[92m Run Stats: { 
-    "start": "2019-06-19 15:20:05", 
-    "end": "2019-06-19 15:20:05", 
-    "errors": [], 
-    "host": "0442a12b2e16", 
-    "timestamp": "2019-06-19 15:20:05", 
-    "log": "/codebuild/output/src651938574/src/git-codecommit.us-east-1.amazonaws.com/v1/repos/prancer_test/tests/prancer/log/20190619-152005.log", 
-    "duration": "0 seconds" 
-    }·[00m 
-    
-    [Container] 2019/06/19 15:20:06 Command did not exit successfully prancer aws-container exit status 1 
-    [Container] 2019/06/19 15:20:06 Phase complete: POST_BUILD State: FAILED 
-    [Container] 2019/06/19 15:20:06 Phase context status code: COMMAND_EXECUTION_ERROR Message: Error while executing command: prancer aws-container. Reason: exit status 1 
+        2019-09-01 19:20:44,293(interpreter: 209) - ########################################################################### 
+        2019-09-01 19:20:44,294(interpreter: 210) - Actual Rule: count({1}.SecurityGroups[0].IpPermissions[0].IpRanges)=2 
+        2019-09-01 19:20:44,310(interpreter: 219) - ************************************************** 
+        2019-09-01 19:20:44,311(interpreter: 220) - All the parsed tokens: ['count', '(', '{1}.SecurityGroups[0].IpPermissions[0].IpRanges', ')', '=', '2'] 
+        2019-09-01 19:20:44,311(rule_interpreter:  35) - {'dbname': 'validator', 'snapshots': {'1': 'security_groups'}} 
+        2019-09-01 19:20:44,312(rule_interpreter:  36) - <class 'dict'> 
+        2019-09-01 19:20:44,313(rule_interpreter:  78) - Regex match- groups:('1', '.SecurityGroups[0].IpPermissions[0].IpRanges'), regex:\{(\d+)\}(\..*)*, value: {1}.SecurityGroups[0].IpPermissions[0].IpRanges, function: <bound method RuleInterpreter.match_attribute_array of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7ff511e581d0>>  
+        2019-09-01 19:20:44,314(rule_interpreter: 121) - matched grps: ('1', '.SecurityGroups[0].IpPermissions[0].IpRanges'), type(grp0): <class 'str'> 
+        2019-09-01 19:20:44,315(rule_interpreter: 150) - Number of Snapshot Documents: 1 
+        2019-09-01 19:20:44,316(rule_interpreter:  78) - Regex match- groups:('2', None), regex:(\d+)(\.\d+)?, value: 2, function: <bound method RuleInterpreter.match_number of <processor.comparison.comparisonantlr.rule_interpreter.RuleInterpreter object at 0x7ff511e581d0>>  
+        2019-09-01 19:20:44,317(rule_interpreter: 169) - LHS: 1, OP: =, RHS: 2 
 
-As you can see here, the rule interpreter ran the rule ok but found a mismatch:
-
-    2019-06-19 15:20:05,852(rule_interpreter: 169) - LHS: 1, OP: =, RHS: 2 
-
-Therefore, **Prancer** fails the build!
+    As you can see here, the rule interpreter ran the rule ok but found a mismatch where `1` did not equal `2`. Therefore, **Prancer** fails the build!
 
 # Cleanup and rejoice
 
@@ -391,17 +357,11 @@ If you followed this tutorial without altering the resources to create, then not
 Then you might also want to:
 
 1. Delete the **AWS CodeBuild** project
-2. Delete the code repository (Such as on **CodeCommit** or **GitHub**)
+2. Delete the code **AWS CodeCommit** repository
 
 # Conclusion
 
 That's it, you are done. You now know how to setup a basic `Prancer` test in **AWS CodeCommit**.
-
-Things to remember:
-
-1. **Prancer** exits with a proper exit code regarding success or failure. This means that any CI server, not just **AWS CodeCommit**, will catch the error code and stop right there if it receives an exit code that is not 0.
-2. Running **Prancer** from a CI doesn't do anything else than if you ran it from your machine, you still need to build your tests and ensure they work beforehand.
-3. Running tests without saving the artifacts of the tests, mostly when there are failures, will make it harder to figure out what failed. Read on the next tutorials to learn how to save your artifacts for later review.
 
 Thank you for completing this tutorial on **Prancer**.
 
