@@ -34,11 +34,30 @@ To support this, the `secret` must not be set in the connector's configuration f
 4. CyberArk passes the retrieved password to the modules that need the secret during the validation process
 5. if any errors - due to CyberArk not installed or system errors or password retrieving error, the **Prancer** validation framework checks for the other ways to retireve the secret
 
+In order to config CyberArk integration, you need to put these values in the config file:
+```
+[VAULT]
+type = cyberark
+CA_OBJECT = 'object name'
+CA_SAFE = True
+CA_EXE = 'Path to the cyberark executable'
+CA_APPID = 'APP ID used for storing the object name'
+```
+
 # Put the secrets in Azure Key Vault
 
 **Prancer** supports secrets to be read from an **Azure key vault**. This is done by using a special service principal name (SPN) using the **Azure** ReST APIs. The SPN should have access to read the secrets from the key vault and the key vault and secrets vault configuration must be set in the main configuration file.
 
 When the tests run, it will ask you for your secret to unlock the **Azure key vault**. 
+
+In order to config Azure Key Vault integration, you need to put these values in the config file:
+```
+[VAULT]
+type = azure
+tenant_id = 'Tenant Id'
+client_id = 'Service Principal Id to connect to the Azure Keyvault'
+keyvault = 'Keyvault where secrets are stored'
+```
 
 * **Note**: This means **you cannot use key vaults in a non-interactive way**.
 ## Limitations
