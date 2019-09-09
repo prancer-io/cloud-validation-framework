@@ -3,6 +3,7 @@
 """
 from builtins import input
 import os
+from subprocess import Popen, PIPE
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import get_from_currentdata,\
     put_in_currentdata, add_to_exclude_list
@@ -20,6 +21,8 @@ def get_vault_data(secret_key=None):
     if vaulttype:
         if vaulttype == 'azure':
             val = get_azure_vault_data(secret_key)
+        elif vaulttype == 'cyberark':
+            val = get_cyberark_data(secret_key)
     return val
 
 
@@ -58,4 +61,27 @@ def get_azure_vault_data(secret_key=None):
         if secret_data and 'value' in secret_data:
             val = secret_data['value']
     logger.info('Secret Value: %s', val)
+    return val
+
+
+def get_cyberark_data(secret_key=None):
+    """Get secret value for the secret key"""
+    val = None
+    ca_object = config_value('VAULT', 'CA_OBJECT')
+    ca_safe = config_value('VAULT', 'CA_SAFE')
+    ca_exe = config_value('VAULT', 'CA_EXE')
+    ca_appid = config_value('VAULT', 'CA_APPID')
+    if ca_object and ca_exe and ca_appid:
+        cmd_args = '%s  GetPassword -p AppDescs.AppID=%s -p Query="Safe=%s;Folder=Root;Object=%s-%s" -o Password' \
+                  % (ca_exe, ca_appid, ca_safe, ca_object, secret_key)
+        my_process = Popen(cmd_args, shell=True, stdout=PIPE,
+                                     stderr=PIPE,
+                                     stdin=PIPE)
+        out, err = my_process.communicate()
+        err_result = err.rstrip() if err else None
+        val = out.decode() if isinstance(out, bytes) else out.rstrip()
+        if err_result:
+            val = None
+        else:
+            logger.info('Secret Value: %s', val)
     return val
