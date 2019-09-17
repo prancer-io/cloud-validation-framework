@@ -2,7 +2,7 @@ In order to connect to the back-end API system, **Prancer** can leverage secrets
 
 # Providing secrets to Prancer
 
-There are multiple ways of providing secrets to **Prancer**. Here is the ordering which Prancer Validation Framewrok searches for the secrets:
+There are multiple ways of providing secrets to **Prancer**. Here is the ordering which Prancer Validation Framework searches for secrets:
 
 1. Secrets in the configuration file
 2. Secret value in an environment variable (Linux only)
@@ -25,11 +25,11 @@ To support this, the `secret` must not be set in the connector's configuration f
 
 
 # Put the secrets in CyberArk
-**CyberArk** (http://www.cyberark.com) Application Access Manager for DevOps provides a secrets management solution tailored specifically to the unique requirements of native-cloud and DevOps environments. The solution manages secrets and credentials used by non-human identities including DevOps and PaaS tools, and containers. **Prancer** validation framework supports secrets to be read from the **CyberArk**. Here is the steps:
+**CyberArk** (http://www.cyberark.com) Application Access Manager for DevOps provides a secrets management solution tailored specifically to the unique requirements of native-cloud and DevOps environments. The solution manages secrets and credentials used by non-human identities including DevOps and PaaS tools, and containers. **Prancer** validation framework supports secrets to be read from the **CyberArk**. Here are the steps:
 
 1. DevOps Engineer starts the **Prancer** validation framework.
 2. **Prancer** validation framework is integrated with CyberArk to retrieve secrets
-    a. CyberArk Agent has to be installed and configured on the respective servers (containers) and the firewall ports has to be opened 
+    a. CyberArk Agent has to be installed and configured on the respective servers (containers) and the firewall ports have to be opened 
 3. The **Prancer** validation framework runs the cyberArk agent cli and connects to the CyberArk safe to fetch the Password for the account.
 4. CyberArk passes the retrieved password to the modules that need the secret during the validation process
 5. if any errors - due to CyberArk not installed or system errors or password retrieving error, the **Prancer** validation framework checks for the other ways to retireve the secret
