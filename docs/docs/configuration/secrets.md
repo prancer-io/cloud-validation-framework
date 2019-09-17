@@ -1,4 +1,4 @@
-In order to connect to the back-end API system, **Prancer** can leverage secrets from different sources when required.
+In order to connect to a back-end API system, **Prancer** can leverage secrets from different sources when required.
 
 # Providing secrets to Prancer
 
@@ -24,7 +24,7 @@ To do so, export a `username=secret` environment variable where the value of tha
 To support this, the `secret` must not be set in the connector's configuration file **and** there musn't be any **Azure key vault** configured in the main configuration file.
 
 
-# Put the secrets in CyberArk
+# Putting secrets in CyberArk
 **CyberArk** (http://www.cyberark.com) Application Access Manager for DevOps provides a secrets management solution tailored specifically to the unique requirements of native-cloud and DevOps environments. The solution manages secrets and credentials used by non-human identities including DevOps and PaaS tools, and containers. **Prancer** validation framework supports secrets to be read from the **CyberArk**. Here are the steps:
 
 1. DevOps Engineer starts the **Prancer** validation framework.
@@ -32,7 +32,7 @@ To support this, the `secret` must not be set in the connector's configuration f
     a. CyberArk Agent has to be installed and configured on the respective servers (containers) and the firewall ports have to be opened 
 3. The **Prancer** validation framework runs the cyberArk agent cli and connects to the CyberArk safe to fetch the Password for the account.
 4. CyberArk passes the retrieved password to the modules that need the secret during the validation process
-5. if any errors - due to CyberArk not installed or system errors or password retrieving error, the **Prancer** validation framework checks for the other ways to retireve the secret
+5. If any errors occur (due to CyberArk not being installed properly or any other errors) then **Prancer** validation framework checks for the other ways to retireve the secret
 
 In order to config CyberArk integration, you need to put these values in the config file:
 ```
@@ -44,7 +44,7 @@ CA_EXE = 'Path to the cyberark executable'
 CA_APPID = 'APP ID used for storing the object name'
 ```
 
-# Put the secrets in Azure Key Vault
+# Putting secrets in Azure Key Vault
 
 **Prancer** supports secrets to be read from an **Azure key vault**. This is done by using a special service principal name (SPN) using the **Azure** ReST APIs. The SPN should have access to read the secrets from the key vault and the key vault and secrets vault configuration must be set in the main configuration file.
 
