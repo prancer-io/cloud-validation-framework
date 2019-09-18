@@ -1,4 +1,4 @@
-This snapshot type is used along with the **Git** connector. It allows you to take snaphots of the **tfvars** of a **Terraform** file and convert them to **JSON** to be snapshotted and saved as resources to test.
+This snapshot configuration file type is used along with the **Git** connector. It allows you to take snaphots of the **tfvars** of a **Terraform** file and convert them to **JSON** to be snapshotted and saved as resources to test.
 
 > <NoteTitle>Notes: Limitations</NoteTitle>
 >
@@ -36,7 +36,7 @@ Would be converted to:
 
 # Snapshot configuration file
 
-To configure a **Terraform** snapshot, copy the following code to a file named `snapshot.json` in your container's folder.
+To setup a **Terraform** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
 
 > <NoteTitle>Notes: Naming conventions</NoteTitle>
 >

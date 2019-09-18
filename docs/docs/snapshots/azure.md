@@ -1,8 +1,8 @@
-This snapshot type is used along with the **Azure** connector. It allows you to take snapshots of ReST api calls to the **Azure** api.
+This snapshot configuration file type is used along with the **Azure** connector. It allows you to take snapshots of ReST api calls to the **Azure** api.
 
 # Snapshot configuration file
 
-To configure an **Azure** snapshot, copy the following code to a file named `snapshot.json` in your container's folder.
+To setup an **Azure** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
 
 > <NoteTitle>Notes: Naming conventions</NoteTitle>
 >
@@ -55,10 +55,10 @@ The important part to remember is that if you find an **Azure** api endpoint in 
 
 > <NoteTitle>Notes: Limitations</NoteTitle>
 >
-> Note: If you have parameters that must be replaced, you must hardcode them into the snapshot file. We are working on a way to pass parameters to be replaced in different places such as paths, types, filters and so on.
+> Note: If you have parameters that must be replaced, you must hardcode them into the snapshot configuration file. We are working on a way to pass parameters to be replaced in different places such as paths, types, filters and so on.
 
 # Paths to resource
 
-On the contrary of the **AWS** connector and snapshot which features the `id` section to filter and search for items, there are no way to select data in the **Azure** snapshots other than providing a specific path to a specific resource.
+On the contrary of the **AWS** connector and snapshot configuration file which features the `id` section to filter and search for items, there are no way to select data in the **Azure** snapshot configuration files other than providing a specific path to a resource.
 
 We are working on ways to add this support to **Prancer**.

@@ -60,7 +60,7 @@ To access the element, you should use the array operator to return the element. 
 
 # You can only work with EC2 based queries
 
-The way node types work in snapshots for the beta version limits you to using only operations that are on the **EC2** service **and** you can only use `describe-xyz` operations instead of any operation you want.
+The way node types work in snapshot configuration files for the beta version limits you to using only operations that are on the **EC2** service **and** you can only use `describe-xyz` operations instead of any operation you want.
 
 We are considering using a different approach that will allow you to use any service and any operation you want. 
 
@@ -104,7 +104,7 @@ If you wanted to have more than one tag you just need to add more tag definition
 
 Just remember that all filters are applied at once, all filters must pass for an item to be returned.
 
-# Working with stacks in snapshots
+# Working with stacks in snapshot configuration files
 
 Because the **AWS** connector is not ready to work with stacks and **CloudFormation** in a native way, we have to work a little harder to extract **CloudFormation** resources properly through the use of **CloudFormation** tags. Thankfully, we have a workaround for tags thus, it isn't much harder to work with **CloudFormation** resources.
 
