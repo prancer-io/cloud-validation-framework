@@ -9,7 +9,7 @@ Before taking this tutorial, you will need to follow some more generic steps:
 Then, you can follow these steps:
 
 1. Setup the monitored **AWS** environment
-2. Create the snapshot configuration
+2. Create the snapshot configuration file
 3. Create the test case
 4. Run the tests
 5. Trigger a failure
@@ -60,7 +60,7 @@ Now, let's create that **CloudFormation** stack:
 5. Skip to the bottom and click `Create`.
 6. Wait for **CloudFormation** to finish it's job. Once you see that the stack has been created, you can move on.
 
-# Create the snapshot configuration
+# Create the snapshot configuration file
 
 Now that we have our environment set up for testing, we'll need a snapshot configuration file. 
 
@@ -91,7 +91,7 @@ Copy the following content to a file named `validation/container1/snapshot.json`
         ]
     }
 
-For more information on the structure of snapshot files, please refer to the [Snapshot documentation](../../../snapshots/aws.md).
+For more information on the structure of snapshot configuration files, please refer to the [Snapshot documentation](../../../snapshots/aws.md).
 
 # Create the tests
 

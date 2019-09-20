@@ -1,4 +1,4 @@
-This snapshot type is used along with the **Git** connector. It allows you to take snaphots of entire **JSON** files as resources to test.
+This snapshot configuration file type is used along with the **Git** connector. It allows you to take snaphots of entire **JSON** files as resources to test.
 
 > <NoteTitle>Notes: Limitations</NoteTitle>
 >
@@ -6,11 +6,11 @@ This snapshot type is used along with the **Git** connector. It allows you to ta
 
 # CloudFormation and Azure ARM templates
 
-We currently do not support any of the **CloudFormation** or **Azure Resource Management** templates, but you can use this snapshot type to read the **JSON** version of these templates until we have a proper snapshot type dedicated to these template based resource managers!
+We currently do not support any of the **CloudFormation** or **Azure Resource Management** templates, but you can use this snapshot configuration file type to read the **JSON** version of these templates until we have a proper snapshot configuration file type dedicated to these template based resource managers!
 
 # Snapshot configuration file
 
-To configure a **JSON** snapshot, copy the following code to a file named `snapshot.json` in your container's folder.
+To setup a **JSON** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
 
 > <NoteTitle>Notes: Naming conventions</NoteTitle>
 >

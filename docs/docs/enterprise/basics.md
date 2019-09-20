@@ -2,7 +2,7 @@
 
 **Prancer**'s enterprise edition adds various additional features such as:
 
-* Database storage for configuration files, snapshots and test reports
+* Database storage for configuration files, snapshot configuration files and test reports
 * A web interface to manage all this
 * Everything is managed in your own infrastructure (On premise)
 
@@ -16,7 +16,7 @@ If you want to use **Prancer** in database mode, ensure you have configured the 
 
 | Key | Possible values | Explanation |
 |------|:-------:|-----------|
-| SNAPSHOT | *string* | Name of the collection where snapshot configurations are stored |
+| SNAPSHOT | *string* | Name of the collection where snapshot configuration files are stored |
 | TEST | *string* | Name of the collection where test configurations are stored |
 | STRUCTURE | *string* | Name of the collection where connector configurations are stored |
 | OUTPUT | *string* | Name of the collection where test results are stored |

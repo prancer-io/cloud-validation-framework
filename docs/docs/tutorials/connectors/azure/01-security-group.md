@@ -9,7 +9,7 @@ Before taking this tutorial, you will need to follow some more generic steps:
 Then, you can follow these steps:
 
 1. Setup the monitored **Azure** environment
-2. Create the snapshot configuration
+2. Create the snapshot configuration file
 3. Create the test case
 4. Run the tests
 5. Trigger a failure
@@ -167,7 +167,7 @@ Now, let's deploy that **ARM** template:
 4. Accept the agreement and click `Purchase` (We are not using any paying resources, so don't worry about that **purchase** button)
 5. Wait for your deployment to be complete
 
-# Create the snapshot configuration
+# Create the snapshot configuration file
 
 Now that we have our environment set up for testing, we'll need a snapshot configuration file. 
 
@@ -195,7 +195,7 @@ Copy the following content to a file named `validation/container1/snapshot.json`
         ]
     }
 
-For more information on the structure of snapshot files, please refer to the [Snapshot documentation](../../../snapshots/azure.md).
+For more information on the structure of snapshot configuration files, please refer to the [Snapshot documentation](../../../snapshots/azure.md).
 
 # Create the tests
 

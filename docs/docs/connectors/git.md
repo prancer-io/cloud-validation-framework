@@ -75,4 +75,4 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 
 # Users
 
-Other connectors such as **AWS** and **Azure** allow you to configure multiple users, the **Git** connector doesn't as it doesn't have permissions other than read. This means that you must always use the same username defined in the **Git** connector file in the snapshot files.
+Other connectors such as **AWS** and **Azure** allow you to configure multiple users, the **Git** connector doesn't as it doesn't have permissions other than read. This means that you must always use the same username defined in the **Git** connector file in the snapshot configuration files.

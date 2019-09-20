@@ -4,7 +4,7 @@
 
 # Containers
 
-The reason containers exist in the first place is to help you better structure your tests and snapshot. At the same time, containers play another role: **They help with parallelization of your testing**. 
+The reason containers exist in the first place is to help you better structure your test files and snapshot configuration files. At the same time, containers play another role: **They help with parallelization of your testing**. 
 
 When you have a large infrastructure, you'll need multiple runners to query your infrastructure and run tests. You can do this without enterprise support and even without database storage but it will be a complex task.
 

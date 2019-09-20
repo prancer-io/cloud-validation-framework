@@ -1,4 +1,4 @@
-This snapshot type is used along with the **AWS** connector. It allows you to take snapshots of ReST api calls to the **AWS** api.
+This snapshot configuration file type is used along with the **AWS** connector. It allows you to take snapshots of ReST api calls to the **AWS** api.
 
 > <NoteTitle>Notes: Limitations</NoteTitle>
 >
@@ -6,7 +6,7 @@ This snapshot type is used along with the **AWS** connector. It allows you to ta
 
 # Snapshot configuration file
 
-To configure an **AWS** snapshot, copy the following code to a file named `snapshot.json` in your container's folder.
+To setup an **AWS** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
 
 > <NoteTitle>Notes: Naming conventions</NoteTitle>
 >

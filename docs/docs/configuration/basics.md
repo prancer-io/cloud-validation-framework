@@ -11,7 +11,7 @@ The `validation` directory is the internal test directory for **Prancer**. This 
 
     mkdir -p validation
 
-Under the `validation` directory lives container directories. Each container is a logical grouping for your test files and snapshots. Their sole purpose is to group and create a hierarchy to better organize your tests. Create a container directory like so:
+Under the `validation` directory lives container directories. Each container is a logical grouping for your test files and snapshot configuration files. Their sole purpose is to group and create a hierarchy to better organize your tests. Create a container directory like so:
 
     mkdir -p validation/container1
 
@@ -57,7 +57,7 @@ The `INI` section to use in the configuration file is `[MONGODB]` and here are a
 | dburl | *string* | The connection string to the mongodb server. If none, **Prancer** will connect to localhost on port 27017. Also used when reading configuration files using the `--db` switch |
 | dbname | *string* | The name of the database to connect to when storing snapshots. Also used when reading configuration files using the `--db` switch |
 | NOTIFICATIONS | *string* | Name of the collection where notifications are stored in database driven mode |
-| SNAPSHOT | *string* | Name of the collection where snapshot configurations are stored in database driven mode |
+| SNAPSHOT | *string* | Name of the collection where snapshot configuration files are stored in database driven mode |
 | TEST | *string* | Name of the collection where test configurations are stored in database driven mode |
 | STRUCTURE | *string* | Name of the collection where connector configurations are stored in database driven mode |
 | OUTPUT | *string* | Name of the collection where test results are stored in database driven mode |
@@ -157,13 +157,13 @@ Example:
 
 # Tests configuration
 
-**Prancer** requires you to specify where your containers, snapshots and test files are when using the filesystem storage based approach. This section of the configuration defines where to find those.
+**Prancer** requires you to specify where your containers, snapshot configuration files and test files are when using the filesystem storage based approach. This section of the configuration defines where to find those.
 
 The `INI` section to use in the configuration file is `[TESTS]` and here are all the possible configurations you can use:
 
 | Key | Possible values | Explanation |
 |------|:-------:|----------|
-| containerFolder | directory | Name of the directory to look into for snapshots and tests |
+| containerFolder | directory | Name of the directory to look into for snapshot configuration files and test files |
 | database | *boolean* | `True` by default, if `True`, assumes tests are ran from the database like if you provided `--db` on the command line, set to `False` to run from the filesystem. |
 
 Example:

@@ -8,7 +8,7 @@ Before taking this tutorial, you will need to follow some steps in other more ge
 Then, you can follow these steps:
 
 1. Setup the monitored GIT environment
-2. Create the snapshot configuration
+2. Create the snapshot configuration file
 3. Create the test case
 4. Run the tests
 5. Trigger a failure
@@ -115,7 +115,7 @@ Copy the following information into a file named `gitConnector.json` at the base
 >
 > Remember to upload your public RSA key to your user that has access to this repository or the **git** connector won't be able to connect to your repository. If you don't know what is a public and private key, look it up on the web, it is pretty straight forward and well explained.
 
-# Create the snapshot configuration
+# Create the snapshot configuration file
 
 Now that we have our environment set up for testing, we'll need a snapshot configuration file. 
 
@@ -150,7 +150,7 @@ Copy the following content to a file named `validation/container1/snapshot.json`
 >
 > Our setup is simple, we do not have directories, just a single file. If you had put the `prancer-security-group-tutorial.json` file into a directory, you'd specify the additional directories in there as a relative path to the checkout.
 
-For more information on the structure of snapshot files, please refer to the [Snapshot documentation](../../../snapshots/json.md).
+For more information on the structure of snapshot configuration files, please refer to the [Snapshot documentation](../../../snapshots/json.md).
 
 # Create the tests
 
