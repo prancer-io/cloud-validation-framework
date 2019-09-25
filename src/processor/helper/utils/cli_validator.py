@@ -171,7 +171,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
 
     from processor.helper.config.rundata_utils import init_currentdata, \
         delete_currentdata, put_in_currentdata
-    from processor.connector.snapshot import populate_container_snapshots
+    from processor.connector.snapshot import populate_container_snapshots, generate_container_snapshots
     from processor.connector.validation import run_container_validation_tests
     try:
         from processor_enterprise.notifications.notification import check_send_notification
@@ -184,6 +184,8 @@ def validator_main(arg_vals=None, delete_rundata=True):
     cmd_parser.add_argument('--db', action='store', default=None,
                             choices=['DB', 'FS'],
                             help='Mongo database or filesystem to be used for input/output data.')
+    cmd_parser.add_argument('--crawler', action='store_true', default=False,
+                            help='Crawl and generate snapshot files only')
     args = cmd_parser.parse_args(arg_vals)
 
     logger.debug("Args: %s", args)
@@ -205,15 +207,20 @@ def validator_main(arg_vals=None, delete_rundata=True):
                 logger.critical("Container(%s) is not present in Framework dir: %s",
                                 args.container, framework_dir())
                 # TODO: Log the path the framework looked for.
-                return  retval
-        snapshot_status = populate_container_snapshots(args.container, args.db)
-        logger.debug(json.dumps(snapshot_status, indent=2))
-        if snapshot_status:
-            status = run_container_validation_tests(args.container, args.db)
-            retval = 0 if status else 1
+                return retval
+        if args.crawler:
+            # Generate snapshot files from here.
+            generate_container_snapshots(args.container, args.db)
         else:
-            retval = 1
-        check_send_notification(args.container, args.db)
+            # Normal flow
+            snapshot_status = populate_container_snapshots(args.container, args.db)
+            logger.debug(json.dumps(snapshot_status, indent=2))
+            if snapshot_status:
+                status = run_container_validation_tests(args.container, args.db, snapshot_status)
+                retval = 0 if status else 1
+            else:
+                retval = 1
+            # check_send_notification(args.container, args.db)
     except (Exception, KeyboardInterrupt) as ex:
         logger.error("Execution exception: %s", ex)
         retval = 2

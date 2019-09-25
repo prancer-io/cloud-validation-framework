@@ -7,7 +7,7 @@ import pymongo
 from processor.logging.log_handler import getlogger
 from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
-    json_from_file, TEST, collectiontypes, SNAPSHOT, JSONTEST
+    json_from_file, TEST, collectiontypes, SNAPSHOT, JSONTEST, MASTERTEST
 from processor.helper.config.config_utils import config_value, get_test_json_dir,\
     DATABASE, DBNAME, framework_dir
 from processor.database.database import create_indexes, COLLECTION,\
@@ -136,7 +136,38 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
     for test_file in test_files:
         val = run_file_validation_tests(test_file, container, True, snapshot_status)
         result = result and val
-    return result
+
+    test_files = get_json_files(json_dir, MASTERTEST)
+    logger.info('\n'.join(test_files))
+    result = True
+    for test_file in test_files:
+        logger.info("*" * 50)
+        logger.info("validator tests: %s", test_file)
+        test_json_data = json_from_file(test_file)
+        if not test_json_data:
+            logger.info("Test file %s looks to be empty, next!...", test_file)
+        snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
+        for snapshotid in snapshot_status[snapshot_key]:
+                new_json_data_str = json.dumps(test_json_data)
+                new_json_data = json.loads(new_json_data_str.replace('<resource-type-id>', snapshotid).replace('masterTestId', 'testId').replace('masterTestName', 'testName'))
+                new_json_data['snapshot'] = snapshot_key
+                resultset = run_json_validation_tests(new_json_data, container, True, snapshot_status)
+                finalresult = True
+                if resultset:
+                    snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
+                    test_file_parts = test_file.rsplit('.', 1)
+                    new_test_file = '%s-%s.%s' % (test_file_parts[0], str(snapshotid), test_file_parts[-1])
+                    dump_output_results(resultset, container, new_test_file, snapshot, True)
+                    for result in resultset:
+                        if 'result' in result:
+                            if not re.match(r'passed', result['result'], re.I):
+                                finalresult = False
+                                break
+                else:
+                    # TODO: NO test cases in this file.
+                    # LOG HERE that no test cases are present in this file.
+                    finalresult = False
+    return finalresult
 
 
 def run_container_validation_tests_database(container, snapshot_status=None):
