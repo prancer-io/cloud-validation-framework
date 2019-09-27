@@ -492,7 +492,10 @@ def populate_custom_snapshot(snapshot):
                     data = get_node(repopath, node, snapshot_source, brnch)
                     if data:
                         insert_one_document(data, data['collection'], dbname)
-                        snapshot_data[node['snapshotId']] = True
+                        if 'masterSnapshotId' in node:
+                            snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+                        else:
+                            snapshot_data[node['snapshotId']] = True
                     logger.debug('Type: %s', type(data))
                 elif 'masterSnapshotId' in node:
                     alldata = get_all_nodes(repopath, node, snapshot_source, brnch)

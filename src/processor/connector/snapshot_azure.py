@@ -183,7 +183,10 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
                 data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
                 if data:
                     insert_one_document(data, data['collection'], dbname)
-                    snapshot_data[node['snapshotId']] = True
+                    if 'masterSnapshotId' in node:
+                        snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+                    else:
+                        snapshot_data[node['snapshotId']] = True
                 logger.debug('Type: %s', type(data))
             else:
                 alldata = get_all_nodes(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
