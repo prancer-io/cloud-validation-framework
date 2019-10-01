@@ -102,7 +102,9 @@ def populate_snapshots_from_file(snapshot_file):
         logger.error("Snapshot file %s looks to be empty, next!...", snapshot_file)
         return {}
     logger.debug(json.dumps(snapshot_json_data, indent=2))
-    return populate_snapshots_from_json(snapshot_json_data)
+    snapshot_data = populate_snapshots_from_json(snapshot_json_data)
+    save_json_to_file(snapshot_json_data, snapshot_file)
+    return snapshot_data
 
 
 def populate_container_snapshots(container, dbsystem=True):
