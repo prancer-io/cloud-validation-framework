@@ -141,6 +141,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
     test_files = get_json_files(json_dir, MASTERTEST)
     logger.info('\n'.join(test_files))
     result = True
+    finalresult = True
     for test_file in test_files:
         logger.info("*" * 50)
         logger.info("validator tests: %s", test_file)
@@ -170,7 +171,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
             testset['cases'] = newcases
         # print(json.dumps(test_json_data, indent=2))
         resultset = run_json_validation_tests(test_json_data, container, True, snapshot_status)
-        finalresult = True
+        # finalresult = True
         if resultset:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             dump_output_results(resultset, container, test_file, snapshot, True)

@@ -171,12 +171,18 @@ def validator_main(arg_vals=None, delete_rundata=True):
 
     from processor.helper.config.rundata_utils import init_currentdata, \
         delete_currentdata, put_in_currentdata
-    from processor.connector.snapshot import populate_container_snapshots, generate_container_snapshots
+    from processor.connector.snapshot import populate_container_snapshots
+    # from processor.connector.snapshot import populate_container_snapshots, generate_container_snapshots
     from processor.connector.validation import run_container_validation_tests
     try:
         from processor_enterprise.notifications.notification import check_send_notification
     except:
         check_send_notification = lambda container, db: None
+
+    try:
+        from processor_enterprise.snapshots.master_snapshot import generate_container_snapshots
+    except:
+        generate_container_snapshots = lambda container, db: None
 
     logger.info("Comand: '%s %s'", sys.executable.rsplit('/', 1)[-1], ' '.join(sys.argv))
     cmd_parser = argparse.ArgumentParser("Prancer Basic Functionality")

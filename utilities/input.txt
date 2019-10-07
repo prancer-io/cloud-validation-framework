@@ -43,6 +43,7 @@ tar cvfz dbdumps.tar.gz dbdumps
 # Mongo command line utilities
 mongo localhost:27017/validator --eval "db.getCollectionNames()"
 mongo localhost:27017/validator --eval "printjson(db.getCollectionNames())"
+# db.getCollectionNames().forEach(function(x) {db[x].drop()})
 
 # Mongo log dumps
 mkdir logdumps
