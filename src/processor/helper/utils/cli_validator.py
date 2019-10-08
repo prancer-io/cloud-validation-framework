@@ -180,7 +180,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
         check_send_notification = lambda container, db: None
 
     try:
-        from processor_enterprise.snapshots.master_snapshot import generate_container_snapshots
+        from processor_enterprise.crawler.master_snapshot import generate_container_mastersnapshots
     except:
         generate_container_snapshots = lambda container, db: None
 
@@ -216,7 +216,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
                 return retval
         if args.crawler:
             # Generate snapshot files from here.
-            generate_container_snapshots(args.container, args.db)
+            generate_container_mastersnapshots(args.container, args.db)
         else:
             # Normal flow
             snapshot_status = populate_container_snapshots(args.container, args.db)
