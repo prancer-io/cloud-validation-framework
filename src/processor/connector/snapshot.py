@@ -34,7 +34,6 @@
    }
 """
 import json
-import copy
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     get_container_snapshot_json_files, SNAPSHOT, JSONTEST,\
@@ -182,10 +181,10 @@ def populate_container_snapshots_database(container):
 
 def container_snapshots_filesystem(container):
     """
-    Get snapshot list used in all test files of a container from the filesystem.
-    This gets list of all the snapshots used in the container.
-    The list will be used to not populate the snapshots multiple times, if the same
-    snapshots are used in different test files of a container.
+    Get snapshot and mastersnapshot list used in all test/mastertest files of a container from the filesystem.
+    This gets list of all the snapshots/mastersnapshots used in the container.
+    The list will be used to not populate the snapshots/mastersnapshots multiple times, if the same
+    snapshots/mastersnapshots are used in different test/mastertest files of a container.
     The configuration of the default path is configured in config.ini.
     """
     snapshots = []
@@ -218,8 +217,8 @@ def container_snapshots_filesystem(container):
 
 def container_snapshots_database(container):
     """
-    Get snapshot list used in test files of a container from the database.
-    The snapshots list are read from database. The default configuration of database and
+    Get snapshot list used in test and mastertest files of a container from the database.
+    The snapshots or mastersnapshots list are read from database. The default configuration of database and
     snapshot collections is configured in config.ini file.
     """
     snapshots = []
@@ -240,14 +239,17 @@ def container_snapshots_database(container):
                         snapshots.append(parts[0])
                     else:
                         snapshots.append(snapshot)
+    # Look for mastertest files.
     collection = config_value(DATABASE, collectiontypes[MASTERTEST])
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
     logger.info('Number of mastertest Documents: %s', len(docs))
     if docs and len(docs):
         for doc in docs:
             if doc['json']:
+                # mastertest files have to use masterSnapshot
                 snapshot = doc['json']['masterSnapshot'] if 'masterSnapshot' in doc['json'] else ''
                 if snapshot:
+                    # mastersnapshot are generated with _gen suffix
                     if snapshot.endswith('.json'):
                         parts = snapshot.split('.')
                         snapshots.append('%s_gen' % parts[0])
@@ -256,130 +258,3 @@ def container_snapshots_database(container):
     return list(set(snapshots))
 
 
-# def generate_container_snapshots_database(container):
-#     """
-#     Get the snapshot files from the container with storage system as database.
-#     The table or collection and database is configured in the config.ini, for the default
-#     location configuration is "validator" database with "snapshots" as its collections.
-#     """
-#     snapshots_status = {}
-#     dbname = config_value(DATABASE, DBNAME)
-#     collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
-#     qry = {'container': container}
-#     sort = [sort_field('timestamp', False)]
-#     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
-#     if docs and len(docs):
-#         logger.info('Number of Snapshot Documents: %s', len(docs))
-#         snapshots = container_snapshots_database(container)
-#         populated = []
-#         for doc in docs:
-#             if doc['json']:
-#                 snapshot = doc['name']
-#                 if snapshot in snapshots and snapshot not in populated:
-#                     # Take the snapshot and populate whether it was susccessful or not.
-#                     # Then pass it back to the validation tests, so that tests for those
-#                     # snapshots that have been susccessfully fetched shall be executed.
-#                     snapshot_file_data = populate_snapshots_from_json(doc['json'])
-#                     populated.append(snapshot)
-#                     snapshots_status[snapshot] = snapshot_file_data
-#     return snapshots_status
-#
-#
-# def generate_container_snapshots_filesystem(container):
-#     """
-#     Get the snapshot files from the container with storage system as filesystem.
-#     The path for looking into the container is configured in the config.ini, for the
-#     default location configuration is $SOLUTIONDIR/relam/validation/<container>
-#     """
-#     snapshots_status = {}
-#     snapshot_dir, snapshot_files = get_container_snapshot_json_files(container, mastersnapshot=True)
-#     if not snapshot_files:
-#         logger.error("No Snapshot files in %s, exiting!...", snapshot_dir)
-#         return snapshots_status
-#     logger.info('\n'.join(snapshot_files))
-#     snapshots = generate_snapshots_filesystem(container)
-#     populated = []
-#     for snapshot_file in snapshot_files:
-#         parts = snapshot_file.rsplit('/', 1)
-#         if parts[-1] in snapshots and parts[-1] not in populated:
-#             # Take the snapshot and populate whether it was susccessful or not.
-#             # Then pass it back to the validation tests, so that tests for those
-#             # snapshots that have been susccessfully fetched shall be executed.
-#             snapshot_file_data = populate_snapshots_from_file(snapshot_file)
-#             generate_snapshot(snapshot_file, snapshot_file_data)
-#             populated.append(parts[-1])
-#             name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
-#             snapshots_status[name] = snapshot_file_data
-#     return snapshots_status
-#
-#
-# def generate_snapshot(snapshot_file, snapshot_file_data):
-#     """
-#     Checks if the snapshot is a master snapshot file.
-#     """
-#     file_name = '%s.json' % snapshot_file if snapshot_file and not \
-#         snapshot_file.endswith('.json') else snapshot_file
-#     snapshot_json_data = json_from_file(file_name)
-#     if snapshot_json_data:
-#         snapshot_type = get_field_value(snapshot_json_data, 'fileType')
-#         if snapshot_type and snapshot_type == 'masterSnapshot':
-#             parts = file_name.rsplit('.', 1)
-#             new_file_name = '%s_gen.%s' % (parts[0], parts[1])
-#             snapshots = get_field_value(snapshot_json_data, 'snapshots')
-#             if snapshots:
-#                 for snapshot in snapshots:
-#                     nodes = get_field_value(snapshot, 'nodes')
-#                     if nodes:
-#                         new_nodes = []
-#                         for node in nodes:
-#                             mastersnapshotId = get_field_value(node, 'masterSnapshotId')
-#                             if mastersnapshotId and mastersnapshotId in snapshot_file_data:
-#                                 for sid_data in snapshot_file_data[mastersnapshotId]:
-#                                     newnode = copy.deepcopy(node)
-#                                     newnode.update(sid_data)
-#                                     new_nodes.append(newnode)
-#                         if new_nodes:
-#                             snapshot['nodes'] = new_nodes
-#             snapshot_json_data["fileType"] = "snapshot"
-#             save_json_to_file(snapshot_json_data, new_file_name)
-#
-#
-# def generate_snapshots_filesystem(container):
-#     """
-#     Get snapshot list used in all test files of a container from the filesystem.
-#     This gets list of all the snapshots used in the container.
-#     The list will be used to not populate the snapshots multiple times, if the same
-#     snapshots are used in different test files of a container.
-#     The configuration of the default path is configured in config.ini.
-#     """
-#     snapshots = []
-#     logger.info("Starting to get list of snapshots")
-#     reporting_path = config_value('REPORTING', 'reportOutputFolder')
-#     json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
-#     logger.info(json_dir)
-#
-#     test_files = get_json_files(json_dir, MASTERTEST)
-#     logger.info('\n'.join(test_files))
-#     for test_file in test_files:
-#         test_json_data = json_from_file(test_file)
-#         if test_json_data:
-#             snapshot = test_json_data['masterSnapshot'] if 'masterSnapshot' in test_json_data else ''
-#             if snapshot:
-#                 file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
-#                 snapshots.append(file_name)
-#     return list(set(snapshots))
-#
-# def generate_container_snapshots(container, dbsystem=True):
-#     """
-#     All snapshots are contained in a workspace which is called as a container.
-#     So tests are run for a container. The snapshots can be present in a filesystem or
-#     a database as storage.
-#     This function is starting point for snapshot population.
-#     The default location for snapshots of the container is the database.
-#     """
-#     logger.critical("SNAPSHOTS: Populate snapshots for '%s' container from %s",
-#                     container, "the database." if dbsystem  else "file system.")
-#     if dbsystem:
-#         return generate_container_snapshots_database(container)
-#     else:
-#         return generate_container_snapshots_filesystem(container)
