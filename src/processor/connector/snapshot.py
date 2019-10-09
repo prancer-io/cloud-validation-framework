@@ -34,11 +34,11 @@
    }
 """
 import json
-# import copy
+import copy
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     get_container_snapshot_json_files, SNAPSHOT, JSONTEST,\
-    collectiontypes, get_json_files, TEST, save_json_to_file
+    collectiontypes, get_json_files, TEST, MASTERTEST, save_json_to_file
 from processor.helper.config.config_utils import config_value, framework_dir
 from processor.database.database import DATABASE, DBNAME, get_documents, sort_field, update_one_document
 from processor.connector.snapshot_azure import populate_azure_snapshot
@@ -103,7 +103,6 @@ def populate_snapshots_from_file(snapshot_file):
         return {}
     logger.debug(json.dumps(snapshot_json_data, indent=2))
     snapshot_data = populate_snapshots_from_json(snapshot_json_data)
-    # status could be active or inactive, and valid: true or false
     save_json_to_file(snapshot_json_data, snapshot_file)
     return snapshot_data
 
@@ -171,7 +170,7 @@ def populate_container_snapshots_database(container):
             if doc['json']:
                 snapshot = doc['name']
                 if snapshot in snapshots and snapshot not in populated:
-                    # Take the snapshot and populate whether it was susccessful or not.
+                    # Take the snapshot and populate whether it was successful or not.
                     # Then pass it back to the validation tests, so that tests for those
                     # snapshots that have been susccessfully fetched shall be executed.
                     snapshot_file_data = populate_snapshots_from_json(doc['json'])
@@ -203,6 +202,17 @@ def container_snapshots_filesystem(container):
             if snapshot:
                 file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
                 snapshots.append(file_name)
+
+    test_files = get_json_files(json_dir, MASTERTEST)
+    logger.info('\n'.join(test_files))
+    for test_file in test_files:
+        test_json_data = json_from_file(test_file)
+        if test_json_data:
+            snapshot = test_json_data['masterSnapshot'] if 'masterSnapshot' in test_json_data else ''
+            if snapshot:
+                file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
+                parts = file_name.split('.')
+                snapshots.append('%s_gen.%s' % (parts[0], parts[-1]))
     return list(set(snapshots))
 
 
@@ -230,6 +240,19 @@ def container_snapshots_database(container):
                         snapshots.append(parts[0])
                     else:
                         snapshots.append(snapshot)
+    collection = config_value(DATABASE, collectiontypes[MASTERTEST])
+    docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
+    logger.info('Number of mastertest Documents: %s', len(docs))
+    if docs and len(docs):
+        for doc in docs:
+            if doc['json']:
+                snapshot = doc['json']['masterSnapshot'] if 'masterSnapshot' in doc['json'] else ''
+                if snapshot:
+                    if snapshot.endswith('.json'):
+                        parts = snapshot.split('.')
+                        snapshots.append('%s_gen' % parts[0])
+                    else:
+                        snapshots.append('%s_gen' % snapshot)
     return list(set(snapshots))
 
 
