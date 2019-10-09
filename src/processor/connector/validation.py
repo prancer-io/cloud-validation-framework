@@ -137,10 +137,9 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
     for test_file in test_files:
         val = run_file_validation_tests(test_file, container, True, snapshot_status)
         result = result and val
-
+    # mastertest files
     test_files = get_json_files(json_dir, MASTERTEST)
     logger.info('\n'.join(test_files))
-    result = True
     finalresult = True
     for test_file in test_files:
         logger.info("*" * 50)
@@ -171,7 +170,6 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
             testset['cases'] = newcases
         # print(json.dumps(test_json_data, indent=2))
         resultset = run_json_validation_tests(test_json_data, container, True, snapshot_status)
-        # finalresult = True
         if resultset:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             dump_output_results(resultset, container, test_file, snapshot, True)
@@ -181,8 +179,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
                         finalresult = False
                         break
         else:
-            # TODO: NO test cases in this file.
-            # LOG HERE that no test cases are present in this file.
+            logger.info('No mastertest Documents found!')
             finalresult = False
     return finalresult
 
@@ -190,6 +187,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
 def run_container_validation_tests_database(container, snapshot_status=None):
     """ Get the test files from the database"""
     dbname = config_value(DATABASE, DBNAME)
+    # For test files
     collection = config_value(DATABASE, collectiontypes[TEST])
     qry = {'container': container}
     sort = [sort_field('timestamp', False)]
@@ -210,10 +208,9 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                                 finalresult = False
                                 break
     else:
-        # TODO: Didnt find any tests
-        # LOG HERE
+        logger.info('No test Documents found!')
         finalresult = False
-
+    # For mastertest files
     collection = config_value(DATABASE, collectiontypes[MASTERTEST])
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
     if docs and len(docs):
@@ -243,7 +240,6 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                     testset['cases'] = newcases
                 # print(json.dumps(test_json_data, indent=2))
                 resultset = run_json_validation_tests(test_json_data, container, True, snapshot_status)
-                # finalresult = True
                 if resultset:
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
                     test_file = doc['name'] if 'name' in doc else ''
@@ -254,8 +250,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                                 finalresult = False
                                 break
     else:
-        # TODO: Didnt find any tests
-        # LOG HERE
+        logger.info('No mastertest Documents found!')
         finalresult = False
     return finalresult
 
