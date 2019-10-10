@@ -216,7 +216,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
     if docs and len(docs):
         logger.info('Number of mastertest Documents: %s', len(docs))
         for doc in docs:
-            test_json_data =  doc['json']
+            test_json_data = doc['json']
             if test_json_data:
                 snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
                 mastersnapshots = defaultdict(list)

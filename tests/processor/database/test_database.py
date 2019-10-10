@@ -148,9 +148,9 @@ def test_sort_dict():
 def test_log_DBhandler(monkeypatch, create_temp_dir, create_terraform):
     monkeypatch.setattr('processor.logging.log_handler.MongoClient', MyMongoClient)
     from processor.logging.log_handler import MongoDBHandler
-    logger = MongoDBHandler(None)
+    logger = MongoDBHandler(None, None)
     assert logger.collection is not None
-    logger = MongoDBHandler('abcd')
+    logger = MongoDBHandler(None, 'abcd')
     assert logger.collection is not None
     cm = MagicMock()
     cm.getMessage.return_value = 'Test message'
@@ -168,7 +168,9 @@ def test_db_log_DBhandler(monkeypatch, create_temp_dir, create_terraform):
         'backupcount = 10',
         'propagate = true',
         'logFolder = log',
-        'dbname = whitekite'
+        'dbname = whitekite',
+        '[MONGODB]',
+        'dburl = mongodb://localhost:27017/validator'
     ]
     newpath = create_temp_dir()
     fname = create_terraform(newpath, '\n'.join(log_config), 'a1.ini')
