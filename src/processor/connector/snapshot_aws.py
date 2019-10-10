@@ -154,7 +154,7 @@ def populate_aws_snapshot(snapshot):
     #     logger.error('All snap')
     if valid_snapshotids and sub_data and snapshot_nodes:
         logger.debug(sub_data)
-        access_key, secret_access, region, client_str = \
+        access_key, secret_access, region = \
             get_aws_client_data(sub_data, snapshot_user)
         if not access_key:
             logger.info("No access_key in the snapshot to access aws resource!...")
@@ -168,23 +168,29 @@ def populate_aws_snapshot(snapshot):
         if not secret_access:
             logger.info("No secret_access in the snapshot to access aws resource!...")
             return snapshot_data
-        if client_str and access_key and secret_access:
-            try:
-                awsclient = client(client_str.lower(), aws_access_key_id=access_key,
-                                   aws_secret_access_key=secret_access, region_name=region)
-            except Exception as ex:
-                logger.info('Unable to create AWS client: %s', ex)
-                awsclient = None
-            logger.info(awsclient)
-            if awsclient:
-                for node in snapshot['nodes']:
-                    logger.info(node)
+        if access_key and secret_access:
+            existing_aws_client = {}
+            for node in snapshot['nodes']:
+                client_str = get_field_value(node, 'clientType')
+                if not client_str:
+                    logger.info("Not client type provided in snapshot")
+                    return snapshot_data
+                try:
+                    awsclient = existing_aws_client.get("client_str", None)
+                    if not awsclient:
+                        awsclient = client(client_str.lower(), aws_access_key_id=access_key,
+                                           aws_secret_access_key=secret_access, region_name=region)
+                except Exception as ex:
+                    logger.info('Unable to create AWS client: %s', ex)
+                    awsclient = None
+                logger.info(awsclient)
+                if awsclient:
+                    existing_aws_client[client_str] = awsclient
                     data = get_node(awsclient, node, snapshot_source)
                     if data:
                         error_str = data.pop('error', None)
                         insert_one_document(data, data['collection'], dbname)
                         snapshot_data[node['snapshotId']] = False if error_str else True
-                return snapshot_data
     return snapshot_data
 
 
@@ -197,7 +203,6 @@ def get_aws_client_data(aws_data, snapshot_user):
     accesskey = None
     secret_access = None
     region = None
-    client_str = None
     if aws_data and snapshot_user:
         org_units = get_field_value(aws_data, "organization-unit")
         if org_units:
@@ -215,10 +220,9 @@ def get_aws_client_data(aws_data, snapshot_user):
                                     accesskey = get_field_value(user, 'access-key')
                                     secret_access = get_field_value(user, 'secret-access')
                                     region = get_field_value(user, 'region')
-                                    client_str = get_field_value(user, 'client')
                                     break
                         if found:
                             break
                 if found:
                     break
-    return accesskey, secret_access, region, client_str
+    return accesskey, secret_access, region
