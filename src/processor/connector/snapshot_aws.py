@@ -75,6 +75,7 @@ def get_node(awsclient, node, snapshot_source):
     Fetch node from aws using connection. In this case using boto API's
     describe functions.
     """
+
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
     db_record = {
@@ -154,7 +155,7 @@ def populate_aws_snapshot(snapshot):
     #     logger.error('All snap')
     if valid_snapshotids and sub_data and snapshot_nodes:
         logger.debug(sub_data)
-        access_key, secret_access, region = \
+        access_key, secret_access, region, connector_client_str = \
             get_aws_client_data(sub_data, snapshot_user)
         if not access_key:
             logger.info("No access_key in the snapshot to access aws resource!...")
@@ -173,13 +174,18 @@ def populate_aws_snapshot(snapshot):
             for node in snapshot['nodes']:
                 client_str = get_field_value(node, 'clientType')
                 if not client_str:
-                    logger.info("Not client type provided in snapshot")
-                    return snapshot_data
+                    logger.info("No client type provided in snapshot, using client type from connector")
+                    client_str = connector_client_str
+                aws_region = get_field_value(node, 'region')
+                if not aws_region:
+                    logger.info("No region provided in snapshot, using region from connector")
+                    aws_region = region
                 try:
-                    awsclient = existing_aws_client.get("client_str", None)
+                    awsclient = existing_aws_client.get(client_str, None)
+
                     if not awsclient:
                         awsclient = client(client_str.lower(), aws_access_key_id=access_key,
-                                           aws_secret_access_key=secret_access, region_name=region)
+                                           aws_secret_access_key=secret_access, region_name=aws_region)
                 except Exception as ex:
                     logger.info('Unable to create AWS client: %s', ex)
                     awsclient = None
@@ -220,9 +226,10 @@ def get_aws_client_data(aws_data, snapshot_user):
                                     accesskey = get_field_value(user, 'access-key')
                                     secret_access = get_field_value(user, 'secret-access')
                                     region = get_field_value(user, 'region')
+                                    client_str = get_field_value(user, 'client')
                                     break
                         if found:
                             break
                 if found:
                     break
-    return accesskey, secret_access, region
+    return accesskey, secret_access, region, client_str
