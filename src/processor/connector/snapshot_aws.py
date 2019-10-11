@@ -182,7 +182,7 @@ def populate_aws_snapshot(snapshot):
         if access_key and secret_access:
             existing_aws_client = {}
             for node in snapshot['nodes']:
-                client_str = get_field_value(node, 'clientType')
+                client_str = get_field_value(node, 'client')
                 if not client_str:
                     logger.info("No client type provided in snapshot, using client type from connector")
                     client_str = connector_client_str
