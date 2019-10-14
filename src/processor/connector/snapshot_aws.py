@@ -223,6 +223,7 @@ def get_aws_client_data(aws_data, snapshot_user):
     accesskey = None
     secret_access = None
     region = None
+    client_str = None
     if aws_data and snapshot_user:
         org_units = get_field_value(aws_data, "organization-unit")
         if org_units:
@@ -241,7 +242,7 @@ def get_aws_client_data(aws_data, snapshot_user):
                                     secret_access = get_field_value(user, 'secret-access')
                                     region = get_field_value(user, 'region')
                                     client_str = get_field_value(user, 'client')
-                                    if not _validate_client_name(client_str):
+                                    if client_str and not _validate_client_name(client_str):
                                         logger.error("Invalid Client Name")
                                     break
                         if found:
