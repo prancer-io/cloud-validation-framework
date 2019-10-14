@@ -15,6 +15,21 @@ snapshot = {
     ]
 }
 
+snapshot_with_client = {
+    "source": "awsStructure.json",
+    "type": "aws",
+    "testUser": "kbajey@gmail.com",
+    "nodes": [
+        {
+            "snapshotId": "8",
+            "type": "security_groups",
+            "collection": "security_groups",
+            "id": {"GroupNames": ["launch-wizard-1"]},
+            "region": "us-west-2",
+            "client": "EC2"
+        }
+    ]
+}
 
 def mock_db_json_source():
     return True
@@ -63,6 +78,34 @@ def mock_aws_get_documents(collection, query=None, dbname=None, sort=None, limit
       }
     ]
 
+def mock_aws_get_documents_wthout_client(collection, query=None, dbname=None, sort=None, limit=10):
+    return [
+      {
+        'json':{
+          "organization": "company1",
+          "organization-unit": [
+            {
+              "name": "abc",
+              "accounts": [
+                {
+                  "account-name": "Ajey K",
+                  "account-description": "AWS cloud details",
+                  "account-id": "3684074453691",
+                  "users": [
+                    {
+                      "name": "kbajey@gmail.com",
+                      "access-key": "AKIAIY7ZSPUJE4XLZ4WA",
+                      "secret-access": ""
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+
 def mock_describe_security_groups(**kwargs):
     return {'a': 'b'}
 
@@ -73,6 +116,9 @@ def mock_get_vault_data(client_id):
     return 'abcd'
 
 class MyMock(Mock):
+    def __init__(*args, **kwargs):
+        aws_client = args[0]
+
     def __getattr__(self, name):
         if name == 'describe_security_groups':
             return mock_describe_security_groups
@@ -86,7 +132,7 @@ def mock_insert_one_document(doc, collection, dbname):
 
 
 def mock_client(*args, **kwargs):
-    return  MyMock()
+    return  MyMock(*args, **kwargs)
 
 def mock_invalid_client(*args, **kwargs):
     raise Exception("Unknown access key and secret")
@@ -179,6 +225,29 @@ def test_exception_populate_aws_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.json_source', mock_db_json_source)
     monkeypatch.setattr('processor.connector.snapshot_aws.get_vault_data', mock_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_invalid_client)
+    monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
+    from processor.connector.snapshot_aws import populate_aws_snapshot
+    val = populate_aws_snapshot(snapshot)
+    assert val == {'8': False}
+
+
+def test_client_acceptance_from_snapshot(monkeypatch):
+    monkeypatch.setattr('processor.connector.snapshot_aws.config_value', mock_config_value)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_documents', mock_aws_get_documents_wthout_client)
+    monkeypatch.setattr('processor.connector.snapshot_aws.json_source', mock_db_json_source)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_client)
+    monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
+    from processor.connector.snapshot_aws import populate_aws_snapshot
+    val = populate_aws_snapshot(snapshot_with_client)
+    assert val == {'8': True}
+
+def test_client_acceptance_from_snapshot_negative(monkeypatch):
+    monkeypatch.setattr('processor.connector.snapshot_aws.config_value', mock_config_value)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_documents', mock_aws_get_documents_wthout_client)
+    monkeypatch.setattr('processor.connector.snapshot_aws.json_source', mock_db_json_source)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_client)
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
     from processor.connector.snapshot_aws import populate_aws_snapshot
     val = populate_aws_snapshot(snapshot)
