@@ -84,8 +84,13 @@ def validate_json_data(json_data, filetype):
         valid = json_data['fileType'] == filetype
         if filetype == 'snapshot':
             valid = json_data['snapshots'] and isinstance(json_data['snapshots'], list)
+        elif filetype == 'masterSnapshot':
+            valid = json_data['snapshots'] and isinstance(json_data['snapshots'], list)
         elif filetype == 'test':
             valid = json_data['snapshot'] and json_data['testSet'] and \
+                    isinstance(json_data['testSet'], list)
+        elif filetype == 'mastertest':
+            valid = json_data['masterSnapshot'] and json_data['testSet'] and \
                     isinstance(json_data['testSet'], list)
         elif filetype == 'structure':
             valid = True if json_data else False

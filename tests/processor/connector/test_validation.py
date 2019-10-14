@@ -12,6 +12,8 @@ def mock_framework_dir():
 def mock_config_value(section, key, default=None):
     if key == 'TEST':
         return 'tests'
+    elif key == 'MASTERTEST':
+        return 'mastertests'
     elif key == 'SNAPSHOT':
         return 'snapshots'
     elif key == 'OUTPUT':
@@ -44,21 +46,25 @@ def mock_create_indexes(sid, dbname, flds):
 
 
 def mock_test_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
-    return [{
-        "_id": "5c24af787456217c485ad1e6",
-        "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
-        "collection": "microsoftcompute",
-        "json":{
-            "$schema": "",
-            "contentVersion": "1.0.0.0",
-            "fileType": "test",
-            "snapshot": "snapshot.json",
-            "testSet": []
-        },
-        "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
-        "snapshotId": 1,
-        "timestamp": 1545908086831
-    }]
+    if collection == 'tests':
+        return [{
+            "_id": "5c24af787456217c485ad1e6",
+            "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+            "collection": "microsoftcompute",
+            "json":{
+                "$schema": "",
+                "contentVersion": "1.0.0.0",
+                "fileType": "test",
+                "snapshot": "snapshot.json",
+                "testSet": []
+            },
+            "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+            "snapshotId": 1,
+            "timestamp": 1545908086831
+        }]
+    elif collection == 'mastertests':
+        return [{"json":{}}]
+    return None
 
 def mock_validate(self):
     return {"result": "passed"}
@@ -121,6 +127,8 @@ def mock_test1_get_documents(collection, query=None, dbname=None, sort=None, lim
             "snapshotId": 1,
             "timestamp": 1545908086831
         }]
+    elif collection == 'mastertests':
+        return [{"json":{}}]
     return None
 
 

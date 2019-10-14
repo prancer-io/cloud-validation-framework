@@ -22,11 +22,12 @@ dbhandler = None
 class MongoDBHandler(logging.Handler):
     """Customized logging handler that puts logs to the database, pymongo required
     """
-    def __init__(self, dbname):
+    def __init__(self, dburl, dbname):
         global DBLOGGER
         logging.Handler.__init__(self)
         try:
-            dbconnection = MongoClient(port=27017, serverSelectionTimeoutMS=3000)
+            # dbconnection = MongoClient(port=27017, serverSelectionTimeoutMS=3000)
+            dbconnection =  MongoClient(host=dburl, serverSelectionTimeoutMS=3000)
             _ = dbconnection.list_database_names()
             if dbname:
                 db = dbconnection[dbname]
@@ -106,6 +107,7 @@ def logging_fw(fwconfigfile):
         log_config['propagate'] = fwconf.getboolean('propagate') if 'propagate' in fwconf \
             else True
         log_config['db'] = fwconf['dbname'] if 'dbname' in fwconf else None
+        log_config['dburl'] = fw_cfg['MONGODB']['dburl'] if 'dbname' in fwconf else None
     level = os.getenv('LOGLEVEL', None)
     loglevel = level if level and level in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'] \
         else log_config['level']
@@ -126,10 +128,10 @@ def logging_fw(fwconfigfile):
     logger.addHandler(handler)
     unittest = os.getenv('UNITTEST', "false")
     if log_config['db'] and unittest != "true":
-        dblogformat = '%(message)s'
-        dbhandler = MongoDBHandler(log_config['db'])
+        dblogformat = '%(asctime)s-%(message)s'
+        dbhandler = MongoDBHandler(log_config['dburl'], log_config['db'])
         dbhandler.setFormatter(logging.Formatter(dblogformat))
-        dbhandler.setLevel(log_config['level'])
+        dbhandler.setLevel(loglevel)
         logger.addHandler(dbhandler)
     return logger
 

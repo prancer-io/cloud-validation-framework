@@ -66,6 +66,7 @@ def get_call_kwargs(node, params):
     kwargs = {}
     logger.info("Get node's kwargs")
     params_source = config_value('GOOGLE', 'params')
+    paramsversions = None
     if json_source():
         dbname = config_value(DATABASE, DBNAME)
         collection = config_value(DATABASE, collectiontypes[STRUCTURE])

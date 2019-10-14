@@ -23,7 +23,7 @@ def mock_populate_git_snapshot(snapshot, snapshot_type='git'):
     print(snapshot)
     if 'testUser' in snapshot and \
             snapshot['testUser'] in ['git', 'ajeybk1@kbajeygmail.onmicrosoft.com']:
-        return {"1": True}
+        return {'1': True, '31': True, '32': False, '33': True, '34': False}
     return {}
 
 
@@ -55,6 +55,9 @@ def mock_empty_get_documents(collection, query=None, dbname=None, sort=None,
                              limit=10):
     return []
 
+def mock_update_one_document(doc, collection, dbname):
+    """ Update the document into the collection. """
+    pass
 
 def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     print('Collection: %s' % collection)
@@ -153,12 +156,14 @@ def test_populate_container_snapshots(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot.populate_custom_snapshot',
                         mock_populate_git_snapshot)
     monkeypatch.setattr('processor.connector.snapshot.get_documents', mock_get_documents)
-    from processor.connector.snapshot import populate_container_snapshots
+    monkeypatch.setattr('processor.connector.snapshot.update_one_document', mock_update_one_document)
+    from processor.connector.snapshot import populate_container_snapshots, snapshot_fns
+    snapshot_fns['git'] = mock_populate_git_snapshot
     assert {} == populate_container_snapshots('container2')
     assert {'snapshot3': {'1': True, '31': True, '32': False, '33': True, '34': False}} == \
            populate_container_snapshots('container3', False)
-    assert {'snapshot': {"1": True}} == populate_container_snapshots('gitcontainer', False)
-    assert {'snapshot': {"1": True}} == populate_container_snapshots('gitcontainer', True)
+    assert {'snapshot': {'1': True, '31': True, '32': False, '33': True, '34': False}} == populate_container_snapshots('gitcontainer', False)
+    assert {'snapshot': {'1': True, '31': True, '32': False, '33': True, '34': False}} == populate_container_snapshots('gitcontainer', True)
     assert {} == populate_container_snapshots('container21', False)
 
 

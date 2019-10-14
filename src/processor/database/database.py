@@ -75,6 +75,13 @@ def sort_dict(data):
     return collections.OrderedDict(sorted_vals)
 
 
+def update_one_document(doc, collection, dbname):
+    """ Update the document into the collection. """
+    coll = get_collection(dbname, collection)
+    if coll and doc:
+        coll.save(doc)
+
+
 def insert_one_document(doc, collection, dbname, check_keys=True):
     """ Insert one document into the collection. """
     doc_id_str = None

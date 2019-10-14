@@ -9,7 +9,9 @@ from processor.helper.config.config_utils import get_test_json_dir
 from processor.logging.log_handler import getlogger
 
 SNAPSHOT = 'snapshot'
+MASTERSNAPSHOT = 'masterSnapshot'
 JSONTEST = 'test'
+MASTERTEST = 'mastertest'
 TEST = 'test'
 OUTPUT = 'output'
 STRUCTURE = 'structure'
@@ -18,6 +20,8 @@ collectiontypes = {
     TEST: 'TEST',
     STRUCTURE: 'STRUCTURE',
     SNAPSHOT: 'SNAPSHOT',
+    MASTERSNAPSHOT: 'MASTERSNAPSHOT',
+    MASTERTEST: 'MASTERTEST',
     OUTPUT: 'OUTPUT',
     NOTIFICATIONS: 'NOTIFICATIONS'
 }
@@ -147,10 +151,15 @@ def get_container_dir(container):
     return container_dir
 
 
-def get_container_snapshot_json_files(container):
+def get_container_snapshot_json_files(container, mastersnapshot=False):
     """Return list of snapshot files in the container."""
     container_dir = get_container_dir(container)
-    snapshot_files = get_json_files(container_dir, SNAPSHOT)
+    if mastersnapshot:
+        snapshot_files = get_json_files(container_dir, MASTERSNAPSHOT)
+    else:
+        snapshot_files = get_json_files(container_dir, SNAPSHOT)
+    if not snapshot_files:
+        snapshot_files = []
     return container_dir, snapshot_files
 
 

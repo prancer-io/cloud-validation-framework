@@ -92,6 +92,8 @@ import shutil
 import hcl
 import re
 import os
+import glob
+import copy
 from subprocess import Popen, PIPE
 import urllib.parse
 from git import Repo
@@ -179,6 +181,49 @@ def get_node(repopath, node, snapshot_source, ref):
         logger.info('Get requires valid file for snapshot not present!')
     logger.debug('DB: %s', db_record)
     return db_record
+
+def get_all_nodes(repopath, node, snapshot_source, ref):
+    """ Fetch all the nodes from the cloned git repository in the given path."""
+    db_records = []
+    collection = node['collection'] if 'collection' in node else COLLECTION
+    parts = snapshot_source.split('.')
+    d_record = {
+        "structure": "git",
+        "reference": ref,
+        "source": parts[0],
+        "path": '',
+        "timestamp": int(time.time() * 1000),
+        "queryuser": "",
+        "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
+        "node": node,
+        "snapshotId": None,
+        "masterSnapshotId": node['masterSnapshotId'],
+        "collection": collection.replace('.', '').lower(),
+        "json": {}
+    }
+    node_type = node['type'] if 'type' in node and node['type'] else 'json'
+    json_path = '%s/%s' % (repopath, node['path'])
+    file_path = json_path.replace('//', '/')
+    logger.info('Dir: %s', file_path)
+    if exists_dir(file_path):
+        count = 0
+        for filename in glob.glob('%s/*.json' % file_path.replace('//', '/')):
+            parts = filename.rsplit('/', 1)
+            path = '%s/%s' % (node['path'], parts[-1])
+            json_data = convert_to_json(filename, node_type)
+            logger.info('type: %s, json:%s', node_type, json_data)
+            if json_data:
+                db_record = copy.deepcopy(d_record)
+                db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
+                db_record['path'] = path.replace('//', '/')
+                db_record['json'] = json_data
+                data_str = json.dumps(json_data)
+                db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
+                db_records.append(db_record)
+                count += 1
+    else:
+        logger.info('Get requires valid directory for snapshot not present!')
+    return db_records
 
 
 def populate_custom_snapshot_orig(snapshot):
@@ -436,11 +481,40 @@ def populate_custom_snapshot(snapshot):
         if repopath:
             brnch = get_field_value_with_default(sub_data, 'branchName', 'master')
             for node in snapshot_nodes:
-                logger.debug(node)
-                data = get_node(repopath, node, snapshot_source, brnch)
-                if data:
-                    insert_one_document(data, data['collection'], dbname)
-                    snapshot_data[node['snapshotId']] = True
+                # logger.debug(node)
+                # data = get_node(repopath, node, snapshot_source, brnch)
+                # if data:
+                #     insert_one_document(data, data['collection'], dbname)
+                #     snapshot_data[node['snapshotId']] = True
+                validate = node['validate'] if 'validate' in node else True
+                if 'snapshotId' in node:
+                    logger.debug(node)
+                    data = get_node(repopath, node, snapshot_source, brnch)
+                    if data:
+                        if validate:
+                            insert_one_document(data, data['collection'], dbname)
+                            if 'masterSnapshotId' in node:
+                                snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+                            else:
+                                snapshot_data[node['snapshotId']] = True
+                        else:
+                            snapshot_data[node['snapshotId']] = False
+                        node['status'] = 'active'
+                    else:
+                        node['status'] = 'inactive'
+                    logger.debug('Type: %s', type(data))
+                elif 'masterSnapshotId' in node:
+                    alldata = get_all_nodes(repopath, node, snapshot_source, brnch)
+                    if alldata:
+                        snapshot_data[node['masterSnapshotId']] = []
+                        for data in alldata:
+                            snapshot_data[node['masterSnapshotId']].append(
+                                {
+                                    'snapshotId': data['snapshotId'],
+                                    'path': data['path'],
+                                    'validate': True
+                                })
+                    logger.debug('Type: %s', type(alldata))
         if os.path.exists(baserepo):
             logger.info('Repo path: %s', baserepo)
             shutil.rmtree(baserepo)

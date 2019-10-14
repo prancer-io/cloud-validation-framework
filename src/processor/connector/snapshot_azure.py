@@ -2,12 +2,13 @@
    Common file for running validator functions.
 """
 import json
+import copy
 import hashlib
 import time
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
-    delete_from_currentdata
+    delete_from_currentdata, get_from_currentdata
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE
 from processor.helper.httpapi.restapi_azure import get_access_token,\
@@ -49,11 +50,70 @@ def get_version_for_type(node):
             version = apiversions[node['type']]['version']
     return version
 
+def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
+    """ Fetch all nodes from azure portal using rest API."""
+    collection = node['collection'] if 'collection' in node else COLLECTION
+    parts = snapshot_source.split('.')
+    db_records = []
+    d_record = {
+        "structure": "azure",
+        "reference": sub_name,
+        "source": parts[0],
+        "path": '',
+        "timestamp": int(time.time() * 1000),
+        "queryuser": user,
+        "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
+        "node": node,
+        "snapshotId": None,
+        "mastersnapshot": True,
+        "masterSnapshotId": node['masterSnapshotId'],
+        "collection": collection.replace('.', '').lower(),
+        "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
+    }
+    # version = get_version_for_type(node)
+    # if sub_id and token and node and version:
+    nodetype = None
+    if node and 'type' in node and node['type']:
+        nodetype = node['type']
+    if sub_id and token and nodetype:
+        hdrs = {
+            'Authorization': 'Bearer %s' % token
+        }
+        # urlstr = 'https://management.azure.com/subscriptions/%s/providers/%s?api-version=%s'
+        # url = urlstr % (sub_id, node['type'], version)
+        # db_record['path'] = node['path']
+        resources = get_from_currentdata('resources')
+        if not resources:
+            urlstr = 'https://management.azure.com/subscriptions/%s/resources?api-version=2017-05-10'
+            url = urlstr % sub_id
+            logger.info('Get Id REST API invoked!')
+            status, data = http_get_request(url, hdrs)
+            logger.info('Get Id status: %s', status)
+            if status and isinstance(status, int) and status == 200:
+                resources = data['value']
+                put_in_currentdata('resources', resources)
+            else:
+                put_in_currentdata('errors', data)
+                logger.info("Get Id returned invalid status: %s", status)
+        if resources:
+            for idx, value in enumerate(resources):
+                if nodetype in value['type']:
+                    db_record = copy.deepcopy(d_record)
+                    db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(idx))
+                    db_record['path'] = value['id']
+                    db_record['json'] = value
+                    data_str = json.dumps(value)
+                    db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
+                    db_records.append(db_record)
+    else:
+        logger.info('Get requires valid subscription, token and path.!')
+    return db_records
 
 def get_node(token, sub_name, sub_id, node, user, snapshot_source):
     """ Fetch node from azure portal using rest API."""
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
+    db_records = []
     db_record = {
         "structure": "azure",
         "reference": sub_name,
@@ -64,6 +124,8 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,
         "snapshotId": node['snapshotId'],
+        "mastersnapshot": False,
+        "masterSnapshotId": None,
         "collection": collection.replace('.', '').lower(),
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
@@ -72,8 +134,12 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         hdrs = {
             'Authorization': 'Bearer %s' % token
         }
-        urlstr = 'https://management.azure.com/subscriptions/%s%s?api-version=%s'
-        url = urlstr % (sub_id, node['path'], version)
+        if node['path'].startswith('/subscriptions'):
+            urlstr = 'https://management.azure.com%s?api-version=%s'
+            url = urlstr % (node['path'], version)
+        else:
+            urlstr = 'https://management.azure.com/subscriptions/%s%s?api-version=%s'
+            url = urlstr % (sub_id, node['path'], version)
         db_record['path'] = node['path']
         logger.info('Get Id REST API invoked!')
         status, data = http_get_request(url, hdrs)
@@ -125,11 +191,37 @@ def populate_azure_snapshot(snapshot, snapshot_type='azure'):
     # snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and token and snapshot_nodes:
         for node in snapshot_nodes:
-            data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
-            if data:
-                insert_one_document(data, data['collection'], dbname)
-                snapshot_data[node['snapshotId']] = True
-            logger.debug('Type: %s', type(data))
+            validate = node['validate'] if 'validate' in node else True
+            if 'path' in  node:
+                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
+                if data:
+                    if validate:
+                        insert_one_document(data, data['collection'], dbname)
+                        if 'masterSnapshotId' in node:
+                            snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+                        else:
+                            snapshot_data[node['snapshotId']] = True
+                    else:
+                        snapshot_data[node['snapshotId']] = False
+                    node['status'] = 'active'
+                else:
+                    node['status'] = 'inactive'
+                logger.debug('Type: %s', type(data))
+            else:
+                alldata = get_all_nodes(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
+                if alldata:
+                    snapshot_data[node['masterSnapshotId']] = []
+                    for data in alldata:
+                        # insert_one_document(data, data['collection'], dbname)
+                        snapshot_data[node['masterSnapshotId']].append(
+                            {
+                                'snapshotId': data['snapshotId'],
+                                'path': data['path'],
+                                'validate': validate
+                            })
+                    # snapshot_data[node['masterSnapshotId']] = True
+                logger.debug('Type: %s', type(alldata))
+        delete_from_currentdata('resources')
         delete_from_currentdata('clientId')
         delete_from_currentdata('client_secret')
         delete_from_currentdata('subscriptionId')

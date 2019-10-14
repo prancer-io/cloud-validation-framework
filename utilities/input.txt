@@ -12,6 +12,7 @@ python3 utilities/populate_json.py lq --file ./realm/azureStructure.json --type 
 python3 utilities/populate_json.py lq --file ./realm/azureStructure1.json --type structure
 python3 utilities/populate_json.py lq --file ./realm/parameterStructure.json --type structure
 python3 utilities/populate_json.py lq --file ./realm/parameterStructure1.json --type structure
+python3 utilities/populate_json.py lq --file ./realm/parameterStructure2.json --type structure
 python3 utilities/populate_json.py lq --file ./realm/notifications/notifications_slack_wk.json --type notifications
 python3 utilities/populate_json.py lq --file ./realm/notifications/notifications_email_gm.json --type notifications
 python3 utilities/populate_json.py lq --file ./realm/notifications/notifications_email_sg.json --type notifications
@@ -20,6 +21,7 @@ python3 utilities/populate_json.py container3 --dir ./realm/validation/container
 python3 utilities/populate_json.py container4 --dir ./realm/validation/container4
 python3 utilities/populate_json.py container5 --dir ./realm/validation/container5
 python3 utilities/populate_json.py container6 --dir ./realm/validation/container6
+python3 utilities/populate_json.py crawlertest --dir ./realm/validation/crawlertest
 sed -i 's/\[VAULT\]/\[VAULT1\]/' realm/config.ini
 a=`sed -nr "/^\[VAULT1\]/ { :l /^client_secret[ ]*=[ ]*/ { s/.*\s+=\s+[ ]*/CLIENTKEY=/; p; q;}; n; b l;}" ./tmp/config1.ini`
 cmd="$a python utilities/validator.py container1 --db"
@@ -43,6 +45,9 @@ tar cvfz dbdumps.tar.gz dbdumps
 # Mongo command line utilities
 mongo localhost:27017/validator --eval "db.getCollectionNames()"
 mongo localhost:27017/validator --eval "printjson(db.getCollectionNames())"
+mongo localhost:27017/validator --eval "db.getCollectionNames().forEach(function(x) {db[x].drop()})"
+mongo localhost:27017/validator --eval "db.getCollectionNames().forEach(function(x) {print(x, db[x].count())})"
+# db.getCollectionNames().forEach(function(x) {db[x].drop()})
 
 # Mongo log dumps
 mkdir logdumps

@@ -4,10 +4,11 @@
 import json
 import re
 import pymongo
+from collections import defaultdict
 from processor.logging.log_handler import getlogger
 from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
-    json_from_file, TEST, collectiontypes, SNAPSHOT, JSONTEST
+    json_from_file, TEST, collectiontypes, SNAPSHOT, JSONTEST, MASTERTEST, get_field_value_with_default
 from processor.helper.config.config_utils import config_value, get_test_json_dir,\
     DATABASE, DBNAME, framework_dir
 from processor.database.database import create_indexes, COLLECTION,\
@@ -136,12 +137,57 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
     for test_file in test_files:
         val = run_file_validation_tests(test_file, container, True, snapshot_status)
         result = result and val
-    return result
+    # mastertest files
+    test_files = get_json_files(json_dir, MASTERTEST)
+    logger.info('\n'.join(test_files))
+    finalresult = True
+    for test_file in test_files:
+        logger.info("*" * 50)
+        logger.info("validator tests: %s", test_file)
+        test_json_data = json_from_file(test_file)
+        if not test_json_data:
+            logger.info("Test file %s looks to be empty, next!...", test_file)
+            continue
+        snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
+        mastersnapshots = defaultdict(list)
+        snapshot_data = snapshot_status[snapshot_key] if snapshot_key in snapshot_status else {}
+        for snapshot_id, mastersnapshot_id in snapshot_data.items():
+            mastersnapshots[mastersnapshot_id].append(snapshot_id)
+        test_json_data['snapshot'] = snapshot_key
+        testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+        for testset in testsets:
+            testcases = get_field_value_with_default(testset, 'cases', [])
+            newcases = []
+            for testcase in testcases:
+                rule_str = get_field_value_with_default(testcase, 'rule', '')
+                ms_ids = re.findall(r'\{(.*)\}', rule_str)
+                for ms_id in ms_ids:
+                    for s_id in mastersnapshots[ms_id]:
+                        # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
+                        new_rule_str = rule_str.replace('{%s}' % ms_id, '{%s}' % s_id)
+                        new_testcase = {'rule': new_rule_str, 'testId': testcase['masterTestId']}
+                        newcases.append(new_testcase)
+            testset['cases'] = newcases
+        # print(json.dumps(test_json_data, indent=2))
+        resultset = run_json_validation_tests(test_json_data, container, True, snapshot_status)
+        if resultset:
+            snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
+            dump_output_results(resultset, container, test_file, snapshot, True)
+            for result in resultset:
+                if 'result' in result:
+                    if not re.match(r'passed', result['result'], re.I):
+                        finalresult = False
+                        break
+        else:
+            logger.info('No mastertest Documents found!')
+            finalresult = False
+    return finalresult
 
 
 def run_container_validation_tests_database(container, snapshot_status=None):
     """ Get the test files from the database"""
     dbname = config_value(DATABASE, DBNAME)
+    # For test files
     collection = config_value(DATABASE, collectiontypes[TEST])
     qry = {'container': container}
     sort = [sort_field('timestamp', False)]
@@ -162,8 +208,49 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                                 finalresult = False
                                 break
     else:
-        # TODO: Didnt find any tests
-        # LOG HERE
+        logger.info('No test Documents found!')
+        finalresult = False
+    # For mastertest files
+    collection = config_value(DATABASE, collectiontypes[MASTERTEST])
+    docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
+    if docs and len(docs):
+        logger.info('Number of mastertest Documents: %s', len(docs))
+        for doc in docs:
+            test_json_data = doc['json']
+            if test_json_data:
+                snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
+                mastersnapshots = defaultdict(list)
+                snapshot_data = snapshot_status[snapshot_key] if snapshot_key in snapshot_status else {}
+                for snapshot_id, mastersnapshot_id in snapshot_data.items():
+                    mastersnapshots[mastersnapshot_id].append(snapshot_id)
+                test_json_data['snapshot'] = snapshot_key
+                testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+                for testset in testsets:
+                    testcases = get_field_value_with_default(testset, 'cases', [])
+                    newcases = []
+                    for testcase in testcases:
+                        rule_str = get_field_value_with_default(testcase, 'rule', '')
+                        ms_ids = re.findall(r'\{(.*)\}', rule_str)
+                        for ms_id in ms_ids:
+                            for s_id in mastersnapshots[ms_id]:
+                                # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
+                                new_rule_str = rule_str.replace('{%s}' % ms_id, '{%s}' % s_id)
+                                new_testcase = {'rule': new_rule_str, 'testId': testcase['masterTestId']}
+                                newcases.append(new_testcase)
+                    testset['cases'] = newcases
+                # print(json.dumps(test_json_data, indent=2))
+                resultset = run_json_validation_tests(test_json_data, container, True, snapshot_status)
+                if resultset:
+                    snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
+                    test_file = doc['name'] if 'name' in doc else ''
+                    dump_output_results(resultset, container, test_file, snapshot, False)
+                    for result in resultset:
+                        if 'result' in result:
+                            if not re.match(r'passed', result['result'], re.I):
+                                finalresult = False
+                                break
+    else:
+        logger.info('No mastertest Documents found!')
         finalresult = False
     return finalresult
 

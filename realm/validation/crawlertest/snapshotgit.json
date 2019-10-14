@@ -1,0 +1,26 @@
+{
+  "$schema": "",
+  "contentVersion": "1.0.0.0",
+  "fileType": "masterSnapshot",
+  "snapshots": [
+    {
+      "source": "parameterStructure2",
+      "type": "git",
+      "testUser": "kbajey@gmail.com",
+      "nodes": [
+        {
+          "masterSnapshotId": "11",
+          "type": "",
+          "collection": "customParameters",
+          "path": "devops/gitres/as/"
+        },
+        {
+          "masterSnapshotId": "12",
+          "type": "",
+          "collection": "customParameters",
+          "path": "devops/gitres/vn/"
+        }
+      ]
+    }
+  ]
+}
