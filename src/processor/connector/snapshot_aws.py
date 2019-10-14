@@ -181,6 +181,7 @@ def populate_aws_snapshot(snapshot):
             return snapshot_data
         if access_key and secret_access:
             existing_aws_client = {}
+            # This will track exisitng AWS client objects to prevent creating redudant clients. 
             for node in snapshot['nodes']:
                 client_str = get_field_value(node, 'client')
                 if not client_str:
