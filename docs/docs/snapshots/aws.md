@@ -24,6 +24,7 @@ To setup an **AWS** snapshot configuration file, copy the following code to a fi
                         "snapshotId": "<snapshot-name>",
                         "type": "<type-of-node>",
                         "collection": "<collection-name>",
+                        "callable_method": "<method-to-call>",
                         "region": "<region>",
                         "client": "EC2",
                         "id": {
@@ -46,6 +47,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | selectors | A complex object that defines what it is you want to extract and snapshot, see below for more information |
 | region | Region of the instance (Optional). Overrides the region provided in Connector File. |
 | client | Type of client AWS client (Optional). Overrides the client provided in Connector File. |
+| method-to-call | Method that has to be called in case where describe_ methods are unavailable. |
 
 # Types of nodes
 
