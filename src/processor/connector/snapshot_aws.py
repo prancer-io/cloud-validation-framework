@@ -72,6 +72,32 @@ def get_aws_data(snapshot_source):
     return sub_data
 
 
+def _get_aws_function(awsclient, node):
+    """ 
+    A private function to get the function which has to be called by the
+    boto3 client object to get snapshot data.
+    """
+    describe_function_str = get_aws_describe_function(node)
+    if describe_function_str:
+        describe_function = getattr(awsclient, describe_function_str, None)
+        if describe_function and callable(describe_function):
+            return describe_function
+    
+    function_str = _get_callable_method_from_node(node)
+    if function_str:
+        callable_function = getattr(awsclient, function_str, None)
+        if callable_function and callable(callable_function):
+            return callable_function
+
+    
+def _get_callable_method_from_node(node):
+    """Callable Method from node using python reflection mechanism"""
+    _fn_str = None
+    if node and 'callable_method' in node and node['callable_method']:
+        _fn_str = node['callable_method']
+    return _fn_str
+    
+
 def get_aws_describe_function(node):
     """Describe function for the node using python reflection mechanism"""
     describe_fn_str = None
@@ -103,19 +129,7 @@ def get_node(awsclient, node, snapshot_source):
         "collection": collection.replace('.', '').lower(),
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
-    function_to_call_str = get_aws_describe_function(node)
-    if function_to_call_str:
-        function_to_call = getattr(awsclient, function_to_call_str, None)
-        if not function_to_call:
-            function_to_call_str = get_field_value(node, 'callable_method')
-            if function_to_call_str:
-                function_to_call = getattr(awsclient, function_to_call_str, None) 
-            else:
-                logger.info('Invalid value of callable_method: %s', function_to_call_str)
-                db_record['error'] = 'Invalid function exception: %s' % function_to_call_str
-    else:
-        logger.info('Missing describe/callable function')
-        db_record['error'] = 'Missing describe/callable function'
+    function_to_call = _get_aws_function(awsclient, node)
     if function_to_call and callable(function_to_call):
         queryval = get_field_value(node, 'id')
         try:
