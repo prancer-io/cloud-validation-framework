@@ -141,14 +141,14 @@ def get_node(awsclient, node, snapshot_source):
                     db_record['checksum'] = checksum
                 else:
                     put_in_currentdata('errors', data)
-                    logger.info("Describe function does not exist: %s", function_to_call_str)
-                    db_record['error'] = "Describe function does not exist: %s" % function_to_call_str
+                    logger.info("Describe function does not exist: %s", str(function_to_call))
+                    db_record['error'] = "Describe function does not exist: %s" % str(function_to_call)
         except Exception as ex:
             logger.info('Describe function exception: %s', ex)
             db_record['error'] = 'Describe function exception: %s' % ex
     else:
-        logger.info('Invalid function exception: %s', function_to_call_str)
-        db_record['error'] = 'Invalid function exception: %s' % function_to_call_str
+        logger.info('Invalid function exception: %s', str(function_to_call))
+        db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
     return db_record
 
 
