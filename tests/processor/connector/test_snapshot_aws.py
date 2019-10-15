@@ -188,6 +188,15 @@ def test_get_node():
         "id": {"RegionNames": ["us-west-2"]}
     }, 'awsStructure')
     assert val is not None
+    val = get_node(awsclient, {
+        "snapshotId": "10",
+        "callable_method" : "get_bucket_acl",
+        "type": "regions",
+        "collection": "regions",
+        "id": {"Bucket": "a-test-bucket-name"}
+    }, 'awsStructure')
+    assert val is not None
+
 
 def test_db_get_aws_data(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.get_documents', mock_snapshot_get_documents)
