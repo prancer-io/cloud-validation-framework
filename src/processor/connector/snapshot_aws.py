@@ -16,6 +16,7 @@ import json
 import hashlib
 import time
 from boto3 import client
+from boto3 import Session
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata
@@ -31,6 +32,15 @@ from processor.connector.snapshot_utils import validate_snapshot_nodes
 
 
 logger = getlogger()
+_valid_service_names = Session().get_available_services()
+
+
+def _validate_client_name(client_name):
+    """
+    A private function to validate whether a given client provided
+    in snapshot or aws connector is a valid service in Boto3
+    """
+    return client_name.lower() in _valid_service_names
 
 
 def get_aws_data(snapshot_source):
@@ -75,6 +85,7 @@ def get_node(awsclient, node, snapshot_source):
     Fetch node from aws using connection. In this case using boto API's
     describe functions.
     """
+
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
     db_record = {
@@ -154,7 +165,7 @@ def populate_aws_snapshot(snapshot):
     #     logger.error('All snap')
     if valid_snapshotids and sub_data and snapshot_nodes:
         logger.debug(sub_data)
-        access_key, secret_access, region, client_str = \
+        access_key, secret_access, region, connector_client_str = \
             get_aws_client_data(sub_data, snapshot_user)
         if not access_key:
             logger.info("No access_key in the snapshot to access aws resource!...")
@@ -168,23 +179,39 @@ def populate_aws_snapshot(snapshot):
         if not secret_access:
             logger.info("No secret_access in the snapshot to access aws resource!...")
             return snapshot_data
-        if client_str and access_key and secret_access:
-            try:
-                awsclient = client(client_str.lower(), aws_access_key_id=access_key,
-                                   aws_secret_access_key=secret_access, region_name=region)
-            except Exception as ex:
-                logger.info('Unable to create AWS client: %s', ex)
-                awsclient = None
-            logger.info(awsclient)
-            if awsclient:
-                for node in snapshot['nodes']:
-                    logger.info(node)
+        if access_key and secret_access:
+            existing_aws_client = {}
+            # This will track exisitng AWS client objects to prevent creating redudant clients. 
+            for node in snapshot['nodes']:
+                client_str = get_field_value(node, 'client')
+                if not client_str:
+                    logger.info("No client type provided in snapshot, using client type from connector")
+                    client_str = connector_client_str
+                else:
+                    if not _validate_client_name(client_str):
+                        logger.error("Invalid Client Name")
+                        return snapshot_data
+                aws_region = get_field_value(node, 'region')
+                if not aws_region:
+                    logger.info("No region provided in snapshot, using region from connector")
+                    aws_region = region
+                try:
+                    awsclient = existing_aws_client.get(client_str.lower(), None)
+
+                    if not awsclient:
+                        awsclient = client(client_str.lower(), aws_access_key_id=access_key,
+                                           aws_secret_access_key=secret_access, region_name=aws_region)
+                except Exception as ex:
+                    logger.info('Unable to create AWS client: %s', ex)
+                    awsclient = None
+                logger.info(awsclient)
+                if awsclient:
+                    existing_aws_client[client_str.lower()] = awsclient
                     data = get_node(awsclient, node, snapshot_source)
                     if data:
                         error_str = data.pop('error', None)
                         insert_one_document(data, data['collection'], dbname)
                         snapshot_data[node['snapshotId']] = False if error_str else True
-                return snapshot_data
     return snapshot_data
 
 
@@ -216,6 +243,8 @@ def get_aws_client_data(aws_data, snapshot_user):
                                     secret_access = get_field_value(user, 'secret-access')
                                     region = get_field_value(user, 'region')
                                     client_str = get_field_value(user, 'client')
+                                    if client_str and not _validate_client_name(client_str):
+                                        logger.error("Invalid Client Name")
                                     break
                         if found:
                             break

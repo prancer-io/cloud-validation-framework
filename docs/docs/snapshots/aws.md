@@ -24,6 +24,8 @@ To setup an **AWS** snapshot configuration file, copy the following code to a fi
                         "snapshotId": "<snapshot-name>",
                         "type": "<type-of-node>",
                         "collection": "<collection-name>",
+                        "region": "<region>",
+                        "client": "EC2",
                         "id": {
                             <selectors>
                         }
@@ -42,6 +44,8 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | type-of-node | Type of resource being queried for, see below for more information |
 | collection-name | Name of the **MongoDB** collection used to store snapshots of this file |
 | selectors | A complex object that defines what it is you want to extract and snapshot, see below for more information |
+| region | Region of the instance (Optional). Overrides the region provided in Connector File. |
+| client | Type of client AWS client (Optional). Overrides the client provided in Connector File. |
 
 # Types of nodes
 
