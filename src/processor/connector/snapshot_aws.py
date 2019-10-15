@@ -88,6 +88,7 @@ def get_node(awsclient, node, snapshot_source):
 
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
+    function_to_call = None
     db_record = {
         "structure": "aws",
         "error": None,
@@ -102,31 +103,38 @@ def get_node(awsclient, node, snapshot_source):
         "collection": collection.replace('.', '').lower(),
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
-    describe_fn_str = get_aws_describe_function(node)
-    if describe_fn_str:
-        describe_fn = getattr(awsclient, describe_fn_str, None)
-        if describe_fn and callable(describe_fn):
-            queryval = get_field_value(node, 'id')
-            try:
-                data = describe_fn(**queryval)
-                if data:
-                    db_record['json'] = data
-                    checksum = get_checksum(data)
-                    if checksum:
-                        db_record['checksum'] = checksum
+    function_to_call_str = get_aws_describe_function(node)
+    if function_to_call_str:
+        function_to_call = getattr(awsclient, function_to_call_str, None)
+        if not function_to_call:
+            function_to_call_str = get_field_value(node, 'callable_method')
+            if function_to_call_str:
+                function_to_call = getattr(awsclient, function_to_call_str, None) 
+            else:
+                logger.info('Invalid value of callable_method: %s', function_to_call_str)
+                db_record['error'] = 'Invalid function exception: %s' % function_to_call_str
+    else:
+        logger.info('Missing describe/callable function')
+        db_record['error'] = 'Missing describe/callable function'
+    if function_to_call and callable(function_to_call):
+        queryval = get_field_value(node, 'id')
+        try:
+            data = function_to_call(**queryval)
+            if data:
+                db_record['json'] = data
+                checksum = get_checksum(data)
+                if checksum:
+                    db_record['checksum'] = checksum
                 else:
                     put_in_currentdata('errors', data)
-                    logger.info("Describe function does not exist: %s", describe_fn_str)
-                    db_record['error'] = "Describe function does not exist: %s" % describe_fn_str
-            except Exception as ex:
-                logger.info('Describe function exception: %s', ex)
-                db_record['error'] = 'Describe function exception: %s' % ex
-        else:
-            logger.info('Invalid describe function exception: %s', describe_fn_str)
-            db_record['error'] = 'Invalid describe function exception: %s' % describe_fn_str
+                    logger.info("Describe function does not exist: %s", function_to_call_str)
+                    db_record['error'] = "Describe function does not exist: %s" % function_to_call_str
+        except Exception as ex:
+            logger.info('Describe function exception: %s', ex)
+            db_record['error'] = 'Describe function exception: %s' % ex
     else:
-        logger.info('Missing describe function')
-        db_record['error'] = 'Missing describe function'
+        logger.info('Invalid function exception: %s', function_to_call_str)
+        db_record['error'] = 'Invalid function exception: %s' % function_to_call_str
     return db_record
 
 
