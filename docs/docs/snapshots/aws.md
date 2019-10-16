@@ -47,7 +47,6 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | selectors | A complex object that defines what it is you want to extract and snapshot, see below for more information |
 | region | Region of the instance (Optional). Overrides the region provided in Connector File. |
 | client | Type of client AWS client (Optional). Overrides the client provided in Connector File. |
-| method-to-call | Method that has to be called in case where describe_ methods are unavailable. |
 
 # Types of nodes
 
@@ -67,6 +66,8 @@ The important part to remember is that if you find an `aws ec2 cli` describe ope
 > <NoteTitle>Notes: Limitations</NoteTitle>
 >
 > Note: We are in the process of re-thinking our approach for the **AWS** connector. We'll adopt a more flexible approach soon so you can query any kind of service and not just EC2 services.
+
+In case you client does not have a describe method. Like in case of S3, then this field should be populated with the method that has from the boto3 client object.
 
 # Selectors
 
@@ -97,4 +98,153 @@ To use filters, add and format a `Filters` node in the `id` node using the follo
                 "Values": ["resource-name"]
             }
         ]
+    }
+
+#Integrating AWS Services
+##Integrating S3
+
+To setup an **AWS** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
+
+    {
+        "fileType": "snapshot",
+        "snapshots": [
+            {
+                "source": "awsConnector",
+                "type": "aws",
+                "testUser": "<iam-user>",
+                "nodes": [
+                    {
+                        "snapshotId": "<snapshot-name>",
+                        "type": "<method-to-call>",
+                        "collection": "<collection-name>",
+                        "client" : "S3"
+                        "id": {
+                            <kwargs>
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+
+
+| tag | What to put there |
+|-----|-------------------|
+| method-to-call | Name of the function, see below for more information  |
+| kwargs | A dictionary defining the kwargs required for the function. |
+
+
+###Function Details
+
+| function | Details |
+|--------|---------|
+| get_bucket_location  | fetches details about the location constraints of the bucket.
+| get_public_access_block  | Retrieves the PublicAccessBlock configuration for an Amazon S3 bucket.
+| get_bucket_acl  | fetches the access control policy for the bucket.
+
+For more functions you can refer [here](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#client "here"). 
+
+###Kwargs example
+
+    {
+     "id": {
+            "Bucket": "bucket-name"
+    }
+
+
+##Integrating RDS
+
+To setup an **AWS** snapshot configuration file, copy the following code to a `snapshot.json` in your container's folder.
+
+    {
+        "fileType": "snapshot",
+        "snapshots": [
+            {
+                "source": "awsConnector",
+                "type": "aws",
+                "testUser": "<iam-user>",
+                "nodes": [
+                    {
+                        "snapshotId": "<snapshot-name>",
+                        "type": "<method-to-call>",
+                        "collection": "<collection-name>",
+                         "client" : "RDS",
+                        "id": {
+                            <kwargs>
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+
+
+| tag | What to put there |
+|-----|-------------------|
+| method-to-call | Name of the function, see below for more information  |
+| kwargs | A dictionary defining the kwargs required for the function. |
+
+
+###Function Details
+
+| function | Details |
+|--------|---------|
+| describe_db_instances  | fetches information about provisioned RDS instances
+| describe_db_log_files  | fetches a list of DB log files for the DB instance
+
+For more functions you can refer [here](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/rds.html#client "here").
+
+###Kwargs example
+
+     {
+     "id": {
+            "DBInstanceIdentifier"='string'
+    }
+
+##Integrating SQS
+
+To setup an **AWS** snapshot configuration file, copy the following code to a `snapshot.json` in your container's folder.
+
+    {
+        "fileType": "snapshot",
+        "snapshots": [
+            {
+                "source": "awsConnector",
+                "type": "aws",
+                "testUser": "<iam-user>",
+                "nodes": [
+                    {
+                        "snapshotId": "<snapshot-name>",
+                        "type": "<method-to-call>",
+                        "collection": "<collection-name>",
+                         "client" : "SQS",
+                        "id": {
+                            <kwargs>
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+
+
+| tag | What to put there |
+|-----|-------------------|
+| method-to-call | Name of the function, see below for more information  |
+| kwargs | A dictionary defining the kwargs required for the function. |
+
+
+###Function Details
+
+| function | Details |
+|--------|---------|
+| get_queue_attributes  | fetches attributes for the specified queue.
+
+For more functions you can refer [here](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html#client "here").
+
+###Kwargs example
+
+     {
+     "id": {
+            "QueueUrl"='string'
     }
