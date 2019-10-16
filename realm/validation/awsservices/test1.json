@@ -1,0 +1,16 @@
+{
+    "fileType": "test",
+    "snapshot": "snapshot",
+    "testSet": [
+        {
+            "testName ": "AWS Service 1",
+            "version": "0.1",
+            "cases": [
+                {
+                    "testId": "AWST1",
+                    "rule": "{AWST1}.Grants[0].Permission='FULL_CONTROL'"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+  "fileType": "snapshot",
+  "snapshots": [
+    {
+      "source": "awsConnector",
+      "type": "aws",
+      "testUser": "prancer_pro",
+      "nodes": [
+        {
+          "snapshotId": "AWS1",
+          "collection": "AwsServices1",
+          "region": "us-east-1",
+          "type": "get_bucket_acl",
+          "client": "s3",
+          "id": {
+            "Bucket": "prancer-praveen-test"
+          }
+        },
+      ]
+    }
+  ]
+}
