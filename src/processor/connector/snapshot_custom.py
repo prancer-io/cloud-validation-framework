@@ -485,13 +485,13 @@ def _local_file_directory(connector):
 
 def _get_repo_path(connector):
     if connector and isinstance(connector, dict):
-        file_type = get_field_value(connector, "fileType")
+        given_type = get_field_value(connector, "type")
         git_provider = get_field_value(connector, "gitProvider")
         folder_path = get_field_value(connector, "folderPath")
-        if file_type == "git" and git_provider:
+        if given_type == "git" and git_provider:
             return git_clone_dir(connector)
 
-        if file_type == "filesystem" and folder_path:
+        if given_type == "filesystem" and folder_path:
             return _local_file_directory(connector)
     else:
         return None, None
