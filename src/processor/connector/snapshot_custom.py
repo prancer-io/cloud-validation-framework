@@ -469,6 +469,34 @@ def git_clone_dir(connector):
     return repopath, clonedir
 
 
+def _local_file_directory(connector):
+    final_path = None
+    repopath = None
+    if connector and isinstance(connector, dict):
+        folder_path = get_field_value(connector, 'folderPath')
+        if not folder_path:
+            logger.error("Folder path missing.")
+            return repopath, final_path
+        logger.info("Folder path: %s", folder_path)
+        if exists_dir(folder_path):
+            final_path = folder_path
+    return repopath, final_path
+
+
+def _get_repo_path(connector):
+    if connector and isinstance(connector, dict):
+        file_type = get_field_value(connector, "fileType")
+        git_provider = get_field_value(connector, "gitProvider")
+        folder_path = get_field_value(connector, "folderPath")
+        if file_type == "git" and git_provider:
+            return git_clone_dir(connector)
+
+        if file_type == "filesystem" and folder_path:
+            return _local_file_directory(connector)
+    else:
+        return None, None
+
+
 def populate_custom_snapshot(snapshot):
     """ Populates the resources from git."""
     dbname = config_value('MONGODB', 'dbname')
@@ -477,7 +505,7 @@ def populate_custom_snapshot(snapshot):
     snapshot_nodes = get_field_value(snapshot, 'nodes')
     snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and sub_data and snapshot_nodes:
-        baserepo, repopath = git_clone_dir(sub_data)
+        baserepo, repopath = _get_repo_path(sub_data)
         if repopath:
             brnch = get_field_value_with_default(sub_data, 'branchName', 'master')
             for node in snapshot_nodes:
@@ -515,7 +543,7 @@ def populate_custom_snapshot(snapshot):
                                     'validate': True
                                 })
                     logger.debug('Type: %s', type(alldata))
-        if os.path.exists(baserepo):
+        if baserepo and os.path.exists(baserepo):
             logger.info('Repo path: %s', baserepo)
             shutil.rmtree(baserepo)
     return snapshot_data

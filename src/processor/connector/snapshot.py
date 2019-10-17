@@ -52,7 +52,8 @@ snapshot_fns = {
     'azure': populate_azure_snapshot,
     'git': populate_custom_snapshot,
     'aws': populate_aws_snapshot,
-    'google': populate_google_snapshot
+    'google': populate_google_snapshot,
+    'filesystem': populate_custom_snapshot
 }
 
 
