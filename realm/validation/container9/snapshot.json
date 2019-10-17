@@ -1,0 +1,20 @@
+{
+  "fileType": "snapshot",
+  "snapshots": [
+    {
+      "source": "awsStructure",
+      "type": "aws",
+      "testUser": "prancer_pro",
+      "nodes": [
+        {
+          "snapshotId": "6",
+          "collection": "AwsCollection1",
+          "region": "us-east-1",
+          "type": "describe_db_instances",
+          "client": "rds",
+          "id": {}
+        }
+      ]
+    }
+  ]
+}

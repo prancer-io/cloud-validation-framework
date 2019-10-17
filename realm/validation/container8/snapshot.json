@@ -2,20 +2,20 @@
   "fileType": "snapshot",
   "snapshots": [
     {
-      "source": "awsConnector",
+      "source": "awsStructure",
       "type": "aws",
       "testUser": "prancer_pro",
       "nodes": [
         {
-          "snapshotId": "AWS1",
-          "collection": "AwsServices1",
+          "snapshotId": "5",
+          "collection": "AwsCollection1",
           "region": "us-east-1",
           "type": "get_bucket_acl",
           "client": "s3",
           "id": {
-            "Bucket": "prancer-praveen-test"
+            "Bucket": "<bucket-name>"
           }
-        },
+        }
       ]
     }
   ]

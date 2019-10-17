@@ -1,0 +1,20 @@
+{
+  "fileType": "snapshot",
+  "snapshots": [
+    {
+      "source": "awsStructure",
+      "type": "aws",
+      "testUser": "prancer_pro",
+      "nodes": [
+        {
+          "snapshotId": "7",
+          "collection": "AwsCollection1",
+          "region": "us-east-1",
+          "type": "list_queues",
+          "client": "sqs",
+          "id": {}
+        }
+      ]
+    }
+  ]
+}

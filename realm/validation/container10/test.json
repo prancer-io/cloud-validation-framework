@@ -1,0 +1,16 @@
+{
+    "fileType": "test",
+    "snapshot": "snapshot",
+    "testSet": [
+        {
+            "testName ": "AWS Test 1",
+            "version": "0.1",
+            "cases": [
+                {
+                    "testId": "4",
+                    "rule": "count({7}.QueueUrls)>=0"
+                }
+            ]
+        }
+    ]
+}

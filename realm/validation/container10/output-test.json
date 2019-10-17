@@ -1,0 +1,26 @@
+{
+  "$schema": "",
+  "contentVersion": "1.0.0.0",
+  "fileType": "output",
+  "timestamp": 1571296924846,
+  "snapshot": "snapshot",
+  "container": "container5",
+  "log": "logs_20191017125202",
+  "test": "test.json",
+  "results": [
+    {
+      "result": "passed",
+      "snapshots": [
+        {
+          "id": "7",
+          "path": "",
+          "structure": "aws",
+          "reference": "",
+          "source": "awsConnector"
+        }
+      ],
+      "testId": "4",
+      "rule": "count({7}.QueueUrls)>=0"
+    }
+  ]
+}
