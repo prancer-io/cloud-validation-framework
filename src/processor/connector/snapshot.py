@@ -160,7 +160,7 @@ def populate_container_snapshots_database(container):
     collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
     qry = {'container': container}
     sort = [sort_field('timestamp', False)]
-    docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
+    docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, _id=True)
     if docs and len(docs):
         logger.info('Number of Snapshot Documents: %s', len(docs))
         snapshots = container_snapshots_database(container)
