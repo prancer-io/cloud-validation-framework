@@ -487,7 +487,7 @@ def _local_file_directory(connector):
 
 def _get_repo_path(connector):
     if connector and isinstance(connector, dict):
-        given_type = get_field_value(connector, "type")
+        given_type = get_field_value_with_default(connector, "type", "git")
         git_provider = get_field_value(connector, "gitProvider")
         folder_path = get_field_value(connector, "folderPath")
         if given_type == "git" and git_provider:
