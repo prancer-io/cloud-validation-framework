@@ -148,13 +148,14 @@ def get_custom_data(snapshot_source):
     return sub_data
 
 
-def get_node(repopath, node, snapshot_source, ref):
+def get_node(repopath, node, snapshot_source, ref, connector):
     """ Fetch node from the cloned git repository."""
     collection = node['collection'] if 'collection' in node else COLLECTION
+    given_type = get_field_value_with_default(connector, "type", "git")
     parts = snapshot_source.split('.')
     db_record = {
-        "structure": "git",
-        "reference": ref,
+        "structure": given_type,
+        "reference": ref if given_type == "git" else "",
         "source": parts[0],
         "path": node['path'],
         "timestamp": int(time.time() * 1000),
@@ -182,14 +183,15 @@ def get_node(repopath, node, snapshot_source, ref):
     logger.debug('DB: %s', db_record)
     return db_record
 
-def get_all_nodes(repopath, node, snapshot_source, ref):
+def get_all_nodes(repopath, node, snapshot_source, ref, connector):
     """ Fetch all the nodes from the cloned git repository in the given path."""
     db_records = []
     collection = node['collection'] if 'collection' in node else COLLECTION
+    given_type = get_field_value_with_default(connector, "type", "git")
     parts = snapshot_source.split('.')
     d_record = {
-        "structure": "git",
-        "reference": ref,
+        "structure": given_type,
+        "reference": ref if given_type == "git" else "",
         "source": parts[0],
         "path": '',
         "timestamp": int(time.time() * 1000),
@@ -274,7 +276,7 @@ def populate_custom_snapshot_orig(snapshot):
             if repo:
                 for node in snapshot_nodes:
                     logger.debug(node)
-                    data = get_node(repopath, node, snapshot_source, brnch)
+                    data = get_node(repopath, node, snapshot_source, brnch, sub_data)
                     if data:
                         insert_one_document(data, data['collection'], dbname)
                         snapshot_data[node['snapshotId']] = True
@@ -517,7 +519,7 @@ def populate_custom_snapshot(snapshot):
                 validate = node['validate'] if 'validate' in node else True
                 if 'snapshotId' in node:
                     logger.debug(node)
-                    data = get_node(repopath, node, snapshot_source, brnch)
+                    data = get_node(repopath, node, snapshot_source, brnch, sub_data)
                     if data:
                         if validate:
                             insert_one_document(data, data['collection'], dbname)
