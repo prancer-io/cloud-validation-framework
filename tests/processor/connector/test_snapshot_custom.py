@@ -35,6 +35,15 @@ def mock_get_vault_data(client_id):
 def mock_empty_get_vault_data(client_id):
     return None
 
+def mock_get_custom_data_git(snapshot_source):
+    return {
+        "companyName": "abcd",
+        "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
+        "repoCloneAddress": "/tmp/m",
+        "branchName": "master",
+        "username": "abcd"
+    } 
+
 def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{
         "_id": "5c24af787456217c485ad1e6",
@@ -58,14 +67,15 @@ def test_get_node(create_temp_json, create_temp_dir):
         'snapshotId': '1',
         'path': "a/b/c"
     }
-    ret = get_node('/tmp', data, 'parameterStructure', 'master')
+    connector = mock_get_custom_data_git(None)
+    ret = get_node('/tmp', data, 'parameterStructure', 'master',connector)
     assert True == isinstance(ret, dict)
     assert {} == ret['json']
     newpath = create_temp_dir()
     os.makedirs('%s/%s' % (newpath, data['path']))
     fname = create_temp_json('%s/%s' % (newpath, data['path']))
     data['path'] = '%s/%s' % (data['path'], fname)
-    ret = get_node(newpath, data, 'parameterStructure', 'master')
+    ret = get_node(newpath, data, 'parameterStructure', 'master',connector)
     assert True == isinstance(ret, dict)
     assert data_dict == ret['json']
 
@@ -89,19 +99,20 @@ def test_terraform_get_node(create_terraform, create_temp_dir):
         'resourceGroup': "core-terraf-auto-rg",
         'containerName': "states"
     }
-    ret = get_node('/tmp', data, 'terraform', 'master')
+    connector = mock_get_custom_data_git(None)
+    ret = get_node('/tmp', data, 'terraform', 'master', connector)
     assert True == isinstance(ret, dict)
     assert {} == ret['json']
     newpath = create_temp_dir()
     os.makedirs('%s/%s' % (newpath, data['path']))
     fname = create_terraform('%s/%s' % (newpath, data['path']), '\n'.join(terr_data))
     data['path'] = '%s/%s' % (data['path'], fname)
-    ret = get_node(newpath, data, 'terraform', 'master')
+    ret = get_node(newpath, data, 'terraform', 'master', connector)
     assert True == isinstance(ret, dict)
     assert ret['json'] == terr_data_dict
 
     data["type"] = "terraform1"
-    ret = get_node(newpath, data, 'terraform', 'master')
+    ret = get_node(newpath, data, 'terraform', 'master', connector)
     assert True == isinstance(ret, dict)
     assert ret['json'] == {}
 
