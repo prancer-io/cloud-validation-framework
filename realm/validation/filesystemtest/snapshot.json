@@ -1,0 +1,40 @@
+{
+  "fileType": "snapshot",
+  "snapshots": [
+    {
+      "source": "fileSystemConnector",
+      "type": "git",
+      "testUser": "patidarpraveen244",
+      "nodes": [
+        {
+          "snapshotId": "101",
+          "type": "json",
+          "collection": "FileSnapshot1",
+          "path": "devops/gitres/vn/vn_0.json",
+          "status": "active"
+        },
+        {
+          "snapshotId": "102",
+          "type": "json",
+          "collection": "FileSnapshot1",
+          "path": "devops/gitres/vn/vn_1.json",
+          "status": "active"
+        },
+        {
+          "snapshotId": "103",
+          "type": "json",
+          "collection": "FileSnapshot1",
+          "path": "devops/gitres/vn/vn_2.json",
+          "status": "active"
+        },
+        {
+          "snapshotId": "104",
+          "type": "json",
+          "collection": "FileSnapshot1",
+          "path": "devops/gitres/vn/vn_3.json",
+          "status": "active"
+        }
+      ]
+    }
+  ]
+}
