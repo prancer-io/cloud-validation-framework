@@ -7,14 +7,12 @@
       "testUser": "prancer_pro",
       "nodes": [
         {
-          "snapshotId": "5",
+          "snapshotId": "6",
           "collection": "AwsCollection1",
           "region": "us-east-1",
-          "type": "get_bucket_acl",
-          "client": "s3",
-          "id": {
-            "Bucket": "<bucket-name>"
-          }
+          "type": "describe_db_instances",
+          "client": "rds",
+          "id": {}
         }
       ]
     }
