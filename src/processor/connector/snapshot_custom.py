@@ -472,16 +472,13 @@ def git_clone_dir(connector):
 
 
 def _local_file_directory(connector):
-    final_path = None
-    repopath = None
-    if connector and isinstance(connector, dict):
-        folder_path = get_field_value(connector, 'folderPath')
-        if not folder_path:
-            logger.error("Folder path missing.")
-            return repopath, final_path
-        logger.info("Folder path: %s", folder_path)
-        if exists_dir(folder_path):
-            final_path = folder_path
+    final_path, repopath = None, None
+    folder_path = get_field_value(connector, 'folderPath')
+    logger.info("Folder path: %s", folder_path)
+    if exists_dir(folder_path):
+        final_path = folder_path
+    else:
+        logger.error("Given folder path is not a directory")
     return repopath, final_path
 
 
@@ -495,7 +492,11 @@ def _get_repo_path(connector):
 
         if given_type == "filesystem" and folder_path:
             return _local_file_directory(connector)
+
+        logger.error("Missing gitProvider/folderPath")
+        return None, None
     else:
+        logger.error("Invalid connector")
         return None, None
 
 
