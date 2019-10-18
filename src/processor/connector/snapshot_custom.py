@@ -103,6 +103,7 @@ from processor.logging.log_handler import getlogger
 from processor.connector.vault import get_vault_data
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE, get_field_value_with_default
+from processor.helper.yaml.yaml_utils import yaml_from_file
 from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.helper.config.rundata_utils import get_from_currentdata
 from processor.database.database import insert_one_document, sort_field, get_documents,\
@@ -120,6 +121,8 @@ def convert_to_json(file_path, node_type):
     elif node_type == 'terraform':
         with open(file_path, 'r') as fp:
             json_data = hcl.load(fp)
+    elif node_type == 'yaml':
+        json_data = yaml_from_file(file_path)
     else:
         logger.error("Snapshot error type:%s and file: %s", node_type, file_path)
     return json_data
