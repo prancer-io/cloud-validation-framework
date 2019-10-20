@@ -9,7 +9,6 @@ pipeline {
 
     environment {
         PYTHON_DOCKER_IMAGE = "python:3.6"
-        GIT_CREDENTIAL_ID = "GIT_CREDENTIAL_ID"
         PIP_CRENDENTIAL_ID = "PIP_CRENDENTIAL_ID"
         DOCKERHUB_CREDENTIAL_ID = "DOCKERHUB_CREDENTIAL_ID"
         DOCKERHUB_IMAGE_NAME = "poc-daniel"
@@ -153,7 +152,7 @@ pipeline {
             steps {
                 script {
                     // Install Twine to distribute application. Reference: https://packaging.python.org/tutorials/packaging-projects/
-                    withCredentials([usernamePassword(credentialsId: GIT_CREDENTIAL_ID, passwordVariable: 'pipPassword', usernameVariable: 'pipUser')]) {
+                    withCredentials([usernamePassword(credentialsId: PIP_CRENDENTIAL_ID, passwordVariable: 'pipPassword', usernameVariable: 'pipUser')]) {
                         sh "pip install twine"
                         sh "twine --version"
                         sh "cd ${currentDirectory} && " + 
