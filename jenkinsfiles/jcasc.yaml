@@ -1,0 +1,157 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - usernamePassword:
+          description: "GIT_CREDENTIAL_ID"
+          id: "GIT_CREDENTIAL_ID"
+          password: "xxxxx"
+          scope: GLOBAL
+          username: "danielalejandrohc"
+      - usernamePassword:
+          description: "PIP_CRENDENTIAL_ID"
+          id: "PIP_CRENDENTIAL_ID"
+          username: "__token__"
+          password: "xxxxx"
+          scope: GLOBAL          
+      - usernamePassword:
+          description: "DOCKERHUB_CREDENTIAL_ID"
+          id: "DOCKERHUB_CREDENTIAL_ID"
+          password: "xxxxx"
+          scope: GLOBAL
+          username: "danielahcardona"
+      - string:
+          description: "GITHUB_DEV_TOKEN"
+          id: "GITHUB_DEV_TOKEN"
+          scope: GLOBAL
+          secret: "xxxxx"
+      - string:
+          description: "GITHUB_API_TOKEN"
+          id: "GITHUB_API_TOKEN"
+          scope: GLOBAL
+          secret: "xxxxx"
+      - string:
+          description: "SNYK_CREDENTIAL_TOKEN"
+          id: "SNYK_CREDENTIAL_TOKEN"
+          scope: GLOBAL
+          secret: "xxxxx"
+jenkins:
+  agentProtocols:
+  - "JNLP4-connect"
+  - "Ping"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+  disableRememberMe: false
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  numExecutors: 5
+  primaryView:
+    all:
+      name: "all"
+  projectNamingStrategy: "standard"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+      - id: "admin"
+        password: "admin"
+  slaveAgentPort: -1
+  updateCenter:
+    sites:
+    - id: "default"
+      url: "https://updates.jenkins.io/update-center.json"
+  views:
+  - all:
+      name: "all"
+  viewsTabBar: "standard"
+tool:
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
+jobs:
+ - script: >
+     pipelineJob('prancer-test') {
+       parameters {
+         stringParam {
+             name("branch")
+             defaultValue("")
+             description("")
+             trim(true)
+         }
+       }
+       definition {
+         cpsScm {
+             lightweight(true)
+             scm {
+                 git {
+                     remote {
+                         url("https://github.com/prancer-io/cloud-validation-framework.git")
+                         branch("jenkins_ci")
+                     }
+                 }
+             }
+             scriptPath("jenkinsfiles/JenkinsfileTest.groovy")
+         }
+       }
+     }
+ - script: >
+     pipelineJob('prancer-release') {
+       parameters {
+         stringParam {
+             name("branch")
+             defaultValue("")
+             description("")
+             trim(true)
+         }
+       }
+       definition {
+         cpsScm {
+             lightweight(true)
+             scm {
+                 git {
+                     remote {
+                         url("https://github.com/prancer-io/cloud-validation-framework.git")
+                         branch("jenkins_ci")
+                     }
+                 }
+             }
+             scriptPath("jenkinsfiles/JenkinsfileDistribution.groovy")
+         }
+       }
+     }
+ - script: >
+     pipelineJob('prancer-webhooks-handler') {
+       parameters {
+         stringParam {
+             name("branch")
+             defaultValue("")
+             description("")
+             trim(true)
+         }
+       }
+       definition {
+         cpsScm {
+             lightweight(true)
+             scm {
+                 git {
+                     remote {
+                         url("https://github.com/prancer-io/cloud-validation-framework.git")
+                         branch("jenkins_ci")
+                     }
+                 }
+             }
+             scriptPath("jenkinsfiles/JenkinsfileWebhook.groovy")
+         }
+       }
+     }     
