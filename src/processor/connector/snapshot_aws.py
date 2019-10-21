@@ -93,8 +93,8 @@ def _get_aws_function(awsclient, node):
 def _get_callable_method_from_node(node):
     """Callable Method from node using python reflection mechanism"""
     _fn_str = None
-    if node and 'callable_method' in node and node['callable_method']:
-        _fn_str = node['callable_method']
+    if node and 'type' in node and node['type']:
+        _fn_str = node['type']
     return _fn_str
     
 

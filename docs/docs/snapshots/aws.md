@@ -24,7 +24,6 @@ To setup an **AWS** snapshot configuration file, copy the following code to a fi
                         "snapshotId": "<snapshot-name>",
                         "type": "<type-of-node>",
                         "collection": "<collection-name>",
-                        "callable_method": "<method-to-call>",
                         "region": "<region>",
                         "client": "EC2",
                         "id": {
@@ -248,3 +247,4 @@ For more functions you can refer [here](https://boto3.amazonaws.com/v1/documenta
      "id": {
             "QueueUrl"='string'
     }
+
