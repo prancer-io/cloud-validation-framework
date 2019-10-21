@@ -13,8 +13,13 @@
                 {
                     "testId": "2",
                     "rule":"{101}.location='eastus'"
+                },
+                {
+                    "testId": "3",
+                    "rule":"{201}.runtime='python27'"
                 }
             ]
         }
     ]
 }
+  

@@ -2,7 +2,5 @@
   "fileType": "structure",
   "companyName": "prancer-test",
   "folderPath": "/tmp/mytestpub",
-  "type": "filesystem",
-  "httpsUser": null,
-  "httpsPassword": null,
+  "user": null
 }

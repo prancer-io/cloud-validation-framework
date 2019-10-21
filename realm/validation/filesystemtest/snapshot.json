@@ -3,7 +3,7 @@
   "snapshots": [
     {
       "source": "fileSystemConnector",
-      "type": "git",
+      "type": "filesystem",
       "testUser": "patidarpraveen244",
       "nodes": [
         {
@@ -32,6 +32,13 @@
           "type": "json",
           "collection": "FileSnapshot1",
           "path": "devops/gitres/vn/vn_3.json",
+          "status": "active"
+        },
+        {
+          "snapshotId": "201",
+          "type": "yaml",
+          "collection": "FileSnapshot1",
+          "path": "devops/gitres/vn/tests.yaml",
           "status": "active"
         }
       ]
