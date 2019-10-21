@@ -15,6 +15,7 @@ identify the resource object.
 import json
 import hashlib
 import time
+from bson import json_util
 from boto3 import client
 from boto3 import Session
 from processor.helper.file.file_utils import exists_file
@@ -156,7 +157,7 @@ def get_checksum(data):
     """ Get the checksum for the AWS data fetched."""
     checksum = None
     try:
-        data_str = json.dumps(data)
+        data_str = json.dumps(data, default=json_util.default)
         checksum = hashlib.md5(data_str.encode('utf-8')).hexdigest()
     except:
         pass

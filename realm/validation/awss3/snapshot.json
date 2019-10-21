@@ -10,11 +10,9 @@
           "snapshotId": "5",
           "collection": "AwsCollection1",
           "region": "us-east-1",
-          "type": "get_bucket_acl",
+          "type": "list_buckets",
           "client": "s3",
-          "id": {
-            "Bucket": "<bucket-name>"
-          }
+          "id": {}
         }
       ]
     }

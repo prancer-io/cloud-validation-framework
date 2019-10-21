@@ -8,7 +8,7 @@
             "cases": [
                 {
                     "testId": "4",
-                    "rule": "{5}.Grants[0].Permission='FULL_CONTROL'"
+                    "rule": "count({5}.Buckets)>=0"
                 }
             ]
         }
