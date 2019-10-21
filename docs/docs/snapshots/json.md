@@ -21,7 +21,7 @@ To setup a **JSON** snapshot configuration file, copy the following code to a fi
         "snapshots": [
             {
                 "source": "gitConnector",
-                "type": "git",
+                "type": "<type-of-folder>",
                 "testUser": "<user-to-use-on-connector>",
                 "branchName": "<branch-to-use-on-connector>",
                 "nodes": [
@@ -45,3 +45,4 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | snapshot-name | Name of the snapshot, you will use this in test files |
 | collection-name | Name of the **MongoDB** collection used to store snapshots of this file |
 | relative-path-to-file | Path to the file to read, relative to the root of the repository that the connector checks out |
+| type-of-folder | "git" when connecting via Git or "filesystem" when using File System |

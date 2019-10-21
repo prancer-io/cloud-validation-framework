@@ -27,7 +27,6 @@ To configure the **Git** connector, copy the following code to a file named `git
 
     {
         "fileType": "structure",
-        "type" : "git",
         "companyName": "Organization name",
         "gitProvider": "<url-to-repository>",
         "branchName": "<branch>",
@@ -38,7 +37,6 @@ To configure the **Git** connector, copy the following code to a file named `git
 
     {
         "fileType": "structure",
-        "type" : "git",
         "companyName": "Organization name",
         "gitProvider": "<url-to-repository>",
         "branchName": "<branch>",
@@ -52,7 +50,6 @@ To configure the **Git** connector, copy the following code to a file named `git
 
     {
         "fileType": "structure",
-        "type" : "git",
         "companyName": "Organization name",
         "gitProvider": "<url-to-repository>",
         "branchName": "<branch>",
@@ -65,9 +62,9 @@ To configure the **Git** connector, copy the following code to a file named `git
 
     {
         "fileType": "structure",
-        "type" : "filesystem",
         "companyName": "Organization name",
-        "folderPath": "<path-to-folder>"
+        "folderPath": "<path-to-folder>",
+        "username" : "<username>"
     }
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
