@@ -121,7 +121,7 @@ def convert_to_json(file_path, node_type):
     elif node_type == 'terraform':
         with open(file_path, 'r') as fp:
             json_data = hcl.load(fp)
-    elif node_type == 'yaml':
+    elif node_type == 'yaml' or node_type == 'yml':
         json_data = yaml_from_file(file_path)
     else:
         logger.error("Snapshot error type:%s and file: %s", node_type, file_path)
@@ -474,16 +474,21 @@ def git_clone_dir(connector):
     return repopath, clonedir
 
 
-def _local_file_directory(connector):
+def _local_file_directory(connector, snapshot):
     final_path, repopath = None, None
-    folder_path = get_field_value(connector, 'folderPath')
-    logger.info("Folder path: %s", folder_path)
-    if exists_dir(folder_path):
-        final_path = folder_path
+    connector_user = get_field_value(connector, 'username')
+    snapshot_user = get_field_value(snapshot, 'testUser')
+    if snapshot_user == connector_user:
+        folder_path = get_field_value(connector, 'folderPath')
+        logger.info("Folder path: %s", folder_path)
+        if exists_dir(folder_path):
+            final_path = folder_path
+        else:
+            logger.error("Given folder path is not a directory")
+        return repopath, final_path
     else:
-        logger.error("Given folder path is not a directory")
-    return repopath, final_path
-
+        logger.error("Connector and snapshot user do not match.")
+        return repopath, final_path 
 
 def _get_repo_path(connector, snapshot):
     if connector and isinstance(connector, dict):
@@ -494,7 +499,7 @@ def _get_repo_path(connector, snapshot):
             return git_clone_dir(connector)
 
         if given_type == "filesystem" and folder_path:
-            return _local_file_directory(connector)
+            return _local_file_directory(connector, snapshot)
 
         logger.error("Missing gitProvider/folderPath")
         return None, None

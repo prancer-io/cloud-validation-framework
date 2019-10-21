@@ -4,7 +4,7 @@
     {
       "source": "fileSystemConnector",
       "type": "filesystem",
-      "testUser": "patidarpraveen244",
+      "testUser": "patidarpraveen",
       "nodes": [
         {
           "snapshotId": "101",
