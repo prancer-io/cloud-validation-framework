@@ -24,7 +24,6 @@ To setup an **AWS** snapshot configuration file, copy the following code to a fi
                         "snapshotId": "<snapshot-name>",
                         "type": "<type-of-node>",
                         "collection": "<collection-name>",
-                        "callable_method": "<method-to-call>",
                         "region": "<region>",
                         "client": "EC2",
                         "id": {
@@ -47,7 +46,6 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | selectors | A complex object that defines what it is you want to extract and snapshot, see below for more information |
 | region | Region of the instance (Optional). Overrides the region provided in Connector File. |
 | client | Type of client AWS client (Optional). Overrides the client provided in Connector File. |
-| method-to-call | Method that has to be called in case where describe_ methods are unavailable. |
 
 # Types of nodes
 
@@ -67,6 +65,8 @@ The important part to remember is that if you find an `aws ec2 cli` describe ope
 > <NoteTitle>Notes: Limitations</NoteTitle>
 >
 > Note: We are in the process of re-thinking our approach for the **AWS** connector. We'll adopt a more flexible approach soon so you can query any kind of service and not just EC2 services.
+
+In case you client does not have a describe method. Like in case of S3, then this field should be populated with the method that has from the boto3 client object.
 
 # Selectors
 
@@ -98,3 +98,4 @@ To use filters, add and format a `Filters` node in the `id` node using the follo
             }
         ]
     }
+
