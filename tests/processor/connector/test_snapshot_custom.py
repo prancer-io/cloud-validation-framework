@@ -59,14 +59,25 @@ def test_get_node(create_temp_json, create_temp_dir):
         'snapshotId': '1',
         'path': "a/b/c"
     }
-    ret = get_node('/tmp', data, 'parameterStructure', 'master')
+    snapshot = {
+        "source": 'parameterStructure',
+        "type": "custom",
+        "nodes": [
+            {
+                "snapshotId": "3",
+                "collection": "Microsoft.Keyvault",
+                "path": "realm/azure/validation/container1/sample-db-record.json"
+            }
+        ]
+    }
+    ret = get_node('/tmp', data, snapshot, 'master')
     assert True == isinstance(ret, dict)
     assert {} == ret['json']
     newpath = create_temp_dir()
     os.makedirs('%s/%s' % (newpath, data['path']))
     fname = create_temp_json('%s/%s' % (newpath, data['path']))
     data['path'] = '%s/%s' % (data['path'], fname)
-    ret = get_node(newpath, data, 'parameterStructure', 'master')
+    ret = get_node(newpath, data, snapshot, 'master')
     assert True == isinstance(ret, dict)
     assert data_dict == ret['json']
 
@@ -90,20 +101,24 @@ def test_terraform_get_node(create_terraform, create_temp_dir):
         'resourceGroup': "core-terraf-auto-rg",
         'containerName': "states"
     }
+    snapshot = {
+        'source': 'terraform',
+        'type': 'custom'
+    }
 
-    ret = get_node('/tmp', data, 'terraform', 'master')
+    ret = get_node('/tmp', data, snapshot, 'master')
     assert True == isinstance(ret, dict)
     assert {} == ret['json']
     newpath = create_temp_dir()
     os.makedirs('%s/%s' % (newpath, data['path']))
     fname = create_terraform('%s/%s' % (newpath, data['path']), '\n'.join(terr_data))
     data['path'] = '%s/%s' % (data['path'], fname)
-    ret = get_node(newpath, data, 'terraform', 'master')
+    ret = get_node(newpath, data, snapshot, 'master')
     assert True == isinstance(ret, dict)
     assert ret['json'] == terr_data_dict
 
     data["type"] = "terraform1"
-    ret = get_node(newpath, data, 'terraform', 'master')
+    ret = get_node(newpath, data, snapshot, 'master')
     assert True == isinstance(ret, dict)
     assert ret['json'] == {}
 
@@ -323,6 +338,7 @@ def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, 
     snapshot = {
         "source": test_connector,
         "type": "filesystem",
+        "testUser" : "abcd",
         "nodes": [
             {
                 "snapshotId": "5",
