@@ -3,7 +3,7 @@
 from tests.conftest import load_test_json
 
 def mock_container_snapshot_get_documents(collection, query=None, dbname=None,
-                                          sort=None, limit=10):
+                                          sort=None, limit=10, _id=False):
     if collection == 'tests':
         return load_test_json('git_snapshot.json')
     return []
@@ -45,21 +45,21 @@ def mock_populate_google_snapshot(snapshot, snapshot_type='google'):
 
 
 def mock_empty_snapshot_get_documents(collection, query=None, dbname=None,
-                                      sort=None, limit=10):
+                                      sort=None, limit=10, _id=False):
     json_data = load_test_json('git_snapshot.json')
     json_data[0]['json']['snapshots'] = []
     return json_data
 
 
 def mock_empty_get_documents(collection, query=None, dbname=None, sort=None,
-                             limit=10):
+                             limit=10, _id=False):
     return []
 
 def mock_update_one_document(doc, collection, dbname):
     """ Update the document into the collection. """
     pass
 
-def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10, _id=False):
     print('Collection: %s' % collection)
     if collection == 'tests':
         if 'container' in query and query['container'] == 'gitcontainer':
