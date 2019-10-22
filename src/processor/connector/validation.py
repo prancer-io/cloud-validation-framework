@@ -8,7 +8,8 @@ from collections import defaultdict
 from processor.logging.log_handler import getlogger
 from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
-    json_from_file, TEST, collectiontypes, SNAPSHOT, JSONTEST, MASTERTEST, get_field_value_with_default
+    json_from_file, TEST, collectiontypes, SNAPSHOT, JSONTEST, MASTERTEST, get_field_value_with_default, \
+    REPORT_TYPE_TESTRUN, REPORT_TYPE_CRAWLERRUN
 from processor.helper.config.config_utils import config_value, get_test_json_dir,\
     DATABASE, DBNAME, framework_dir
 from processor.database.database import create_indexes, COLLECTION,\
@@ -201,7 +202,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                 if resultset:
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
                     test_file = doc['name'] if 'name' in doc else ''
-                    dump_output_results(resultset, container, test_file, snapshot, False)
+                    dump_output_results(resultset, container, test_file, snapshot, False, REPORT_TYPE_TESTRUN)
                     for result in resultset:
                         if 'result' in result:
                             if not re.match(r'passed', result['result'], re.I):
@@ -243,7 +244,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                 if resultset:
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
                     test_file = doc['name'] if 'name' in doc else ''
-                    dump_output_results(resultset, container, test_file, snapshot, False)
+                    dump_output_results(resultset, container, test_file, snapshot, False, REPORT_TYPE_CRAWLERRUN)
                     for result in resultset:
                         if 'result' in result:
                             if not re.match(r'passed', result['result'], re.I):

@@ -15,6 +15,8 @@ MASTERTEST = 'mastertest'
 TEST = 'test'
 OUTPUT = 'output'
 STRUCTURE = 'structure'
+REPORT_TYPE_TESTRUN = 'testrun'
+REPORT_TYPE_CRAWLERRUN = 'crawlerrun'
 NOTIFICATIONS = 'notifications'
 collectiontypes = {
     TEST: 'TEST',

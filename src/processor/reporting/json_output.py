@@ -3,7 +3,8 @@ import hashlib
 import time
 from processor.helper.config.config_utils import config_value
 from collections import OrderedDict
-from processor.helper.json.json_utils import save_json_to_file, collectiontypes, OUTPUT
+from processor.helper.json.json_utils import save_json_to_file, collectiontypes, OUTPUT,\
+    REPORT_TYPE_TESTRUN
 from processor.database.database import DATABASE, DBNAME, insert_one_document
 from processor.logging.log_handler import get_dblogger
 
@@ -15,15 +16,18 @@ def json_record(container, filetype, filename, json_data=None):
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "type": filetype,
         "name": filename,
+        "reporttype" : json_data.get("reporttype", REPORT_TYPE_TESTRUN) if json_data else REPORT_TYPE_TESTRUN,
         "collection": config_value(DATABASE, collectiontypes[filetype]),
         "json": json_data if json_data else {}
     }
     if '$schema' in db_record['json']:
         del db_record['json']['$schema']
+    if 'reporttype' in db_record['json']:
+        del db_record['json']['reporttype']
     return db_record
 
 
-def dump_output_results(results, container, test_file, snapshot, filesystem=True):
+def dump_output_results(results, container, test_file, snapshot, filesystem=True, report_type=REPORT_TYPE_TESTRUN):
     """ Dump the report in the json format for test execution results."""
     od = OrderedDict()
     od["$schema"] = ""
@@ -32,6 +36,7 @@ def dump_output_results(results, container, test_file, snapshot, filesystem=True
     od["timestamp"] = int(time.time() * 1000)
     od["snapshot"] = snapshot
     od["container"] = container
+    od["reporttype"] = report_type
     dblog = get_dblogger()
     od["log"] = dblog if dblog else ""
     if filesystem:
