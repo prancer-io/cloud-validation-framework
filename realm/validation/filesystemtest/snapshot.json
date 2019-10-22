@@ -3,7 +3,6 @@
   "snapshots": [
     {
       "source": "fileSystemConnector",
-      "type": "filesystem",
       "testUser": "patidarpraveen",
       "nodes": [
         {

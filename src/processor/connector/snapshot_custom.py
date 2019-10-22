@@ -151,18 +151,18 @@ def get_custom_data(snapshot_source):
     return sub_data
 
 
-def get_node(repopath, node, snapshot, ref):
+def get_node(repopath, node, snapshot, ref, connector):
     """ Fetch node from the cloned git repository."""
     collection = node['collection'] if 'collection' in node else COLLECTION
-    given_type = get_field_value(snapshot, "type")
+    given_type = get_field_value(connector, "type")
+    base_path = get_field_value_with_default(connector, "folderPath", "")
     snapshot_source = get_field_value(snapshot, 'source')
     parts = snapshot_source.split('.')
-    path = "%s%s"%(repopath,node['path']) if given_type == "filesystem" else node['path'] 
     db_record = {
         "structure": given_type,
         "reference": ref if given_type == "git" else "",
         "source": parts[0],
-        "path": path,
+        "path": base_path + node['path'],
         "timestamp": int(time.time() * 1000),
         "queryuser": "",
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
@@ -188,11 +188,11 @@ def get_node(repopath, node, snapshot, ref):
     logger.debug('DB: %s', db_record)
     return db_record
 
-def get_all_nodes(repopath, node, snapshot, ref):
+def get_all_nodes(repopath, node, snapshot, ref, connector):
     """ Fetch all the nodes from the cloned git repository in the given path."""
     db_records = []
     collection = node['collection'] if 'collection' in node else COLLECTION
-    given_type = get_field_value(snapshot, "type")
+    given_type = get_field_value(connector, "type")
     snapshot_source = get_field_value(snapshot, 'source')
     parts = snapshot_source.split('.')
     d_record = {
@@ -282,7 +282,7 @@ def populate_custom_snapshot_orig(snapshot):
             if repo:
                 for node in snapshot_nodes:
                     logger.debug(node)
-                    data = get_node(repopath, node, snapshot, brnch)
+                    data = get_node(repopath, node, snapshot, brnch, sub_data)
                     if data:
                         insert_one_document(data, data['collection'], dbname)
                         snapshot_data[node['snapshotId']] = True
@@ -493,9 +493,10 @@ def _local_file_directory(connector, snapshot):
         logger.error("Connector and snapshot user do not match.")
         return repopath, final_path 
 
+
 def _get_repo_path(connector, snapshot):
     if connector and isinstance(connector, dict):
-        given_type = get_field_value(snapshot, "type")
+        given_type = get_field_value_with_default(connector, "type", "git")
         git_provider = get_field_value(connector, "gitProvider")
         folder_path = get_field_value(connector, "folderPath")
         if given_type == "git" and git_provider:
@@ -531,7 +532,7 @@ def populate_custom_snapshot(snapshot):
                 validate = node['validate'] if 'validate' in node else True
                 if 'snapshotId' in node:
                     logger.debug(node)
-                    data = get_node(repopath, node, snapshot, brnch)
+                    data = get_node(repopath, node, snapshot, brnch, sub_data)
                     if data:
                         if validate:
                             insert_one_document(data, data['collection'], dbname)
@@ -546,7 +547,7 @@ def populate_custom_snapshot(snapshot):
                         node['status'] = 'inactive'
                     logger.debug('Type: %s', type(data))
                 elif 'masterSnapshotId' in node:
-                    alldata = get_all_nodes(repopath, node, snapshot, brnch)
+                    alldata = get_all_nodes(repopath, node, snapshot_source, brnch)
                     if alldata:
                         snapshot_data[node['masterSnapshotId']] = []
                         for data in alldata:

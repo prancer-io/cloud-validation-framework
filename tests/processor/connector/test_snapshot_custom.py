@@ -51,6 +51,16 @@ def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10)
         "timestamp": 1545908086831
     }]
 
+def mock_get_custom_data_git(snapshot_source):
+    return {
+        "companyName": "abcd",
+        "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
+        "repoCloneAddress": "/tmp/m",
+        "branchName": "master",
+        "username": "abcd",
+        "type" : "git"
+    } 
+
 
 def test_get_node(create_temp_json, create_temp_dir):
     from processor.connector.snapshot_custom import get_node
@@ -70,14 +80,15 @@ def test_get_node(create_temp_json, create_temp_dir):
             }
         ]
     }
-    ret = get_node('/tmp', data, snapshot, 'master')
+    connector = mock_get_custom_data_git(None)
+    ret = get_node('/tmp', data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert {} == ret['json']
     newpath = create_temp_dir()
     os.makedirs('%s/%s' % (newpath, data['path']))
     fname = create_temp_json('%s/%s' % (newpath, data['path']))
     data['path'] = '%s/%s' % (data['path'], fname)
-    ret = get_node(newpath, data, snapshot, 'master')
+    ret = get_node(newpath, data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert data_dict == ret['json']
 
@@ -105,20 +116,20 @@ def test_terraform_get_node(create_terraform, create_temp_dir):
         'source': 'terraform',
         'type': 'custom'
     }
-
-    ret = get_node('/tmp', data, snapshot, 'master')
+    connector = mock_get_custom_data_git(None)
+    ret = get_node('/tmp', data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert {} == ret['json']
     newpath = create_temp_dir()
     os.makedirs('%s/%s' % (newpath, data['path']))
     fname = create_terraform('%s/%s' % (newpath, data['path']), '\n'.join(terr_data))
     data['path'] = '%s/%s' % (data['path'], fname)
-    ret = get_node(newpath, data, snapshot, 'master')
+    ret = get_node(newpath, data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert ret['json'] == terr_data_dict
 
     data["type"] = "terraform1"
-    ret = get_node(newpath, data, snapshot, 'master')
+    ret = get_node(newpath, data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert ret['json'] == {}
 
@@ -328,7 +339,8 @@ def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, 
     param_structure = {
         "companyName": "abcd",
         "folderPath": "/tmp",
-        "username": "abcd"
+        "username": "abcd",
+        "type" : "filesystem"
     }
     test_connector = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
     test_file = {
