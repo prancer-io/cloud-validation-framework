@@ -117,7 +117,7 @@ def check_document(collection, docid, dbname=None):
     return doc
 
 
-def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip=0, proj=None):
+def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip=0, proj=None, _id=False):
     """ Find the documents based on the query """
     docs = None
     db = mongodb(dbname)
@@ -125,9 +125,13 @@ def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip
     if collection:
         query = {} if query is None else query
         proj = proj if proj else {}
-        proj['_id'] = 0
+        if not _id:
+            proj['_id'] = 0
         if sort:
-            results = collection.find(filter=query, projection=proj).sort(sort).limit(limit).skip(skip)
+            if proj:
+                results = collection.find(filter=query, projection=proj).sort(sort).limit(limit).skip(skip)
+            else:
+                results = collection.find(filter=query).sort(sort).limit(limit).skip(skip)
         else:
             results = collection.find(query).limit(limit).skip(skip)
         docs = [result for result in results]
