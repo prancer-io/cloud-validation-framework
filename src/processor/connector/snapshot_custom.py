@@ -497,13 +497,14 @@ def _local_file_directory(connector, snapshot):
 
 def _get_repo_path(connector, snapshot):
     if connector and isinstance(connector, dict):
-        if get_field_value(connector, "gitProvider"):
+        git_provider = get_field_value(connector, "gitProvider")
+        folder_path = get_field_value(connector, "folderPath")
+        if git_provider:
             return git_clone_dir(connector)
-        else:
+        elif folder_path:
             return _local_file_directory(connector, snapshot)
-    else:
-        logger.error("Invalid connector")
-        return None, None
+    logger.error("Invalid connector or missing folderPath/gitProvider")
+    return None, None
 
 
 def populate_custom_snapshot(snapshot):
