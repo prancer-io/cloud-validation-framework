@@ -35,7 +35,6 @@ pipeline {
                         dockerImage ->
                             try {
                                 docker.image(dockerImage).inside("-e PYTHONPATH=${currentDir}/src -u root") {       
-                                    sh "pip3 install attrs==19.1.0"                            
                                     sh "pip3 install -r requirements.txt";
                                     sh "py.test --cov=processor tests/processor --cov-report term-missing";                             
                                 }
