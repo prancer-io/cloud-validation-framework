@@ -1,40 +1,3 @@
-credentials:
-  system:
-    domainCredentials:
-    - credentials:
-      - usernamePassword:
-          description: "GIT_CREDENTIAL_ID"
-          id: "GIT_CREDENTIAL_ID"
-          password: "xxxxx"
-          scope: GLOBAL
-          username: "danielalejandrohc"
-      - usernamePassword:
-          description: "PIP_CRENDENTIAL_ID"
-          id: "PIP_CRENDENTIAL_ID"
-          username: "__token__"
-          password: "xxxxx"
-          scope: GLOBAL          
-      - usernamePassword:
-          description: "DOCKERHUB_CREDENTIAL_ID"
-          id: "DOCKERHUB_CREDENTIAL_ID"
-          password: "xxxxx"
-          scope: GLOBAL
-          username: "danielahcardona"
-      - string:
-          description: "GITHUB_DEV_TOKEN"
-          id: "GITHUB_DEV_TOKEN"
-          scope: GLOBAL
-          secret: "xxxxx"
-      - string:
-          description: "GITHUB_API_TOKEN"
-          id: "GITHUB_API_TOKEN"
-          scope: GLOBAL
-          secret: "xxxxx"
-      - string:
-          description: "SNYK_CREDENTIAL_TOKEN"
-          id: "SNYK_CREDENTIAL_TOKEN"
-          scope: GLOBAL
-          secret: "xxxxx"
 jenkins:
   agentProtocols:
   - "JNLP4-connect"
@@ -85,7 +48,7 @@ jobs:
        parameters {
          stringParam {
              name("branch")
-             defaultValue("")
+             defaultValue("master")
              description("")
              trim(true)
          }
@@ -110,7 +73,7 @@ jobs:
        parameters {
          stringParam {
              name("branch")
-             defaultValue("")
+             defaultValue("master")
              description("")
              trim(true)
          }
