@@ -12,7 +12,7 @@ pipeline {
         PIP_CRENDENTIAL_ID = "PIP_CRENDENTIAL_ID"
         DOCKERHUB_CREDENTIAL_ID = "DOCKERHUB_CREDENTIAL_ID"
         DOCKERHUB_IMAGE_NAME = "prancer-basic"
-        DOCKERHUB_PUBLIC_REPOSITORY = "https://registry.hub.docker.com/TBD"
+        DOCKERHUB_PUBLIC_REPOSITORY = "https://registry.hub.docker.com/prancer"
         DOCKERHUB_ORG = "prancer"
         GITHUB_USER_AGENT = "Jenkins-client"
         GITHUB_API_TOKEN = "GITHUB_API_TOKEN"
@@ -43,7 +43,7 @@ pipeline {
                         // Custom Http header for the API
                         customHeader = [[name: 'Authorization', value: "token ${GITHUB_API_TOKEN_VAR}"],
                                         [name: 'User-Agent', value: "token ${GITHUB_USER_AGENT}"]];
-                        tag = "v${currentVersion}";
+                        tag = "V${currentVersion}";
                         // Check If the release already exits
                         apiURL = "https://api.github.com/repos/${GITHUB_ORG}/${GITHUB_REPO}/releases/tags/${tag}";
 
