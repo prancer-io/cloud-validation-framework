@@ -1,5 +1,6 @@
 {
   "fileType": "structure",
+  "type": "filesystem",
   "companyName": "prancer-test",
   "gitProvider": "git@github.com:crazycodr/prancer-tests.git",
   "branchName": "master",

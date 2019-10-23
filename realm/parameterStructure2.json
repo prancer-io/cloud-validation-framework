@@ -1,5 +1,6 @@
 {
     "fileType": "structure",
+	"type": "filesystem",
     "companyName": "Prancer",
     "gitProvider": "https://ajeybk@bitbucket.org/ajeybk/mytestpub.git",
     "repoCloneAddress":"/tmp/m",

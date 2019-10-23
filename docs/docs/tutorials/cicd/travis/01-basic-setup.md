@@ -109,7 +109,7 @@ This file describes the information we want to test, you shouldn't need to chang
         "snapshots": [
             {
                 "source": "gitConnector",
-                "type": "git",
+                "type": "filesystem",
                 "testUser": "git",
                 "nodes": [
                     {

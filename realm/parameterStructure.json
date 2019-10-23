@@ -1,6 +1,7 @@
 {
     "fileType": "structure",
     "companyName": "<Company Name>",
+	"type": "filesystem",
     "gitProvider": "https://github.com/prancer-io/cloud-validation-framework.git",
     "repoCloneAddress":"/tmp/m",
     "branchName":"master",

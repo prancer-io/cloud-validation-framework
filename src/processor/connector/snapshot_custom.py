@@ -160,7 +160,7 @@ def get_node(repopath, node, snapshot, ref, connector):
     parts = snapshot_source.split('.')
     db_record = {
         "structure": given_type,
-        "reference": ref if given_type == "git" else "",
+        "reference": ref if not base_path else "",
         "source": parts[0],
         "path": base_path + node['path'],
         "timestamp": int(time.time() * 1000),
@@ -193,11 +193,12 @@ def get_all_nodes(repopath, node, snapshot, ref, connector):
     db_records = []
     collection = node['collection'] if 'collection' in node else COLLECTION
     given_type = get_field_value(connector, "type")
+    base_path = get_field_value_with_default(connector, "folderPath", "")
     snapshot_source = get_field_value(snapshot, 'source')
     parts = snapshot_source.split('.')
     d_record = {
         "structure": given_type,
-        "reference": ref if given_type == "git" else "",
+        "reference": ref if not base_path else "",
         "source": parts[0],
         "path": '',
         "timestamp": int(time.time() * 1000),
@@ -496,17 +497,10 @@ def _local_file_directory(connector, snapshot):
 
 def _get_repo_path(connector, snapshot):
     if connector and isinstance(connector, dict):
-        given_type = get_field_value_with_default(connector, "type", "git")
-        git_provider = get_field_value(connector, "gitProvider")
-        folder_path = get_field_value(connector, "folderPath")
-        if given_type == "git" and git_provider:
+        if get_field_value(connector, "gitProvider"):
             return git_clone_dir(connector)
-
-        if given_type == "filesystem" and folder_path:
+        else:
             return _local_file_directory(connector, snapshot)
-
-        logger.error("Missing gitProvider/folderPath")
-        return None, None
     else:
         logger.error("Invalid connector")
         return None, None
@@ -568,6 +562,7 @@ def main():
     connectors = [
         {
             "fileType": "structure",
+            "type": "filesystem",
             "companyName": "prancer-test",
             "gitProvider": "https://github.com/ajeybk/mytest.git",
             "branchName": "master",
@@ -580,6 +575,7 @@ def main():
         },
         {
             "fileType": "structure",
+            "type": "filesystem",
             "companyName": "prancer-test",
             "gitProvider": "https://github.com/ajeybk/mytest.git",
             "branchName": "master",
@@ -592,6 +588,7 @@ def main():
         },
         {
             "fileType": "structure",
+            "type": "filesystem",
             "companyName": "prancer-test",
             "gitProvider": "https://github.com/ajeybk/mytest.git",
             "branchName": "master",
@@ -604,6 +601,7 @@ def main():
         },
         {
             "fileType": "structure",
+            "type": "filesystem",
             "companyName": "prancer-test",
             "gitProvider": "git@github.com:ajeybk/mytest.git",
             "branchName": "master",
@@ -615,6 +613,7 @@ def main():
         },
         {
             "fileType": "structure",
+            "type": "filesystem",            
             "companyName": "prancer-test",
             "gitProvider": "https://github.com/prancer-io/cloud-validation-framework.git",
             "branchName": "master",

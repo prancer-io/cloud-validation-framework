@@ -1,18 +1,17 @@
 {
-    "fileType": "snapshot",
-    "snapshots": [
+  "fileType": "snapshot",
+  "snapshots": [
+    {
+      "source": "gitConnector",
+      "testUser": "git",
+      "nodes": [
         {
-            "source": "gitConnector",
-            "type": "git",
-            "testUser": "git",
-            "nodes": [
-                {
-                    "snapshotId": "1",
-                    "type": "json",
-                    "collection": "security_groups",
-                    "path": "devops/cf/mytemplate.json"
-                }
-            ]
+          "snapshotId": "1",
+          "type": "json",
+          "collection": "security_groups",
+          "path": "devops/cf/mytemplate.json"
         }
-    ]
+      ]
+    }
+  ]
 }
