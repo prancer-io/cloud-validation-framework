@@ -11,8 +11,8 @@ pipeline {
         PYTHON_DOCKER_IMAGE = "python:3.6"
         PIP_CRENDENTIAL_ID = "PIP_CRENDENTIAL_ID"
         DOCKERHUB_CREDENTIAL_ID = "DOCKERHUB_CREDENTIAL_ID"
-        DOCKERHUB_IMAGE_NAME = "poc-daniel"
-        DOCKERHUB_PUBLIC_REPOSITORY = "https://registry.hub.docker.com/danielahcardona"
+        DOCKERHUB_IMAGE_NAME = "prancer-basic"
+        DOCKERHUB_PUBLIC_REPOSITORY = "https://registry.hub.docker.com/TBD"
         DOCKERHUB_ORG = "prancer"
         GITHUB_USER_AGENT = "Jenkins-client"
         GITHUB_API_TOKEN = "GITHUB_API_TOKEN"
@@ -166,7 +166,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry(DOCKERHUB_PUBLIC_REPOSITORY, DOCKERHUB_CREDENTIAL_ID) {
-                        def customImage = docker.build("${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion} -f dockerfiles/Dockerfile");
+                        def customImage = docker.build("${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}", "-f dockerfiles/Dockerfile .");
                         customImage.push();
                     }
                 }
