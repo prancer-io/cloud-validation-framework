@@ -43,9 +43,9 @@ pipeline {
                         // Custom Http header for the API
                         customHeader = [[name: 'Authorization', value: "token ${GITHUB_API_TOKEN_VAR}"],
                                         [name: 'User-Agent', value: "token ${GITHUB_USER_AGENT}"]];
-                        
+                        tag = "v${currentVersion}";
                         // Check If the release already exits
-                        apiURL = "https://api.github.com/repos/${GITHUB_ORG}/${GITHUB_REPO}/releases/tags/${currentVersion}";
+                        apiURL = "https://api.github.com/repos/${GITHUB_ORG}/${GITHUB_REPO}/releases/tags/${tag}";
 
                         response = httpRequest acceptType: 'APPLICATION_JSON', 
                                             contentType: 'APPLICATION_JSON', 
@@ -55,17 +55,17 @@ pipeline {
                                             validResponseCodes: "200,201,400,404";
                         
                         if(response.status == 200 || response.status == 202 || response.status != 404) {
-                            error "Error: Release ${currentVersion} is already created. Response status ${response.status}";
+                            error "Error: Release ${tag} is already created. Response status ${response.status}";
                         } 
 
                         echo "${response.content}";
 
                         // Create the payload for the release
                         requestBody = "{" +
-                                        "\"tag_name\": " + "\"${currentVersion}\"," +
+                                        "\"tag_name\": " + "\"${tag}\"," +
                                         "\"target_commitish\": " + "\"${branch}\"," +
-                                        "\"name\": " + "\"${currentVersion}\"," +
-                                        "\"body\": " + "\"Release: ${currentVersion}\"," +
+                                        "\"name\": " + "\"${tag}\"," +
+                                        "\"body\": " + "\"Release: ${tag}\"," +
                                         "\"draft\": " + "false," +
                                         "\"prerelease\": " + "false" +
                                       "}";
