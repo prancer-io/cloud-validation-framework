@@ -1,16 +1,4837 @@
 {
-    "Microsoft.Compute/availabilitySets": {
-        "version": "2018-06-01"
-    },
-    "Microsoft.Network/virtualNetworks": {
-        "version": "2018-07-01"
-    },
-    "Microsoft.Storage/storageAccounts": {
-        "version": "2018-07-01"
-    },
-    "Microsoft.KeyVault/vaults": {
-        "version": "2015-06-01"
-    },
-    "fileType": "structure",
-    "type": "others"
+  "fileType": "structure",
+  "type": "others",
+  "Microsoft.RecoveryServices/locations/backupStatus": {
+    "version": "2017-07-01"
+  }, 
+  "Microsoft.AppConfiguration/locations/operationsStatus": {
+    "version": "2019-02-01-preview"
+  }, 
+  "Microsoft.EventGrid/topics": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.AzureData/sqlServerRegistrations": {
+    "version": "2019-05-10-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/departments": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.DataLakeAnalytics/accounts/storageAccounts/containers/listSasTokens": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.NotificationHubs/operations": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Sql/locations/managedInstanceEncryptionProtectorAzureAsyncOperation": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Security/adaptiveNetworkHardenings": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Logic/locations/workflows": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Kusto/locations/operationResults": {
+    "version": "2019-09-07"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/billingRoleDefinitions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/products/transfer": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Media/mediaservices/eventGridFilters": {
+    "version": "2018-02-05"
+  }, 
+  "Microsoft.DataFactory/dataFactories/diagnosticSettings": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/replications": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Blueprint/blueprints/artifacts": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Sql/locations/instancePoolAzureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/customers/transfers": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Solutions/locations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.EventHub/availableClusterRegions": {
+    "version": "2018-01-01-preview"
+  }, 
+  "Microsoft.Web/locations/getNetworkPolicies": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.EventGrid/domains": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Network/locations/availableDelegations": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.OffAzure/VMwareSites": {
+    "version": "2019-06-06"
+  }, 
+  "Microsoft.Sql/servers/import": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Capacity/reservationOrders/reservations/availableScopes": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Network/applicationGatewayAvailableSslOptions": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.DBforMySQL/operations": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.Databricks/locations": {
+    "version": "2018-04-01"
+  }, 
+  "Microsoft.Devices/checkProvisioningServiceNameAvailability": {
+    "version": "2018-01-22"
+  }, 
+  "Microsoft.KeyVault/vaults/eventGridFilters": {
+    "version": "2018-02-14-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingRoleDefinitions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Security/locations/tasks": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.AzureStack/operations": {
+    "version": "2017-06-01"
+  }, 
+  "Microsoft.CostManagement/Settings": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Sql/locations/virtualClusterOperationResults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Security/locations/externalSecuritySolutions": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Addons/supportProviders": {
+    "version": "2018-03-01"
+  }, 
+  "Microsoft.SaaS/saasresources": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.Sql/managedInstances/metrics": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.ClassicCompute/virtualMachines": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.SignalRService/locations/usages": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.Resources/locations": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Solutions/applicationDefinitions": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Attestation/operations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Web/hostingEnvironments/multiRolePools": {
+    "version": "2019-02-01"
+  }, 
+  "Microsoft.Security/locations/alerts": {
+    "version": "2019-01-01"
+  }, 
+  "Microsoft.EventHub/namespaces/eventhubs/consumergroups": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Resources/subscriptions/providers": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.EventHub/namespaces/disasterrecoveryconfigs/checkNameAvailability": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Network/frontdoorWebApplicationFirewallPolicies": {
+    "version": "2019-03-01"
+  }, 
+  "Microsoft.Security/deviceSecurityGroups": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.StreamAnalytics/locations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Media/mediaservices/contentKeyPolicies": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.ContainerService/managedClusters": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.Security/securitySolutionsReferenceData": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.StreamAnalytics/streamingjobs": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Sql/servers/databases/vulnerabilityAssessments": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Web/checkNameAvailability": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.TimeSeriesInsights/environments": {
+    "version": "2018-08-15-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/auditRecords": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Sql/locations/deleteVirtualNetworkOrSubnetsAzureAsyncOperation": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.DataShare/accounts/sharesubscriptions/datasetmappings": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.DataLakeStore/locations/operationresults": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.VMwareCloudSimple/locations/usages": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Web/ishostnameavailable": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Security/regulatoryComplianceStandards/regulatoryComplianceControls": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.ManagedServices/operationStatuses": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.DevSpaces/controllers": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.ADHybridHealthService/logs": {
+    "version": "2014-01-01"
+  }, 
+  "microsoft.insights/diagnosticSettingsCategories": {
+    "version": "2017-05-01-preview"
+  }, 
+  "Microsoft.AzureActiveDirectory/b2ctenants": {
+    "version": "2016-02-10-privatepreview"
+  }, 
+  "Microsoft.Blueprint/blueprints": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.SecurityInsights/bookmarks": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.SerialConsole/operations": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Databricks/operations": {
+    "version": "2018-04-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/patchOperations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.ContainerInstance/containerGroups": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.SecurityInsights/entities": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Authorization/denyAssignments": {
+    "version": "2019-03-01-preview"
+  }, 
+  "Microsoft.Network/routeTables": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.GuestConfiguration/software": {
+    "version": "2018-06-30-preview"
+  }, 
+  "Microsoft.DataBox/locations/availableSkus": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.HealthcareApis/locations/operationresults": {
+    "version": "2019-09-16"
+  }, 
+  "Microsoft.Network/networkWatchers/connectionMonitors": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Resources/resources": {
+    "version": "2019-05-01"
+  }, 
+  "microsoft.insights/metricbatch": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Web/verifyHostingEnvironmentVnet": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Billing/invoices": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.HDInsight/locations/validateCreateRequest": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Resources/subscriptions/resources": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/GetCredentials": {
+    "version": "2016-06-27-preview"
+  }, 
+  "Microsoft.Sql/locations/deleteVirtualNetworkOrSubnets": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Web/resourceHealthMetadata": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Sql/servers/databases/extensions": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Sql/locations/syncGroupOperationResults": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Sql/managedInstances/vulnerabilityAssessments": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/metricDefinitions": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.DBforMySQL/locations/administratorOperationResults": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.Cache/checkNameAvailability": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Security/iotSecuritySolutions/analyticsModels/aggregatedRecommendations": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.ClassicNetwork/virtualNetworks": {
+    "version": "2017-11-15"
+  }, 
+  "Microsoft.Network/locations/bareMetalTenants": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Network/routeFilters": {
+    "version": "2019-09-01"
+  }, 
+  "microsoft.insights/queries": {
+    "version": "2015-05-01"
+  }, 
+  "Microsoft.Compute/virtualMachineScaleSets/extensions": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/securityAlertPoliciesOperationResults": {
+    "version": "2017-12-01"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/vmImages": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.ServiceFabricMesh/locations/secretOperations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.CostManagement/showbackRules": {
+    "version": "2019-03-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/productMoveOperations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.DeploymentManager/operations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Cdn/profiles/endpoints/origins": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.Resources/checkresourcename": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Network/privateDnsZones/SRV": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.ServiceFabric/locations/operations": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databaseSecurityPolicies": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.CognitiveServices/operations": {
+    "version": "2017-04-18"
+  }, 
+  "Crypteron.DataSecurity/listCommunicationPreference": {
+    "version": "2016-08-12"
+  }, 
+  "Microsoft.Sql/locations/virtualNetworkRulesOperationResults": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Security/workspaceSettings": {
+    "version": "2017-08-01-preview"
+  }, 
+  "Mailjet.Email/services": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.ServiceFabric/locations": {
+    "version": "2019-06-01-preview"
+  }, 
+  "84codes.CloudAMQP/servers": {
+    "version": "2016-08-01"
+  }, 
+  "Microsoft.IoTCentral/checkSubdomainAvailability": {
+    "version": "2018-09-01"
+  }, 
+  "microsoft.insights/autoscalesettings": {
+    "version": "2015-04-01"
+  }, 
+  "Microsoft.SecurityInsights/aggregations": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/products": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Capacity/reservationOrders/reservations/revisions": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.EventHub/locations/deleteVirtualNetworkOrSubnets": {
+    "version": "2018-01-01-preview"
+  }, 
+  "Microsoft.Migrate/projects": {
+    "version": "2018-02-02"
+  }, 
+  "Microsoft.Solutions/operations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Logic/integrationServiceEnvironments": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.MachineLearning/locations": {
+    "version": "2017-01-01"
+  }, 
+  "Microsoft.ResourceGraph/resources": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Network/virtualNetworkTaps": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Sql/servers/auditingPolicies": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Sparkpost.Basic/services": {
+    "version": "2016-08-01"
+  }, 
+  "Microsoft.Web/sites/networkConfig": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Marketplace/offerTypes/publishers/offers/plans/configs/importImage": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.ResourceGraph/subscriptionsStatus": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/customers/billingSubscriptions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Network/virtualWans": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ContainerService/operations": {
+    "version": "2018-10-31"
+  }, 
+  "Microsoft.Media/mediaservices/streamingLocators": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.ApiManagement/validateServiceName": {
+    "version": "2015-09-15"
+  }, 
+  "Microsoft.ManagedServices/marketplaceRegistrationDefinitions": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Sql/servers/interfaceEndpointProfiles": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.DataFactory/checkAzureDataFactoryNameAvailability": {
+    "version": "2015-10-01"
+  }, 
+  "Microsoft.Consumption/Pricesheets": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.ClassicNetwork/reservedIps": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/billingSubscriptionMoveOperations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Network/privateDnsZones/virtualNetworkLinks": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.Network/privateDnsZones/PTR": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.DBforMySQL/servers/privateLinkResources": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/services": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.DBforMySQL/locations": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.ServiceBus/namespaces/queues": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/createInvoiceSectionOperations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.ServiceFabricMesh/volumes": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Resources/notifyResourceJobs": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/queueServices": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Solutions/jitRequests": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Web/functions": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Compute/restorePointCollections/restorePoints": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Authorization/policySetDefinitions": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.DataBox/jobs": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Portal/locations": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.DBforMySQL/locations/privateEndpointConnectionOperationResults": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.MachineLearningServices/locations/computeOperationsStatus": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.ContainerService/locations/orchestrators": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.MachineLearning/operations": {
+    "version": "2017-01-01"
+  }, 
+  "Raygun.CrashReporting/operations": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.CostManagement/Reports": {
+    "version": "2018-12-01-preview"
+  }, 
+  "Microsoft.Network/frontdoorWebApplicationFirewallManagedRuleSets": {
+    "version": "2019-03-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/transfers": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Billing/billingPermissions": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Sql/managedInstances/administrators": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.EventHub/namespaces/eventhubs/authorizationrules": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Network/azureFirewallFqdnTags": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ClassicStorage/quotas": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Security/allowedConnections": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.CognitiveServices/accounts": {
+    "version": "2017-04-18"
+  }, 
+  "microsoft.insights/metricNamespaces": {
+    "version": "2018-01-01"
+  }, 
+  "Microsoft.Network/privateDnsZones/all": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.AppConfiguration/configurationStores": {
+    "version": "2019-02-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/paymentMethods": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.PolicyInsights/policyStates": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.Subscription/CreateSubscription": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.DBforMariaDB/servers": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/dataMaskingPolicies/rules": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Security/settings": {
+    "version": "2019-01-01"
+  }, 
+  "Microsoft.ServiceFabric/locations/operationResults": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.Sql/locations/serverAzureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Resources/links": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ClassicCompute/validateSubscriptionMoveAvailability": {
+    "version": "2016-11-01"
+  }, 
+  "RavenHq.Db/operations": {
+    "version": "2016-07-18"
+  }, 
+  "Microsoft.Network/dnszones/PTR": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.DeploymentManager/rollouts": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.DataMigration/locations/operationStatuses": {
+    "version": "2018-07-15-preview"
+  }, 
+  "Microsoft.Web/sourceControls": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Authorization/providerOperations": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.ServiceFabricMesh/locations/applicationOperations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.WindowsIoT/operations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.CustomerLockbox/operations": {
+    "version": "2018-02-28-preview"
+  }, 
+  "Microsoft.Token/stores/services": {
+    "version": "2018-08-01-preview"
+  }, 
+  "Microsoft.Capacity/placePurchaseOrder": {
+    "version": "2019-06-01-privatepreview"
+  }, 
+  "Microsoft.ClassicCompute/resourceTypes": {
+    "version": "2016-11-01"
+  }, 
+  "Pokitdok.Platform/services": {
+    "version": "2016-05-17"
+  }, 
+  "Microsoft.DataCatalog/locations/operationResults": {
+    "version": "2018-12-01-preview"
+  }, 
+  "Microsoft.HanaOnAzure/sapMonitors": {
+    "version": "2017-11-03-preview"
+  }, 
+  "Myget.PackageManagement/operations": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.Network/applicationGatewayAvailableServerVariables": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.OperationalInsights/workspaces/query": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.Web/ishostingenvironmentnameavailable": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Media/mediaservices/streamingEndpoints": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.Marketplace/offerTypes/publishers": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.AnalysisServices/locations/operationstatuses": {
+    "version": "2017-08-01-beta"
+  }, 
+  "microsoft.insights/locations": {
+    "version": "2015-04-01"
+  }, 
+  "Microsoft.SqlVirtualMachine/SqlVirtualMachineGroups": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/recommendedSensitivityLabels": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Sql/locations/shortTermRetentionPolicyOperationResults": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.ClassicCompute/domainNames/slots": {
+    "version": "2018-06-01"
+  }, 
+  "Microsoft.Media/locations": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.AlertsManagement/smartDetectorRuntimeEnvironments": {
+    "version": "2019-03-01"
+  }, 
+  "Microsoft.Network/checkFrontdoorNameAvailability": {
+    "version": "2019-08-01"
+  }, 
+  "stackify.retrace/services": {
+    "version": "2016-01-01"
+  }, 
+  "Microsoft.Features/operations": {
+    "version": "2015-12-01"
+  }, 
+  "Microsoft.Kusto/operations": {
+    "version": "2019-09-07"
+  }, 
+  "Microsoft.Web/sites/premieraddons": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Consumption/products": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.DataLakeAnalytics/accounts/storageAccounts/containers": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Addons/operations": {
+    "version": "2018-03-01"
+  }, 
+  "microsoft.insights/eventtypes": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.ContainerRegistry/registries/listCredentials": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.DataFactory/locations": {
+    "version": "2018-06-01"
+  }, 
+  "Microsoft.StorageCache/operations": {
+    "version": "2019-08-01-preview"
+  }, 
+  "Microsoft.HDInsight/locations": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.AlertsManagement/alertsSummary": {
+    "version": "2019-05-05-preview"
+  }, 
+  "Microsoft.Sql/locations/managedInstanceTdeCertOperationResults": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Compute/locations/runCommands": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Media/mediaservices/liveEventOperations": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/elevate": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Consumption/Balances": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/operations": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Sparkpost.Basic/operations": {
+    "version": "2016-08-01"
+  }, 
+  "Microsoft.IoTSpaces/checkNameAvailability": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.ManagedIdentity/operations": {
+    "version": "2018-11-30"
+  }, 
+  "Microsoft.Resources/resourceGroups": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ClassicCompute/operationStatuses": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/pricesheet": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.StreamAnalytics/locations/quotas": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Sql/locations/firewallRulesAzureAsyncOperation": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Network/privateDnsZones/SOA": {
+    "version": "2018-09-01"
+  }, 
+  "microsoft.support/createsupportticket": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.Network/locations/autoApprovedPrivateLinkServices": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ServiceFabricMesh/networks": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Migrate/migrateprojects": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Sql/locations/managedInstanceEncryptionProtectorOperationResults": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Security/externalSecuritySolutions": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.DataFactory/operations": {
+    "version": "2018-06-01"
+  }, 
+  "Microsoft.Web/recommendations": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Storage/locations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Marketplace/offerTypes/publishers/offers/plans/configs": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.EventHub/locations": {
+    "version": "2018-01-01-preview"
+  }, 
+  "Microsoft.Security/securityStatusesSummaries": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.VMwareCloudSimple/dedicatedCloudNodes": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Web/isusernameavailable": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.WorkloadMonitor/monitorInstances": {
+    "version": "2018-08-31-preview"
+  }, 
+  "Microsoft.Authorization/dataAliases": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Sql/locations/tdeCertOperationResults": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.DeploymentManager/steps": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Cache/Redis": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Logic/workflows": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Sql/locations/managedDatabaseRestoreAzureAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Sendgrid.Email/accounts": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.Resources/subscriptions/tagNames/tagValues": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Sql/locations/managedDatabaseAzureAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "U2uconsult.TheIdentityHub/operations": {
+    "version": "2015-06-15"
+  }, 
+  "Microsoft.SignalRService/operations": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.AppConfiguration/locations": {
+    "version": "2019-02-01-preview"
+  }, 
+  "microsoft.insights/diagnosticSettings": {
+    "version": "2017-05-01-preview"
+  }, 
+  "Microsoft.KeyVault/locations/deletedVaults": {
+    "version": "2018-02-14-preview"
+  }, 
+  "Microsoft.DBforMySQL/locations/privateEndpointConnectionProxyAzureAsyncOperation": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Sql/locations/longTermRetentionBackups": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Capacity/reservationOrders/split": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Resources/checkPolicyCompliance": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/transactions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Sql/locations/longTermRetentionBackupOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "microsoft.visualstudio/operations": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Cdn/operationresults/profileresults": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.Network/connections": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.CertificateRegistration/validateCertificateRegistrationInformation": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.MachineLearningServices/workspaces": {
+    "version": "2019-11-01"
+  }, 
+  "Microsoft.HanaOnAzure/locations": {
+    "version": "2017-11-03-preview"
+  }, 
+  "Microsoft.PolicyInsights/operations": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.DBforMariaDB/operations": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.MixedReality/locations": {
+    "version": "2019-12-02-preview"
+  }, 
+  "Microsoft.AzureStack/registrations/customerSubscriptions": {
+    "version": "2017-06-01"
+  }, 
+  "Microsoft.BingMaps/updateCommunicationPreference": {
+    "version": "2016-08-18"
+  }, 
+  "Microsoft.DocumentDB/locations": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.TimeSeriesInsights/environments/referenceDataSets": {
+    "version": "2018-08-15-preview"
+  }, 
+  "Microsoft.MachineLearningServices/locations/workspaceOperationsStatus": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Blockchain/locations": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Compute/galleries/images": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Network/dnszones/CAA": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.RecoveryServices/backupProtectedItems": {
+    "version": "2017-07-01-preview"
+  }, 
+  "Microsoft.Sql/locations/encryptionProtectorOperationResults": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Paraleap.CloudMonix/listCommunicationPreference": {
+    "version": "2016-08-10"
+  }, 
+  "Microsoft.Web/sites/slots/hostNameBindings": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.BotService/botServices/connections": {
+    "version": "2018-07-12"
+  }, 
+  "Crypteron.DataSecurity/updateCommunicationPreference": {
+    "version": "2016-08-12"
+  }, 
+  "Microsoft.Sql/instancePools": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Capacity/calculateExchange": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Compute/locations/vmSizes": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.VMwareCloudSimple/virtualMachines": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.DBforMySQL/locations/performanceTiers": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.Sql/locations/managedServerSecurityAlertPoliciesOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Compute/locations/capsoperations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Consumption/Terms": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.ServiceBus/namespaces/eventgridfilters": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Network/locations/effectiveResourceOwnership": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.OperationalInsights/workspaces/linkedServices": {
+    "version": "2015-11-01-preview"
+  }, 
+  "Microsoft.HealthcareApis/operations": {
+    "version": "2019-09-16"
+  }, 
+  "Microsoft.HealthcareApis/services": {
+    "version": "2019-09-16"
+  }, 
+  "Microsoft.DevTestLab/operations": {
+    "version": "2018-10-15-preview"
+  }, 
+  "Microsoft.Sql/locations/administratorAzureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.ProviderHub/providerRegistrations": {
+    "version": "2019-02-01-preview"
+  }, 
+  "Microsoft.Sql/locations/usages": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Security/securitySolutions": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.RecoveryServices/vaults": {
+    "version": "2019-05-13-preview"
+  }, 
+  "Microsoft.Advisor/configurations": {
+    "version": "2017-04-19"
+  }, 
+  "Microsoft.ADHybridHealthService/servicehealthmetrics": {
+    "version": "2014-01-01"
+  }, 
+  "microsoft.insights/components/events": {
+    "version": "2018-04-20"
+  }, 
+  "Microsoft.Billing/billingAccounts/customers/billingPermissions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Compute/virtualMachineScaleSets/virtualMachines": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoices": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Capacity/reservationOrders/return": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Sql/virtualClusters": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.AnalysisServices/servers": {
+    "version": "2017-08-01-beta"
+  }, 
+  "Microsoft.VMwareCloudSimple/locations": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Network/networkProfiles": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Media/mediaservices": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.DocumentDB/operationResults": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.Sql/servers/encryptionProtector": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Media/mediaservices/liveEvents/liveOutputs": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.Sql/locations/instancePoolOperationResults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.KeyVault/locations": {
+    "version": "2018-02-14-preview"
+  }, 
+  "Microsoft.WorkloadMonitor/monitorInstancesSummary": {
+    "version": "2018-08-31-preview"
+  }, 
+  "Microsoft.Security/applicationWhitelistings": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.DBforMySQL/locations/recommendedActionSessionsOperationResults": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Network/dnszones/SOA": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.VMwareCloudSimple/dedicatedCloudServices": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/recommendedActionSessionsAzureAsyncOperation": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.DBforMySQL/servers/recoverableServers": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.ContainerRegistry/registries/runs": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.DBforMySQL/locations/privateEndpointConnectionProxyOperationResults": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.GuestConfiguration/softwareUpdateProfile": {
+    "version": "2018-06-30-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingRoleAssignments": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Web/publishingUsers": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Storage/storageAccounts/listServiceSas": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingPermissions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Blueprint/blueprints/versions": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Compute/locations/virtualMachines": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Relay/namespaces": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Sql/servers/databases/auditingSettings": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.ContainerInstance/locations": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.Security/locations": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.DBforMySQL/locations/azureAsyncOperation": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.Scheduler/jobcollections": {
+    "version": "2016-03-01"
+  }, 
+  "Microsoft.HealthcareApis/checkNameAvailability": {
+    "version": "2019-09-16"
+  }, 
+  "Microsoft.Logic/integrationAccounts": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Sql/locations/jobAgentAzureAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.ServiceFabric/operations": {
+    "version": "2018-02-01-privatepreview"
+  }, 
+  "Microsoft.DataShare/accounts": {
+    "version": "2018-11-01-preview"
+  }, 
+  "microsoft.insights/operations": {
+    "version": "2015-04-01"
+  }, 
+  "Microsoft.Authorization/operations": {
+    "version": "2017-05-01"
+  }, 
+  "Microsoft.Security/locations/applicationWhitelistings": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Web/operations": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.ClassicNetwork/expressRouteCrossConnections": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Sql/servers/aggregatedDatabaseMetrics": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.ServiceBus/namespaces/networkrulesets": {
+    "version": "2018-01-01-preview"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/operationResults": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.AppConfiguration/configurationStores/eventGridFilters": {
+    "version": "2019-02-01-preview"
+  }, 
+  "Microsoft.ServiceBus/namespaces/topics/subscriptions/rules": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.ResourceGraph/queries": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Portal/consoles": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.Compute/virtualMachines/metricDefinitions": {
+    "version": "2014-04-01"
+  }, 
+  "microsoft.insights/logs": {
+    "version": "2018-08-01-preview"
+  }, 
+  "Microsoft.ClassicCompute/virtualMachines/metricDefinitions": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/webhooks/ping": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Sql/servers/databases/syncGroups/syncMembers": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.AAD/locations/operationresults": {
+    "version": "2017-06-01"
+  }, 
+  "Microsoft.MachineLearningServices/locations/quotas": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.DevTestLab/locations/operations": {
+    "version": "2018-10-15-preview"
+  }, 
+  "Microsoft.Cdn/operationresults/profileresults/endpointresults/originresults": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.SecurityInsights/settings": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Sql/locations/managedInstanceKeyOperationResults": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.DataLakeAnalytics/locations/operationresults": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DataShare/accounts/sharesubscriptions/consumerSourceDataSets": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Authorization/locks": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.PolicyInsights/asyncOperationResults": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.Blockchain/operations": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.EventHub/namespaces": {
+    "version": "2018-01-01-preview"
+  }, 
+  "Microsoft.Network/vpnGateways": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/patchOperations": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Sql/servers/vulnerabilityAssessments": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Web/hostingEnvironments": {
+    "version": "2019-02-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingSubscriptions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databases": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Search/checkNameAvailability": {
+    "version": "2015-08-19"
+  }, 
+  "Microsoft.Network/natGateways": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Billing/transfers/declineTransfer": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.MachineLearning/locations/operationsStatus": {
+    "version": "2017-01-01"
+  }, 
+  "microsoft.insights/baseline": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.DataLakeAnalytics/accounts/dataLakeStoreAccounts": {
+    "version": "2016-11-01"
+  }, 
+  "microsoft.insights/components": {
+    "version": "2018-05-01-preview"
+  }, 
+  "Microsoft.TimeSeriesInsights/operations": {
+    "version": "2018-08-15-preview"
+  }, 
+  "Microsoft.Storage/storageAccounts/services/metricDefinitions": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.Sql/locations/vulnerabilityAssessmentScanAzureAsyncOperation": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.DomainRegistration/checkDomainAvailability": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/privateEndpointConnectionAzureAsyncOperation": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.DataMigration/operations": {
+    "version": "2018-07-15-preview"
+  }, 
+  "Microsoft.Media/mediaservices/streamingPolicies": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.WorkloadMonitor/componentsSummary": {
+    "version": "2018-08-31-preview"
+  }, 
+  "Microsoft.Sql/locations/syncDatabaseIds": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.SaaS/checknameavailability": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.DBforMariaDB/locations/securityAlertPoliciesAzureAsyncOperation": {
+    "version": "2018-06-01"
+  }, 
+  "Microsoft.Sql/servers/databases/VulnerabilityAssessment": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.TimeSeriesInsights/environments/accessPolicies": {
+    "version": "2018-08-15-preview"
+  }, 
+  "microsoft.support/supporttickets": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.ContainerRegistry/registries/getBuildSourceUploadUrl": {
+    "version": "2018-02-01-preview"
+  }, 
+  "microsoft.insights/metrics": {
+    "version": "2019-07-01"
+  }, 
+  "U2uconsult.TheIdentityHub/updateCommunicationPreference": {
+    "version": "2015-06-15"
+  }, 
+  "Microsoft.OperationalInsights/workspaces/dataSources": {
+    "version": "2015-11-01-preview"
+  }, 
+  "Microsoft.ImportExport/locations/operationResults": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.ServiceFabricMesh/operations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.BatchAI/workspaces": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Sql/servers/tdeCertificates": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Security/locations/jitNetworkAccessPolicies": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.ResourceHealth/availabilityStatuses": {
+    "version": "2018-08-01-rc"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.AzureActiveDirectory/b2cDirectories": {
+    "version": "2017-01-30"
+  }, 
+  "Microsoft.CostManagement/Connectors": {
+    "version": "2018-08-01-preview"
+  }, 
+  "Microsoft.Security/topologies": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Devices/operations": {
+    "version": "2019-07-01-preview"
+  }, 
+  "Microsoft.Resources/subscriptions/locations": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/privateEndpointConnectionOperationResults": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Portal/locations/consoles": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.AAD/DomainServices": {
+    "version": "2017-06-01"
+  }, 
+  "Microsoft.Capacity/reservationOrders": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Network/privateEndpointRedirectMaps": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.HDInsight/locations/operationresults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Solutions/locations/operationstatuses": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Consumption/ReservationSummaries": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Sql/locations/interfaceEndpointProfileAzureAsyncOperation": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Security/dataCollectionAgents": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Network/locations/validateResourceOwnership": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ApiManagement/checkNameAvailability": {
+    "version": "2019-01-01"
+  }, 
+  "Microsoft.Network/applicationGatewayAvailableRequestHeaders": {
+    "version": "2019-09-01"
+  }, 
+  "microsoft.insights/components/metrics": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.MachineLearningServices/workspaces/computes": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.SecurityInsights/cases": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Consumption/Operations": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Security/advancedThreatProtectionSettings": {
+    "version": "2017-08-01-preview"
+  }, 
+  "Microsoft.ContainerInstance/locations/capabilities": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.CostManagement/EnrollmentAccounts": {
+    "version": "2018-03-31"
+  }, 
+  "Microsoft.Batch/locations/checkNameAvailability": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.SecurityInsights/dataConnectors": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Sql/locations/firewallRulesOperationResults": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.CostManagement/ExternalSubscriptions/Forecast": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.ClassicCompute/moveSubscriptionResources": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DataBox/locations/operationresults": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Sql/locations/failoverGroupOperationResults": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Devices/IotHubs/eventGridFilters": {
+    "version": "2018-07-31"
+  }, 
+  "Microsoft.Sql/locations/syncMemberOperationResults": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.CognitiveServices/locations": {
+    "version": "2017-04-18"
+  }, 
+  "Microsoft.CertificateRegistration/certificateOrders": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.Network/dnsOperationResults": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.AppConfiguration/operations": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Migrate/locations": {
+    "version": "2018-02-02"
+  }, 
+  "Microsoft.Blueprint/blueprintAssignments/assignmentOperations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.KeyVault/locations/operationResults": {
+    "version": "2018-02-14-preview"
+  }, 
+  "Microsoft.StorageSync/storageSyncServices/syncGroups/serverEndpoints": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Network/locations/nfvOperationResults": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Compute/availabilitySets": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Billing/billingAccounts": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Paraleap.CloudMonix/operations": {
+    "version": "2016-08-10"
+  }, 
+  "Microsoft.ResourceGraph/resourceChanges": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Sql/managedInstances/databases/vulnerabilityAssessments": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Network/locations/nfvOperations": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Marketplace/offerTypes/publishers/offers/plans/agreements": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/createBillingRoleAssignment": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Migrate/operations": {
+    "version": "2018-02-02"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/products/updateAutoRenew": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/performanceTiers": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.ManagedServices/registrationAssignments": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Network/virtualHubs": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Sql/locations/instanceFailoverGroups": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Services/providerRegistrations/resourceTypeRegistrations": {
+    "version": "2019-02-01-preview"
+  }, 
+  "Microsoft.Cache/locations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.AzureStack/registrations/products": {
+    "version": "2017-06-01"
+  }, 
+  "LiveArena.Broadcast/listCommunicationPreference": {
+    "version": "2016-06-15"
+  }, 
+  "Microsoft.Cdn/profiles/endpoints/customdomains": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.Sql/servers/elasticpools": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Security/jitNetworkAccessPolicies": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.SaaS/operations": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.VMwareCloudSimple/locations/privateClouds/virtualNetworks": {
+    "version": "2019-04-01"
+  }, 
+  "Myget.PackageManagement/updateCommunicationPreference": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.OperationalInsights/workspaces": {
+    "version": "2017-04-26-preview"
+  }, 
+  "Microsoft.Sql/locations/virtualClusterAzureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/BillingProfiles/patchOperations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.IoTCentral/checkNameAvailability": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.DBforMySQL/locations/privateEndpointConnectionAzureAsyncOperation": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.ServiceBus/sku": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.DataFactory/dataFactories/metricDefinitions": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.Sql/servers/connectionPolicies": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.SignalRService/SignalR/eventGridFilters": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.KeyVault/vaults/secrets": {
+    "version": "2018-02-14-preview"
+  }, 
+  "Microsoft.Network/expressRouteServiceProviders": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.PowerBIDedicated/locations/operationresults": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.ClassicNetwork/expressRouteCrossConnections/peerings": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DBforMariaDB/servers/queryTexts": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "RavenHq.Db/databases": {
+    "version": "2016-07-18"
+  }, 
+  "Microsoft.Billing/operations": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Devices/IotHubs": {
+    "version": "2019-07-01-preview"
+  }, 
+  "Microsoft.ContainerService/locations/operations": {
+    "version": "2017-01-31"
+  }, 
+  "Microsoft.AnalysisServices/locations/operationresults": {
+    "version": "2017-08-01-beta"
+  }, 
+  "Microsoft.Resources/providers": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/servers/privateEndpointConnections": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Network/locations/virtualNetworkAvailableEndpointServices": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Sql/locations/managedInstanceOperationResults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/geoBackupPolicies": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Conexlink.MyCloudIT/updateCommunicationPreference": {
+    "version": "2015-06-15"
+  }, 
+  "Microsoft.LabServices/labaccounts": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.AAD/DomainServices/oucontainer": {
+    "version": "2017-06-01"
+  }, 
+  "Microsoft.DevSpaces/operations": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Sql/servers/recoverableDatabases": {
+    "version": "2014-04-01-preview"
+  }, 
+  "LiveArena.Broadcast/operations": {
+    "version": "2016-06-15"
+  }, 
+  "Microsoft.Web/validate": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.HDInsight/locations/capabilities": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Sql/locations": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Storage/storageAccounts/fileServices": {
+    "version": "2019-06-01"
+  }, 
+  "Paraleap.CloudMonix/updateCommunicationPreference": {
+    "version": "2016-08-10"
+  }, 
+  "Microsoft.Network/publicIPAddresses": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Consumption/tenants": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Security/discoveredSecuritySolutions": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Network/webApplicationFirewallPolicies": {
+    "version": "2018-08-01"
+  }, 
+  "Microsoft.DBforMySQL/checkNameAvailability": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.MixedReality/locations/checkNameAvailability": {
+    "version": "2019-12-02-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/customers/initiateTransfer": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Cdn/profiles": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.Network/azureFirewalls": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ClassicStorage/publicImages": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Sql/locations/deletedServerAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.RecoveryServices/locations/backupPreValidateProtection": {
+    "version": "2017-07-01"
+  }, 
+  "Microsoft.Subscription/cancel": {
+    "version": "2019-03-01-preview"
+  }, 
+  "Microsoft.DevOps/pipelines": {
+    "version": "2019-07-01-preview"
+  }, 
+  "Microsoft.CostManagement/ExternalBillingAccounts/Dimensions": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Sql/servers/usages": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/transactions": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.HanaOnAzure/locations/operations": {
+    "version": "2017-11-03-preview"
+  }, 
+  "Microsoft.DBforPostgreSQL/servers/topQueryStatistics": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Consumption/events": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/recommendedActionSessionsOperationResults": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Management/getEntities": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/tableServices": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Sql/servers/databases/auditingPolicies": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Network/privateLinkServices": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ClassicCompute/domainNames/serviceCertificates": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.ContainerInstance/locations/cachedImages": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.OperationalInsights/linkTargets": {
+    "version": "2015-03-20"
+  }, 
+  "Microsoft.Kusto/clusters/databases/dataconnections": {
+    "version": "2019-09-07"
+  }, 
+  "Microsoft.IoTCentral/IoTApps": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/transactions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.SoftwarePlan/operations": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.Consumption/CostTags": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Network/bastionHosts": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ServiceFabric/locations/environments": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.Network/applicationGatewayAvailableResponseHeaders": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Sql/servers/restorableDroppedDatabases": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.StorageSync/storageSyncServices/workflows": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Network/bgpServiceCommunities": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.DataShare/accounts/shares": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.DBforMariaDB/servers/topQueryStatistics": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Sql/locations/syncAgentOperationResults": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Sql/servers/advisors": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.ServiceFabricMesh/locations/volumeOperations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.DomainRegistration/domains/domainOwnershipIdentifiers": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/privateEndpointConnectionProxyAzureAsyncOperation": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Security/locations/topologies": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.PowerBI/workspaceCollections": {
+    "version": "2016-01-29"
+  }, 
+  "Microsoft.Billing/operationStatus": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.DomainRegistration/domains": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.SignalRService/SignalR": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.CostManagement/Alerts": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/runs/listLogSasUrl": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.EventGrid/eventSubscriptions": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.EventHub/namespaces/authorizationrules": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Billing/billingRoleDefinitions": {
+    "version": "2018-11-01-preview"
+  }, 
+  "microsoft.insights/vmInsightsOnboardingStatuses": {
+    "version": "2018-11-27-preview"
+  }, 
+  "Microsoft.Authorization/policyAssignments": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Network/applicationSecurityGroups": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.HDInsight/operations": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Sql/locations/failoverGroupAzureAsyncOperation": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.ClassicNetwork/virtualNetworks/virtualNetworkPeerings": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Sql/managedInstances/databases": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Scheduler/operationResults": {
+    "version": "2016-03-01"
+  }, 
+  "Microsoft.Sql/locations/virtualNetworkRulesAzureAsyncOperation": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Security/securityContacts": {
+    "version": "2017-08-01-preview"
+  }, 
+  "Microsoft.Sql/locations/managedDatabaseOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.StorSimple/operations": {
+    "version": "2016-10-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/servers/queryTexts": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.DataCatalog/operations": {
+    "version": "2018-12-01-preview"
+  }, 
+  "Microsoft.DBforPostgreSQL/servers/privateEndpointConnectionProxies": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Web/certificates": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Network/dnszones/MX": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Sql/managedInstances/metricDefinitions": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.HDInsight/clusters/applications": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Network/privateDnsZones/TXT": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.Network/privateDnsZones": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.Web/locations/managedApis": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.ClassicCompute/domainNames": {
+    "version": "2018-06-01"
+  }, 
+  "Microsoft.DocumentDB/databaseAccountNames": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.Network/vpnSites": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Authorization/roleAssignments": {
+    "version": "2019-04-01-preview"
+  }, 
+  "Microsoft.VMwareCloudSimple/locations/availabilities": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Consumption/ReservationTransactions": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Sql/locations/instanceFailoverGroupOperationResults": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/transactions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Compute/virtualMachines": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Compute/disks": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/administratorOperationResults": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.Resources/operations": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.Billing/createBillingRoleAssignment": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.MachineLearningServices/workspaces/eventGridFilters": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/builds/getLogLink": {
+    "version": "2018-02-01-preview"
+  }, 
+  "Microsoft.Sql/managedInstances": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Media/mediaservices/transforms/jobs": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.ProviderHub/rollouts": {
+    "version": "2019-02-01-preview"
+  }, 
+  "Microsoft.AAD/operations": {
+    "version": "2017-06-01"
+  }, 
+  "Microsoft.EventGrid/operations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/customers/transactions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Token/stores/accessPolicies": {
+    "version": "2018-08-01-preview"
+  }, 
+  "Microsoft.Kusto/locations/checkNameAvailability": {
+    "version": "2019-09-07"
+  }, 
+  "Microsoft.Network/networkWatchers/lenses": {
+    "version": "2019-09-01"
+  }, 
+  "Pokitdok.Platform/operations": {
+    "version": "2016-05-17"
+  }, 
+  "Microsoft.CostManagement/ExternalSubscriptions/Dimensions": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Databricks/locations/operationstatuses": {
+    "version": "2018-04-01"
+  }, 
+  "Microsoft.Network/serviceEndpointPolicies": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Resources/operationresults": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/products": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.ContainerRegistry/registries/regenerateCredentials": {
+    "version": "2016-06-27-preview"
+  }, 
+  "Microsoft.Commerce/UsageAggregates": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.ImportExport/locations": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.ClassicCompute/domainNames/internalLoadBalancers": {
+    "version": "2017-11-01"
+  }, 
+  "Microsoft.Consumption/AggregatedCost": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/products/updateAutoRenew": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Network/networkWatchers/pingMeshes": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.BingMaps/operations": {
+    "version": "2016-08-18"
+  }, 
+  "Microsoft.Sql/servers/communicationLinks": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Capacity/catalogs": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Advisor/operations": {
+    "version": "2017-04-19"
+  }, 
+  "Microsoft.ContainerRegistry/registries/listBuildSourceUploadUrl": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.Compute/galleries/images/versions": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Automation/automationAccounts/runbooks": {
+    "version": "2018-06-30"
+  }, 
+  "Microsoft.DataLakeStore/accounts/firewallRules": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Consumption/Budgets": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/customers": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.EnterpriseKnowledgeGraph/operations": {
+    "version": "2018-12-03"
+  }, 
+  "Microsoft.CostManagementExports/Operations": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.ADHybridHealthService/addsservices": {
+    "version": "2014-01-01"
+  }, 
+  "Microsoft.AppPlatform/operations": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.ContainerRegistry/registries/regenerateCredential": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ContainerRegistry/checkNameAvailability": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Commerce/RateCard": {
+    "version": "2016-08-31-preview"
+  }, 
+  "Microsoft.ServiceBus/premiumMessagingRegions": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Network/secureGateways": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Web/connections": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.MachineLearningServices/locations/updatequotas": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Sql/servers/disasterRecoveryConfiguration": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.ServiceFabric/clusters/applications": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.HardwareSecurityModules/locations": {
+    "version": "2018-10-31-preview"
+  }, 
+  "Microsoft.ClassicNetwork/gatewaySupportedDevices": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Billing/transfers/operationStatus": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Pokitdok.Platform/listCommunicationPreference": {
+    "version": "2016-05-17"
+  }, 
+  "Microsoft.Automation/automationAccounts/webhooks": {
+    "version": "2018-06-30"
+  }, 
+  "Microsoft.Storage/locations/checkNameAvailability": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Capacity/reservationOrders/swap": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Attestation/attestationProviders": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoices": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Network/operations": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Sql/locations/longTermRetentionPolicyAzureAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.RecoveryServices/locations/checkNameAvailability": {
+    "version": "2018-01-10"
+  }, 
+  "Microsoft.DataMigration/locations/operationResults": {
+    "version": "2018-07-15-preview"
+  }, 
+  "Microsoft.ServiceBus/namespaces/topics/authorizationrules": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Network/trafficManagerUserMetricsKeys": {
+    "version": "2018-08-01"
+  }, 
+  "Microsoft.DBforMySQL/locations/administratorAzureAsyncOperation": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.AAD/locations": {
+    "version": "2017-06-01"
+  }, 
+  "Microsoft.EventHub/sku": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Sql/servers/administratorOperationResults": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Features/providers": {
+    "version": "2015-12-01"
+  }, 
+  "Microsoft.Web/locations/apiOperations": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/VulnerabilityAssessmentScans": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.DataShare/locations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Network/dnszones/NS": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/servers/virtualNetworkRules": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.SignalRService/locations": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.Consumption/UsageDetails": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.DataShare/operations": {
+    "version": "2019-11-01"
+  }, 
+  "Microsoft.Sql/locations/databaseRestoreAzureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.EventGrid/locations/operationResults": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Network/locations/operations": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.AnalysisServices/locations/checkNameAvailability": {
+    "version": "2017-08-01-beta"
+  }, 
+  "Microsoft.BotService/botServices": {
+    "version": "2018-07-12"
+  }, 
+  "Microsoft.LabServices/locations/operations": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Security/policies": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Sql/locations/dnsAliasOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Blockchain/locations/checkNameAvailability": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Network/dnszones/CNAME": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Sql/locations/instanceFailoverGroupAzureAsyncOperation": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/privateEndpointConnectionProxyOperationResults": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Marketplace/publishers/offers/amendments": {
+    "version": "2019-06-30-preview"
+  }, 
+  "Microsoft.ADHybridHealthService/configuration": {
+    "version": "2014-01-01"
+  }, 
+  "Microsoft.SerialConsole/locations": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.VirtualMachineImages/operations": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/VulnerabilityAssessmentSettings": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.KeyVault/vaults/accessPolicies": {
+    "version": "2018-02-14-preview"
+  }, 
+  "Microsoft.Sql/locations/serverOperationResults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.BingMaps/listCommunicationPreference": {
+    "version": "2016-08-18"
+  }, 
+  "Microsoft.ServiceFabricMesh/secrets": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.DBforMariaDB/locations/azureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Cdn/operationresults/profileresults/endpointresults/customdomainresults": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.DataShare/locations/rejectInvitation": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Compute/virtualMachineScaleSets/virtualMachines/networkInterfaces": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Resources/deployments/operations": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ServiceBus/namespaces/topics/subscriptions": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.DevSpaces/locations": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/buildTasks": {
+    "version": "2018-02-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/billingPermissions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Network/locations/serviceTags": {
+    "version": "2019-09-01"
+  }, 
+  "Sendgrid.Email/operations": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.Hydra/operations": {
+    "version": "2019-08-01-privatepreview"
+  }, 
+  "Microsoft.Sql/locations/serverKeyOperationResults": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/billingPermissions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.DBforMariaDB/locations/privateEndpointConnectionProxyAzureAsyncOperation": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Security/pricings": {
+    "version": "2018-06-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/servers/advisors": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.ClassicCompute/virtualMachines/diagnosticSettings": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.DBforMariaDB/servers/virtualNetworkRules": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.ContainerRegistry/registries/tasks/listDetails": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.ClassicCompute/operations": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.BatchAI/operations": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.ClassicSubscription/operations": {
+    "version": "2017-09-01"
+  }, 
+  "Microsoft.Management/resources": {
+    "version": "2017-11-01-preview"
+  }, 
+  "Microsoft.GuestConfiguration/operations": {
+    "version": "2018-11-20"
+  }, 
+  "Microsoft.AnalysisServices/locations": {
+    "version": "2017-08-01-beta"
+  }, 
+  "Microsoft.EnterpriseKnowledgeGraph/services": {
+    "version": "2018-12-03"
+  }, 
+  "Microsoft.EventHub/clusters": {
+    "version": "2018-01-01-preview"
+  }, 
+  "Microsoft.Consumption/OperationResults": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.ADHybridHealthService/anonymousapiusers": {
+    "version": "2014-01-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/scheduleRun": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.Billing/operationResults": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Network/checkTrafficManagerNameAvailability": {
+    "version": "2018-08-01"
+  }, 
+  "Microsoft.MachineLearningServices/locations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.DomainRegistration/listDomainRecommendations": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.MarketplaceApps/updateCommunicationPreference": {
+    "version": "2017-11-01"
+  }, 
+  "Microsoft.Security/iotSecuritySolutions/analyticsModels/aggregatedAlerts": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.WorkloadMonitor/notificationSettings": {
+    "version": "2018-08-31-preview"
+  }, 
+  "Microsoft.DataLakeStore/accounts/eventGridFilters": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Web/deploymentLocations": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.DeploymentManager/operationResults": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.PowerBI/locations": {
+    "version": "2016-01-29"
+  }, 
+  "Microsoft.Capacity/validateReservationOrder": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Consumption/ReservationRecommendations": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/listUsages": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Compute/locations/vsmoperations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Consumption/Charges": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.ContainerRegistry/operations": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Web/hostingEnvironments/workerPools": {
+    "version": "2019-02-01"
+  }, 
+  "Microsoft.Compute/hostGroups": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Services/providerRegistrations": {
+    "version": "2019-02-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/initiateTransfer": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Capacity/commercialReservationOrders": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Consumption/lots": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Network/trafficManagerGeographicHierarchies": {
+    "version": "2018-08-01"
+  }, 
+  "microsoft.support/operations": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.AlertsManagement/operations": {
+    "version": "2018-05-05-preview"
+  }, 
+  "Microsoft.SqlVirtualMachine/operations": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Peering/operations": {
+    "version": "2019-09-01-preview"
+  }, 
+  "Microsoft.RecoveryServices/locations": {
+    "version": "2017-07-01"
+  }, 
+  "Paraleap.CloudMonix/services": {
+    "version": "2016-08-10"
+  }, 
+  "Microsoft.DevTestLab/labs/serviceRunners": {
+    "version": "2018-10-15-preview"
+  }, 
+  "Microsoft.Sql/servers/auditingSettings": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.MachineLearning/locations/operations": {
+    "version": "2017-01-01"
+  }, 
+  "Microsoft.Network/locations": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Management/operationResults": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.Relay/namespaces/hybridconnections/authorizationrules": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.IoTCentral/operations": {
+    "version": "2018-09-01"
+  }, 
+  "Sparkpost.Basic/listCommunicationPreference": {
+    "version": "2016-08-01"
+  }, 
+  "Microsoft.CognitiveServices/checkDomainAvailability": {
+    "version": "2017-04-18"
+  }, 
+  "Microsoft.DataLakeAnalytics/locations/checkNameAvailability": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Capacity/appliedReservations": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Media/mediaservices/transforms": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.DataLakeAnalytics/accounts/storageAccounts": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DocumentDB/locations/deleteVirtualNetworkOrSubnets": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.ProviderHub/providerRegistrations/resourceTypeRegistrations": {
+    "version": "2019-02-01-preview"
+  }, 
+  "Microsoft.StorageSync/storageSyncServices/syncGroups/cloudEndpoints": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.DataLakeAnalytics/locations": {
+    "version": "2016-11-01"
+  }, 
+  "Pokitdok.Platform/updateCommunicationPreference": {
+    "version": "2016-05-17"
+  }, 
+  "Microsoft.Network/locations/usages": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Automation/automationAccounts/softwareUpdateConfigurations": {
+    "version": "2018-06-30"
+  }, 
+  "Microsoft.EnterpriseKnowledgeGraph/locations": {
+    "version": "2018-12-03"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.DataFactory/factories": {
+    "version": "2018-06-01"
+  }, 
+  "microsoft.support/services/problemclassifications": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.Sql/managedInstances/recoverableDatabases": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Batch/batchAccounts": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.BotService/botServices/channels": {
+    "version": "2018-07-12"
+  }, 
+  "Microsoft.Compute/virtualMachines/extensions": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.DomainRegistration/validateDomainRegistrationInformation": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/azureAsyncOperation": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.Subscription/SubscriptionDefinitions": {
+    "version": "2017-11-01-preview"
+  }, 
+  "Microsoft.PolicyInsights/policyEvents": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.Network/locations/setResourceOwnership": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Web/locations/listWsdlInterfaces": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.Sql/locations/tdeCertAzureAsyncOperation": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Sql/locations/managedServerSecurityAlertPoliciesAzureAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "microsoft.insights/components/pricingPlans": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.KeyVault/checkNameAvailability": {
+    "version": "2018-02-14-preview"
+  }, 
+  "Microsoft.Sql/locations/managedDatabaseRestoreOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.CostManagement/ExternalBillingAccounts/Forecast": {
+    "version": "2019-10-01"
+  }, 
+  "stackify.retrace/operations": {
+    "version": "2016-01-01"
+  }, 
+  "Microsoft.ClassicCompute/domainNames/slots/roles/metrics": {
+    "version": "2014-04-01"
+  }, 
+  "LiveArena.Broadcast/updateCommunicationPreference": {
+    "version": "2016-06-15"
+  }, 
+  "Microsoft.Billing/billingAccounts/createBillingRoleAssignment": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Sql/locations/databaseOperationResults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.AlertsManagement/alerts": {
+    "version": "2019-05-05-preview"
+  }, 
+  "Microsoft.RecoveryServices/locations/allocateStamp": {
+    "version": "2016-06-01"
+  }, 
+  "Microsoft.Cache/RedisConfigDefinition": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.SaaS/checkModernEligibility": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.DataCatalog/locations/jobs": {
+    "version": "2016-03-30"
+  }, 
+  "Microsoft.AlertsManagement/smartDetectorAlertRules": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.DBforMariaDB/locations/performanceTiers": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.DBforMySQL/locations/recommendedActionSessionsAzureAsyncOperation": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.DBforMySQL/servers/queryTexts": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.NotificationHubs/checkNamespaceAvailability": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.ClassicNetwork/virtualNetworks/remoteVirtualNetworkPeeringProxies": {
+    "version": "2016-11-01"
+  }, 
+  "stackify.retrace/listCommunicationPreference": {
+    "version": "2016-01-01"
+  }, 
+  "Microsoft.Advisor/suppressions": {
+    "version": "2017-04-19"
+  }, 
+  "Microsoft.ClassicCompute/domainNames/capabilities": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.GuestConfiguration/softwareUpdates": {
+    "version": "2018-06-30-preview"
+  }, 
+  "Microsoft.Network/networkWatchers": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Sql/locations/administratorOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Authorization/checkAccess": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Compute/virtualMachineScaleSets/networkInterfaces": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Web/serverFarms": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Compute/locations/logAnalytics": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.DataShare/locations/operationResults": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Web/connectionGateways": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.Network/applicationGateways": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ServiceFabricMesh/locations/networkOperations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.DBforMySQL/servers/waitStatistics": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "microsoft.insights/locations/operationResults": {
+    "version": "2015-04-01"
+  }, 
+  "Microsoft.ApiManagement/operations": {
+    "version": "2019-01-01"
+  }, 
+  "microsoft.insights/metricDefinitions": {
+    "version": "2018-01-01"
+  }, 
+  "Microsoft.Marketplace/operations": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.DBforMariaDB/locations/privateEndpointConnectionAzureAsyncOperation": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.DataMigration/services": {
+    "version": "2018-07-15-preview"
+  }, 
+  "Microsoft.Advisor/generateRecommendations": {
+    "version": "2017-04-19"
+  }, 
+  "microsoft.insights/rollbackToLegacyPricingModel": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.OperationsManagement/solutions": {
+    "version": "2015-11-01-preview"
+  }, 
+  "Microsoft.Network/locations/availableServiceAliases": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Authorization/elevateAccess": {
+    "version": "2017-05-01"
+  }, 
+  "Microsoft.Batch/operations": {
+    "version": "2019-08-01"
+  }, 
+  "microsoft.insights/metricbaselines": {
+    "version": "2019-03-01"
+  }, 
+  "Microsoft.DataCatalog/locations": {
+    "version": "2016-03-30"
+  }, 
+  "Microsoft.Billing/validateAddress": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.ContainerRegistry/locations/deleteVirtualNetworkOrSubnets": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Portal/dashboards": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.ContainerService/containerServices": {
+    "version": "2017-07-01"
+  }, 
+  "Microsoft.HDInsight/locations/billingSpecs": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Services/rollouts": {
+    "version": "2019-02-01-preview"
+  }, 
+  "Microsoft.Network/privateDnsOperationStatuses": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.Blueprint/blueprintAssignments/operations": {
+    "version": "2017-11-11-preview"
+  }, 
+  "Microsoft.Sql/servers/administrators": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Security/iotSecuritySolutions": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.ResourceGraph/resourceChangeDetails": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Authorization/permissions": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.Compute/virtualMachineScaleSets/publicIPAddresses": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.NetApp/operations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Cdn/operations": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.Compute/images": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.CostManagement/ExternalBillingAccounts/Query": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/checkNameAvailability": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.CostManagement/Budgets": {
+    "version": "2019-10-01"
+  }, 
+  "microsoft.insights/migrateToNewPricingModel": {
+    "version": "2017-10-01"
+  }, 
+  "84codes.CloudAMQP/operations": {
+    "version": "2016-08-01"
+  }, 
+  "Microsoft.Search/operations": {
+    "version": "2015-08-19"
+  }, 
+  "Microsoft.ServiceBus/operations": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Marketplace/listAvailableOffers": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.DataBox/locations/validateInputs": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Network/dnsOperationStatuses": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Resources/subscriptions/resourcegroups/resources": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.EnterpriseKnowledgeGraph/locations/operationResults": {
+    "version": "2018-12-03"
+  }, 
+  "Microsoft.Blueprint/operations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.DataBox/locations/validateAddress": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Portal/locations/userSettings": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.EventGrid/locations/eventSubscriptions": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Network/privateDnsZones/CNAME": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.ManagedIdentity/userAssignedIdentities": {
+    "version": "2018-11-30"
+  }, 
+  "Microsoft.Billing/billingAccounts/lineOfCredit": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Automation/operations": {
+    "version": "2018-06-30"
+  }, 
+  "Microsoft.Compute/locations/artifactPublishers": {
+    "version": "2017-10-15-preview"
+  }, 
+  "Microsoft.Relay/namespaces/wcfrelays/authorizationrules": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.DocumentDB/databaseAccounts": {
+    "version": "2019-08-01"
+  }, 
+  "Conexlink.MyCloudIT/accounts": {
+    "version": "2015-06-15"
+  }, 
+  "Microsoft.Security/locations/discoveredSecuritySolutions": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Consumption/credits": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.ServiceBus/namespaces/authorizationrules": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.MixedReality/spatialAnchorsAccounts": {
+    "version": "2019-12-02-preview"
+  }, 
+  "Microsoft.Databricks/workspaces/virtualNetworkPeerings": {
+    "version": "2018-04-01"
+  }, 
+  "Microsoft.CostManagement/Query": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Sql/locations/extendedAuditingSettingsOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.ContainerRegistry/locations/operationResults": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Relay/namespaces/hybridconnections": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.SqlVirtualMachine/Locations/OperationTypes": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Sql/locations/managedInstanceKeyAzureAsyncOperation": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/enrollmentAccounts": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.EventHub/checkNamespaceAvailability": {
+    "version": "2015-08-01"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/services/metrics": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.HybridData/operations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.MachineLearningServices/locations/usages": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.DomainRegistration/operations": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.DBforMySQL/servers/topQueryStatistics": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.ADHybridHealthService/services": {
+    "version": "2014-01-01"
+  }, 
+  "Microsoft.Network/internalNotify": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Cdn/operationresults/profileresults/endpointresults": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.DataBoxEdge/operations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.EventHub/operations": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.WorkloadMonitor/components": {
+    "version": "2018-08-31-preview"
+  }, 
+  "Microsoft.DBforMySQL/servers/advisors": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Capacity/resources": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Features/features": {
+    "version": "2015-12-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/transfers": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.DBforMariaDB/locations/securityAlertPoliciesOperationResults": {
+    "version": "2018-06-01"
+  }, 
+  "Microsoft.CertificateRegistration/operations": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.CostManagement/CloudConnectors": {
+    "version": "2019-03-01-preview"
+  }, 
+  "Microsoft.DBforMariaDB/locations/privateEndpointConnectionProxyOperationResults": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.DBforMariaDB/servers/privateEndpointConnections": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.BotService/listAuthServiceProviders": {
+    "version": "2018-07-12"
+  }, 
+  "Microsoft.Network/frontdoorOperationResults": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.Databricks/workspaces": {
+    "version": "2018-04-01"
+  }, 
+  "Microsoft.CostManagement/ExternalSubscriptions": {
+    "version": "2019-03-01-preview"
+  }, 
+  "Microsoft.DBforPostgreSQL/servers": {
+    "version": "2017-12-01-preview"
+  }, 
+  "microsoft.insights/logDefinitions": {
+    "version": "2015-07-01"
+  }, 
+  "Microsoft.Subscription/operations": {
+    "version": "2017-11-01-preview"
+  }, 
+  "Microsoft.Network/locations/supportedVirtualMachineSizes": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.GuestConfiguration/guestConfigurationAssignments": {
+    "version": "2018-11-20"
+  }, 
+  "microsoft.insights/migratealertrules": {
+    "version": "2018-03-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/operationResults": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Cdn/validateProbe": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.DataFactory/factories/integrationRuntimes": {
+    "version": "2018-06-01"
+  }, 
+  "Microsoft.DBforMariaDB/servers/privateEndpointConnectionProxies": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Sql/checkNameAvailability": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Sql/servers/syncAgents": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Security/regulatoryComplianceStandards": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Consumption/Tags": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Storage/checkNameAvailability": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Addons/operationResults": {
+    "version": "2018-03-01"
+  }, 
+  "Raygun.CrashReporting/listCommunicationPreference": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.HDInsight/locations/azureasyncoperations": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Media/mediaservices/assets": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.Storage/storageAccounts": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/billingSubscriptions": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.DeploymentManager/serviceTopologies/services": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Raygun.CrashReporting/updateCommunicationPreference": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.Blockchain/locations/blockchainMemberOperationResults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.OperationalInsights/storageInsightConfigs": {
+    "version": "2014-10-10"
+  }, 
+  "Microsoft.OperationsManagement/managementconfigurations": {
+    "version": "2015-11-01-preview"
+  }, 
+  "Microsoft.Relay/operations": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Network/virtualNetworkGateways": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Management/tenantBackfillStatus": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.Network/networkExperimentProfiles": {
+    "version": "2019-11-01"
+  }, 
+  "Microsoft.Sql/servers/recommendedElasticPools": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Marketplace/publishers/offers": {
+    "version": "2019-06-30-preview"
+  }, 
+  "Microsoft.Relay/namespaces/wcfrelays": {
+    "version": "2017-04-01"
+  }, 
+  "U2uconsult.TheIdentityHub/services": {
+    "version": "2015-06-15"
+  }, 
+  "Microsoft.DataCatalog/checkNameAvailability": {
+    "version": "2018-12-01-preview"
+  }, 
+  "Microsoft.DeploymentManager/artifactSources": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/billingRoleDefinitions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Network/locations/CheckDnsNameAvailability": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ServiceBus/namespaces/queues/authorizationrules": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.DataShare/accounts/shares/datasets": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/transparentDataEncryption": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Compute/proximityPlacementGroups": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Marketplace/offers": {
+    "version": "2018-08-01-beta"
+  }, 
+  "Microsoft.Capacity/reservationOrders/calculateRefund": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.ClassicInfrastructureMigrate/classicInfrastructureResources": {
+    "version": "2015-06-15"
+  }, 
+  "Microsoft.OperationalInsights/clusters": {
+    "version": "2019-08-01-preview"
+  }, 
+  "Microsoft.ContainerInstance/locations/operations": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.Compute/virtualMachineScaleSets": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Capacity/checkOffers": {
+    "version": "2019-04-01-beta"
+  }, 
+  "microsoft.insights/extendedDiagnosticSettings": {
+    "version": "2017-02-01"
+  }, 
+  "Microsoft.Cache/operations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/buildTasks/listSourceRepositoryProperties": {
+    "version": "2018-02-01-preview"
+  }, 
+  "Microsoft.DataShare/accounts/sharesubscriptions/triggers": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.BatchAI/workspaces/fileservers": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.DBforMariaDB/servers/recoverableServers": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Network/dnszones/recordsets": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/serversv2": {
+    "version": "2018-03-29-privatepreview"
+  }, 
+  "Microsoft.CostManagement/Departments": {
+    "version": "2018-03-31"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/pricesheetDownloadOperations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.KeyVault/operations": {
+    "version": "2018-02-14-preview"
+  }, 
+  "Microsoft.AppConfiguration/checkNameAvailability": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.AlertsManagement/alertsList": {
+    "version": "2018-11-02-privatepreview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/policies": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.MixedReality/operations": {
+    "version": "2019-12-02-preview"
+  }, 
+  "Microsoft.DBforMySQL/locations/securityAlertPoliciesOperationResults": {
+    "version": "2017-12-01"
+  }, 
+  "Microsoft.AlertsManagement/actionRules": {
+    "version": "2019-05-05-preview"
+  }, 
+  "Microsoft.Maps/accounts": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Databricks/locations/getNetworkPolicies": {
+    "version": "2018-04-01"
+  }, 
+  "Microsoft.Media/checknameavailability": {
+    "version": "2015-10-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/eventGridFilters": {
+    "version": "2019-05-01"
+  }, 
+  "Conexlink.MyCloudIT/operations": {
+    "version": "2015-06-15"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/customers": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.ClassicNetwork/operations": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoices/pricesheet": {
+    "version": "2019-10-01-preview"
+  }, 
+  "microsoft.support/operationresults": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/connectionPolicies": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/billingSubscriptions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Storage/storageAccounts/queueServices": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.NotificationHubs/namespaces/notificationHubs": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.DBforMariaDB/servers/advisors": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.WorkloadMonitor/operations": {
+    "version": "2018-08-31-preview"
+  }, 
+  "Microsoft.CustomerLockbox/requests": {
+    "version": "2018-02-28-preview"
+  }, 
+  "Microsoft.Automation/automationAccounts/configurations": {
+    "version": "2018-06-30"
+  }, 
+  "Microsoft.Security/iotSecuritySolutions/analyticsModels": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.Capacity/reservationOrders/merge": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/productTransfersResults": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Compute/locations/publishers": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Media/locations/checkNameAvailability": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Security/locations/allowedConnections": {
+    "version": "2015-06-01-preview"
+  }, 
+  "microsoft.insights/activityLogAlerts": {
+    "version": "2017-04-01"
+  }, 
+  "Myget.PackageManagement/listCommunicationPreference": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/queueBuild": {
+    "version": "2018-02-01-preview"
+  }, 
+  "Microsoft.Storage/storageAccounts/listAccountSas": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Storage/locations/asyncoperations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.MarketplaceOrdering/offertypes": {
+    "version": "2015-06-01"
+  }, 
+  "84codes.CloudAMQP/listCommunicationPreference": {
+    "version": "2016-08-01"
+  }, 
+  "Microsoft.Token/stores/services/tokens": {
+    "version": "2018-08-01-preview"
+  }, 
+  "Microsoft.Web/locations/runtimes": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.SignalRService/locations/checkNameAvailability": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.Network/applicationGatewayAvailableWafRuleSets": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.SqlVirtualMachine/SqlVirtualMachines": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.ContainerRegistry/registries/webhooks/getCallbackConfig": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.SoftwarePlan/hybridUseBenefits": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.Storage/storageAccounts/services": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.ProviderHub/availableAccounts": {
+    "version": "2019-02-01-preview"
+  }, 
+  "Microsoft.DevTestLab/labs/environments": {
+    "version": "2015-05-21-preview"
+  }, 
+  "Microsoft.ServiceBus/locations/deleteVirtualNetworkOrSubnets": {
+    "version": "2018-01-01-preview"
+  }, 
+  "microsoft.insights/logprofiles": {
+    "version": "2016-03-01"
+  }, 
+  "Microsoft.PowerBIDedicated/locations/checkNameAvailability": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/products/transfer": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/metricDefinitions": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.StreamAnalytics/operations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.DataFactory/dataFactorySchema": {
+    "version": "2015-10-01"
+  }, 
+  "Microsoft.EventGrid/topicTypes": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.ClassicStorage/checkStorageAccountAvailability": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DataLakeAnalytics/accounts": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Consumption/Forecasts": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Sql/servers": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.DBforMariaDB/servers/privateLinkResources": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Sql/locations/managedShortTermRetentionPolicyOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Management/checkNameAvailability": {
+    "version": "2018-03-01-preview"
+  }, 
+  "RavenHq.Db/updateCommunicationPreference": {
+    "version": "2016-07-18"
+  }, 
+  "Microsoft.ServiceBus/checkNameAvailability": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Marketplace/publishers": {
+    "version": "2019-06-30-preview"
+  }, 
+  "LiveArena.Broadcast/services": {
+    "version": "2016-06-15"
+  }, 
+  "Microsoft.Billing/billingAccounts/paymentMethods": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Devices/operationResults": {
+    "version": "2019-07-01-preview"
+  }, 
+  "Microsoft.EventGrid/domains/topics": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.ClassicNetwork/networkSecurityGroups": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Capacity/reservationOrders/reservations": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Capacity/operations": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Subscription/enable": {
+    "version": "2019-03-01-preview"
+  }, 
+  "Microsoft.DataLakeStore/operations": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/tasks": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.Billing/billingProperty": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Resources/deployments": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/initiateTransfer": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Capacity/reservations": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Authorization/roleDefinitions": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/services/metricDefinitions": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.Maps/operations": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Billing/billingPeriods": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.VMwareCloudSimple/locations/operationresults": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Network/localNetworkGateways": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/listPolicies": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.Marketplace/offerTypes/publishers/offers": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.SerialConsole/locations/consoleServices": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.HDInsight/locations/usages": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Maps/accounts/eventGridFilters": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Sql/servers/serviceObjectives": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.HanaOnAzure/operations": {
+    "version": "2017-11-03-preview"
+  }, 
+  "Microsoft.Billing/transfers": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Sql/locations/interfaceEndpointProfileOperationResults": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Network/getDnsResourceReference": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.ContainerRegistry/locations/authorize": {
+    "version": "2018-02-01-preview"
+  }, 
+  "Microsoft.ClassicCompute/domainNames/slots/roles/metricDefinitions": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.MachineLearningServices/locations/vmsizes": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.LabServices/locations": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.DevTestLab/labs": {
+    "version": "2018-10-15-preview"
+  }, 
+  "Microsoft.Media/mediaservices/assets/assetFilters": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.Sql/servers/failoverGroups": {
+    "version": "2015-05-01-preview"
+  }, 
+  "microsoft.insights/calculatebaseline": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.KeyVault/locations/deleteVirtualNetworkOrSubnets": {
+    "version": "2018-02-14-preview"
+  }, 
+  "Myget.PackageManagement/services": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.HDInsight/clusters/operationresults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Web/listSitesAssignedToHostName": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.ClassicStorage/osImages": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/administratorAzureAsyncOperation": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.Network/privateDnsZones/MX": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.Sql/servers/elasticpools/metricdefinitions": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.StorageSync/storageSyncServices/syncGroups": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.PolicyInsights/remediations": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.DataLakeStore/accounts": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.AlertsManagement/alertsSummaryList": {
+    "version": "2018-11-02-privatepreview"
+  }, 
+  "Microsoft.ServiceFabric/clusters": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.CostManagement/register": {
+    "version": "2019-03-01-preview"
+  }, 
+  "Microsoft.HanaOnAzure/locations/operationsStatus": {
+    "version": "2017-11-03-preview"
+  }, 
+  "Microsoft.DBforPostgreSQL/locations/securityAlertPoliciesAzureAsyncOperation": {
+    "version": "2017-12-01"
+  }, 
+  "Microsoft.Sql/locations/shortTermRetentionPolicyAzureAsyncOperation": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Sql/servers/importExportOperationResults": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Kusto/locations": {
+    "version": "2019-09-07"
+  }, 
+  "Microsoft.PowerBIDedicated/locations": {
+    "version": "2017-01-01-preview"
+  }, 
+  "Microsoft.MachineLearning/webServices": {
+    "version": "2017-01-01"
+  }, 
+  "Microsoft.Billing/transfers/validateTransfer": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.OffAzure/HyperVSites": {
+    "version": "2019-06-06"
+  }, 
+  "Microsoft.Devices/usages": {
+    "version": "2019-07-01-preview"
+  }, 
+  "Microsoft.Marketplace/offerTypes/publishers/offers/plans": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.Network/networkSecurityGroups": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Sql/servers/virtualNetworkRules": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Scheduler/operations": {
+    "version": "2016-03-01"
+  }, 
+  "Microsoft.ContainerService/locations/operationresults": {
+    "version": "2017-08-31"
+  }, 
+  "Microsoft.Sql/servers/databases/advisors": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.ClassicStorage/osPlatformImages": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.ManagedServices/operations": {
+    "version": "2019-09-01"
+  }, 
+  "microsoft.insights/eventCategories": {
+    "version": "2015-04-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Network/dnszones/SRV": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.ContainerInstance/locations/usages": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.ResourceHealth/notifications": {
+    "version": "2016-09-01"
+  }, 
+  "Microsoft.SqlVirtualMachine/Locations/sqlVirtualMachineGroupOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Sql/locations/serverKeyAzureAsyncOperation": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Kusto/clusters/databases/eventhubconnections": {
+    "version": "2019-09-07"
+  }, 
+  "Microsoft.Web/locations/deletedSites": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.ContainerInstance/operations": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.DBforMySQL/locations/securityAlertPoliciesAzureAsyncOperation": {
+    "version": "2017-12-01"
+  }, 
+  "Microsoft.EventGrid/locations/operationsStatus": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Sql/locations/longTermRetentionBackupAzureAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.SignalRService/locations/operationResults": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.ResourceGraph/resourcesHistory": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Billing/departments": {
+    "version": "2018-06-30"
+  }, 
+  "Microsoft.Security/securityStatuses": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.CustomProviders/resourceProviders": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.ADHybridHealthService/operations": {
+    "version": "2014-01-01"
+  }, 
+  "Microsoft.ServiceFabricMesh/gateways": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Sql/locations/deletedServerOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Sql/locations/privateEndpointConnectionProxyAzureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Batch/locations/accountOperationResults": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.ClassicCompute/capabilities": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DBforMariaDB/locations/recommendedActionSessionsOperationResults": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.ContainerRegistry/registries/updatePolicies": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.Web/locations/extractApiDefinitionFromWsdl": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.Media/operations": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.DataShare/accounts/shares/invitations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Resources/subscriptions/tagnames": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ResourceHealth/events": {
+    "version": "2018-07-01-rc"
+  }, 
+  "Microsoft.ImportExport/jobs": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.EventGrid/locations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.ClassicStorage/capabilities": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.PolicyInsights/policyTrackedResources": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.OperationsManagement/managementassociations": {
+    "version": "2015-11-01-preview"
+  }, 
+  "Microsoft.ImportExport/operations": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.MarketplaceApps/listCommunicationPreference": {
+    "version": "2017-11-01"
+  }, 
+  "Microsoft.CostManagement/Forecast": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Network/trafficmanagerprofiles": {
+    "version": "2018-08-01"
+  }, 
+  "Microsoft.Compute/locations/diskoperations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.PowerBIDedicated/locations/operationstatuses": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.VMwareCloudSimple/operations": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.IoTSpaces/Graph": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Sql/locations/longTermRetentionPolicyOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Sql/servers/keys": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Sql/servers/extendedAuditingSettings": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.OperationsManagement/views": {
+    "version": "2017-08-21-preview"
+  }, 
+  "Microsoft.DBforMySQL/servers/virtualNetworkRules": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.Search/checkServiceNameAvailability": {
+    "version": "2015-02-28"
+  }, 
+  "Microsoft.BotService/operations": {
+    "version": "2018-07-12"
+  }, 
+  "Microsoft.CostManagement/Views": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Security/dataCollectionResults": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/billingSubscriptions": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Marketplace/privategalleryitems": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.VMwareCloudSimple/locations/privateClouds/virtualMachineTemplates": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Portal/operations": {
+    "version": "2015-08-01-preview"
+  }, 
+  "Microsoft.SecurityInsights/alertRuleTemplates": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.DataShare/locations/consumerInvitations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Network/dnszones/all": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Resources/subscriptions/operationresults": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Compute/locations/operations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Media/mediaservices/liveEvents": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.ServiceBus/namespaces/disasterrecoveryconfigs/checkNameAvailability": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Billing/transfers/acceptTransfer": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Capacity/checkPurchaseStatus": {
+    "version": "2019-06-01-privatepreview"
+  }, 
+  "Microsoft.Sql/locations/deletedServers": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.CustomProviders/operations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Web/locations/deleteVirtualNetworkOrSubnets": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Sql/locations/vulnerabilityAssessmentScanOperationResults": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Storage/operations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Web/locations": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/services/diagnosticSettings": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.EventHub/checkNameAvailability": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Network/loadBalancers": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ClassicCompute/quotas": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Sql/servers/securityAlertPolicies": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Sql/locations/dnsAliasAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/listInvoiceSectionsWithCreateSubscriptionPermission": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.SerialConsole/consoleServices": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Batch/locations/quotas": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.EventHub/namespaces/eventhubs": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.EventGrid/locations/topicTypes": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.CognitiveServices/locations/deleteVirtualNetworkOrSubnets": {
+    "version": "2017-04-18"
+  }, 
+  "microsoft.visualstudio/account/extension": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.ClassicStorage/disks": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Media/mediaservices/streamingEndpointOperations": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.LabServices/users": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.ServiceBus/namespaces/disasterrecoveryconfigs": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Security/locations/securitySolutionsReferenceData": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Storage/storageAccounts/blobServices": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.DevTestLab/locations": {
+    "version": "2018-10-15-preview"
+  }, 
+  "Mailjet.Email/operations": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.HardwareSecurityModules/operations": {
+    "version": "2018-10-31-preview"
+  }, 
+  "Microsoft.DevSpaces/controllers/listConnectionDetails": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Sql/servers/databases/syncGroups": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.MarketplaceApps/operations": {
+    "version": "2017-11-01"
+  }, 
+  "Microsoft.Network/locations/operationResults": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Consumption/Marketplaces": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/fileServices": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Subscription/rename": {
+    "version": "2019-03-01-preview"
+  }, 
+  "Microsoft.ResourceGraph/operations": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/billingRoleAssignments": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Network/privateDnsOperationResults": {
+    "version": "2018-09-01"
+  }, 
+  "U2uconsult.TheIdentityHub/listCommunicationPreference": {
+    "version": "2015-06-15"
+  }, 
+  "Microsoft.DBforMariaDB/locations": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Security/tasks": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Logic/operations": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ADHybridHealthService/aadsupportcases": {
+    "version": "2014-01-01"
+  }, 
+  "Microsoft.ClassicStorage/images": {
+    "version": "2016-04-01"
+  }, 
+  "Microsoft.StorageSync/storageSyncServices/registeredServers": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Security/Compliances": {
+    "version": "2017-08-01-preview"
+  }, 
+  "Microsoft.DataLakeAnalytics/locations/capability": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Token/stores": {
+    "version": "2018-08-01-preview"
+  }, 
+  "Microsoft.DevSpaces/locations/operationresults": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.DomainRegistration/generateSsoRequest": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.ClassicStorage/vmImages": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/servers/privateLinkResources": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.DataBox/locations/checkNameAvailability": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.PowerBI/locations/checkNameAvailability": {
+    "version": "2016-01-29"
+  }, 
+  "Microsoft.Sql/locations/databaseAzureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Network/locations/checkAcceleratedNetworkingSupport": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ADHybridHealthService/agents": {
+    "version": "2014-01-01"
+  }, 
+  "Microsoft.DataFactory/locations/getFeatureValue": {
+    "version": "2018-06-01"
+  }, 
+  "Microsoft.DataShare/accounts/shares/providersharesubscriptions": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.DBforMySQL/servers/privateEndpointConnectionProxies": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.DocumentDB/locations/operationsStatus": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.DataCatalog/catalogs": {
+    "version": "2016-03-30"
+  }, 
+  "Microsoft.Sql/servers/dnsAliases": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.StorageSync/locations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.NotificationHubs/namespaces": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Network/publicIPPrefixes": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Network/locations/checkPrivateLinkServiceVisibility": {
+    "version": "2019-09-01"
+  }, 
+  "microsoft.insights/automatedExportSettings": {
+    "version": "2015-04-01"
+  }, 
+  "Microsoft.Resources/subscriptions": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Sql/managedInstances/tdeCertificates": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Web/deletedSites": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/blobServices": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Sql/locations/managedInstanceAzureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Web/sites/slots/networkConfig": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Sql/locations/encryptionProtectorAzureAsyncOperation": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.ClassicStorage/operations": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DataBox/locations": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/builds/cancel": {
+    "version": "2018-02-01-preview"
+  }, 
+  "Microsoft.Capacity/calculatePurchasePrice": {
+    "version": "2019-06-01-privatepreview"
+  }, 
+  "Microsoft.HanaOnAzure/hanaInstances": {
+    "version": "2017-11-03-preview"
+  }, 
+  "Microsoft.KeyVault/deletedVaults": {
+    "version": "2018-02-14-preview"
+  }, 
+  "microsoft.visualstudio/account": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Sql/locations/auditingSettingsOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Sql/locations/securityAlertPoliciesAzureAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.DBforMariaDB/locations/privateEndpointConnectionOperationResults": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.ClassicCompute/virtualMachines/metrics": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.MachineLearning/commitmentPlans": {
+    "version": "2017-01-01"
+  }, 
+  "Microsoft.IoTSpaces/operations": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.OperationalInsights/operations": {
+    "version": "2014-11-10"
+  }, 
+  "Microsoft.Cache/locations/operationResults": {
+    "version": "2019-07-01"
+  }, 
+  "microsoft.visualstudio/account/project": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Web/sites/hostNameBindings": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/customers/policies": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.AzureStack/registrations": {
+    "version": "2017-06-01"
+  }, 
+  "Microsoft.Sql/locations/jobAgentOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.HybridData/dataManagers": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Network/ddosProtectionPlans": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Compute/restorePointCollections": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.StorageSync/operations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.AlertsManagement/smartGroups": {
+    "version": "2019-05-05-preview"
+  }, 
+  "Microsoft.ServiceBus/namespaces/topics": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Relay/namespaces/authorizationrules": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.DataLakeAnalytics/operations": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.ApiManagement/reportFeedback": {
+    "version": "2019-01-01"
+  }, 
+  "Microsoft.DevTestLab/schedules": {
+    "version": "2018-10-15-preview"
+  }, 
+  "Microsoft.CostManagement/BillingAccounts": {
+    "version": "2018-03-31"
+  }, 
+  "Microsoft.CostManagement/ExternalSubscriptions/Alerts": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.CostManagement/Reportconfigs": {
+    "version": "2018-05-31"
+  }, 
+  "Microsoft.DesktopVirtualization/operations": {
+    "version": "2019-01-23-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/automaticTuning": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.DataBox/locations/regionConfiguration": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.ObjectStore/osNamespaces": {
+    "version": "2019-06-01-preview"
+  }, 
+  "microsoft.insights/workbooks": {
+    "version": ""
+  }, 
+  "Microsoft.Cdn/profiles/endpoints": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.WindowsIoT/DeviceServices": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Network/networkInterfaces": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.EventHub/namespaces/networkrulesets": {
+    "version": "2018-01-01-preview"
+  }, 
+  "Microsoft.Sql/locations/managedInstanceTdeCertAzureAsyncOperation": {
+    "version": "2017-10-01-preview"
+  }, 
+  "Microsoft.Network/dnszones/TXT": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/buildTasks/steps/listBuildArguments": {
+    "version": "2018-02-01-preview"
+  }, 
+  "microsoft.visualstudio/checkNameAvailability": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Crypteron.DataSecurity/operations": {
+    "version": "2016-08-12"
+  }, 
+  "Microsoft.EventGrid/extensionTopics": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Migrate/locations/assessmentOptions": {
+    "version": "2018-02-02"
+  }, 
+  "Microsoft.ResourceHealth/operations": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.Sql/locations/capabilities": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Devices/checkNameAvailability": {
+    "version": "2019-07-01-preview"
+  }, 
+  "Microsoft.ContainerInstance/serviceAssociationLinks": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.Marketplace/products": {
+    "version": "2018-08-01-beta"
+  }, 
+  "Microsoft.Hydra/locations": {
+    "version": "2019-08-01-privatepreview"
+  }, 
+  "Microsoft.Web/sites/slots": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.DeploymentManager/serviceTopologies": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.HybridCompute/operations": {
+    "version": "2019-08-02-preview"
+  }, 
+  "Microsoft.Web/locations/connectionGatewayInstallations": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.Resources/subscriptions/resourceGroups": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Network/privateDnsZones/AAAA": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.ApiManagement/checkFeedbackRequired": {
+    "version": "2019-01-01"
+  }, 
+  "Crypteron.DataSecurity/apps": {
+    "version": "2016-08-12"
+  }, 
+  "Microsoft.Portal/userSettings": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.KeyVault/vaults": {
+    "version": "2018-02-14-preview"
+  }, 
+  "Microsoft.OperationsManagement/operations": {
+    "version": "2015-11-01-preview"
+  }, 
+  "Microsoft.PowerBIDedicated/operations": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.CostManagement/Exports": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Security/AutoProvisioningSettings": {
+    "version": "2017-08-01-preview"
+  }, 
+  "Microsoft.Sql/servers/elasticPools/advisors": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.DataFactory/checkDataFactoryNameAvailability": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.DBforMySQL/servers": {
+    "version": "2017-12-01-preview"
+  }, 
+  "microsoft.support/services": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.Network/locations/availablePrivateEndpointTypes": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Network/ddosCustomPolicies": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.VMwareCloudSimple/locations/privateClouds": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Sql/servers/databases/metrics": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Compute/operations": {
+    "version": "2019-07-01"
+  }, 
+  "Sparkpost.Basic/updateCommunicationPreference": {
+    "version": "2016-08-01"
+  }, 
+  "Microsoft.ClassicNetwork/capabilities": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Sql/locations/elasticPoolAzureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Sql/operations": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Security/regulatoryComplianceStandards/regulatoryComplianceControls/regulatoryComplianceAssessments": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.ContainerRegistry/locations": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.Network/dnszones/A": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.AzureActiveDirectory/operations": {
+    "version": "2017-01-30"
+  }, 
+  "Microsoft.Search/resourceHealthMetadata": {
+    "version": "2015-08-19"
+  }, 
+  "Microsoft.DeploymentManager/serviceTopologies/services/serviceUnits": {
+    "version": "2018-09-01-preview"
+  }, 
+  "microsoft.insights/components/query": {
+    "version": "2018-04-20"
+  }, 
+  "Microsoft.ServiceFabricMesh/applications": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/billingSubscriptions/transfer": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.BotService/checkNameAvailability": {
+    "version": "2018-07-12"
+  }, 
+  "Microsoft.DataLakeStore/locations": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.ClassicNetwork/quotas": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DevSpaces/locations/checkContainerHostMapping": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.SecurityInsights/alertRules": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Management/managementGroups": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.HDInsight/clusters": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Management/operations": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.Storage/locations/deleteVirtualNetworkOrSubnets": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.AzureData/operations": {
+    "version": "2019-05-10-preview"
+  }, 
+  "Microsoft.SaaS/applications": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.ContainerRegistry/locations/setupAuth": {
+    "version": "2018-02-01-preview"
+  }, 
+  "Microsoft.Network/dnszones/AAAA": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.StorSimple/managers": {
+    "version": "2017-06-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/webhooks/listEvents": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ServiceFabricMesh/locations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.ServiceBus/checkNamespaceAvailability": {
+    "version": "2015-08-01"
+  }, 
+  "Microsoft.ClassicCompute/operatingSystems": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Compute/galleries": {
+    "version": "2019-07-01"
+  }, 
+  "Raygun.CrashReporting/apps": {
+    "version": "2015-01-01"
+  }, 
+  "Microsoft.DataShare/listinvitations": {
+    "version": "2018-11-01-alpha"
+  }, 
+  "Microsoft.Billing/billingAccounts/invoiceSections/products": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Solutions/applications": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.AzureData/sqlServerRegistrations/sqlServers": {
+    "version": "2019-05-10-preview"
+  }, 
+  "Microsoft.StorageSync/locations/checkNameAvailability": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.RecoveryServices/operations": {
+    "version": "2016-08-10"
+  }, 
+  "Microsoft.DataBox/operations": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.RecoveryServices/locations/backupValidateFeatures": {
+    "version": "2017-07-01"
+  }, 
+  "Microsoft.Advisor/recommendations": {
+    "version": "2017-04-19"
+  }, 
+  "Microsoft.WorkloadMonitor/monitors": {
+    "version": "2018-08-31-preview"
+  }, 
+  "Microsoft.Sql/servers/databases/securityAlertPolicies": {
+    "version": "2018-06-01-preview"
+  }, 
+  "microsoft.support/checkNameAvailability": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.DataLakeStore/locations/capability": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.DataFactory/dataFactories": {
+    "version": "2015-10-01"
+  }, 
+  "Microsoft.Capacity/exchange": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.CertificateRegistration/certificateOrders/certificates": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.Sql/locations/deleteVirtualNetworkOrSubnetsOperationResults": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Sql/locations/privateEndpointConnectionProxyOperationResults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Commerce/operations": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.DBforPostgreSQL/servers/recoverableServers": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.DBforPostgreSQL/serverGroups": {
+    "version": "2018-03-29-privatepreview"
+  }, 
+  "Microsoft.DBforMariaDB/locations/recommendedActionSessionsAzureAsyncOperation": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Billing/billingAccounts/agreements": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.StorageSync/locations/workflows": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.DataBoxEdge/DataBoxEdgeDevices/checkNameAvailability": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.CognitiveServices/locations/checkSkuAvailability": {
+    "version": "2017-04-18"
+  }, 
+  "Microsoft.Sql/servers/databases/topQueries": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.Cdn/operationresults": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.Migrate/locations/checkNameAvailability": {
+    "version": "2018-02-02"
+  }, 
+  "Microsoft.ServiceBus/locations": {
+    "version": "2018-01-01-preview"
+  }, 
+  "Microsoft.Consumption/OperationStatus": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.ServiceBus/namespaces": {
+    "version": "2018-01-01-preview"
+  }, 
+  "Microsoft.Logic/locations": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Network/frontdoors": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.CustomProviders/associations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Cdn/checkResourceUsage": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/billingRoleAssignments": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.Compute/locations/usages": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections/products": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.ManagedIdentity/Identities": {
+    "version": "2018-11-30"
+  }, 
+  "Microsoft.Billing/billingAccounts/customers/products": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.CostManagement/operations": {
+    "version": "2019-01-01"
+  }, 
+  "Microsoft.Network/virtualNetworks": {
+    "version": "2019-09-01"
+  }, 
+  "microsoft.insights/scheduledqueryrules": {
+    "version": "2018-04-16"
+  }, 
+  "Microsoft.ContainerRegistry/registries/buildTasks/steps": {
+    "version": "2018-02-01-preview"
+  }, 
+  "Microsoft.BatchAI/workspaces/clusters": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.ContainerInstance/locations/deleteVirtualNetworkOrSubnets": {
+    "version": "2018-12-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/importImage": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.CostManagement/ExternalSubscriptions/Query": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.MarketplaceOrdering/operations": {
+    "version": "2015-06-01"
+  }, 
+  "Microsoft.Devices/ProvisioningServices": {
+    "version": "2018-01-22"
+  }, 
+  "Microsoft.Search/searchServices": {
+    "version": "2015-08-19"
+  }, 
+  "Microsoft.ContainerService/locations": {
+    "version": "2017-08-31"
+  }, 
+  "Microsoft.Capacity/checkScopes": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.Sql/locations/elasticPoolOperationResults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Logic/integrationServiceEnvironments/managedApis": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Microsoft.Cdn/edgenodes": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.Marketplace/offerTypes": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.DataShare/accounts/shares/synchronizationSettings": {
+    "version": "2018-11-01-preview"
+  }, 
+  "microsoft.insights/actiongroups": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.MarketplaceOrdering/agreements": {
+    "version": "2015-06-01"
+  }, 
+  "Microsoft.Authorization/policyDefinitions": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.DataLakeStore/locations/checkNameAvailability": {
+    "version": "2016-11-01"
+  }, 
+  "microsoft.insights/listMigrationdate": {
+    "version": "2017-10-01"
+  }, 
+  "Conexlink.MyCloudIT/listCommunicationPreference": {
+    "version": "2015-06-15"
+  }, 
+  "Microsoft.ContainerRegistry/registries/builds": {
+    "version": "2018-02-01-preview"
+  }, 
+  "Microsoft.EventGrid/operationsStatus": {
+    "version": "2019-06-01"
+  }, 
+  "microsoft.insights/metricalerts": {
+    "version": "2018-03-01"
+  }, 
+  "Microsoft.CostManagement/ExternalBillingAccounts": {
+    "version": "2019-03-01-preview"
+  }, 
+  "Microsoft.NotificationHubs/operationResults": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts/metrics": {
+    "version": "2014-04-01"
+  }, 
+  "Microsoft.DBforMySQL/servers/privateEndpointConnections": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.SaaS/operationResults": {
+    "version": "2018-03-01-beta"
+  }, 
+  "Microsoft.Sql/servers/databases/dataMaskingPolicies": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.DBforMariaDB/locations/operationResults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.CostManagement/ExternalBillingAccounts/Alerts": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.StorageSync/storageSyncServices": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.SqlVirtualMachine/Locations/sqlVirtualMachineOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.ChangeAnalysis/operations": {
+    "version": "2019-04-01-preview"
+  }, 
+  "Microsoft.Subscription/SubscriptionOperations": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Web/billingMeters": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.PowerBIDedicated/capacities": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.ADHybridHealthService/reports": {
+    "version": "2014-01-01"
+  }, 
+  "Microsoft.EventGrid/operationResults": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Sql/servers/operationResults": {
+    "version": "2014-04-01-preview"
+  }, 
+  "microsoft.insights/myWorkbooks": {
+    "version": ""
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/availableBalance": {
+    "version": "2019-10-01-preview"
+  }, 
+  "84codes.CloudAMQP/updateCommunicationPreference": {
+    "version": "2016-08-01"
+  }, 
+  "Microsoft.RecoveryServices/locations/allocatedStamp": {
+    "version": "2016-06-01"
+  }, 
+  "Microsoft.AnalysisServices/operations": {
+    "version": "2017-08-01-beta"
+  }, 
+  "Microsoft.SecurityInsights/entityQueries": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.CognitiveServices/locations/accountsCreationSettings": {
+    "version": "2016-02-01-preview"
+  }, 
+  "Microsoft.Relay/checkNameAvailability": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Blockchain/blockchainMembers": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.NotificationHubs/checkNameAvailability": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.Cdn/checkNameAvailability": {
+    "version": "2019-04-15"
+  }, 
+  "Microsoft.Sql/servers/automaticTuning": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Sql/locations/longTermRetentionServers": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Web/runtimes": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Capacity/calculatePrice": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.ContainerRegistry/registries/runs/cancel": {
+    "version": "2019-06-01-preview"
+  }, 
+  "Mailjet.Email/updateCommunicationPreference": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.SqlVirtualMachine/Locations/availabilityGroupListenerOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Compute/hostGroups/hosts": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.DBforMySQL/locations/operationResults": {
+    "version": "2017-12-01-preview"
+  }, 
+  "Microsoft.DataShare/accounts/sharesubscriptions": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.LabServices/operations": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.OffAzure/operations": {
+    "version": "2019-06-06"
+  }, 
+  "Microsoft.DataBoxEdge/DataBoxEdgeDevices": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Sql/locations/securityAlertPoliciesOperationResults": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Sql/locations/privateEndpointConnectionOperationResults": {
+    "version": "2018-06-01-preview"
+  }, 
+  "microsoft.insights/webtests": {
+    "version": "2018-05-01-preview"
+  }, 
+  "microsoft.insights/alertrules": {
+    "version": "2016-03-01"
+  }, 
+  "microsoft.support/operationsstatus": {
+    "version": "2019-05-01-preview"
+  }, 
+  "Microsoft.TimeSeriesInsights/environments/eventsources": {
+    "version": "2018-08-15-preview"
+  }, 
+  "Microsoft.Compute/sharedVMImages/versions": {
+    "version": "2017-10-15-preview"
+  }, 
+  "Microsoft.Automation/automationAccounts": {
+    "version": "2018-06-30"
+  }, 
+  "Microsoft.Sql/locations/managedShortTermRetentionPolicyAzureAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Media/mediaservices/accountFilters": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.DataMigration/locations/checkNameAvailability": {
+    "version": "2018-07-15-preview"
+  }, 
+  "Microsoft.BatchAI/workspaces/experiments/jobs": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.Authorization/classicAdministrators": {
+    "version": "2015-06-01"
+  }, 
+  "Microsoft.Sql/servers/elasticPoolEstimates": {
+    "version": "2015-05-01-preview"
+  }, 
+  "Microsoft.Network/expressRouteCircuits": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.DocumentDB/operations": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.ClassicStorage/storageAccounts": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Sql/servers/elasticpools/metrics": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.ManagedServices/registrationDefinitions": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Compute/sharedVMImages": {
+    "version": "2017-10-15-preview"
+  }, 
+  "Microsoft.MachineLearning/Workspaces": {
+    "version": "2016-04-01"
+  }, 
+  "Microsoft.DataFactory/locations/configureFactoryRepo": {
+    "version": "2018-06-01"
+  }, 
+  "Microsoft.Resources/tags": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Network/privateDnsZones/A": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ApiManagement/checkServiceNameAvailability": {
+    "version": "2015-09-15"
+  }, 
+  "Microsoft.Security/complianceResults": {
+    "version": "2017-08-01"
+  }, 
+  "Microsoft.Network/trafficmanagerprofiles/heatMaps": {
+    "version": "2018-08-01"
+  }, 
+  "Microsoft.BingMaps/mapApis": {
+    "version": "2016-08-18"
+  }, 
+  "Microsoft.ApiManagement/service": {
+    "version": "2019-01-01"
+  }, 
+  "Microsoft.SqlVirtualMachine/SqlVirtualMachineGroups/AvailabilityGroupListeners": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Network/networkIntentPolicies": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Billing/enrollmentAccounts": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.Blueprint/blueprintAssignments": {
+    "version": "2018-11-01-preview"
+  }, 
+  "RavenHq.Db/listCommunicationPreference": {
+    "version": "2016-07-18"
+  }, 
+  "Microsoft.Batch/locations": {
+    "version": "2019-08-01"
+  }, 
+  "Microsoft.Billing/billingRoleAssignments": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.Blueprint/blueprints/versions/artifacts": {
+    "version": "2018-11-01-preview"
+  }, 
+  "Microsoft.IoTCentral/appTemplates": {
+    "version": "2018-09-01"
+  }, 
+  "Microsoft.Sql/servers/databases/topQueries/queryText": {
+    "version": "2014-04-01-preview"
+  }, 
+  "Microsoft.ServiceFabric/locations/clusterVersions": {
+    "version": "2019-03-01-privatepreview"
+  }, 
+  "Microsoft.Web/availableStacks": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Storage/locations/usages": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Media/mediaservices/liveOutputOperations": {
+    "version": "2018-07-01"
+  }, 
+  "Microsoft.SqlVirtualMachine/Locations": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.DataMigration/services/projects": {
+    "version": "2018-07-15-preview"
+  }, 
+  "Microsoft.Sql/locations/auditingSettingsAzureAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Mailjet.Email/listCommunicationPreference": {
+    "version": "2017-10-01"
+  }, 
+  "Microsoft.MachineLearningServices/operations": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.Consumption/ReservationDetails": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.OperationalInsights/devices": {
+    "version": "2015-11-01-preview"
+  }, 
+  "Microsoft.Management/startTenantBackfill": {
+    "version": "2018-03-01-preview"
+  }, 
+  "Microsoft.Kusto/clusters": {
+    "version": "2019-09-07"
+  }, 
+  "Microsoft.Sql/locations/extendedAuditingSettingsAzureAsyncOperation": {
+    "version": "2017-03-01-preview"
+  }, 
+  "Microsoft.Security/InformationProtectionPolicies": {
+    "version": "2017-08-01-preview"
+  }, 
+  "stackify.retrace/updateCommunicationPreference": {
+    "version": "2016-01-01"
+  }, 
+  "Microsoft.Network/dnszones": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.SecurityInsights/officeConsents": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.Migrate/assessmentProjects": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Capacity/reservationOrders/availableScopes": {
+    "version": "2019-04-01-beta"
+  }, 
+  "Microsoft.SecurityInsights/operations": {
+    "version": "2019-01-01-preview"
+  }, 
+  "Microsoft.CostManagement/Dimensions": {
+    "version": "2019-10-01"
+  }, 
+  "Microsoft.Security/operations": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.Storage/usages": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.ContainerRegistry/registries/webhooks": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.Compute/locations": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.VMwareCloudSimple/locations/privateClouds/resourcePools": {
+    "version": "2019-04-01"
+  }, 
+  "Microsoft.Kusto/clusters/databases": {
+    "version": "2019-09-07"
+  }, 
+  "Microsoft.Storage/storageAccounts/tableServices": {
+    "version": "2019-06-01"
+  }, 
+  "Microsoft.HealthcareApis/locations": {
+    "version": "2019-09-16"
+  }, 
+  "Microsoft.SignalRService/locations/operationStatuses": {
+    "version": "2018-10-01"
+  }, 
+  "Microsoft.DBforMariaDB/servers/waitStatistics": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.Web/sites": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.ClassicCompute/domainNames/slots/roles": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.CognitiveServices/locations/updateAccountsCreationSettings": {
+    "version": "2017-04-18"
+  }, 
+  "Microsoft.Web/georegions": {
+    "version": "2018-11-01"
+  }, 
+  "Microsoft.Security/locations/securitySolutions": {
+    "version": "2015-06-01-preview"
+  }, 
+  "Microsoft.MarketplaceApps/classicDevServices": {
+    "version": "2017-11-01"
+  }, 
+  "Microsoft.DataMigration/locations": {
+    "version": "2018-07-15-preview"
+  }, 
+  "Microsoft.DevTestLab/labs/virtualMachines": {
+    "version": "2018-10-15-preview"
+  }, 
+  "Microsoft.Security/alerts": {
+    "version": "2019-01-01"
+  }, 
+  "Microsoft.DomainRegistration/topLevelDomains": {
+    "version": "2018-02-01"
+  }, 
+  "Microsoft.Billing/billingAccounts/billingProfiles/createBillingRoleAssignment": {
+    "version": "2019-10-01-preview"
+  }, 
+  "Microsoft.BatchAI/workspaces/experiments": {
+    "version": "2018-05-01"
+  }, 
+  "Microsoft.DBforPostgreSQL/servers/waitStatistics": {
+    "version": "2018-06-01-privatepreview"
+  }, 
+  "Microsoft.DBforMariaDB/checkNameAvailability": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.Network/privateEndpoints": {
+    "version": "2019-09-01"
+  }, 
+  "Microsoft.Blockchain/locations/listConsortiums": {
+    "version": "2018-06-01-preview"
+  }, 
+  "Microsoft.ClassicCompute/operatingSystemFamilies": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Web/customApis": {
+    "version": "2018-07-01-preview"
+  }, 
+  "Microsoft.Compute/snapshots": {
+    "version": "2019-07-01"
+  }, 
+  "Microsoft.Resources/tenants": {
+    "version": "2019-05-01"
+  }, 
+  "Microsoft.ClassicCompute/checkDomainNameAvailability": {
+    "version": "2016-11-01"
+  }, 
+  "Microsoft.Automation/automationAccounts/jobs": {
+    "version": "2018-06-30"
+  }, 
+  "Microsoft.EventHub/namespaces/disasterrecoveryconfigs": {
+    "version": "2017-04-01"
+  }, 
+  "Microsoft.ServiceFabricMesh/locations/gatewayOperations": {
+    "version": "2018-09-01-preview"
+  }, 
+  "Microsoft.Sql/locations/privateEndpointConnectionAzureAsyncOperation": {
+    "version": "2018-06-01-preview"
+  }
 }
