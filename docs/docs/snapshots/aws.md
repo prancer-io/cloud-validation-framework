@@ -17,7 +17,6 @@ To setup an **AWS** snapshot configuration file, copy the following code to a fi
         "snapshots": [
             {
                 "source": "awsConnector",
-                "type": "aws",
                 "testUser": "<iam-user>",
                 "nodes": [
                     {

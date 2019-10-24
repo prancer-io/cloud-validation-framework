@@ -32,6 +32,7 @@ To configure the **AWS** connector, copy the following code to a file named `aws
     {
         "organization": "Organization name",
         "fileType": "structure",
+        "type": "aws",
         "organization-unit": [
             {
                 "name": "Unit/Department name",

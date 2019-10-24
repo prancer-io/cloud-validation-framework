@@ -62,6 +62,7 @@ To configure the `Azure` connector, copy the following code to a file named `azu
     {
         "companyName": "Company Name",
         "tenant_id": "<tenant-id>",
+        "type": "azure",
         "accounts": [
             {
                 "department": "Unit/Department name",

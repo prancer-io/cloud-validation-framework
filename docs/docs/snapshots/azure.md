@@ -13,7 +13,6 @@ To setup an **Azure** snapshot configuration file, copy the following code to a 
         "snapshots": [
             {
                 "source": "azureConnector",
-                "type": "azure",
                 "testUser": "<spn-username>",
                 "subscriptionId": "<subscription-id>",
                 "nodes": [
