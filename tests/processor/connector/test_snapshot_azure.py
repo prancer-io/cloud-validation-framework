@@ -50,7 +50,7 @@ def mock_get_client_secret():
 def test_get_version_for_type():
     from processor.connector.snapshot_azure import get_version_for_type
     assert None == get_version_for_type({})
-    assert '2018-07-01' == get_version_for_type({'type': 'Microsoft.Network/virtualNetworks'})
+    assert '2019-09-01' == get_version_for_type({'type': 'Microsoft.Network/virtualNetworks'})
 
 def test_get_node_happy(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_azure.http_get_request', mock_http_get_request_happy)
