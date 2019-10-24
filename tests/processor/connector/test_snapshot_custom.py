@@ -57,8 +57,7 @@ def mock_get_custom_data_git(snapshot_source):
         "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
         "repoCloneAddress": "/tmp/m",
         "branchName": "master",
-        "username": "abcd",
-        "type" : "git"
+        "username": "abcd"
     } 
 
 
@@ -236,7 +235,6 @@ def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, mo
     testfile = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
     snapshot = {
         "source": testfile,
-        "type": "custom",
         "nodes": [
             {
                 "snapshotId": "3",
@@ -271,7 +269,6 @@ def test_populate_custom_snapshot_exception(create_temp_dir, create_temp_json, m
     testfile = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
     snapshot = {
         "source": testfile,
-        "type": "custom",
         "nodes": [
             {
                 "snapshotId": "3",
@@ -308,7 +305,6 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
     testfile = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
     snapshot = {
         "source": testfile,
-        "type": "custom",
         "nodes": [
             {
                 "snapshotId": "3",

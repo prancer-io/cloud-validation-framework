@@ -64,12 +64,11 @@ def populate_snapshot(snapshot):
     container so as not to clash with other node of a snapshots.
     """
     snapshot_data = {}
-    snapshot_type = get_field_value(snapshot, 'type')
-    if not snapshot_type:
-        snapshot_source = get_field_value(snapshot, "source")
-        connector_data = get_custom_data(snapshot_source)
-        if connector_data:
-            snapshot_type = get_field_value(connector_data, "type")
+    snapshot_type = None
+    snapshot_source = get_field_value(snapshot, "source")
+    connector_data = get_custom_data(snapshot_source)
+    if connector_data:
+        snapshot_type = get_field_value(connector_data, "type")
     if snapshot_type and snapshot_type in snapshot_fns:
         if 'nodes' not in snapshot or not snapshot['nodes']:
             logger.error("No nodes in snapshot to be backed up!...")

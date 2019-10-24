@@ -5,7 +5,6 @@
   "snapshots": [
     {
       "source": "azureStructure",
-      "type": "azure",
       "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
       "subscriptionId": "<Subscription Id>",
       "nodes": [

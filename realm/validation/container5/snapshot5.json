@@ -5,7 +5,6 @@
     "snapshots": [
         {
             "source": "awsStructure",
-            "type": "aws",
             "testUser": "ajeybk",
             "account-id": "<Account Id>",
             "nodes": [
