@@ -3,7 +3,6 @@
     "snapshots": [
         {
             "source": "github_private_username",
-            "type": "git",
             "testUser": "git",
             "nodes": [
                 {

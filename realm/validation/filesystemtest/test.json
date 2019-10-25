@@ -1,0 +1,25 @@
+{
+    "snapshot": "snapshot",
+    "fileType": "test",
+    "testSet": [
+        {
+            "testName ": "Local Test 1",
+            "version": "0.1",
+            "cases": [
+                {
+                    "testId": "1",
+                    "rule":"exist({101}.location)"
+                },
+                {
+                    "testId": "2",
+                    "rule":"{101}.location='eastus'"
+                },
+                {
+                    "testId": "3",
+                    "rule":"{201}.runtime='python27'"
+                }
+            ]
+        }
+    ]
+}
+  

@@ -5,7 +5,6 @@
     "snapshots": [
         {
             "source": "parameterStructure",
-            "type": "git",
             "testUser": "ajey.khanapuri@liquware.com",
             "branchName": "master",
             "nodes": [

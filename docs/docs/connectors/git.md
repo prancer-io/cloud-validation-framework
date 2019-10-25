@@ -27,6 +27,7 @@ To configure the **Git** connector, copy the following code to a file named `git
 
     {
         "fileType": "structure",
+        "type": "filesystem",
         "companyName": "Organization name",
         "gitProvider": "<url-to-repository>",
         "branchName": "<branch>",
@@ -37,6 +38,7 @@ To configure the **Git** connector, copy the following code to a file named `git
 
     {
         "fileType": "structure",
+        "type": "filesystem",
         "companyName": "Organization name",
         "gitProvider": "<url-to-repository>",
         "branchName": "<branch>",
@@ -50,12 +52,23 @@ To configure the **Git** connector, copy the following code to a file named `git
 
     {
         "fileType": "structure",
+        "type": "filesystem",
         "companyName": "Organization name",
         "gitProvider": "<url-to-repository>",
         "branchName": "<branch>",
         "httpsUser": "<username>",
         "httpsPassword": "<password>",
         "private": true
+    }
+
+**Local File System example**
+
+    {
+        "fileType": "structure",
+        "type": "filesystem",
+        "companyName": "Organization name",
+        "folderPath": "<path-to-folder>",
+        "username" : "<username>"
     }
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
@@ -70,6 +83,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | sshHost | Host entry to put in temporary config file, this should be the same as what is in `url-to-repository` |
 | path-to-private-ssh-key-file | Path to the private key file when using a private SSH repository |
 | private | Boolean value stating if the repository is private or public |
+| path-to-folder | Abolsute path to the folder  |
 
 * **Note**: Path expansions are not implemented yet, you need to provide full paths!
 

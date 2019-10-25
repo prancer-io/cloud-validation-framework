@@ -5,7 +5,6 @@
     "snapshots": [
         {
             "source": "azureStructure1",
-            "type": "azure",
             "testUser": "ajey.khanapuri@liquware.com",
             "subscriptionId": "<Subscription Id>".
             "nodes": [

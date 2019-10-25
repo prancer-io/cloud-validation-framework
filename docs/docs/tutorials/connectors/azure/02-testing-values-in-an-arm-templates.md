@@ -132,7 +132,7 @@ Copy the following content to a file named `validation/container1/snapshot.json`
         "snapshots": [
             {
                 "source": "gitConnector",
-                "type": "git",
+                "type": "filesystem",
                 "testUser": "<username to your repository>",
                 "nodes": [
                     {

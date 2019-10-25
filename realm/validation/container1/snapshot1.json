@@ -3,7 +3,6 @@
   "snapshots": [
     {
       "source": "azureStructure1",
-      "type": "azure",
       "testUser": "ajey.khanapuri@liquware.com",
       "subscriptionId": "d34d6141-7a19-4458-b0dd-f038bb7760c1",
       "nodes": [
@@ -25,7 +24,6 @@
     },
     {
       "source": "parameterStructure",
-      "type": "git",
       "testUser": "ajey.khanapuri@liquware.com",
       "branchName": "master",
       "nodes": [

@@ -2,7 +2,6 @@
 
 snapshot = {
     "source": "azureStructure.json",
-    "type": "azure",
     "testUser": "ajeybk1@kbajeygmail.onmicrosoft.com",
     "subscriptionId": "37f11aaf-0b72-44ef-a173-308e990279da",
     "nodes": [

@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 snapshot = {
     "source": "awsStructure.json",
-    "type": "aws",
     "testUser": "kbajey@gmail.com",
     "nodes": [
         {
@@ -17,7 +16,6 @@ snapshot = {
 
 snapshot_with_client = {
     "source": "awsStructure.json",
-    "type": "aws",
     "testUser": "kbajey@gmail.com",
     "nodes": [
         {

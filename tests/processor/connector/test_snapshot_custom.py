@@ -35,6 +35,7 @@ def mock_get_vault_data(client_id):
 def mock_empty_get_vault_data(client_id):
     return None
 
+
 def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{
         "_id": "5c24af787456217c485ad1e6",
@@ -50,6 +51,15 @@ def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10)
         "timestamp": 1545908086831
     }]
 
+def mock_get_custom_data_git(snapshot_source):
+    return {
+        "companyName": "abcd",
+        "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
+        "repoCloneAddress": "/tmp/m",
+        "branchName": "master",
+        "username": "abcd"
+    } 
+
 
 def test_get_node(create_temp_json, create_temp_dir):
     from processor.connector.snapshot_custom import get_node
@@ -58,14 +68,26 @@ def test_get_node(create_temp_json, create_temp_dir):
         'snapshotId': '1',
         'path': "a/b/c"
     }
-    ret = get_node('/tmp', data, 'parameterStructure', 'master')
+    snapshot = {
+        "source": 'parameterStructure',
+        "type": "custom",
+        "nodes": [
+            {
+                "snapshotId": "3",
+                "collection": "Microsoft.Keyvault",
+                "path": "realm/azure/validation/container1/sample-db-record.json"
+            }
+        ]
+    }
+    connector = mock_get_custom_data_git(None)
+    ret = get_node('/tmp', data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert {} == ret['json']
     newpath = create_temp_dir()
     os.makedirs('%s/%s' % (newpath, data['path']))
     fname = create_temp_json('%s/%s' % (newpath, data['path']))
     data['path'] = '%s/%s' % (data['path'], fname)
-    ret = get_node(newpath, data, 'parameterStructure', 'master')
+    ret = get_node(newpath, data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert data_dict == ret['json']
 
@@ -89,19 +111,24 @@ def test_terraform_get_node(create_terraform, create_temp_dir):
         'resourceGroup': "core-terraf-auto-rg",
         'containerName': "states"
     }
-    ret = get_node('/tmp', data, 'terraform', 'master')
+    snapshot = {
+        'source': 'terraform',
+        'type': 'custom'
+    }
+    connector = mock_get_custom_data_git(None)
+    ret = get_node('/tmp', data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert {} == ret['json']
     newpath = create_temp_dir()
     os.makedirs('%s/%s' % (newpath, data['path']))
     fname = create_terraform('%s/%s' % (newpath, data['path']), '\n'.join(terr_data))
     data['path'] = '%s/%s' % (data['path'], fname)
-    ret = get_node(newpath, data, 'terraform', 'master')
+    ret = get_node(newpath, data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert ret['json'] == terr_data_dict
 
     data["type"] = "terraform1"
-    ret = get_node(newpath, data, 'terraform', 'master')
+    ret = get_node(newpath, data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert ret['json'] == {}
 
@@ -208,7 +235,6 @@ def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, mo
     testfile = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
     snapshot = {
         "source": testfile,
-        "type": "custom",
         "nodes": [
             {
                 "snapshotId": "3",
@@ -243,7 +269,6 @@ def test_populate_custom_snapshot_exception(create_temp_dir, create_temp_json, m
     testfile = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
     snapshot = {
         "source": testfile,
-        "type": "custom",
         "nodes": [
             {
                 "snapshotId": "3",
@@ -280,7 +305,6 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
     testfile = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
     snapshot = {
         "source": testfile,
-        "type": "custom",
         "nodes": [
             {
                 "snapshotId": "3",
@@ -296,3 +320,49 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
             RepoMockHelper.return_value.clone_from.return_value = None
             snapshot_data = populate_custom_snapshot(snapshot)
             assert snapshot_data == {'3': False}
+
+def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch):
+    global frameworkdir
+    monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
+    monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
+    from processor.connector.snapshot_custom import populate_custom_snapshot
+    tmpdir = create_temp_dir()
+    frameworkdir = '%s/a/b/c' % tmpdir
+    os.makedirs(frameworkdir)
+    param_structure = {
+        "companyName": "abcd",
+        "folderPath": "/tmp",
+        "username": "abcd",
+        "type" : "filesystem"
+    }
+    test_connector = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
+    test_file = {
+        "parameter_one" : "one"
+    }
+    test_file = create_temp_json('%s' % tmpdir,data=test_file)
+    snapshot = {
+        "source": test_connector,
+        "type": "filesystem",
+        "testUser" : "abcd",
+        "nodes": [
+            {
+                "snapshotId": "5",
+                "collection": "FileSystem",
+                "path": test_file
+            }
+        ]
+    }
+    snapshot1 = {
+        "source": "a2.json",
+        "type": "custom",
+        "nodes": []
+    }
+    with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
+        RepoMockHelper.return_value.clone_from.return_value = None
+        snapshot_data = populate_custom_snapshot(snapshot)
+        assert snapshot_data == {'5': True}
+        snapshot_data = populate_custom_snapshot(snapshot1)
+        assert snapshot_data == {}

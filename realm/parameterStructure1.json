@@ -1,5 +1,6 @@
 {
     "fileType": "structure",
+	"type": "filesystem",
     "companyName": "<Company Name>",
     "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
     "repoCloneAddress":"/tmp/m",

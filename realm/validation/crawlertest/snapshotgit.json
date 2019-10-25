@@ -5,7 +5,6 @@
   "snapshots": [
     {
       "source": "parameterStructure2",
-      "type": "git",
       "testUser": "kbajey@gmail.com",
       "nodes": [
         {

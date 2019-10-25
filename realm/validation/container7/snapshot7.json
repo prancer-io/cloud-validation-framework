@@ -5,7 +5,6 @@
     "snapshots": [
         {
             "source": "googleStructure",
-            "type": "google",
             "testUser": "ajeybk",
             "project-id": "liquproj",
             "nodes": [

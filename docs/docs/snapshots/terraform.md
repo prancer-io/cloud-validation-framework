@@ -47,7 +47,7 @@ To setup a **Terraform** snapshot configuration file, copy the following code to
         "snapshots": [
             {
                 "source": "gitConnector",
-                "type": "git",
+                "type": "filesystem",
                 "testUser": "<user-to-use-on-connector>",
                 "branchName": "<branch-to-use-on-connector>",
                 "nodes": [

@@ -103,6 +103,7 @@ from processor.logging.log_handler import getlogger
 from processor.connector.vault import get_vault_data
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE, get_field_value_with_default
+from processor.helper.yaml.yaml_utils import yaml_from_file
 from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.helper.config.rundata_utils import get_from_currentdata
 from processor.database.database import insert_one_document, sort_field, get_documents,\
@@ -120,6 +121,8 @@ def convert_to_json(file_path, node_type):
     elif node_type == 'terraform':
         with open(file_path, 'r') as fp:
             json_data = hcl.load(fp)
+    elif node_type == 'yaml' or node_type == 'yml':
+        json_data = yaml_from_file(file_path)
     else:
         logger.error("Snapshot error type:%s and file: %s", node_type, file_path)
     return json_data
@@ -148,15 +151,18 @@ def get_custom_data(snapshot_source):
     return sub_data
 
 
-def get_node(repopath, node, snapshot_source, ref):
+def get_node(repopath, node, snapshot, ref, connector):
     """ Fetch node from the cloned git repository."""
     collection = node['collection'] if 'collection' in node else COLLECTION
+    given_type = get_field_value(connector, "type")
+    base_path = get_field_value_with_default(connector, "folderPath", "")
+    snapshot_source = get_field_value(snapshot, 'source')
     parts = snapshot_source.split('.')
     db_record = {
-        "structure": "git",
-        "reference": ref,
+        "structure": given_type,
+        "reference": ref if not base_path else "",
         "source": parts[0],
-        "path": node['path'],
+        "path": base_path + node['path'],
         "timestamp": int(time.time() * 1000),
         "queryuser": "",
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
@@ -182,14 +188,17 @@ def get_node(repopath, node, snapshot_source, ref):
     logger.debug('DB: %s', db_record)
     return db_record
 
-def get_all_nodes(repopath, node, snapshot_source, ref):
+def get_all_nodes(repopath, node, snapshot, ref, connector):
     """ Fetch all the nodes from the cloned git repository in the given path."""
     db_records = []
     collection = node['collection'] if 'collection' in node else COLLECTION
+    given_type = get_field_value(connector, "type")
+    base_path = get_field_value_with_default(connector, "folderPath", "")
+    snapshot_source = get_field_value(snapshot, 'source')
     parts = snapshot_source.split('.')
     d_record = {
-        "structure": "git",
-        "reference": ref,
+        "structure": given_type,
+        "reference": ref if not base_path else "",
         "source": parts[0],
         "path": '',
         "timestamp": int(time.time() * 1000),
@@ -274,7 +283,7 @@ def populate_custom_snapshot_orig(snapshot):
             if repo:
                 for node in snapshot_nodes:
                     logger.debug(node)
-                    data = get_node(repopath, node, snapshot_source, brnch)
+                    data = get_node(repopath, node, snapshot, brnch, sub_data)
                     if data:
                         insert_one_document(data, data['collection'], dbname)
                         snapshot_data[node['snapshotId']] = True
@@ -469,6 +478,35 @@ def git_clone_dir(connector):
     return repopath, clonedir
 
 
+def _local_file_directory(connector, snapshot):
+    final_path, repopath = None, None
+    connector_user = get_field_value(connector, 'username')
+    snapshot_user = get_field_value(snapshot, 'testUser')
+    if snapshot_user == connector_user:
+        folder_path = get_field_value(connector, 'folderPath')
+        logger.info("Folder path: %s", folder_path)
+        if exists_dir(folder_path):
+            final_path = folder_path
+        else:
+            logger.error("Given folder path is not a directory")
+        return repopath, final_path
+    else:
+        logger.error("Connector and snapshot user do not match.")
+        return repopath, final_path 
+
+
+def _get_repo_path(connector, snapshot):
+    if connector and isinstance(connector, dict):
+        git_provider = get_field_value(connector, "gitProvider")
+        folder_path = get_field_value(connector, "folderPath")
+        if git_provider:
+            return git_clone_dir(connector)
+        elif folder_path:
+            return _local_file_directory(connector, snapshot)
+    logger.error("Invalid connector or missing folderPath/gitProvider")
+    return None, None
+
+
 def populate_custom_snapshot(snapshot):
     """ Populates the resources from git."""
     dbname = config_value('MONGODB', 'dbname')
@@ -477,7 +515,7 @@ def populate_custom_snapshot(snapshot):
     snapshot_nodes = get_field_value(snapshot, 'nodes')
     snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and sub_data and snapshot_nodes:
-        baserepo, repopath = git_clone_dir(sub_data)
+        baserepo, repopath = _get_repo_path(sub_data, snapshot)
         if repopath:
             brnch = get_field_value_with_default(sub_data, 'branchName', 'master')
             for node in snapshot_nodes:
@@ -489,7 +527,7 @@ def populate_custom_snapshot(snapshot):
                 validate = node['validate'] if 'validate' in node else True
                 if 'snapshotId' in node:
                     logger.debug(node)
-                    data = get_node(repopath, node, snapshot_source, brnch)
+                    data = get_node(repopath, node, snapshot, brnch, sub_data)
                     if data:
                         if validate:
                             insert_one_document(data, data['collection'], dbname)
@@ -515,7 +553,7 @@ def populate_custom_snapshot(snapshot):
                                     'validate': True
                                 })
                     logger.debug('Type: %s', type(alldata))
-        if os.path.exists(baserepo):
+        if baserepo and os.path.exists(baserepo):
             logger.info('Repo path: %s', baserepo)
             shutil.rmtree(baserepo)
     return snapshot_data
@@ -525,6 +563,7 @@ def main():
     connectors = [
         {
             "fileType": "structure",
+            "type": "filesystem",
             "companyName": "prancer-test",
             "gitProvider": "https://github.com/ajeybk/mytest.git",
             "branchName": "master",
@@ -537,6 +576,7 @@ def main():
         },
         {
             "fileType": "structure",
+            "type": "filesystem",
             "companyName": "prancer-test",
             "gitProvider": "https://github.com/ajeybk/mytest.git",
             "branchName": "master",
@@ -549,6 +589,7 @@ def main():
         },
         {
             "fileType": "structure",
+            "type": "filesystem",
             "companyName": "prancer-test",
             "gitProvider": "https://github.com/ajeybk/mytest.git",
             "branchName": "master",
@@ -561,6 +602,7 @@ def main():
         },
         {
             "fileType": "structure",
+            "type": "filesystem",
             "companyName": "prancer-test",
             "gitProvider": "git@github.com:ajeybk/mytest.git",
             "branchName": "master",
@@ -572,6 +614,7 @@ def main():
         },
         {
             "fileType": "structure",
+            "type": "filesystem",            
             "companyName": "prancer-test",
             "gitProvider": "https://github.com/prancer-io/cloud-validation-framework.git",
             "branchName": "master",
