@@ -85,7 +85,7 @@ pipeline {
             
             causeString: 'PR ($PR_ACTION):$PR_HEAD_REF',
             
-            token: 'prancer-ci-pr',
+            token: 'prancer-github-pr',
             
             printContributedVariables: false,
             printPostContent: false,        
@@ -119,8 +119,7 @@ pipeline {
                         echo "A PR has been merged";
                         currentBuild.displayName = "#${env.BUILD_NUMBER} merge -> ${environmentVariables.PR_BASE_REF}";
                         build job: 'prancer/prancer-release', parameters: [string(name: 'branch', value: prHeadRef)], wait: false;
-                    }
-                    
+                    }                    
                 }
             }
         }
