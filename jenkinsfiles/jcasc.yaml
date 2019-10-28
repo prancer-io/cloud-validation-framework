@@ -1,0 +1,120 @@
+jenkins:
+  agentProtocols:
+  - "JNLP4-connect"
+  - "Ping"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+  disableRememberMe: false
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  numExecutors: 5
+  primaryView:
+    all:
+      name: "all"
+  projectNamingStrategy: "standard"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+      - id: "admin"
+        password: "admin"
+  slaveAgentPort: -1
+  updateCenter:
+    sites:
+    - id: "default"
+      url: "https://updates.jenkins.io/update-center.json"
+  views:
+  - all:
+      name: "all"
+  viewsTabBar: "standard"
+tool:
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
+jobs:
+ - script: >
+     pipelineJob('prancer-test') {
+       parameters {
+         stringParam {
+             name("branch")
+             defaultValue("master")
+             description("")
+             trim(true)
+         }
+       }
+       definition {
+         cpsScm {
+             lightweight(true)
+             scm {
+                 git {
+                     remote {
+                         url("https://github.com/prancer-io/cloud-validation-framework.git")
+                         branch("jenkins_ci")
+                     }
+                 }
+             }
+             scriptPath("jenkinsfiles/JenkinsfileTest.groovy")
+         }
+       }
+     }
+ - script: >
+     pipelineJob('prancer-release') {
+       parameters {
+         stringParam {
+             name("branch")
+             defaultValue("master")
+             description("")
+             trim(true)
+         }
+       }
+       definition {
+         cpsScm {
+             lightweight(true)
+             scm {
+                 git {
+                     remote {
+                         url("https://github.com/prancer-io/cloud-validation-framework.git")
+                         branch("jenkins_ci")
+                     }
+                 }
+             }
+             scriptPath("jenkinsfiles/JenkinsfileDistribution.groovy")
+         }
+       }
+     }
+ - script: >
+     pipelineJob('prancer-webhooks-handler') {
+       parameters {
+         stringParam {
+             name("branch")
+             defaultValue("")
+             description("")
+             trim(true)
+         }
+       }
+       definition {
+         cpsScm {
+             lightweight(true)
+             scm {
+                 git {
+                     remote {
+                         url("https://github.com/prancer-io/cloud-validation-framework.git")
+                         branch("jenkins_ci")
+                     }
+                 }
+             }
+             scriptPath("jenkinsfiles/JenkinsfileWebhook.groovy")
+         }
+       }
+     }     
