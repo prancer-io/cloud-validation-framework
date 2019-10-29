@@ -40,7 +40,7 @@ The development of other providers are in progress.
 ## How to use it
 ### CLI
 To run the crawler process from the CLI, use the following command:
-prancer crawler <name-of-the-container>
+prancer --crawler <name-of-the-container>
 as an example:
 prancer crawler container3
 
@@ -49,7 +49,7 @@ To run the crawler by API call, use the following format:
 
 `curl -U <username>:<password> https://prancertests.info/whitekite/api/crawler/  -d'{"container": "crawlertes"}'`
 
-The curl request shall cause -u operatin to be sent as `{"Authorization":"Bearer <base64(<username>:<password>)>"}`
+The curl request shall cause -u operation to be sent as `{"Authorization":"Bearer <base64(<username>:<password>)>"}`
 
 > To learn more about the API call, review this page.
 
