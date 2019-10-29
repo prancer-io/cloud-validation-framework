@@ -1,9 +1,9 @@
 > Target Platform : Enterprise Edition, Premium Edition
 ## What is crawler?
 **Crawler** is a processor in the prancer validation framework to discover new resources in a target environment. The user can provide a master snapshot configuration file to the crawler processor and based on the type of resources defined in the master snapshot configuration file, the crawler will generate the snapshot configuration files, which are individual resources in the target environment.
-> To learn more about the snapshot, review [this section](snapshots/snapshot-definition.md).
+> To learn more about the snapshot, review [this section](../snapshots/snapshot-definition.md).
 
-![crawler basic](../../../images/crawler-basic.jpg)
+![crawler basic](../images/crawler-basic.jpg)
 
 ## Definitions
 - **Crawler**: a processor in the prancer cloud validation framework to examine a target environment and find new resources.
