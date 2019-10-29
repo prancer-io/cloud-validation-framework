@@ -9,8 +9,8 @@ pipeline {
 
     environment {
         PYTHON_DOCKER_IMAGE = "python:3.6"
-        PIP_CRENDENTIAL_ID = "PIP_CRENDENTIAL_ID"
-        PIP_TEST_CRENDENTIAL_ID = "PIP_TEST_CRENDENTIAL_ID"
+        PIP_CREDENTIAL_ID = "PIP_CREDENTIAL_ID"
+        PIP_TEST_CREDENTIAL_ID = "PIP_TEST_CREDENTIAL_ID"
         DOCKERHUB_CREDENTIAL_ID = "DOCKERHUB_CREDENTIAL_ID"
         DOCKERHUB_IMAGE_NAME = "prancer-basic"
         DOCKERHUB_PUBLIC_REPOSITORY = "https://registry.hub.docker.com/prancer"
@@ -140,6 +140,7 @@ pipeline {
             }
         }
 
+        /*
         stage("Push to test.pypi.org") {
             agent {
                 docker {
@@ -151,7 +152,7 @@ pipeline {
             // Publish artifact in pypi. An account need to be created in this link: https://test.pypi.org/account/register/
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: PIP_TEST_CRENDENTIAL_ID, passwordVariable: 'pipPassword', usernameVariable: 'pipUser')]) {
+                    withCredentials([usernamePassword(credentialsId: PIP_TEST_CREDENTIAL_ID, passwordVariable: 'pipPassword', usernameVariable: 'pipUser')]) {
                         sh "pip install twine"
                         sh "twine --version"
                         sh "cd ${currentDirectory} && " + 
@@ -160,6 +161,7 @@ pipeline {
                 }
             }
         }
+        */
 
         stage("Push to pypi.org") {
             agent {
@@ -173,7 +175,7 @@ pipeline {
             steps {
                 script {
                     // Install Twine to distribute application. Reference: https://packaging.python.org/tutorials/packaging-projects/
-                    withCredentials([usernamePassword(credentialsId: PIP_CRENDENTIAL_ID, passwordVariable: 'pipPassword', usernameVariable: 'pipUser')]) {
+                    withCredentials([usernamePassword(credentialsId: PIP_CREDENTIAL_ID, passwordVariable: 'pipPassword', usernameVariable: 'pipUser')]) {
                         sh "pip install twine"
                         sh "twine --version"
                         sh "cd ${currentDirectory} && " + 
