@@ -10,6 +10,7 @@ pipeline {
     environment {
         PYTHON_DOCKER_IMAGE = "python:3.6"
         PIP_CRENDENTIAL_ID = "PIP_CRENDENTIAL_ID"
+        PIP_TEST_CRENDENTIAL_ID = "PIP_TEST_CRENDENTIAL_ID"
         DOCKERHUB_CREDENTIAL_ID = "DOCKERHUB_CREDENTIAL_ID"
         DOCKERHUB_IMAGE_NAME = "prancer-basic"
         DOCKERHUB_PUBLIC_REPOSITORY = "https://registry.hub.docker.com/prancer"
@@ -139,8 +140,28 @@ pipeline {
             }
         }
 
-        stage("Push to pip") {
+        stage("Push to test.pypi.org") {
+            agent {
+                docker {
+                    image PYTHON_DOCKER_IMAGE
+                    args "-v ${currentDirectory}:${currentDirectory} -u root"
+                }
+            }
 
+            // Publish artifact in pypi. An account need to be created in this link: https://test.pypi.org/account/register/
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: PIP_TEST_CRENDENTIAL_ID, passwordVariable: 'pipPassword', usernameVariable: 'pipUser')]) {
+                        sh "pip install twine"
+                        sh "twine --version"
+                        sh "cd ${currentDirectory} && " + 
+                           "twine upload --repository-url https://test.pypi.org/legacy/ dist/* -u ${pipUser} -p ${pipPassword}";
+                    }                    
+                }
+            }
+        }
+
+        stage("Push to pypi.org") {
             agent {
                 docker {
                     image PYTHON_DOCKER_IMAGE
@@ -156,7 +177,7 @@ pipeline {
                         sh "pip install twine"
                         sh "twine --version"
                         sh "cd ${currentDirectory} && " + 
-                           "twine upload --repository-url https://test.pypi.org/legacy/ dist/* -u ${pipUser} -p ${pipPassword}";
+                           "twine upload dist/* -u ${pipUser} -p ${pipPassword}";
                     }                    
                 }
             }
