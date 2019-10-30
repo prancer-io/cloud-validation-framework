@@ -65,26 +65,6 @@ from processor.helper.config.config_utils import framework_dir, \
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 
-# def parseint(value, default=0):
-#     intvalue = default
-#     try:
-#         intvalue = int(value)
-#     except:
-#         pass
-#     return intvalue
-#
-#
-# def parsebool(val, defval=False):
-#     "Parse boolean from the input value"
-#     retval = defval
-#     if val:
-#         if isinstance(val, str) and val.lower() in ['false', 'true']:
-#             retval = True if val.lower() == 'true' else False
-#         else:
-#             retval = bool(parseint(val))
-#     return retval
-
-
 def console_log(message, cf):
     """Logger like statements only used till logger configuration is read and initialized."""
     filename = getframeinfo(cf).filename
@@ -202,10 +182,6 @@ def validator_main(arg_vals=None, delete_rundata=True):
     args = cmd_parser.parse_args(arg_vals)
 
     logger.debug("Args: %s", args)
-    # # Delete the rundata at the end of the script as per caller, default is True.
-    # if delete_rundata:
-    #     atexit.register(delete_currentdata)
-    # init_currentdata()
     try:
         logger.critical("Using Framework dir: %s", framework_dir())
         if args.db:
