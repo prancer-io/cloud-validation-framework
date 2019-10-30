@@ -188,6 +188,10 @@ def validator_main(arg_vals=None, delete_rundata=True):
             args.db = True if args.db == 'DB' else False
         else:
             args.db = parsebool(config_value(TESTS, DBTESTS), defval=True)
+        if args.db and nodb:
+            logger.error("Nodb and database can not be chosen together, exiting.....")
+            return 2
+
         logger.debug("Running tests from %s", "the database." if args.db else "file system.")
         put_in_currentdata('jsonsource', args.db)
         if not args.db:
