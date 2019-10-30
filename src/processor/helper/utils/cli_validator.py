@@ -60,28 +60,29 @@ import json
 import os
 from inspect import currentframe, getframeinfo
 from processor.helper.config.config_utils import framework_dir, \
-    CFGFILE, get_config_data, config_value, TESTS, DBTESTS, container_exists
+    CFGFILE, get_config_data, config_value, TESTS, DBTESTS, \
+    container_exists, parseint, parsebool
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 
-def parseint(value, default=0):
-    intvalue = default
-    try:
-        intvalue = int(value)
-    except:
-        pass
-    return intvalue
-
-
-def parsebool(val, defval=False):
-    "Parse boolean from the input value"
-    retval = defval
-    if val:
-        if isinstance(val, str) and val.lower() in ['false', 'true']:
-            retval = True if val.lower() == 'true' else False
-        else:
-            retval = bool(parseint(val))
-    return retval
+# def parseint(value, default=0):
+#     intvalue = default
+#     try:
+#         intvalue = int(value)
+#     except:
+#         pass
+#     return intvalue
+#
+#
+# def parsebool(val, defval=False):
+#     "Parse boolean from the input value"
+#     retval = defval
+#     if val:
+#         if isinstance(val, str) and val.lower() in ['false', 'true']:
+#             retval = True if val.lower() == 'true' else False
+#         else:
+#             retval = bool(parseint(val))
+#     return retval
 
 
 def console_log(message, cf):
@@ -151,13 +152,22 @@ def validator_main(arg_vals=None, delete_rundata=True):
     retval = 2
     if search_config_ini():
         return retval
-    # returns the db connection handle and status, handle is ignored.
-    from processor.database.database import init_db, TIMEOUT
-    _, db_init_res = init_db()
-    if not db_init_res:
-        msg = "Mongo DB connection timed out after %d ms, check the mongo server, exiting!....." % TIMEOUT
-        console_log(msg, currentframe())
-        return retval
+    from processor.helper.config.rundata_utils import init_currentdata, \
+        delete_currentdata, put_in_currentdata, get_nodb
+    # Delete the rundata at the end of the script as per caller, default is True.
+    if delete_rundata:
+        atexit.register(delete_currentdata)
+    init_currentdata()
+    # Check if we want to run in NO DATABASE MODE
+    nodb = get_nodb()
+    if not nodb:
+        # returns the db connection handle and status, handle is ignored.
+        from processor.database.database import init_db, TIMEOUT
+        _, db_init_res = init_db()
+        if not db_init_res:
+            msg = "Mongo DB connection timed out after %d ms, check the mongo server, exiting!....." % TIMEOUT
+            console_log(msg, currentframe())
+            return retval
     # Check the log directory and also check if it is writeable.
     from processor.logging.log_handler import getlogger, get_logdir
     log_writeable, logdir = get_logdir(None)
@@ -169,10 +179,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
     logger = getlogger()
     logger.critical("START: Argument parsing and Run Initialization.")
 
-    from processor.helper.config.rundata_utils import init_currentdata, \
-        delete_currentdata, put_in_currentdata
     from processor.connector.snapshot import populate_container_snapshots
-    # from processor.connector.snapshot import populate_container_snapshots, generate_container_snapshots
     from processor.connector.validation import run_container_validation_tests
     try:
         from processor_enterprise.notifications.notification import check_send_notification
@@ -195,10 +202,10 @@ def validator_main(arg_vals=None, delete_rundata=True):
     args = cmd_parser.parse_args(arg_vals)
 
     logger.debug("Args: %s", args)
-    # Delete the rundata at the end of the script as per caller, default is True.
-    if delete_rundata:
-        atexit.register(delete_currentdata)
-    init_currentdata()
+    # # Delete the rundata at the end of the script as per caller, default is True.
+    # if delete_rundata:
+    #     atexit.register(delete_currentdata)
+    # init_currentdata()
     try:
         logger.critical("Using Framework dir: %s", framework_dir())
         if args.db:

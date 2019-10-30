@@ -6,13 +6,23 @@ import datetime
 import json
 import socket
 import os.path
-from processor.helper.config.config_utils import framework_currentdata
+from processor.helper.config.config_utils import config_value, framework_currentdata, TESTS, NODB, parsebool
 from processor.helper.json.json_utils import json_from_file, save_json_to_file
 from processor.logging.log_handler import getlogger, FWLOGFILENAME
 from processor.helper.file.file_utils import remove_file, exists_dir, mkdir_path
 
 exclude_list = ['token', 'clientSecret', 'vaulttoken']
 logger = getlogger()
+
+def get_nodb():
+    currdata = get_currentdata()
+    if NODB in currdata:
+        nodb = currdata[NODB]
+    else:
+        nodb = parsebool(config_value(TESTS, NODB))
+        put_in_currentdata(NODB, nodb)
+    return nodb
+
 
 
 def add_to_exclude_list(key):

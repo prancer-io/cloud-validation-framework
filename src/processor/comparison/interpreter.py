@@ -119,18 +119,18 @@ class Comparator:
     Call the factory method to create the comparator object.
     """
 
-    def __init__(self, version, dbname, collection_data, testcase):
-        self.comparator = self._factory_method(version, dbname, collection_data, testcase)
+    def __init__(self, version, container, dbname, collection_data, testcase):
+        self.comparator = self._factory_method(version, container, dbname, collection_data, testcase)
 
     @staticmethod
-    def _factory_method(version, dbname, collection_data, testcase):
+    def _factory_method(version, container, dbname, collection_data, testcase):
         version_val = version_str(version)
         if version_val == COMPARATOR_V0_1:
-            return ComparatorV01(dbname, collection_data, testcase)
+            return ComparatorV01(container, dbname, collection_data, testcase)
         elif version_val == COMPARATOR_V0_2:
-            return ComparatorV02(dbname, collection_data, testcase)
+            return ComparatorV02(container, dbname, collection_data, testcase)
         else:
-            return ComparatorV01(dbname, collection_data, testcase)
+            return ComparatorV01(container, dbname, collection_data, testcase)
 
     def validate(self):
         return self.comparator.validate()
@@ -139,7 +139,8 @@ class Comparator:
 class ComparatorV01:
     """Override the validate method to return to run comparator"""
 
-    def __init__(self, dbname, collection_data, testcase):
+    def __init__(self, container, dbname, collection_data, testcase):
+        self.container = container
         self.dbname = dbname
         self.collection_data = collection_data
         loperand = get_field_value(testcase, 'attribute')
@@ -218,7 +219,7 @@ class ComparatorV01:
                 children.append((child.getText()))
             logger.info('*' * 50)
             logger.debug("All the parsed tokens: %s", children)
-            otherdata = {'dbname': self.dbname, 'snapshots': self.collection_data}
+            otherdata = {'dbname': self.dbname, 'snapshots': self.collection_data, 'container': self.container}
             r_i = RuleInterpreter(children, **otherdata)
             result = r_i.compare()
             result_val["result"] = "passed" if result else "failed"
@@ -235,8 +236,8 @@ class ComparatorV02(ComparatorV01):
     """
     Override the validate method to run the comparisons
     """
-    def __init__(self, dbname, collection_data, testcase):
-        ComparatorV01.__init__(self, dbname, collection_data, testcase)
+    def __init__(self, container, dbname, collection_data, testcase):
+        ComparatorV01.__init__(self, container, dbname, collection_data, testcase)
 
     def validate(self):
         return ComparatorV01.validate(self)

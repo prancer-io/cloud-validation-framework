@@ -19,9 +19,9 @@ from boto3 import client
 from boto3 import Session
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
-from processor.helper.config.rundata_utils import put_in_currentdata
+from processor.helper.config.rundata_utils import put_in_currentdata, get_nodb
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    collectiontypes, STRUCTURE
+    collectiontypes, STRUCTURE, make_snapshots_dir, store_snapshot
 from processor.connector.vault import get_vault_data
 from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.database.database import insert_one_document, sort_field, get_documents,\
@@ -162,7 +162,7 @@ def get_checksum(data):
         pass
     return checksum
 
-def populate_aws_snapshot(snapshot):
+def populate_aws_snapshot(snapshot, container):
     """
     This is an entrypoint for populating a snapshot of type aws.
     All snapshot connectors should take snapshot object and based on
@@ -232,7 +232,12 @@ def populate_aws_snapshot(snapshot):
                     data = get_node(awsclient, node, snapshot_source)
                     if data:
                         error_str = data.pop('error', None)
-                        insert_one_document(data, data['collection'], dbname)
+                        if get_nodb():
+                            snapshot_dir = make_snapshots_dir(container)
+                            if snapshot_dir:
+                                store_snapshot(snapshot_dir, data)
+                        else:
+                            insert_one_document(data, data['collection'], dbname)
                         snapshot_data[node['snapshotId']] = False if error_str else True
     return snapshot_data
 
