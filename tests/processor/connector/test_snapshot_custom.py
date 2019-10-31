@@ -132,6 +132,46 @@ def test_terraform_get_node(create_terraform, create_temp_dir):
     assert True == isinstance(ret, dict)
     assert ret['json'] == {}
 
+
+def test_terraform_get_node(create_yaml, create_temp_dir):
+    from processor.connector.snapshot_custom import get_node
+    data = {
+        "type": "yaml",
+        'snapshotId': '1',
+        'path': "a/b/c/yaml"
+    }
+    yaml_data = [
+        "runtime: python27",
+        "api_version: 1",
+        "threadsafe: true",
+    ]
+    yaml_data_dict = {
+        'runtime': "python27",
+        'api_version': 1,
+        'threadsafe' : True
+    }
+    snapshot = {
+        'source': 'yaml',
+        'type': 'yaml'
+    }
+    connector = mock_get_custom_data_git(None)
+    ret = get_node('/tmp', data, snapshot, 'master', connector)
+    assert True == isinstance(ret, dict)
+    assert {} == ret['json']
+    newpath = create_temp_dir()
+    os.makedirs('%s/%s' % (newpath, data['path']))
+    fname = create_yaml('%s/%s' % (newpath, data['path']), '\n'.join(yaml_data))
+    data['path'] = '%s/%s' % (data['path'], fname)
+    ret = get_node(newpath, data, snapshot, 'master', connector)
+    assert True == isinstance(ret, dict)
+    assert ret['json'] == yaml_data_dict
+
+    data["type"] = "yaml1"
+    ret = get_node(newpath, data, snapshot, 'master', connector)
+    assert True == isinstance(ret, dict)
+    assert ret['json'] == {}
+
+
 def ignoretest_valid_clone_dir(create_temp_dir):
     from processor.connector.snapshot_custom import valid_clone_dir
     newpath = create_temp_dir()
