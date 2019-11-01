@@ -542,7 +542,7 @@ def populate_custom_snapshot(snapshot):
                         node['status'] = 'inactive'
                     logger.debug('Type: %s', type(data))
                 elif 'masterSnapshotId' in node:
-                    alldata = get_all_nodes(repopath, node, snapshot_source, brnch)
+                    alldata = get_all_nodes(repopath, node, snapshot, brnch, sub_data)
                     if alldata:
                         snapshot_data[node['masterSnapshotId']] = []
                         for data in alldata:
