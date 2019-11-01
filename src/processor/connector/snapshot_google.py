@@ -123,7 +123,7 @@ def get_node(compute, node, snapshot_source):
         "error": None,
         "reference": "",
         "source": parts[0],
-        "path": '',
+        "path": node.get("path", ""),
         "timestamp": int(time.time() * 1000),
         "queryuser": "",
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
