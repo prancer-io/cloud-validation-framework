@@ -445,7 +445,16 @@ def test_get_all_nodes(monkeypatch, create_temp_dir, create_temp_json):
     }
     db_records = populate_custom_snapshot(snapshot)
     assert db_records != []
+    snapshot["nodes"][0]['masterSnapshotId'] = 123
     
+    db_records = populate_custom_snapshot(snapshot)
+    assert db_records == {123: False}
+    
+    
+    del snapshot["nodes"][0]['masterSnapshotId']
+    db_records = populate_custom_snapshot(snapshot)
+    assert db_records != []
+
     from processor.connector.snapshot_custom import get_all_nodes
     newpath = create_temp_dir()
     testfile = create_temp_json(newpath)
