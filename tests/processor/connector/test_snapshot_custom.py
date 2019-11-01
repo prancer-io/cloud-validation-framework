@@ -361,6 +361,15 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
             snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
             assert snapshot_data == {'3': False}
 
+def test_git_clone_dir(monkeypatch):
+    connector = {
+        "gitProvider" : "https://github.com/prancer-io/cloud-validation-framework",
+    }
+    from processor.connector.snapshot_custom import git_clone_dir
+    repopath, clonedir =  git_clone_dir(connector)
+    assert repopath != None
+    assert clonedir != None
+
 def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch):
     global frameworkdir
     monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
