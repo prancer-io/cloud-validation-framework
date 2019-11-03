@@ -1,0 +1,30 @@
+{
+    "name": "as4",
+    "id": "/subscriptions/e43e7132-8b64-xxyy-b32d-f038bbxxyyzz/resourceGroups/rg3/providers/Microsoft.Compute/availabilitySets/as4",
+    "type": "Microsoft.Compute/availabilitySets",
+    "location": "eastus2",
+    "tags": {
+        "PRODUCT_LINE": "Cloud-Team",
+        "PRODUCT_NAME": "Cloud-Infrastructure",
+        "COST_CENTER": "7251",
+        "BUSINESS_OWNER": "Cloud-Team",
+        "ASSET_OWNER": "Cloud-Team",
+        "DATA_CLASSIFICATION": "Not-Applicable",
+        "ENVIRONMENT": "P",
+        "APPLICATION_NAME": "dnsntp",
+        "DR_RECOVERY_PRIORITY": "P1",
+        "RESOURCE_TIER": "Not-Applicable",
+        "MAINTENANCE_WINDOW": "Not-Applicable",
+        "RESOURCE_REQUESTED_BY": "Cloud-Team",
+        "RESOURCE_UPTIME": "24X7",
+        "RESOURCE_CREATED_DATE": "20180809",
+        "RESOURCE_EXPIRATION_DATE": "Never"
+    },
+    "properties": {
+        "platformUpdateDomainCount": 3,
+        "platformFaultDomainCount": 2
+    },
+    "sku": {
+        "name": "Aligned"
+    }
+}

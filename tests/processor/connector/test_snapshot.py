@@ -81,15 +81,15 @@ def test_populate_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.populate_google_snapshot',
                         mock_populate_google_snapshot)
     from processor.connector.snapshot import populate_snapshot
-    assert {} == populate_snapshot({})
-    assert {} == populate_snapshot({'type': 'azure'})
-    assert {} == populate_snapshot({'type': 'azure', 'nodes': [{'a': 'b'}]})
-    assert {} == populate_snapshot({'type': 'git'})
-    assert {} == populate_snapshot({'type': 'git', 'nodes': [{'a': 'b'}]})
-    assert {} == populate_snapshot({'type': 'aws'})
-    assert {} == populate_snapshot({'type': 'aws', 'nodes': [{'a': 'b'}]})
-    assert {} == populate_snapshot({'type': 'google'})
-    assert {} == populate_snapshot({'type': 'google', 'nodes': [{'a': 'b'}]})
+    assert {} == populate_snapshot({}, 'mycontainer1')
+    assert {} == populate_snapshot({'type': 'azure'}, 'mycontainer1')
+    assert {} == populate_snapshot({'type': 'azure', 'nodes': [{'a': 'b'}]}, 'mycontainer1')
+    assert {} == populate_snapshot({'type': 'git'}, 'mycontainer1')
+    assert {} == populate_snapshot({'type': 'git', 'nodes': [{'a': 'b'}]}, 'mycontainer1')
+    assert {} == populate_snapshot({'type': 'aws'}, 'mycontainer1')
+    assert {} == populate_snapshot({'type': 'aws', 'nodes': [{'a': 'b'}]}, 'mycontainer1')
+    assert {} == populate_snapshot({'type': 'google'}, 'mycontainer1')
+    assert {} == populate_snapshot({'type': 'google', 'nodes': [{'a': 'b'}]}, 'mycontainer1')
 
 
 
@@ -99,15 +99,15 @@ def test_populate_snapshots_from_json(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_custom.populate_custom_snapshot',
                         mock_populate_git_snapshot)
     from processor.connector.snapshot import populate_snapshots_from_json
-    assert {} == populate_snapshots_from_json({})
-    assert {} == populate_snapshots_from_json({'snapshots': []})
+    assert {} == populate_snapshots_from_json({}, 'mycontainer1')
+    assert {} == populate_snapshots_from_json({'snapshots': []}, 'mycontainer1')
     testdata = {
         'snapshots': [
             {'type': 'azure', 'nodes': [{'a': 'b'}]},
             {'type': 'git', 'nodes': [{'a': 'b'}]}
         ]
     }
-    assert {} == populate_snapshots_from_json(testdata)
+    assert {} == populate_snapshots_from_json(testdata, 'mycontainer1')
 
 
 def test_populate_snapshots_from_file(monkeypatch, create_temp_dir, create_temp_json):
@@ -116,7 +116,7 @@ def test_populate_snapshots_from_file(monkeypatch, create_temp_dir, create_temp_
     monkeypatch.setattr('processor.connector.snapshot_custom.populate_custom_snapshot',
                         mock_populate_git_snapshot)
     from processor.connector.snapshot import populate_snapshots_from_file
-    assert {} == populate_snapshots_from_file('/tmp/xyza')
+    assert {} == populate_snapshots_from_file('/tmp/xyza', 'mycontainer1')
     newpath = create_temp_dir()
     testdata = {
         'snapshots': [
@@ -125,7 +125,7 @@ def test_populate_snapshots_from_file(monkeypatch, create_temp_dir, create_temp_
         ]
     }
     fname = create_temp_json(newpath, data=testdata)
-    assert {} == populate_snapshots_from_file('%s/%s' % (newpath, fname))
+    assert {} == populate_snapshots_from_file('%s/%s' % (newpath, fname), 'mycontainer1')
 
 
 def test_empty_snapshot_populate_container_snapshots(monkeypatch):

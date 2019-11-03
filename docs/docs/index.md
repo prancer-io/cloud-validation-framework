@@ -6,15 +6,24 @@ Welcome to the **Prancer** documentation!
 
 # Editions of Prancer
 
-The documentation of **Prancer** will give a lot of information regarding our main product which is **Prancer Basic**. **Prancer** comes in 2 different editions which are incremental:
+Prancer cloud validation framework comes in 3 different editions:
 
-* **Basic** edition is the community available tool that allows you to run validations on a continous improvement/continuous delivery system such as Jenkins, Travis, Bamboo and so many more.
-* **Enterprise** edition is the subscription and paid edition that offer additional tools such as a web interface and it allows you to run it on-premise. It simplifies running the system in parrallel mode using a database as a storage engine instead of a filesystem.
+* **Basic edition** is the community edition of the software. It is an open source version of the framework available on github. This feature rich tool allows you to run validations on a continuous improvement/continuous delivery system such as Jenkins, Travis, Bamboo and so many more.
+* **Enterprise edition** is the subscription-based edition that offers additional tools such as API access, notification, crawler, web interface and many more. It allows you to run the framework on-premise. 
+* **Premium edition** is the subscription-based edition software as a service (SaaS) solution of the prancer validation framework. It has all the advanced features of the enterprise edition and it is hosted on the prancer cloud.
 
-Note that the **Enterprise** edition is also available in a **SasS** offering so you do not have to install and maintain it.
+It is assumed that all the documentations in this website is relevant to all editions of the software unless it mentions otherwise. This will be highlighted at the start of the page like this:
+If we target Basic Edition
+> Target Platform : Basic Edition
+
+If we target Enterprise Edition
+> Target Platform : Enterprise Edition
+
+If we target Premium Edition
+> Target Platform : Premium Edition
 
 # Overview of documentation
 
 The first few pages of the documentation is for the general workflow, installation and terminology and then, each section will focus on specific aspects of the framework and each variant that you can use/configure. 
 
-At the end of the sections, you can find a section specific to the **Enterprise** concepts and a few tutorials on how to integrate **Prancer** into your workflow.
+At the end of the sections, you can find a few tutorials on how to integrate **Prancer** into your workflow.

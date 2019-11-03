@@ -221,7 +221,7 @@ def test_populate_aws_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_client)
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
     from processor.connector.snapshot_aws import populate_aws_snapshot
-    val = populate_aws_snapshot(snapshot)
+    val = populate_aws_snapshot(snapshot, 'mycontainer1')
     assert val == {'8': True}
 
 
@@ -233,7 +233,7 @@ def test_exception_populate_aws_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_invalid_client)
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
     from processor.connector.snapshot_aws import populate_aws_snapshot
-    val = populate_aws_snapshot(snapshot)
+    val = populate_aws_snapshot(snapshot, 'mycontainer1')
     assert val == {'8': False}
 
 
@@ -245,7 +245,7 @@ def test_client_acceptance_from_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_client)
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
     from processor.connector.snapshot_aws import populate_aws_snapshot
-    val = populate_aws_snapshot(snapshot_with_client)
+    val = populate_aws_snapshot(snapshot_with_client, 'mycontainer1')
     assert val == {'8': True}
 
 def test_client_acceptance_from_snapshot_negative(monkeypatch):
@@ -256,5 +256,5 @@ def test_client_acceptance_from_snapshot_negative(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_client)
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
     from processor.connector.snapshot_aws import populate_aws_snapshot
-    val = populate_aws_snapshot(snapshot)
+    val = populate_aws_snapshot(snapshot, 'mycontainer1')
     assert val == {'8': False}

@@ -57,7 +57,7 @@ snapshot_fns = {
 }
 
 
-def populate_snapshot(snapshot):
+def populate_snapshot(snapshot, container):
     """
     Every snapshot should have collection of nodes which are to be populated.
     Each node in the nodes list of the snapshot shall have a unique id in this
@@ -73,12 +73,12 @@ def populate_snapshot(snapshot):
         if 'nodes' not in snapshot or not snapshot['nodes']:
             logger.error("No nodes in snapshot to be backed up!...")
             return snapshot_data
-        snapshot_data = snapshot_fns[snapshot_type](snapshot)
+        snapshot_data = snapshot_fns[snapshot_type](snapshot, container)
     logger.info('Snapshot: %s', snapshot_data)
     return snapshot_data
 
 
-def populate_snapshots_from_json(snapshot_json_data):
+def populate_snapshots_from_json(snapshot_json_data, container):
     """
     Get the snapshot and validate list of snapshots in the json.
     The json could be from the database or from a filesystem.
@@ -89,12 +89,12 @@ def populate_snapshots_from_json(snapshot_json_data):
         logger.error("Json Snapshot does not contain snapshots, next!...")
         return snapshot_data
     for snapshot in snapshots:
-        current_data = populate_snapshot(snapshot)
+        current_data = populate_snapshot(snapshot, container)
         snapshot_data.update(current_data)
     return snapshot_data
 
 
-def populate_snapshots_from_file(snapshot_file):
+def populate_snapshots_from_file(snapshot_file, container):
     """
     Each snapshot file from the filesystem is loaded as a json datastructue
      and populate all the nodes in this json datastructure.
@@ -106,7 +106,7 @@ def populate_snapshots_from_file(snapshot_file):
         logger.error("Snapshot file %s looks to be empty, next!...", snapshot_file)
         return {}
     logger.debug(json.dumps(snapshot_json_data, indent=2))
-    snapshot_data = populate_snapshots_from_json(snapshot_json_data)
+    snapshot_data = populate_snapshots_from_json(snapshot_json_data, container)
     save_json_to_file(snapshot_json_data, snapshot_file)
     return snapshot_data
 
@@ -147,7 +147,7 @@ def populate_container_snapshots_filesystem(container):
             # Take the snapshot and populate whether it was successful or not.
             # Then pass it back to the validation tests, so that tests for those
             # snapshots that have been susccessfully fetched shall be executed.
-            snapshot_file_data = populate_snapshots_from_file(snapshot_file)
+            snapshot_file_data = populate_snapshots_from_file(snapshot_file, container)
             populated.append(parts[-1])
             name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
             snapshots_status[name] = snapshot_file_data
@@ -177,7 +177,7 @@ def populate_container_snapshots_database(container):
                     # Take the snapshot and populate whether it was successful or not.
                     # Then pass it back to the validation tests, so that tests for those
                     # snapshots that have been susccessfully fetched shall be executed.
-                    snapshot_file_data = populate_snapshots_from_json(doc['json'])
+                    snapshot_file_data = populate_snapshots_from_json(doc['json'], container)
                     update_one_document(doc, collection, dbname)
                     populated.append(snapshot)
                     snapshots_status[snapshot] = snapshot_file_data

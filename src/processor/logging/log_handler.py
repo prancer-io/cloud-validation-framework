@@ -8,7 +8,7 @@ import os
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 from processor.helper.config.config_utils import framework_dir,\
-    get_config_data, framework_config
+    get_config_data, framework_config, TESTS, NODB, config_value
 
 
 FWLOGGER = None
@@ -127,7 +127,8 @@ def logging_fw(fwconfigfile):
     handler.setLevel(log_config['level'])
     logger.addHandler(handler)
     unittest = os.getenv('UNITTEST', "false")
-    if log_config['db'] and unittest != "true":
+    nodb = config_value(TESTS, NODB, False)
+    if log_config['db'] and unittest != "true" and not nodb:
         dblogformat = '%(asctime)s-%(message)s'
         dbhandler = MongoDBHandler(log_config['dburl'], log_config['db'])
         dbhandler.setFormatter(logging.Formatter(dblogformat))
