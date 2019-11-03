@@ -4,7 +4,7 @@ import json
 import time
 import glob
 from collections import OrderedDict
-from processor.helper.file.file_utils import exists_file
+from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor.helper.config.config_utils import get_test_json_dir
 from processor.logging.log_handler import getlogger
 
@@ -26,6 +26,21 @@ collectiontypes = {
     NOTIFICATIONS: 'NOTIFICATIONS'
 }
 logger = getlogger()
+
+
+def store_snapshot(snapshot_dir, data):
+    if exists_dir(snapshot_dir):
+        snapshot_file = '%s/%s' % (snapshot_dir, data['snapshotId'])
+        save_json_to_file(data, snapshot_file)
+
+
+def make_snapshots_dir(container):
+    snapshot_dir = None
+    json_dir = '%s%s' % (get_test_json_dir(), container)
+    if exists_dir(json_dir):
+        snapshot_dir = '%s/snapshots' % json_dir
+        mkdir_path(snapshot_dir)
+    return snapshot_dir
 
 
 def save_json_to_file(indata, outfile):

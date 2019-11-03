@@ -176,7 +176,7 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
     monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
-    monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
+    # monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
@@ -208,9 +208,9 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
     }
     with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
-        snapshot_data = populate_custom_snapshot(snapshot)
+        snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
         assert snapshot_data == {'3': False}
-        snapshot_data = populate_custom_snapshot(snapshot1)
+        snapshot_data = populate_custom_snapshot(snapshot1, 'mycontainer')
         assert snapshot_data == {}
 
 
@@ -219,7 +219,7 @@ def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, mo
     monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
-    monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_empty_get_vault_data)
+    # monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_empty_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
@@ -245,7 +245,7 @@ def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, mo
     }
     with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
-        snapshot_data = populate_custom_snapshot(snapshot)
+        snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
         assert snapshot_data == {'3': False}
 
 def test_populate_custom_snapshot_exception(create_temp_dir, create_temp_json, monkeypatch):
@@ -278,7 +278,7 @@ def test_populate_custom_snapshot_exception(create_temp_dir, create_temp_json, m
         ]
     }
     with mock.patch.object(Repo, 'clone_from', autospec=True, side_effect=repo_exception):
-        snapshot_data = populate_custom_snapshot(snapshot)
+        snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
         assert snapshot_data == {'3': False}
 
 
@@ -318,7 +318,7 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
     with mock.patch.object(Git, 'custom_environment', autospec=True):
         with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
             RepoMockHelper.return_value.clone_from.return_value = None
-            snapshot_data = populate_custom_snapshot(snapshot)
+            snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
             assert snapshot_data == {'3': False}
 
 def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch):
@@ -326,7 +326,7 @@ def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, 
     monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
-    monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
+    # monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
@@ -362,7 +362,7 @@ def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, 
     }
     with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
-        snapshot_data = populate_custom_snapshot(snapshot)
+        snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
         assert snapshot_data == {'5': True}
-        snapshot_data = populate_custom_snapshot(snapshot1)
+        snapshot_data = populate_custom_snapshot(snapshot1, 'mycontainer1')
         assert snapshot_data == {}
