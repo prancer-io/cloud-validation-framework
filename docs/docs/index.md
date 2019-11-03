@@ -1,8 +1,8 @@
 Welcome to the **Prancer** documentation!
 
-**Prancer** is a cloud infrastructure validation framework used to satisfy cloud governance requirements.
+**Prancer** is a pre-deployment and post-deployment multi-cloud validation framework for your Infrastructure as Code (IaC) pipeline.
 
-**Prancer** is a **pre-deployment** and **post-deployment** validation engine to verify your cloud resources. It integrates to your current DevOps process to validate the required guardrails in place.
+**Prancer** validates your cloud resources based on available compliance and custom test files. It integrates to your current DevOps process to validate the required guardrails in place.
 
 # Editions of Prancer
 
