@@ -1,3 +1,5 @@
+> Target Platform : Basic Edition
+
 **Prancer** uses the popular **Python 3** language interpreter. Read on to learn how to install the dependencies for **Prancer** but also the framework itself. You can install **Prancer** using the source code available on **GitHub** or using the **Pip** package manager.
 
 # Installing Python3 on your system

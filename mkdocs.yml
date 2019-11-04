@@ -17,16 +17,21 @@ nav:
     - Logging: configuration/logging.md
     - Secrets: configuration/secrets.md
   - Connectors:
+    - Definition: connectors/connector-definition.md
     - AWS connector: connectors/aws.md
     - Azure connector: connectors/azure.md
     - Git connector: connectors/git.md
+  - Crawler:
+    - Definition: crawler/crawler-definition.md
   - Snapshots:
+    - Definition: snapshots/snapshot-definition.md
     - AWS snapshot: snapshots/aws.md
     - Azure snapshot: snapshots/azure.md
-    - Json snapshot: snapshots/json.md
-    - Terraform snapshot: snapshots/terraform.md
+    - Filesystem snapshot: snapshots/filesystem.md
   - Tests:
+    - Definition: tests/tests-definition.md
     - Test basics: tests/basics.md
+    - Master test file: tests/master-test.md
     - Looking for test data: tests/look-for-data.md
     - Rule syntax: tests/syntax.md
     - Test ouput files: tests/outputs.md
