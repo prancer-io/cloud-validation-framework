@@ -62,6 +62,8 @@ def mock_google_get_documents(collection, query=None, dbname=None, sort=None, li
       }
     ]
 
+def mock_read_connector_file(filepath):
+    return connector
 
 def mock_config_value(section, key, default=None):
     if key == 'structure':
@@ -71,6 +73,9 @@ def mock_config_value(section, key, default=None):
     elif section == "GOOGLE" and key == 'params':
         return 'hello'
     return 'pytestdb'
+
+def mock_get_test_json_dir():
+    return ""
 
 
 def mock_insert_one_document(doc, collection, dbname):
@@ -100,6 +105,16 @@ class MyMockCompute:
     def execute(self):
         return {'hello': 'world'}
 
+class MyMockComputeNoData:
+  
+    def mock_compute_method(self):
+        return MyMockComputeNoData()
+
+    def get(self):
+        return MyMockComputeNoData()
+
+    def execute(self):
+        return None
 
 class MyMockServiceAccountCredentials:
 
@@ -142,6 +157,12 @@ def mock_get_google_call_function(node):
     return "mock_compute_method", {}
 
 
+def mock_exception_get_google_call_function(node):
+    return None, {}
+
+def mock_exception_get_google_call_function2(node):
+    return "hello", {}
+
 def mock_google_param_version(path):
     return {
       "instances": ["project", "zone", "instance"],
@@ -152,6 +173,12 @@ def mock_google_param_version(path):
       "type": "others"
   }
 
+def mock_google_param_version_document(collection, query=None, dbname=None, sort=None, limit=10):
+    return [
+        {
+            "json": mock_google_param_version(None)
+        }
+    ]
 
 def test_exception_populate_google_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.config_value', mock_config_value)
@@ -172,6 +199,10 @@ def test_populate_google_snapshot(monkeypatch):
     from processor.connector.snapshot_google import populate_google_snapshot
     val = populate_google_snapshot(snapshot)
     assert val == {'71': True}
+    monkeypatch.setattr('processor.connector.snapshot_google.get_google_client_data', mock_negative_get_google_client_data)
+    val = populate_google_snapshot(snapshot)
+    assert val == {'71': False}
+    
 
 
 def test_get_google_client_data(monkeypatch):
@@ -190,17 +221,47 @@ def test_get_node(monkeypatch):
     node = snapshot['nodes'][0]
     val = get_node(MyMockCompute(), node, "file.file")
     assert val['json'] == {'hello': 'world'}
+    val = get_node(MyMockComputeNoData(), node, "file.file")
+    assert val['json'] == {}
+    
 
-
+    monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function', mock_exception_get_google_call_function)
+    val = get_node(MyMockCompute(), node, "file.file")
+    assert val['json'] == {}
+    monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function', mock_exception_get_google_call_function2)
+    val = get_node(MyMockCompute(), node, "file.file")
+    assert val['json'] == {}
+    
 def test_get_call_kwargs(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.config_value', mock_config_value)
     monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_fs_json_source)
     monkeypatch.setattr('processor.connector.snapshot_google.json_from_file', mock_google_param_version)
     monkeypatch.setattr('processor.connector.snapshot_google.exists_file', mock_file_exist)
-
     from processor.connector.snapshot_google import get_call_kwargs
     node = snapshot['nodes'][0]
     val = get_call_kwargs(node, "12345678")
     assert val == {'instance': '8', 'project': '4', 'zone': '6'}
 
+    monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_db_json_source)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_documents', mock_google_param_version)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_documents', mock_google_param_version_document)
+    from processor.connector.snapshot_google import get_call_kwargs
+    node = snapshot['nodes'][0]
+    val = get_call_kwargs(node, "12345678")
+    assert val == {'instance': '8', 'project': '4', 'zone': '6'}
 
+    from processor.connector.snapshot_google import get_google_call_function
+    val = get_google_call_function(node)
+    assert val == ('instances', {'project': 'liquproj', 'zone': 'us-west1-b', 'instance': 'proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55'})
+
+
+
+def test_get_google_data(monkeypatch):
+    monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_fs_json_source)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_test_json_dir', mock_get_test_json_dir)
+    monkeypatch.setattr('processor.connector.snapshot_google.exists_file', mock_file_exist)
+    monkeypatch.setattr('processor.connector.snapshot_google.json_from_file', mock_read_connector_file)
+
+    from processor.connector.snapshot_google import get_google_data
+    val = get_google_data("file.file")
+    assert val == connector
