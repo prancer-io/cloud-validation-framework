@@ -15,6 +15,7 @@ identify the resource object.
 import json
 import hashlib
 import time
+import copy
 from boto3 import client
 from boto3 import Session
 from processor.helper.file.file_utils import exists_file
@@ -151,6 +152,55 @@ def get_node(awsclient, node, snapshot_source):
         db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
     return db_record
 
+def get_all_nodes(awsclient, node, snapshot, connector):
+    """ Fetch all the nodes from the cloned git repository in the given path."""
+    db_records = []
+    collection = node['collection'] if 'collection' in node else COLLECTION
+    snapshot_source = get_field_value(snapshot, 'source')
+    parts = snapshot_source.split('.')
+    d_record = {
+        "structure": "aws",
+        "reference": "",
+        "source": parts[0],
+        "path": '',
+        "timestamp": int(time.time() * 1000),
+        "queryuser": "",
+        "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
+        "node": node,
+        "snapshotId": None,
+        "masterSnapshotId": node['masterSnapshotId'],
+        "collection": collection.replace('.', '').lower(),
+        "json": {}
+    }
+    list_function_name = get_field_value(node, 'listMethod')
+    if list_function_name:
+        list_function = getattr(awsclient, list_function_name, None)
+        if list_function and callable(list_function):
+            try:
+                response = list_function()
+                list_of_resources = [x['Name'] for x in response['Buckets']]
+            except Exception as ex:
+                list_of_resources = []
+            detail_functions = get_field_value(node, 'detailMethods')
+            count = 0
+            for each_resource in list_of_resources:
+                json_data = {}
+                for each_function_str in detail_functions:
+                    each_function = getattr(awsclient, each_function_str, None)
+                    if each_function and callable(each_function):
+                        data = each_function(Bucket=each_resource)
+                        if data:
+                            json_data[each_function_str] = data
+                if json:
+                    db_record = copy.deepcopy(d_record)
+                    db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
+                    db_record['json'] = json_data
+                    data_str = json.dumps(json_data)
+                    db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
+                    db_records.append(db_record)
+                    count += 1
+
+    return db_records
 
 def get_checksum(data):
     """ Get the checksum for the AWS data fetched."""
@@ -162,7 +212,7 @@ def get_checksum(data):
         pass
     return checksum
 
-def populate_aws_snapshot(snapshot, container):
+def populate_aws_snapshot(snapshot, container=None):
     """
     This is an entrypoint for populating a snapshot of type aws.
     All snapshot connectors should take snapshot object and based on
@@ -209,10 +259,9 @@ def populate_aws_snapshot(snapshot, container):
                 if not client_str:
                     logger.info("No client type provided in snapshot, using client type from connector")
                     client_str = connector_client_str
-                else:
-                    if not _validate_client_name(client_str):
-                        logger.error("Invalid Client Name")
-                        return snapshot_data
+                if not _validate_client_name(client_str):
+                    logger.error("Invalid Client Name")
+                    return snapshot_data
                 aws_region = get_field_value(node, 'region')
                 if not aws_region:
                     logger.info("No region provided in snapshot, using region from connector")
@@ -229,16 +278,28 @@ def populate_aws_snapshot(snapshot, container):
                 logger.info(awsclient)
                 if awsclient:
                     existing_aws_client[client_str.lower()] = awsclient
-                    data = get_node(awsclient, node, snapshot_source)
-                    if data:
-                        error_str = data.pop('error', None)
-                        if get_nodb():
-                            snapshot_dir = make_snapshots_dir(container)
-                            if snapshot_dir:
-                                store_snapshot(snapshot_dir, data)
-                        else:
-                            insert_one_document(data, data['collection'], dbname)
-                        snapshot_data[node['snapshotId']] = False if error_str else True
+                    if 'snapshotId' in node:
+                        data = get_node(awsclient, node, snapshot_source)
+                        if data:
+                            error_str = data.pop('error', None)
+                            if get_nodb():
+                                snapshot_dir = make_snapshots_dir(container)
+                                if snapshot_dir:
+                                    store_snapshot(snapshot_dir, data)
+                            else:
+                                insert_one_document(data, data['collection'], dbname)
+                            snapshot_data[node['snapshotId']] = False if error_str else True
+                    elif 'masterSnapshotId' in node:
+                        all_data = get_all_nodes(awsclient, node, snapshot, sub_data)
+                        if all_data:
+                            snapshot_data[node['masterSnapshotId']] = []
+                            for data in all_data:
+                                snapshot_data[node['masterSnapshotId']].append(
+                                    {
+                                        'snapshotId': data['snapshotId'],
+                                        'path': data['path'],
+                                        'validate': True
+                                    })
     return snapshot_data
 
 
