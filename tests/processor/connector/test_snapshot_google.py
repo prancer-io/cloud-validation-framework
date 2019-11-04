@@ -160,6 +160,7 @@ def mock_get_google_call_function(node):
 def mock_exception_get_google_call_function(node):
     return None, {}
 
+
 def mock_exception_get_google_call_function2(node):
     return "hello", {}
 
@@ -173,6 +174,7 @@ def mock_google_param_version(path):
       "type": "others"
   }
 
+
 def mock_google_param_version_document(collection, query=None, dbname=None, sort=None, limit=10):
     return [
         {
@@ -180,10 +182,12 @@ def mock_google_param_version_document(collection, query=None, dbname=None, sort
         }
     ]
 
+
 def test_exception_populate_google_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.config_value', mock_config_value)
     monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_db_json_source)
     monkeypatch.setattr('processor.connector.snapshot_google.validate_snapshot_nodes', validate_negative_snapshot_nodes)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_documents', mock_google_get_documents)
     from processor.connector.snapshot_google import populate_google_snapshot
     val = populate_google_snapshot(snapshot)
     assert val == None
@@ -203,7 +207,6 @@ def test_populate_google_snapshot(monkeypatch):
     val = populate_google_snapshot(snapshot)
     assert val == {'71': False}
     
-
 
 def test_get_google_client_data(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.save_json_to_file', mock_save_json_to_file)
@@ -231,6 +234,7 @@ def test_get_node(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function', mock_exception_get_google_call_function2)
     val = get_node(MyMockCompute(), node, "file.file")
     assert val['json'] == {}
+
     
 def test_get_call_kwargs(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.config_value', mock_config_value)
@@ -253,7 +257,6 @@ def test_get_call_kwargs(monkeypatch):
     from processor.connector.snapshot_google import get_google_call_function
     val = get_google_call_function(node)
     assert val == ('instances', {'project': 'liquproj', 'zone': 'us-west1-b', 'instance': 'proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55'})
-
 
 
 def test_get_google_data(monkeypatch):
