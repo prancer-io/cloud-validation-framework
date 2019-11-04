@@ -87,8 +87,8 @@ pipeline {
             
             token: 'prancer-github-pr',
             
-            printContributedVariables: false,
-            printPostContent: false,        
+            printContributedVariables: true,
+            printPostContent: true,        
             silentResponse: true
         )
     }
