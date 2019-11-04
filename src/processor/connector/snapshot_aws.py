@@ -19,7 +19,7 @@ from boto3 import client
 from boto3 import Session
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
-from processor.helper.config.rundata_utils import put_in_currentdata, get_nodb
+from processor.helper.config.rundata_utils import put_in_currentdata, get_dbtests
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE, make_snapshots_dir, store_snapshot
 from processor.connector.vault import get_vault_data
@@ -232,12 +232,12 @@ def populate_aws_snapshot(snapshot, container):
                     data = get_node(awsclient, node, snapshot_source)
                     if data:
                         error_str = data.pop('error', None)
-                        if get_nodb():
+                        if get_dbtests():
+                            insert_one_document(data, data['collection'], dbname)
+                        else:
                             snapshot_dir = make_snapshots_dir(container)
                             if snapshot_dir:
                                 store_snapshot(snapshot_dir, data)
-                        else:
-                            insert_one_document(data, data['collection'], dbname)
                         snapshot_data[node['snapshotId']] = False if error_str else True
     return snapshot_data
 
