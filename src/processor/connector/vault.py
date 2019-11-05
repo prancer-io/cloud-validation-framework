@@ -32,7 +32,7 @@ def set_vault_data(key_name=None, value=None):
     val = None
     if vaulttype:
         if vaulttype == 'azure':
-            val = set_azure_vault_data(secret_key, value)
+            val = set_azure_vault_data(key_name, value)
     return val
 
 

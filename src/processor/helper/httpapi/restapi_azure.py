@@ -233,25 +233,3 @@ def set_keyvault_secret(keyvault, vaulttoken, secret_key, value):
         put_in_currentdata('errors', data)
         logger.info("Set Id returned invalid status: %s", status)
         return False
-
-def set_keyvault_secret(keyvault, vaulttoken, secret_key, value):
-
-    hdrs = {
-        'Authorization': 'Bearer %s' % vaulttoken,
-        'Content-Type': 'application/json'
-    }
-    logger.info('Put Id REST API invoked!')
-    urlstr = 'https://%s.vault.azure.net/secrets/%s?api-version=7.0'
-    url = urlstr % (keyvault, secret_key)
-    request_data = {
-        "value" : value
-    }
-    status, data = http_put_request(url, request_data, headers=hdrs, json_type=True)
-    logger.info('Update Id status: %s', status)
-    if status and isinstance(status, int) and status == 200:
-        logger.debug('Data: %s', data)
-        return True
-    else:
-        put_in_currentdata('errors', data)
-        logger.info("Update Id returned invalid status: %s", status)
-        return False

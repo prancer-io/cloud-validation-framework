@@ -20,6 +20,14 @@ class Popen1:
 def mock_get_keyvault_secret(keyvault, secret_key, vaulttoken):
     return {'value': 'secret'}
 
+
+def mock_set_keyvault_secret(keyvault, vaulttoken, secret_key, value):
+    return True
+
+def mock_exception_set_keyvault_secret(keyvault, vaulttoken, secret_key, value):
+    return False
+
+
 def mock_get_vault_access_token(tenant_id, vault_client_id, client_secret=None):
     return 'abcd_token'
 
@@ -100,3 +108,15 @@ def test_get_vault_data_cyberark_error(monkeypatch):
     from processor.connector.vault import get_vault_data
     val = get_vault_data('abcd')
     assert val is None
+
+def test_get_vault_data(monkeypatch):
+    monkeypatch.setattr('processor.connector.vault.config_value', mock_config_value)
+    monkeypatch.setattr('processor.connector.vault.get_vault_access_token', mock_get_vault_access_token)
+    monkeypatch.setattr('processor.connector.vault.set_keyvault_secret', mock_set_keyvault_secret)
+    from processor.connector.vault import set_vault_data
+    val = set_vault_data('hello', 'world')
+    assert val == True
+    monkeypatch.setattr('processor.connector.vault.set_keyvault_secret', mock_exception_set_keyvault_secret)
+    val = set_vault_data('hello', 'world')
+    assert val == False
+    
