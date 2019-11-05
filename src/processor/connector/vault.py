@@ -26,6 +26,16 @@ def get_vault_data(secret_key=None):
     return val
 
 
+def set_vault_data(key_name=None, value=None):
+    """Update vault data"""
+    vaulttype = config_value('VAULT', 'type')
+    val = None
+    if vaulttype:
+        if vaulttype == 'azure':
+            val = set_azure_vault_data(secret_key, value)
+    return val
+
+
 def get_config_value(section, key, env_var, prompt_str=None):
     """ Return the client secret used for the current run"""
     client_secret = config_value(section, key)
@@ -77,19 +87,6 @@ def set_azure_vault_data(secret_key=None, value=None):
     if vaulttoken and secret_key and value:
         keyvault = config_value('VAULT', 'keyvault')
         # secret_key = config_value('VAULT', 'secret_key')
-        logger.info('Keyvault: %s, key:%s', keyvault, secret_key)
-        sucess = set_keyvault_secret(keyvault, vaulttoken, secret_key, value)
-        if sucess:
-            return True
-    logger.info('Secret Value: %s', val)
-    return False
-
-def update_azure_vault_data(secret_key=None, value=None):
-    val = None
-    vaulttoken = _get_vault_token()
-    secret_data = get_keyvault_secret(keyvault, secret_key, vaulttoken)
-    if vaulttoken and secret_key and value:
-        keyvault = config_value('VAULT', 'keyvault')
         logger.info('Keyvault: %s, key:%s', keyvault, secret_key)
         sucess = set_keyvault_secret(keyvault, vaulttoken, secret_key, value)
         if sucess:
