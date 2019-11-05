@@ -107,13 +107,13 @@ pipeline {
                         prHeadRef = PR_HEAD_REF;
                     } 
 
-                    if(prHeadRef != null && prAction.equals("opened")) {
+                    if(prHeadRef != null && (prAction.equals("opened") || prAction.equals("reopened"))) {
                         echo "Clonning code form branch: ${prHeadRef}";
                         // This will label a build with BUILD_NUMBER PR_ACTION:PR_REF, for example: #1 opened: fcd1202 which means build #1 has a PR opened for branch fcd1202
-                        currentBuild.displayName = "#${env.BUILD_NUMBER} ${prAction}:${prHeadRef}";
+                        currentBuild.displayName = "#${env.BUILD_NUMBER} ${prAction}:${prHeadRef} (test)";
                         build job: 'prancer/prancer-test', parameters: [string(name: 'branch', value: prHeadRef)], wait: false;
                     } else if(environmentVariables.containsKey("PR_HEAD_MERGED") 
-                                && environmentVariables.PR_HEAD_MERGED 
+                                && environmentVariables.PR_HEAD_MERGED.trim().equals("true")
                                 && environmentVariables.containsKey("PR_BASE_REF")
                                 && environmentVariables.PR_BASE_REF.trim().contains("master")) {
                         echo "A PR has been merged";
