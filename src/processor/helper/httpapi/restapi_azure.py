@@ -5,7 +5,7 @@ import os
 from processor.logging.log_handler import getlogger
 from processor.helper.file.file_utils import exists_file
 from processor.helper.config.rundata_utils import get_from_currentdata, put_in_currentdata
-from processor.helper.httpapi.http_utils import http_post_request, http_get_request
+from processor.helper.httpapi.http_utils import http_post_request, http_get_request, http_put_request
 from processor.helper.json.json_utils import get_field_value, json_from_file, collectiontypes, STRUCTURE
 from processor.helper.config.config_utils import get_test_json_dir, config_value
 from processor.database.database import DATABASE, DBNAME, sort_field, get_documents
@@ -204,9 +204,54 @@ def get_keyvault_secret(keyvault, secret_key, vaulttoken):
     url = urlstr % (keyvault, secret_key)
     status, data = http_get_request(url, hdrs)
     logger.info('Get Id status: %s', status)
+
     if status and isinstance(status, int) and status == 200:
         logger.debug('Data: %s', data)
     else:
         put_in_currentdata('errors', data)
         logger.info("Get Id returned invalid status: %s", status)
     return data
+
+def set_keyvault_secret(keyvault, vaulttoken, secret_key, value):
+
+    hdrs = {
+        'Authorization': 'Bearer %s' % vaulttoken,
+        'Content-Type': 'application/json'
+    }
+    logger.info('Put Id REST API invoked!')
+    urlstr = 'https://%s.vault.azure.net/secrets/%s?api-version=7.0'
+    url = urlstr % (keyvault, secret_key)
+    request_data = {
+        "value" : value
+    }
+    status, data = http_put_request(url, request_data, headers=hdrs, json_type=True)
+    logger.info('Set Id status: %s', status)
+    if status and isinstance(status, int) and status == 200:
+        logger.debug('Data: %s', data)
+        return True
+    else:
+        put_in_currentdata('errors', data)
+        logger.info("Set Id returned invalid status: %s", status)
+        return False
+
+def set_keyvault_secret(keyvault, vaulttoken, secret_key, value):
+
+    hdrs = {
+        'Authorization': 'Bearer %s' % vaulttoken,
+        'Content-Type': 'application/json'
+    }
+    logger.info('Put Id REST API invoked!')
+    urlstr = 'https://%s.vault.azure.net/secrets/%s?api-version=7.0'
+    url = urlstr % (keyvault, secret_key)
+    request_data = {
+        "value" : value
+    }
+    status, data = http_put_request(url, request_data, headers=hdrs, json_type=True)
+    logger.info('Update Id status: %s', status)
+    if status and isinstance(status, int) and status == 200:
+        logger.debug('Data: %s', data)
+        return True
+    else:
+        put_in_currentdata('errors', data)
+        logger.info("Update Id returned invalid status: %s", status)
+        return False

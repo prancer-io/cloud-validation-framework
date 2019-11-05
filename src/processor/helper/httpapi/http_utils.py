@@ -79,12 +79,15 @@ def http_get_request(url, headers=None, name='GET'):
     return urlopen_request(urlreq, name)
 
 
-def http_put_request(url, mapdata, headers=None, name='PUT'):
+def http_put_request(url, mapdata, headers=None, name='PUT', json_type=False):
     """Put method sends and accepts JSON format."""
     logger.info("HTTP %s %s  .......", name, url)
     if not url:
         return None, None
-    putdata = parse.urlencode(mapdata).encode()
+    if not json_type:
+        putdata = parse.urlencode(mapdata).encode()
+    else:
+        putdata = json.dumps(mapdata, cls=json.JSONEncoder).encode('utf-8')
     logger.info('%s: data: %s', name, putdata)
     urlreq = request.Request(url, data=putdata, headers=get_request_headers(headers),
                              method='PUT')
