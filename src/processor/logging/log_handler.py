@@ -119,7 +119,8 @@ def logging_fw(fwconfigfile, dbargs):
         backupCount=log_config['backups']
     )
     handler.setFormatter(logging.Formatter(logformat))
-    handler.setLevel(log_config['level'])
+    # handler.setLevel(log_config['level'])
+    handler.setLevel(loglevel)
     logger.addHandler(handler)
     unittest = os.getenv('UNITTEST', "false")
     if log_config['db'] and unittest != "true" and dbargs:
