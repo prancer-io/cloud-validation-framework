@@ -184,21 +184,20 @@ def get_all_nodes(awsclient, node, snapshot, connector):
             detail_functions = get_field_value(node, 'detailMethods')
             count = 0
             for each_resource in list_of_resources:
-                json_data = {}
                 for each_function_str in detail_functions:
                     each_function = getattr(awsclient, each_function_str, None)
                     if each_function and callable(each_function):
                         data = each_function(Bucket=each_resource)
                         if data:
-                            json_data[each_function_str] = data
-                if json:
-                    db_record = copy.deepcopy(d_record)
-                    db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
-                    db_record['json'] = json_data
-                    data_str = json.dumps(json_data)
-                    db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
-                    db_records.append(db_record)
-                    count += 1
+                            db_record = copy.deepcopy(d_record)
+                            db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
+                            db_record['json'] = data
+                            db_record['function'] = each_function_str
+                            data_str = json.dumps(data)
+                            db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
+                            db_record['resource_id'] = each_resource
+                            db_records.append(db_record)
+                            count += 1
 
     return db_records
 
@@ -211,6 +210,12 @@ def get_checksum(data):
     except:
         pass
     return checksum
+
+def _get_function_kwargs(client_str, resource_name):
+    if client_str == "s3":
+        return {'Bucket' : resource_name}
+    else:
+        return {}
 
 def populate_aws_snapshot(snapshot, container=None):
     """
@@ -265,7 +270,6 @@ def populate_aws_snapshot(snapshot, container=None):
                 aws_region = get_field_value(node, 'region')
                 if not aws_region:
                     logger.info("No region provided in snapshot, using region from connector")
-                    aws_region = region
                 try:
                     awsclient = existing_aws_client.get(client_str.lower(), None)
 
@@ -297,8 +301,9 @@ def populate_aws_snapshot(snapshot, container=None):
                                 snapshot_data[node['masterSnapshotId']].append(
                                     {
                                         'snapshotId': data['snapshotId'],
-                                        'path': data['path'],
-                                        'validate': True
+                                        'validate': True,
+                                        "id": _get_function_kwargs(client_str, data['resource_id']),
+                                        'type': data['function']
                                     })
     return snapshot_data
 
