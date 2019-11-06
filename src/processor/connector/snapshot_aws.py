@@ -152,6 +152,19 @@ def get_node(awsclient, node, snapshot_source):
         db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
     return db_record
 
+
+def _get_resources_from_list_function(response, method):
+    if method == 'list_buckets':
+        return [x['Name'] for x in response['Buckets']]
+    elif method == 'describe_instances':
+        final_list = []
+        for reservation in response['Reservations']:
+            for instance in reservation['Instances']:
+                final_list.append(instance['InstanceId'])
+        return final_list
+    else:
+        return [] 
+
 def get_all_nodes(awsclient, node, snapshot, connector):
     """ Fetch all the nodes from the cloned git repository in the given path."""
     db_records = []
@@ -178,7 +191,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
         if list_function and callable(list_function):
             try:
                 response = list_function()
-                list_of_resources = [x['Name'] for x in response['Buckets']]
+                list_of_resources = _get_resources_from_list_function(response, list_function_name)
             except Exception as ex:
                 list_of_resources = []
             detail_functions = get_field_value(node, 'detailMethods')
@@ -187,17 +200,12 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 for each_function_str in detail_functions:
                     each_function = getattr(awsclient, each_function_str, None)
                     if each_function and callable(each_function):
-                        data = each_function(Bucket=each_resource)
-                        if data:
-                            db_record = copy.deepcopy(d_record)
-                            db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
-                            db_record['json'] = data
-                            db_record['function'] = each_function_str
-                            data_str = json.dumps(data)
-                            db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
-                            db_record['resource_id'] = each_resource
-                            db_records.append(db_record)
-                            count += 1
+                        db_record = copy.deepcopy(d_record)
+                        db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
+                        db_record['function'] = each_function_str
+                        db_record['resource_id'] = each_resource
+                        db_records.append(db_record)
+                        count += 1
 
     return db_records
 
@@ -211,9 +219,14 @@ def get_checksum(data):
         pass
     return checksum
 
-def _get_function_kwargs(client_str, resource_name):
+def _get_function_kwargs(client_str, resource_id, function_name):
     if client_str == "s3":
-        return {'Bucket' : resource_name}
+        return {'Bucket' : resource_id}
+    elif client_str == "ec2" and function_name == "describe_instance_attribute":
+        return {
+            'Attribute': 'instanceType',
+            'InstanceId': resource_id
+        }
     else:
         return {}
 
@@ -305,7 +318,7 @@ def populate_aws_snapshot(snapshot, container=None):
                                     {
                                         'snapshotId': data['snapshotId'],
                                         'validate': True,
-                                        "id": _get_function_kwargs(client_str, data['resource_id']),
+                                        "id": _get_function_kwargs(client_str, data['resource_id'], data['function']),
                                         'type': data['function']
                                     })
     return snapshot_data
