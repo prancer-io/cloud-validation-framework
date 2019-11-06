@@ -15,7 +15,7 @@
                 },
                 {
                     "masterTestId": "2",
-                    "rule":"{12}.InstanceType.Value='t1.nano'"                    
+                    "rule":"exist({12}.InstanceType.Value)"                    
                 }
             ]
         }
