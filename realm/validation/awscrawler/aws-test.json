@@ -1,0 +1,23 @@
+{
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "fileType": "mastertest",
+    "notification": [],
+    "masterSnapshot": "awssnapshot",
+    "testSet": [
+        {
+            "masterTestName": "test3",
+            "version": "0.1",
+            "cases": [
+                {
+                    "masterTestId": "1",
+                    "rule":"count({11}.Grants[])=1"
+                },
+                {
+                    "masterTestId": "2",
+                    "rule":"{12}.InstanceType.Value='t1.nano'"                    
+                }
+            ]
+        }
+    ]
+}
