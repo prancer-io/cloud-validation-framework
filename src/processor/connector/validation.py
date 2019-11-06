@@ -171,7 +171,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
                         newcases.append(new_testcase)
             testset['cases'] = newcases
         # print(json.dumps(test_json_data, indent=2))
-        resultset = run_json_validation_tests(test_json_data, container, True, snapshot_status)
+        resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status)
         if resultset:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             dump_output_results(resultset, container, test_file, snapshot, True)
@@ -241,7 +241,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                                 newcases.append(new_testcase)
                     testset['cases'] = newcases
                 # print(json.dumps(test_json_data, indent=2))
-                resultset = run_json_validation_tests(test_json_data, container, True, snapshot_status)
+                resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status)
                 if resultset:
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
                     test_file = doc['name'] if 'name' in doc else ''

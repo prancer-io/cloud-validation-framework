@@ -292,7 +292,10 @@ def populate_aws_snapshot(snapshot, container=None):
                                     store_snapshot(snapshot_dir, data)
                             else:
                                 insert_one_document(data, data['collection'], dbname)
-                            snapshot_data[node['snapshotId']] = False if error_str else True
+                            if 'masterSnapshotId' in node:
+                                snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+                            else:
+                                snapshot_data[node['snapshotId']] = False if error_str else True
                     elif 'masterSnapshotId' in node:
                         all_data = get_all_nodes(awsclient, node, snapshot, sub_data)
                         if all_data:
