@@ -22,6 +22,57 @@ def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10)
         "timestamp": 1545908086831
     }]
 
+def mock_exists_dir(dirname):
+    return True
+
+def mock_exists_file(fname):
+    return True
+
+def mock_json_from_file(fname):
+    return {
+        "structure": "azure",
+        "reference": 'abcd',
+        "source": 'snapshot',
+        "path": '/a/b/c',
+        "_id": "5c24af787456217c485ad1e6",
+        "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+        "collection": "microsoftcompute",
+        "json": {
+            "id": 124,
+            "location": "eastus2",
+            "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
+        },
+        "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+        "snapshotId": 1,
+        "timestamp": 1545908086831
+    }
+
+def mock_multiple_json_from_file(fname):
+    return {
+        "structure": "azure",
+        "reference": 'abcd',
+        "source": 'snapshot',
+        "path": '/a/b/c',
+        "_id": "5c24af787456217c485ad1e6",
+        "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
+        "collection": "microsoftcompute",
+        "json": [{
+            "id": 124,
+            "location": "eastus2",
+            "name": "mno-nonprod-shared-cet-eastus2-tab-as03",
+            "addresses": [1, 2, 3, 4]
+        },
+            {
+                "id": 125,
+                "location": "eastus",
+                "name": "mno-nonprod-shared-cet-eastus2-tab-as04"
+            }
+        ],
+        "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
+        "snapshotId": 1,
+        "timestamp": 1545908086831
+    }
+
 def mock_get_multiple_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{
         "structure": "azure",
@@ -143,7 +194,7 @@ def test_is_method():
 def test_match_method():
     from processor.comparison.interpreter import RuleInterpreter
     children = ["count", "(", "{1}.firewall.rules[]", ")", "=", "count", "(", "{2}.firewall.rules[]",")"]
-    otherdata = {}
+    otherdata = {'container': 'mycontainer1'}
     r_i = RuleInterpreter(children, **otherdata)
     method, method_args = r_i.match_method(''.join(r_i.lhs_operand))
     assert method == 'count'
@@ -152,9 +203,15 @@ def test_match_method():
 
 def test_match_number(monkeypatch):
     monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.get_documents', mock_get_documents)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.exists_file',
+                        mock_exists_file)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.exists_dir',
+                        mock_exists_dir)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.json_from_file',
+                        mock_json_from_file)
     from processor.comparison.interpreter import RuleInterpreter
     children = ["count", "(", "{1}.firewall.rules[]", ")", "=", "22"]
-    otherdata = {'dbname': 'validator', 'snapshots': {}}
+    otherdata = {'dbname': 'validator', 'snapshots': {}, 'container': 'mycontainer1'}
     r_i = RuleInterpreter(children, **otherdata)
     inval = ''.join(r_i.rhs_operand)
     m = re.match(r'(\d+)(\.\d+)?', inval, re.I)
@@ -201,8 +258,14 @@ def test_match_number(monkeypatch):
 
 def test_match_array_attribute(monkeypatch):
     monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.get_documents', mock_get_multiple_documents)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.exists_file',
+                        mock_exists_file)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.exists_dir',
+                        mock_exists_dir)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.json_from_file',
+                        mock_multiple_json_from_file)
     from processor.comparison.interpreter import RuleInterpreter
-    otherdata = {'dbname': 'validator', 'snapshots': {}}
+    otherdata = {'dbname': 'validator', 'snapshots': {}, 'container': 'mycontainer1'}
     children = ["{1}[1].location", "=", "'eastus'"]
     r_i = RuleInterpreter(children, **otherdata)
     val = r_i.get_value(r_i.lhs_operand)
@@ -222,8 +285,14 @@ def test_match_array_attribute(monkeypatch):
 
 def test_compare(monkeypatch):
     monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.get_documents', mock_get_multiple_documents)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.exists_file',
+                        mock_exists_file)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.exists_dir',
+                        mock_exists_dir)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.json_from_file',
+                        mock_multiple_json_from_file)
     from processor.comparison.interpreter import RuleInterpreter
-    otherdata = {'dbname': 'validator', 'snapshots': {}}
+    otherdata = {'dbname': 'validator', 'snapshots': {}, 'container': 'mycontainer1'}
     children = ["{1}[1].location", "=", "'eastus'"]
     r_i = RuleInterpreter(children, **otherdata)
     val = r_i.compare()
@@ -238,8 +307,14 @@ def test_compare(monkeypatch):
 def test_get_value(monkeypatch):
     monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.get_documents',
                         mock_get_documents)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.exists_file',
+                        mock_exists_file)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.exists_dir',
+                        mock_exists_dir)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.json_from_file',
+                        mock_json_from_file)
     from processor.comparison.interpreter import RuleInterpreter
-    otherdata = {'dbname': 'validator', 'snapshots': {}}
+    otherdata = {'dbname': 'validator', 'snapshots': {},'container': 'mycontainer1'}
     children = ["{1}.location", "+", "{1}.location", "=", "'eastus'"]
     r_i = RuleInterpreter(children, **otherdata)
     val = r_i.get_value(r_i.lhs_operand)
@@ -250,8 +325,14 @@ def test_get_value(monkeypatch):
 def test_eval_expression(monkeypatch):
     monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.get_documents',
                         mock_get_documents)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.exists_file',
+                        mock_exists_file)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.exists_dir',
+                        mock_exists_dir)
+    monkeypatch.setattr('processor.comparison.comparisonantlr.rule_interpreter.json_from_file',
+                        mock_json_from_file)
     from processor.comparison.interpreter import RuleInterpreter
-    otherdata = {'dbname': 'validator', 'snapshots': {}}
+    otherdata = {'dbname': 'validator', 'snapshots': {}, 'container': 'mycontainer1'}
     children = ["exist", "(", "{1}.location", ")"]
     r_i = RuleInterpreter(children, **otherdata)
     val = r_i.eval_expression(''.join(r_i.lhs_operand))

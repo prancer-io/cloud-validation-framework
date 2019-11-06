@@ -1,5 +1,3 @@
-This snapshot configuration file type is used along with the **Azure** connector. It allows you to take snapshots of ReST api calls to the **Azure** api.
-
 # Snapshot configuration file
 
 To setup an **Azure** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
@@ -12,16 +10,15 @@ To setup an **Azure** snapshot configuration file, copy the following code to a 
         "fileType": "snapshot",
         "snapshots": [
             {
-                "source": "azureConnector",
-                "type": "azure",
+                "source": "<azure-Connector>",
                 "testUser": "<spn-username>",
                 "subscriptionId": "<subscription-id>",
                 "nodes": [
                     {
                         "snapshotId": "<snapshot-name>",
-                        "type": "<type-of-node>",
+                        "type": "<resource-provider>",
                         "collection": "<collection-name>",
-                        "path": "<path-to-resource>"
+                        "path": "<resource-id>"
                     }
                 ]
             }
@@ -32,16 +29,17 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 
 | tag | What to put there |
 |-----|-------------------|
-| spn-username | Name of the **SPN** user, must be present in the **Azure** connector file |
+| azure-connector | Name of the **Azure Connector** file you want to use to connect to Azure backend |
+| spn-username | Name of the **SPN** user to connect to the Azure backend, must be present in the **Azure** connector file |
 | subscription-id | Id of the subscription to inspect, must be the same as the user described in the **Azure** connector file |
-| snapshot-name | Name of the snapshot, you will use this in test files |
-| type-of-node | Type of resource being queried for, see below for more information |
-| collection-name | Name of the **MongoDB** collection used to store snapshots of this file |
-| path-to-resource | The url that corresponds to the resource you want to snapshot, see Paths below |
+| snapshot-name | Name of the snapshot, you will use this in test files. This name should be unique in the container |
+| resource-provider | Type of resource being queried for, see below for more information |
+| collection-name | Name of the **NoSQL** db collection used to store snapshots of this file |
+| resource-id | The id that corresponds to the resource you want to take snapshot, see Paths below |
 
-# Types of nodes
+### Azure Resource Provider
 
-The **type-of-node** parameter refers to a very wide list. Let's see how the **Azure** connector works to know how to properly set it up!
+The **resource-provider** parameter refers to a very wide list. Let's see how the **Azure** connector works to know how to properly set it up!
 
 The **Azure** connector is a wrapper around the **Azure** ReST api. **Prancer** will call a **GET** operation on the api using the **type-of-node** and **path**. For example:
 
@@ -53,12 +51,44 @@ The **Azure** connector is a wrapper around the **Azure** ReST api. **Prancer** 
 
 The important part to remember is that if you find an **Azure** api endpoint in the documentation, you usually just need to copy and paste everything after the `providers/` in the endpoint and paste it in the node type.
 
-> <NoteTitle>Notes: Limitations</NoteTitle>
->
-> Note: If you have parameters that must be replaced, you must hardcode them into the snapshot configuration file. We are working on a way to pass parameters to be replaced in different places such as paths, types, filters and so on.
+### Resource id
 
-# Paths to resource
+the id of the resource in the Azure. Usually it is in the format of: 
+`/resourceGroups/<name-of-the-resource-group>/providers/<name-of-the-provider>/<resource-name/`
 
-On the contrary of the **AWS** connector and snapshot configuration file which features the `id` section to filter and search for items, there are no way to select data in the **Azure** snapshot configuration files other than providing a specific path to a resource.
+You can get the resource id from the URL in the Azure portal, or from the Azure CLI.
 
-We are working on ways to add this support to **Prancer**.
+# Master Snapshot Configuration File
+Master Snapshot Configuration File is to define **resource types**. We do not have individual resources in the Master Snapshot Configuration File, instead we have the type of resources.
+Prancer validation framework is using the Master Snapshot Configuration File in the crawler functionality to find new resources.
+
+```
+{
+    "contentVersion": "1.0.0.0",
+    "fileType":"masterSnapshot",
+    "snapshots": [
+        {
+            "source": "<connector-name>",
+            "testUser" : "<spn-username>",
+            "subscriptionId" : ["<subscription-id>"],
+            "nodes": [
+                {
+                    "masterSnapshotId": "<master-Snapshot-Id>",
+                    "type": "<resource-provider>",
+                    "collection": "<name-of-collection>"
+                }
+            ]
+        }
+    ]
+}
+```
+Remember to substitute all values in this file that looks like a `<tag>` such as:
+
+| tag | What to put there |
+|-----|-------------------|
+| azure-connector | Name of the **Azure Connector** file you want to use to connect to Azure backend |
+| spn-username | Name of the **SPN** user to connect to the Azure backend, must be present in the **Azure** connector file |
+| subscription-id | Id of the subscription to inspect, must be the same as the user described in the **Azure** connector file |
+| master-Snapshot-Id | Name of the master snapshot id, you will use this in master test files. This name should be unique in the container |
+| resource-provider | the type of the resource we want to capture during the crawl process. In the `azure` connector, this should be the resource type supported by Azure. |
+| collection-name | in which collection in database we want to store this resource type. Usually it is a good practice to have a separate collection for each type. But based on the scale of implementation, you may want to put multiple resource types in a single collection |

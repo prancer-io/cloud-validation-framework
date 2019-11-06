@@ -12,6 +12,26 @@ DBTESTS = 'database'
 DBNAME = 'dbname'
 DBURL = 'dburl'
 CFGFILE = 'config.ini'
+NODB = 'nodb'
+
+def parseint(value, default=0):
+    intvalue = default
+    try:
+        intvalue = int(value)
+    except:
+        pass
+    return intvalue
+
+
+def parsebool(val, defval=False):
+    "Parse boolean from the input value"
+    retval = defval
+    if val:
+        if isinstance(val, str) and val.lower() in ['false', 'true']:
+            retval = True if val.lower() == 'true' else False
+        else:
+            retval = bool(parseint(val))
+    return retval
 
 
 def framework_currentdata():
