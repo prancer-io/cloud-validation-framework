@@ -25,6 +25,12 @@ def mock_valid_http_get_request(url, headers=None, name='GET'):
 def mock_invalid_http_get_request(url, headers=None, name='GET'):
     return 401, {'access_token': None}
 
+def mock_valid_http_put_request(url, request_data, headers=None, json_type=True, name='PUT'):
+    return 200, {'hello': 'world'}
+
+def mock_invalid_http_put_request(url, request_data, headers=None, json_type=True, name='PUT'):
+    return 401, {'hello': 'world'}
+
 def mock_get_from_currentdata(key):
     if key == 'subscriptionId':
         return 'subscriptionId'
@@ -203,3 +209,16 @@ def test_invalid_get_vault_access_token(monkeypatch):
     from processor.helper.httpapi.restapi_azure import get_vault_access_token
     val = get_vault_access_token('tenant_id', 'vault_client_id', 'client_secret')
     assert val is None
+
+
+def test_set_keyvault_secret(monkeypatch):
+    monkeypatch.setattr('processor.helper.httpapi.restapi_azure.http_put_request',
+                        mock_valid_http_put_request)
+    from processor.helper.httpapi.restapi_azure import set_keyvault_secret
+    val = set_keyvault_secret('abcdvault', 'vaulttoken', 'key','value')
+    assert val == True
+    monkeypatch.setattr('processor.helper.httpapi.restapi_azure.http_put_request',
+                        mock_invalid_http_put_request)
+    val = set_keyvault_secret('abcdvault', 'vaulttoken', 'key','value')
+    assert val == False
+    
