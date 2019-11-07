@@ -13,8 +13,7 @@
            "nodes": [
                {
                     "masterSnapshotId": "11",
-                    "client": "s3",
-                    "region": "us-west-2",
+                    "arn": "arn:aws:s3:us-west-2::",
                     "collection": "s3",
                     "listMethod": "list_buckets",
                     "detailMethods": [
@@ -23,12 +22,11 @@
                },
                {
                     "masterSnapshotId": "12",
-                    "client": "ec2",
-                    "region": "us-east-1",
+                    "arn": "arn:aws:ec2:us-east-1::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
                     "detailMethods": [
-                        "describe_instance_attribute"
+                        "describe_instances"
                    ]
                }
            ]

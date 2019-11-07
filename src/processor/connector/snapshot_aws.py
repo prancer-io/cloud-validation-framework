@@ -30,7 +30,7 @@ from processor.database.database import insert_one_document, sort_field, get_doc
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.helper.httpapi.restapi_azure import get_client_secret
 from processor.connector.snapshot_utils import validate_snapshot_nodes
-
+from processor.connector.arn_parser import arnparse
 
 logger = getlogger()
 _valid_service_names = Session().get_available_services()
@@ -213,7 +213,7 @@ def get_checksum(data):
     """ Get the checksum for the AWS data fetched."""
     checksum = None
     try:
-        data_str = json.dumps(data)
+        data_str = json.dumps(data, default=str)
         checksum = hashlib.md5(data_str.encode('utf-8')).hexdigest()
     except:
         pass
@@ -277,19 +277,25 @@ def populate_aws_snapshot(snapshot, container=None):
             existing_aws_client = {}
             # This will track exisitng AWS client objects to prevent creating redudant clients. 
             for node in snapshot['nodes']:
-                client_str = get_field_value(node, 'client')
-                if not client_str:
-                    logger.info("No client type provided in snapshot, using client type from connector")
-                    client_str = connector_client_str
+                arn_str = get_field_value(node, 'arn')
+                if arn_str:
+                    arn_obj = arnparse(arn_str)
+                    client_str = arn_obj.service
+                    aws_region = arn_obj.region
+                else:
+                    client_str = get_field_value(node, 'client')
+                    if not client_str:
+                        logger.info("No client type provided in snapshot, using client type from connector")
+                        client_str = connector_client_str
+                    aws_region = get_field_value(node, 'region')
+                    if not aws_region:
+                        logger.info("No region provided in snapshot, using region from connector")
+                        aws_region = region
                 if not _validate_client_name(client_str):
                     logger.error("Invalid Client Name")
                     return snapshot_data
-                aws_region = get_field_value(node, 'region')
-                if not aws_region:
-                    logger.info("No region provided in snapshot, using region from connector")
                 try:
                     awsclient = existing_aws_client.get(client_str.lower(), None)
-
                     if not awsclient:
                         awsclient = client(client_str.lower(), aws_access_key_id=access_key,
                                            aws_secret_access_key=secret_access, region_name=aws_region)
@@ -322,8 +328,12 @@ def populate_aws_snapshot(snapshot, container=None):
                                     {
                                         'snapshotId': data['snapshotId'],
                                         'validate': True,
-                                        "id": _get_function_kwargs(client_str, data['resource_id'], data['function']),
-                                        'type': data['function']
+                                        'id': _get_function_kwargs(client_str, data['resource_id'], data['function']),
+                                        'type': data['function'],
+                                        'client': client_str,
+                                        'region': aws_region,
+                                        'structure': 'aws',
+                                        'masterSnapshotId': node['masterSnapshotId']
                                     })
     return snapshot_data
 
