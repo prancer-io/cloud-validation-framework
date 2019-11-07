@@ -17,7 +17,8 @@
                     "collection": "s3",
                     "listMethod": "list_buckets",
                     "detailMethods": [
-                        "get_bucket_acl"
+                        "get_bucket_acl",
+                        "get_bucket_location"
                    ]
                },
                {
@@ -26,7 +27,8 @@
                     "collection": "ec2",
                     "listMethod": "describe_instances",
                     "detailMethods": [
-                        "describe_instances"
+                        "describe_instances",
+                        "monitor_instances"
                    ]
                }
            ]

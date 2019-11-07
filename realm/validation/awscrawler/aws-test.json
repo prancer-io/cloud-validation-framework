@@ -11,12 +11,34 @@
             "cases": [
                 {
                     "masterTestId": "1",
-                    "rule":"count({11}.Grants[])=1"
+                    "rule": "count({11}.Grants[])=1",
+                    "detailMethod": "get_bucket_acl"
                 },
                 {
                     "masterTestId": "2",
-                    "rule":"exist({12}.InstanceType.Value)"                    
-                }
+                    "rule": "{11}.Owner.DisplayName='operations')",
+                    "detailMethod": "get_bucket_acl"
+                },
+                {
+                    "masterTestId": "3",
+                    "rule": "{11}.Grants[0].Permission='FULL_CONTROL')",
+                    "detailMethod": "get_bucket_acl"
+                },
+                {
+                    "masterTestId": "3",
+                    "rule": "{11}.LocationConstraint='us-west-2')",
+                    "detailMethod": "get_bucket_location"
+                },                
+                {
+                    "masterTestId": "11",
+                    "rule": "{12}.Reservations[0].Instances[0].SecurityGroups[0].GroupName='launch-wizard-2'",
+                    "detailMethod": "describe_instances"
+                },
+                {           
+                    "masterTestId": "11",
+                    "rule": "{12}.InstanceMonitorings[0].Monitoring.State='pending'",
+                    "detailMethod": "monitor_instances"
+                }                
             ]
         }
     ]
