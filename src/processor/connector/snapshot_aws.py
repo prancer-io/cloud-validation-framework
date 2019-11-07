@@ -227,6 +227,10 @@ def _get_function_kwargs(client_str, resource_id, function_name):
             'Attribute': 'instanceType',
             'InstanceId': resource_id
         }
+    elif client_str == "ec2" and function_name == "describe_instances":
+        return {
+            'InstanceIds': [resource_id]
+        }
     else:
         return {}
 
