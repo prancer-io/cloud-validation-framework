@@ -2,6 +2,7 @@
 
 from builtins import input
 import os
+from datetime import datetime
 from processor.logging.log_handler import getlogger
 from processor.helper.file.file_utils import exists_file
 from processor.helper.config.rundata_utils import get_from_currentdata, put_in_currentdata
@@ -20,6 +21,7 @@ STORAGE = 'storageid'
 CLIENTID = 'clientId'
 CLIENTSECRET = 'clientSecret'
 VAULTCLIENTSECRET = 'vaultClientSecret'
+VAULTOKENEXPIRY = 'vaultTokenExpiry'
 JSONSOURCE = 'jsonsource'
 
 
@@ -170,7 +172,10 @@ def get_vault_access_token(tenant_id, vault_client_id, client_secret=None):
     Get the vault access token to get all the other passwords/secrets.
     """
     vaulttoken = get_from_currentdata(VAULTACCESSTOKEN)
-    if not vaulttoken:
+    expiry_time = get_from_currentdata(VAULTOKENEXPIRY)
+    is_token_valid = isinstance(expiry_time, str) and \
+        datetime.now() < datetime.fromtimestamp(float(expiry_time))
+    if (not vaulttoken) or (not is_token_valid):
         vault_client_secret = client_secret if client_secret else get_vault_client_secret()
         data = {
             'grant_type': 'client_credentials',
@@ -188,7 +193,9 @@ def get_vault_access_token(tenant_id, vault_client_id, client_secret=None):
             status, data = http_post_request(url, data, headers=hdrs)
             if status and isinstance(status, int) and status == 200:
                 vaulttoken = data['access_token']
+                expiry_time = data['expires_on']
                 put_in_currentdata(VAULTACCESSTOKEN, vaulttoken)
+                put_in_currentdata(VAULTOKENEXPIRY, expiry_time)
             else:
                 put_in_currentdata('errors', data)
                 logger.info("Get Azure token returned invalid status: %s", status)
