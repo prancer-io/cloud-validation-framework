@@ -41,7 +41,7 @@ def _validate_client_name(client_name):
     A private function to validate whether a given client provided
     in snapshot or aws connector is a valid service in Boto3
     """
-    return client_name.lower() in _valid_service_names
+    return client_name is not None and client_name.lower() in _valid_service_names
 
 
 def get_aws_data(snapshot_source):
