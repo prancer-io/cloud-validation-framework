@@ -8,7 +8,7 @@ import time
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
-    delete_from_currentdata, get_from_currentdata, get_nodb
+    delete_from_currentdata, get_from_currentdata, get_dbtests
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE, make_snapshots_dir, store_snapshot
 from processor.helper.httpapi.restapi_azure import get_access_token,\
@@ -196,12 +196,12 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                 data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
                 if data:
                     if validate:
-                        if get_nodb():
+                        if get_dbtests():
+                            insert_one_document(data, data['collection'], dbname)
+                        else:
                             snapshot_dir = make_snapshots_dir(container)
                             if snapshot_dir:
                                 store_snapshot(snapshot_dir, data)
-                        else:
-                            insert_one_document(data, data['collection'], dbname)
                         if 'masterSnapshotId' in node:
                             snapshot_data[node['snapshotId']] = node['masterSnapshotId']
                         else:
@@ -210,6 +210,7 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                         snapshot_data[node['snapshotId']] = False
                     node['status'] = 'active'
                 else:
+                    # TODO alert if notification enabled or summary for inactive.
                     node['status'] = 'inactive'
                 logger.debug('Type: %s', type(data))
             else:
@@ -222,7 +223,8 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                             {
                                 'snapshotId': data['snapshotId'],
                                 'path': data['path'],
-                                'validate': validate
+                                'validate': validate,
+                                'status': 'active'
                             })
                     # snapshot_data[node['masterSnapshotId']] = True
                 logger.debug('Type: %s', type(alldata))

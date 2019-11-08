@@ -59,9 +59,8 @@ import atexit
 import json
 import os
 from inspect import currentframe, getframeinfo
-from processor.helper.config.config_utils import framework_dir, \
-    CFGFILE, get_config_data, config_value, TESTS, DBTESTS, \
-    container_exists, parseint, parsebool
+from processor.helper.config.config_utils import framework_dir, config_value, \
+    CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 
@@ -132,15 +131,28 @@ def validator_main(arg_vals=None, delete_rundata=True):
     retval = 2
     if search_config_ini():
         return retval
-    from processor.helper.config.rundata_utils import init_currentdata, \
-        delete_currentdata, put_in_currentdata, get_nodb
-    # Delete the rundata at the end of the script as per caller, default is True.
-    if delete_rundata:
-        atexit.register(delete_currentdata)
-    init_currentdata()
+    cmd_parser = argparse.ArgumentParser("Prancer Basic Functionality")
+    cmd_parser.add_argument('container', action='store', help='Container tests directory.')
+    cmd_parser.add_argument('--db', action='store', default=None, choices=['NONE', 'SNAPSHOT', 'FULL'],
+                            help='NONE - Mongo database not used, SNAPSHOT - for storing snapshots, FULL - Tests, configurations, outputs and snapshots in database')
+    cmd_parser.add_argument('--crawler', action='store_true', default=False,
+                            help='Crawl and generate snapshot files only')
+    args = cmd_parser.parse_args(arg_vals)
+
+    if args.db:
+        if args.db.upper() in DBVALUES:
+            args.db = DBVALUES.index(args.db.upper())
+        else:
+            args.db = DBVALUES.index(SNAPSHOT)
+    else:
+        nodb = config_value(TESTS, DBTESTS)
+        if nodb and nodb.upper() in DBVALUES:
+            args.db = DBVALUES.index(nodb.upper())
+        else:
+            args.db = DBVALUES.index(SNAPSHOT)
+
     # Check if we want to run in NO DATABASE MODE
-    nodb = get_nodb()
-    if not nodb:
+    if args.db:
         # returns the db connection handle and status, handle is ignored.
         from processor.database.database import init_db, TIMEOUT
         _, db_init_res = init_db()
@@ -149,14 +161,14 @@ def validator_main(arg_vals=None, delete_rundata=True):
             console_log(msg, currentframe())
             return retval
     # Check the log directory and also check if it is writeable.
-    from processor.logging.log_handler import getlogger, get_logdir
+    from processor.logging.log_handler import init_logger, get_logdir
     log_writeable, logdir = get_logdir(None)
     if not log_writeable:
         console_log('Logging directory(%s) is not writeable, exiting....' % logdir)
         return retval
     # Alls well from this point, check container exists in the directory configured
     retval = 0
-    logger = getlogger()
+    logger = init_logger(args.db)
     logger.critical("START: Argument parsing and Run Initialization.")
 
     from processor.connector.snapshot import populate_container_snapshots
@@ -171,29 +183,21 @@ def validator_main(arg_vals=None, delete_rundata=True):
     except:
         generate_container_snapshots = lambda container, db: None
 
-    logger.info("Comand: '%s %s'", sys.executable.rsplit('/', 1)[-1], ' '.join(sys.argv))
-    cmd_parser = argparse.ArgumentParser("Prancer Basic Functionality")
-    cmd_parser.add_argument('container', action='store', help='Container tests directory.')
-    cmd_parser.add_argument('--db', action='store', default=None,
-                            choices=['DB', 'FS'],
-                            help='Mongo database or filesystem to be used for input/output data.')
-    cmd_parser.add_argument('--crawler', action='store_true', default=False,
-                            help='Crawl and generate snapshot files only')
-    args = cmd_parser.parse_args(arg_vals)
-
-    logger.debug("Args: %s", args)
+    logger.info("Command: '%s %s'", sys.executable.rsplit('/', 1)[-1], ' '.join(sys.argv))
     try:
-        logger.critical("Using Framework dir: %s", framework_dir())
-        if args.db:
-            args.db = True if args.db == 'DB' else False
-        else:
-            args.db = parsebool(config_value(TESTS, DBTESTS), defval=True)
-        if args.db and nodb:
-            logger.error("Nodb and database can not be chosen together, exiting.....")
-            return 2
+        from processor.helper.config.rundata_utils import init_currentdata, \
+            delete_currentdata, put_in_currentdata
+        # Delete the rundata at the end of the script as per caller, default is True.
+        if delete_rundata:
+            atexit.register(delete_currentdata)
+        init_currentdata()
 
-        logger.debug("Running tests from %s", "the database." if args.db else "file system.")
-        put_in_currentdata('jsonsource', args.db)
+        logger.critical("Using Framework dir: %s", framework_dir())
+        logger.info("Args: %s", args)
+        logger.debug("Running tests from %s.", DBVALUES[args.db])
+        fs = True if args.db > DBVALUES.index(SNAPSHOT) else False
+        put_in_currentdata('jsonsource', fs)
+        put_in_currentdata(DBTESTS, args.db)
         if not args.db:
             retval = 0 if container_exists(args.container) else 2
             if retval:
@@ -203,13 +207,13 @@ def validator_main(arg_vals=None, delete_rundata=True):
                 return retval
         if args.crawler:
             # Generate snapshot files from here.
-            generate_container_mastersnapshots(args.container, args.db)
+            generate_container_mastersnapshots(args.container, fs)
         else:
             # Normal flow
-            snapshot_status = populate_container_snapshots(args.container, args.db)
+            snapshot_status = populate_container_snapshots(args.container, fs)
             logger.debug(json.dumps(snapshot_status, indent=2))
             if snapshot_status:
-                status = run_container_validation_tests(args.container, args.db, snapshot_status)
+                status = run_container_validation_tests(args.container, fs, snapshot_status)
                 retval = 0 if status else 1
             else:
                 retval = 1

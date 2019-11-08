@@ -176,5 +176,5 @@ def test_db_log_DBhandler(monkeypatch, create_temp_dir, create_terraform):
     fname = create_terraform(newpath, '\n'.join(log_config), 'a1.ini')
     log_ini = '%s/%s' % (newpath, fname)
     from processor.logging.log_handler import logging_fw
-    logger = logging_fw(log_ini)
+    logger = logging_fw(log_ini, 0)
     assert logger is not None

@@ -12,7 +12,11 @@ DBTESTS = 'database'
 DBNAME = 'dbname'
 DBURL = 'dburl'
 CFGFILE = 'config.ini'
-NODB = 'nodb'
+NONE = 'NONE'
+SNAPSHOT = 'SNAPSHOT'
+FULL = 'FULL'
+DBVALUES = [NONE, SNAPSHOT, FULL]
+
 
 def parseint(value, default=0):
     intvalue = default

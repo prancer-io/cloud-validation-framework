@@ -14,7 +14,7 @@ from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.database.database import create_indexes, COLLECTION,\
     sort_field, get_documents
 from processor.reporting.json_output import dump_output_results
-from processor.helper.config.rundata_utils import get_nodb
+from processor.helper.config.rundata_utils import get_dbtests
 
 
 logger = getlogger()
@@ -51,7 +51,7 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
             coll = node['collection'] if 'collection' in node else COLLECTION
             collection = coll.replace('.', '').lower()
             snapshot_data[sid] = collection
-            if not get_nodb():
+            if get_dbtests():
                 create_indexes(collection, dbname, [('timestamp', pymongo.TEXT)])
     return snapshot_data
 

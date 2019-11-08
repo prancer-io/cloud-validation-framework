@@ -6,7 +6,7 @@ from processor.logging.log_handler import getlogger
 from processor.comparison.comparisonantlr.compare_types import EQ, NEQ, GT, GTE, LT, LTE
 from processor.comparison.comparisonantlr.compare_types import compare_none, compare_int,\
     compare_float, compare_boolean, compare_str, compare_list
-from processor.helper.config.rundata_utils import get_nodb
+from processor.helper.config.rundata_utils import get_dbtests
 from processor.helper.config.config_utils import get_test_json_dir
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor.helper.json.json_utils import json_from_file
@@ -134,7 +134,7 @@ class RuleInterpreter:
 
     def get_snaphotid_doc(self, sid):
         doc = None
-        if not get_nodb():
+        if get_dbtests():
             dbname = self.kwargs['dbname']
             coll = self.kwargs['snapshots'][sid] if sid in self.kwargs['snapshots'] else COLLECTION
             docs = get_documents(coll, {'snapshotId': sid}, dbname,
