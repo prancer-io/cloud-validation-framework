@@ -278,20 +278,22 @@ def populate_aws_snapshot(snapshot, container=None):
             existing_aws_client = {}
             # This will track exisitng AWS client objects to prevent creating redudant clients. 
             for node in snapshot['nodes']:
+                client_str = aws_region = None
                 arn_str = get_field_value(node, 'arn')
                 if arn_str:
                     arn_obj = arnparse(arn_str)
                     client_str = arn_obj.service
                     aws_region = arn_obj.region
-                else:
+                if not client_str:
                     client_str = get_field_value(node, 'client')
-                    if not client_str:
-                        logger.info("No client type provided in snapshot, using client type from connector")
-                        client_str = connector_client_str
+                if not client_str:
+                    logger.info("No client type provided in snapshot, using client type from connector")
+                    client_str = connector_client_str
+                if not aws_region: 
                     aws_region = get_field_value(node, 'region')
-                    if not aws_region:
-                        logger.info("No region provided in snapshot, using region from connector")
-                        aws_region = region
+                if not aws_region:
+                    logger.info("No region provided in snapshot, using region from connector")
+                    aws_region = region
                 if not _validate_client_name(client_str):
                     logger.error("Invalid Client Name")
                     return snapshot_data
