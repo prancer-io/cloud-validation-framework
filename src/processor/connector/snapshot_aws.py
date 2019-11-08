@@ -333,7 +333,8 @@ def populate_aws_snapshot(snapshot, container=None):
                                         'client': client_str,
                                         'region': aws_region,
                                         'structure': 'aws',
-                                        'masterSnapshotId': node['masterSnapshotId']
+                                        'masterSnapshotId': node['masterSnapshotId'],
+                                        'collection': data['collection']
                                     })
     return snapshot_data
 
