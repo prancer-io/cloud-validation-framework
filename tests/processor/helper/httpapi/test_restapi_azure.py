@@ -14,7 +14,7 @@ def mock_input(text):
     return 'clientSecret'
 
 def mock_valid_http_post_request(url, data, headers={}):
-    return 200, {'access_token': 'abcd'}
+    return 200, {'access_token': 'abcd', 'expires_on': '1234'}
 
 def mock_invalid_http_post_request(url, data, headers={}):
     return 401, {'access_token': None}
