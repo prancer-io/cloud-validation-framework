@@ -233,7 +233,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
     # For mastertest files
     collection = config_value(DATABASE, collectiontypes[MASTERTEST])
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
-    snapshots_details_map = _get_snapshot_type_map(container)
+    # snapshots_details_map = _get_snapshot_type_map(container)
     if docs and len(docs):
         logger.info('Number of mastertest Documents: %s', len(docs))
         for doc in docs:
@@ -252,14 +252,14 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                     for testcase in testcases:
                         rule_str = get_field_value_with_default(testcase, 'rule', '')
                         ms_ids = re.findall(r'\{(.*)\}', rule_str)
-                        detail_method = get_field_value(testcase, 'detailMethod')
+                        # detail_method = get_field_value(testcase, 'detailMethod')
                         for ms_id in ms_ids:
                             for s_id in mastersnapshots[ms_id]:
                                 # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
-                                if not detail_method or detail_method == snapshots_details_map[s_id]:
-                                    new_rule_str = rule_str.replace('{%s}' % ms_id, '{%s}' % s_id)
-                                    new_testcase = {'rule': new_rule_str, 'testId': testcase['masterTestId']}
-                                    newcases.append(new_testcase)
+                                # if not detail_method or detail_method == snapshots_details_map[s_id]:
+                                new_rule_str = rule_str.replace('{%s}' % ms_id, '{%s}' % s_id)
+                                new_testcase = {'rule': new_rule_str, 'testId': testcase['masterTestId']}
+                                newcases.append(new_testcase)
                     testset['cases'] = newcases
                 # print(json.dumps(test_json_data, indent=2))
                 resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status)

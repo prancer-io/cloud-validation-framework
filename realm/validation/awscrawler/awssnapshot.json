@@ -9,27 +9,34 @@
            "projectId": [
                "d34d6141-7a19-4458-b0dd-f038bb7760c1"
            ],
-           "type" : "aws",
            "nodes": [
                {
-                    "masterSnapshotId": "11",
-                    "arn": "arn:aws:s3:us-west-2::",
+                    "masterSnapshotId": "1",
+                    "arn": "arn:aws:s3:us-west-1::",
                     "collection": "s3",
                     "listMethod": "list_buckets",
-                    "detailMethods": [
-                        "get_bucket_acl",
-                        "get_bucket_location"
-                   ]
+                    "detailMethod": "get_bucket_acl"
                },
                {
-                    "masterSnapshotId": "12",
-                    "arn": "arn:aws:ec2:us-east-1::",
+                    "masterSnapshotId": "2",
+                    "arn": "arn:aws:s3:us-west-1::",
+                    "collection": "s3",
+                    "listMethod": "list_buckets",
+                    "detailMethod": "get_bucket_location"
+               },
+               {
+                    "masterSnapshotId": "101",
+                    "arn": "arn:aws:ec2:us-west-1::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
-                    "detailMethods": [
-                        "describe_instances",
-                        "monitor_instances"
-                   ]
+                    "detailMethod": "describe_instances"
+               },
+               {
+                    "masterSnapshotId": "102",
+                    "arn": "arn:aws:ec2:us-west-1::",
+                    "collection": "ec2",
+                    "listMethod": "describe_instances",
+                    "detailMethod": "monitor_instances"
                }
            ]
        }

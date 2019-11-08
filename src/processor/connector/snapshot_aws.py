@@ -194,15 +194,16 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 list_of_resources = _get_resources_from_list_function(response, list_function_name)
             except Exception as ex:
                 list_of_resources = []
-            detail_functions = get_field_value(node, 'detailMethods')
+            detail_function_str = get_field_value(node, 'detailMethod')
             count = 0
             for each_resource in list_of_resources:
-                for each_function_str in detail_functions:
-                    each_function = getattr(awsclient, each_function_str, None)
-                    if each_function and callable(each_function):
+                # for each_function_str in detail_functions:
+                if detail_function_str:
+                    detail_function = getattr(awsclient, detail_function_str, None)
+                    if detail_function and callable(detail_function):
                         db_record = copy.deepcopy(d_record)
                         db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
-                        db_record['function'] = each_function_str
+                        db_record['function'] = detail_function_str
                         db_record['resource_id'] = each_resource
                         db_records.append(db_record)
                         count += 1
