@@ -105,7 +105,7 @@ from processor.helper.json.json_utils import get_field_value, json_from_file,\
     make_snapshots_dir, store_snapshot
 from processor.helper.yaml.yaml_utils import yaml_from_file
 from processor.helper.config.config_utils import config_value, get_test_json_dir
-from processor.helper.config.rundata_utils import get_from_currentdata, get_nodb
+from processor.helper.config.rundata_utils import get_from_currentdata, get_dbtests
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME
 from processor.helper.httpapi.restapi_azure import json_source
@@ -530,12 +530,12 @@ def populate_custom_snapshot(snapshot, container):
                     data = get_node(repopath, node, snapshot, brnch, sub_data)
                     if data:
                         if validate:
-                            if get_nodb():
+                            if get_dbtests():
+                                insert_one_document(data, data['collection'], dbname)
+                            else:
                                 snapshot_dir = make_snapshots_dir(container)
                                 if snapshot_dir:
                                     store_snapshot(snapshot_dir, data)
-                            else:
-                                insert_one_document(data, data['collection'], dbname)
                             if 'masterSnapshotId' in node:
                                 snapshot_data[node['snapshotId']] = node['masterSnapshotId']
                             else:

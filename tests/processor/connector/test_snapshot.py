@@ -82,6 +82,7 @@ def test_populate_snapshot(monkeypatch):
                         mock_populate_google_snapshot)
     from processor.connector.snapshot import populate_snapshot
     assert {} == populate_snapshot({}, 'mycontainer1')
+    assert {} == populate_snapshot({'type1': 'mytype'}, 'mycontainer1')
     assert {} == populate_snapshot({'type': 'azure'}, 'mycontainer1')
     assert {} == populate_snapshot({'type': 'azure', 'nodes': [{'a': 'b'}]}, 'mycontainer1')
     assert {} == populate_snapshot({'type': 'git'}, 'mycontainer1')
