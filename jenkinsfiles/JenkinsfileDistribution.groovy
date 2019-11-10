@@ -32,6 +32,7 @@ pipeline {
                     currentVersion = setupPyText.split("\n").find{ element -> element.contains("version=") }.split("=")[1].replace("'", "").replace(",", "").trim();
                     currentDirectory = pwd();
                     echo "*** Current version ${currentVersion} from setup.py. ";
+                    sh "rm dist/*";
                 }
             }
         }
@@ -139,29 +140,6 @@ pipeline {
                 }
             }
         }
-
-        /*
-        stage("Push to test.pypi.org") {
-            agent {
-                docker {
-                    image PYTHON_DOCKER_IMAGE
-                    args "-v ${currentDirectory}:${currentDirectory} -u root"
-                }
-            }
-
-            // Publish artifact in pypi. An account need to be created in this link: https://test.pypi.org/account/register/
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: PIP_TEST_CREDENTIAL_ID, passwordVariable: 'pipPassword', usernameVariable: 'pipUser')]) {
-                        sh "pip install twine"
-                        sh "twine --version"
-                        sh "cd ${currentDirectory} && " + 
-                           "twine upload --repository-url https://test.pypi.org/legacy/ dist/* -u ${pipUser} -p ${pipPassword}";
-                    }                    
-                }
-            }
-        }
-        */
 
         stage("Push to pypi.org") {
             agent {
