@@ -258,6 +258,59 @@ def _get_function_kwargs(client_str, resource_id, function_name):
     else:
         return {}
 
+def _get_aws_client_data_from_node(node, default_client=None, default_region=None):
+    aws_region = client_str = None
+    arn_str = get_field_value(node, 'arn')
+    if arn_str:
+        arn_obj = arnparse(arn_str)
+        client_str = arn_obj.service
+        aws_region = arn_obj.region
+    if not client_str:
+        client_str = get_field_value(node, 'client')
+    if not client_str:
+        logger.info("No client type provided in snapshot, using client type from connector")
+        client_str = default_client
+    if not aws_region: 
+        aws_region = get_field_value(node, 'region')
+    if not aws_region:
+        logger.info("No region provided in snapshot, using region from connector")
+        aws_region = default_region
+    aws_region = aws_region or default_region
+    client_str = client_str or default_client
+    return client_str, aws_region
+
+
+def _crawl_thorugh_all_regions(client_str, node, snapshot, sub_data, snapshot_data,
+    access_key, secret_access):
+    count = 0
+    all_regions = Session().get_available_regions(client_str)
+    all_regions = all_regions[:1] if client_str.lower() in ['s3'] else all_regions
+    snapshot_data[node['masterSnapshotId']] = []
+    for each_region in all_regions:
+        try:
+            awsclient = client(client_str.lower(), aws_access_key_id=access_key,
+                               aws_secret_access_key=secret_access, region_name=each_region)
+        except Exception as ex:
+            logger.info('Unable to create AWS client: %s', ex)
+        logger.info(awsclient)
+        if awsclient:
+            all_data = get_all_nodes(awsclient, node, snapshot, sub_data)
+            if all_data:
+                for data in all_data:
+                    snapshot_data[node['masterSnapshotId']].append(
+                        {
+                            'snapshotId': '%s%s' % (node['masterSnapshotId'], str(count)),
+                            'validate': True,
+                            'detailMethods': data['detailMethods'],
+                            'client': client_str,
+                            'region': each_region,
+                            'structure': 'aws',
+                            'masterSnapshotId': node['masterSnapshotId'],
+                            'collection': data['collection'],
+                            'id' : data['id']
+                        })
+                    count += 1
+
 def populate_aws_snapshot(snapshot, container=None):
     """
     This is an entrypoint for populating a snapshot of type aws.
@@ -298,39 +351,24 @@ def populate_aws_snapshot(snapshot, container=None):
             logger.info("No secret_access in the snapshot to access aws resource!...")
             return snapshot_data
         if access_key and secret_access:
-            existing_aws_client = {}
-            # This will track exisitng AWS client objects to prevent creating redudant clients. 
+            # existing_aws_client = {}
             for node in snapshot['nodes']:
-                client_str = aws_region = None
-                arn_str = get_field_value(node, 'arn')
-                if arn_str:
-                    arn_obj = arnparse(arn_str)
-                    client_str = arn_obj.service
-                    aws_region = arn_obj.region
-                if not client_str:
-                    client_str = get_field_value(node, 'client')
-                if not client_str:
-                    logger.info("No client type provided in snapshot, using client type from connector")
-                    client_str = connector_client_str
-                if not aws_region: 
-                    aws_region = get_field_value(node, 'region')
-                if not aws_region:
-                    logger.info("No region provided in snapshot, using region from connector")
-                    aws_region = region
+                client_str, aws_region = _get_aws_client_data_from_node(node,
+                    default_client=connector_client_str, default_region=region)
                 if not _validate_client_name(client_str):
                     logger.error("Invalid Client Name")
                     return snapshot_data
                 try:
-                    awsclient = existing_aws_client.get(client_str.lower(), None)
-                    if not awsclient:
-                        awsclient = client(client_str.lower(), aws_access_key_id=access_key,
-                                           aws_secret_access_key=secret_access, region_name=aws_region)
+                    # awsclient = existing_aws_client.get(client_str.lower(), None)
+                    # if not awsclient:
+                    awsclient = client(client_str.lower(), aws_access_key_id=access_key,
+                                       aws_secret_access_key=secret_access, region_name=aws_region)
                 except Exception as ex:
                     logger.info('Unable to create AWS client: %s', ex)
                     awsclient = None
                 logger.info(awsclient)
                 if awsclient:
-                    existing_aws_client[client_str.lower()] = awsclient
+                    # existing_aws_client[client_str.lower()] = awsclient
                     if 'snapshotId' in node:
                         data = get_node(awsclient, node, snapshot_source)
                         if data:
@@ -362,6 +400,9 @@ def populate_aws_snapshot(snapshot, container=None):
                                         'collection': data['collection'],
                                         'id' : data['id']
                                     })
+                elif 'masterSnapshotId' in node and client_str is not None:
+                    _crawl_thorugh_all_regions(client_str, node, snapshot,
+                        sub_data, snapshot_data, access_key, secret_access)
     return snapshot_data
 
 

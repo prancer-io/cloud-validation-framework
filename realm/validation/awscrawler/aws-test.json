@@ -24,7 +24,15 @@
                 {
                     "masterTestId": "4",
                     "rule": "{1}.LocationConstraint='us-west-1'"
-                }               
+                },
+                {
+                    "masterTestId": "102",
+                    "rule": "{102}.Reservations[0].Instances[0].SecurityGroups[0].GroupName='launch-wizard-1'"
+                },
+                {           
+                    "masterTestId": "102",
+                    "rule": "{102}.InstanceMonitorings[0].Monitoring.State='enabled'"
+                }                
             ]
         }
     ]
