@@ -9,7 +9,7 @@ from processor.helper.config.rundata_utils import get_from_currentdata,\
     put_in_currentdata, add_to_exclude_list
 from processor.helper.config.config_utils import config_value
 from processor.helper.httpapi.restapi_azure import get_vault_access_token,\
-    get_keyvault_secret, set_keyvault_secret
+    get_keyvault_secret, set_keyvault_secret, get_all_secrets
 
 logger = getlogger()
 
@@ -34,6 +34,28 @@ def set_vault_data(key_name=None, value=None):
         if vaulttype == 'azure':
             val = set_azure_vault_data(key_name, value)
     return val
+
+def get_all_vault_data():
+    """Read all vault data"""
+    vaulttype = config_value('VAULT', 'type')
+    val = None
+    if vaulttype:
+        if vaulttype == 'azure':
+            val = get_all_azure_vault_data()
+    return val
+
+
+def get_all_azure_vault_data():
+    val = None
+    vaulttoken = _get_vault_token()
+    logger.debug('Vault Token: %s', vaulttoken)
+    if vaulttoken:
+        keyvault = config_value('VAULT', 'keyvault')
+        logger.info('Keyvault: %s', keyvault)
+        data = get_all_secrets(keyvault, vaulttoken)
+        if data:
+            return data
+    return {} 
 
 
 def get_config_value(section, key, env_var, prompt_str=None):
