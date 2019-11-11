@@ -130,26 +130,48 @@ def get_node(awsclient, node, snapshot_source):
         "collection": collection.replace('.', '').lower(),
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
-    function_to_call = _get_aws_function(awsclient, node)
-    if function_to_call and callable(function_to_call):
-        queryval = get_field_value(node, 'id')
-        try:
-            data = function_to_call(**queryval)
-            if data:
-                db_record['json'] = data
-                checksum = get_checksum(data)
-                if checksum:
-                    db_record['checksum'] = checksum
-                else:
-                    put_in_currentdata('errors', data)
-                    logger.info("Describe function does not exist: %s", str(function_to_call))
-                    db_record['error'] = "Describe function does not exist: %s" % str(function_to_call)
-        except Exception as ex:
-            logger.info('Describe function exception: %s', ex)
-            db_record['error'] = 'Describe function exception: %s' % ex
+    detail_methods = get_field_value(node, "detailMethods")
+    if detail_methods is None:
+        function_to_call = _get_aws_function(awsclient, node)
+        if function_to_call and callable(function_to_call):
+            queryval = get_field_value(node, 'id')
+            try:
+                data = function_to_call(**queryval)
+                if data:
+                    db_record['json'] = data
+                    checksum = get_checksum(data)
+                    if checksum:
+                        db_record['checksum'] = checksum
+                    else:
+                        put_in_currentdata('errors', data)
+                        logger.info("Describe function does not exist: %s", str(function_to_call))
+                        db_record['error'] = "Describe function does not exist: %s" % str(function_to_call)
+            except Exception as ex:
+                logger.info('Describe function exception: %s', ex)
+                db_record['error'] = 'Describe function exception: %s' % ex
+        else:
+            logger.info('Invalid function exception: %s', str(function_to_call))
+            db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
     else:
-        logger.info('Invalid function exception: %s', str(function_to_call))
-        db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
+        json_to_put = {}
+        client = get_field_value(node, "client")
+        id_dict = get_field_value(node, "id")
+        resourceid = get_field_value(id_dict, "id")
+        for each_method_str in detail_methods:
+            function_to_call = getattr(awsclient, each_method_str, None)
+            if function_to_call and callable(function_to_call):
+                params = _get_function_kwargs(client, resourceid, each_method_str)
+                try:
+                    data = function_to_call(**params)
+                    if data:
+                        json_to_put.update(data) 
+                except Exception as ex:
+                    logger.info('Describe function exception: %s', ex)
+                    db_record['error'] = 'Describe function exception: %s' % ex
+            else:
+                logger.info('Invalid function exception: %s', str(function_to_call))
+                db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
+        db_record['json'] = json_to_put
     return db_record
 
 
@@ -194,19 +216,20 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 list_of_resources = _get_resources_from_list_function(response, list_function_name)
             except Exception as ex:
                 list_of_resources = []
-            detail_function_str = get_field_value(node, 'detailMethod')
+            detail_methods = get_field_value(node, 'detailMethods')
             count = 0
             for each_resource in list_of_resources:
-                # for each_function_str in detail_functions:
-                if detail_function_str:
-                    detail_function = getattr(awsclient, detail_function_str, None)
-                    if detail_function and callable(detail_function):
-                        db_record = copy.deepcopy(d_record)
-                        db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
-                        db_record['function'] = detail_function_str
-                        db_record['resource_id'] = each_resource
-                        db_records.append(db_record)
-                        count += 1
+                type_list = []
+                for each_method_str in detail_methods:
+                    each_method = getattr(awsclient, each_method_str, None)
+                    if each_method and callable(each_method):
+                        type_list.append(each_method_str)
+                db_record = copy.deepcopy(d_record)
+                db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
+                db_record['detailMethods'] = type_list
+                db_record['id'] = {'id': each_resource}
+                db_records.append(db_record)
+                count += 1
 
     return db_records
 
@@ -331,13 +354,13 @@ def populate_aws_snapshot(snapshot, container=None):
                                     {
                                         'snapshotId': data['snapshotId'],
                                         'validate': True,
-                                        'id': _get_function_kwargs(client_str, data['resource_id'], data['function']),
-                                        'type': data['function'],
+                                        'detailMethods': data['detailMethods'],
                                         'client': client_str,
                                         'region': aws_region,
                                         'structure': 'aws',
                                         'masterSnapshotId': node['masterSnapshotId'],
-                                        'collection': data['collection']
+                                        'collection': data['collection'],
+                                        'id' : data['id']
                                     })
     return snapshot_data
 
