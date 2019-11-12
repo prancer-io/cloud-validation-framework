@@ -54,6 +54,7 @@ def get_config_value(section, key, env_var, prompt_str=None):
 
 
 def _get_vault_token():
+    """Fetches the bearer token for Azure Vault API calls"""
     client_id = config_value('VAULT', 'client_id')
     client_secret = get_config_value('VAULT', 'client_secret', 'CLIENTKEY',
                                      'Enter the client secret to access keyvault: ')
@@ -66,6 +67,7 @@ def _get_vault_token():
 
 
 def get_azure_vault_data(secret_key=None):
+    """Fetches the bearer token for Azure Vault API calls"""
     val = None
     vaulttoken = _get_vault_token()
     logger.debug('Vault Token: %s', vaulttoken)
@@ -81,6 +83,7 @@ def get_azure_vault_data(secret_key=None):
 
 
 def set_azure_vault_data(secret_key=None, value=None):
+    """Fetches the bearer token for Azure Vault API calls"""
     val = None
     vaulttoken = _get_vault_token()
     logger.debug('Vault Token: %s', vaulttoken)

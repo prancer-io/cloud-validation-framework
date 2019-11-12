@@ -176,6 +176,10 @@ def get_node(awsclient, node, snapshot_source):
 
 
 def _get_resources_from_list_function(response, method):
+    """
+    Fetches the resources id from different responses
+    and returns a list of responses.
+    """
     if method == 'list_buckets':
         return [x['Name'] for x in response['Buckets']]
     elif method == 'describe_instances':
@@ -244,6 +248,7 @@ def get_checksum(data):
     return checksum
 
 def _get_function_kwargs(client_str, resource_id, function_name):
+    """Fetches the correct keyword arguments for different detail functions"""
     if client_str == "s3":
         return {'Bucket' : resource_id}
     elif client_str == "ec2" and function_name == "describe_instance_attribute":
@@ -259,6 +264,10 @@ def _get_function_kwargs(client_str, resource_id, function_name):
         return {}
 
 def _get_aws_client_data_from_node(node, default_client=None, default_region=None):
+    """
+    Fetches client name and region from ARN, then from the node, 
+    then from the connector.
+    """
     aws_region = client_str = None
     arn_str = get_field_value(node, 'arn')
     if arn_str:
