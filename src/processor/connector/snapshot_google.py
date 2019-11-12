@@ -19,9 +19,10 @@ from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
-from processor.helper.config.rundata_utils import put_in_currentdata
+from processor.helper.config.rundata_utils import put_in_currentdata, get_dbtests
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    collectiontypes, STRUCTURE, save_json_to_file
+    collectiontypes, STRUCTURE, save_json_to_file, get_field_value_with_default,\
+    make_snapshots_dir, store_snapshot
 from processor.connector.vault import get_vault_data
 from processor.helper.config.config_utils import config_value, get_test_json_dir, framework_dir
 from processor.database.database import insert_one_document, sort_field, get_documents,\
@@ -111,19 +112,21 @@ def get_google_call_function(node):
     return fn_str, kwargs
 
 
-def get_node(compute, node, snapshot_source):
+def get_node(compute, node, snapshot_source, snapshot):
     """
     Fetch node from google using connection. In this case using google client API's
     functions.
     """
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
+    project_id = get_field_value_with_default(snapshot, 'project-id',"")
+    path = get_field_value_with_default(node, 'path',"")
     db_record = {
         "structure": "google",
         "error": None,
-        "reference": "",
+        "reference": project_id,
         "source": parts[0],
-        "path": '',
+        "path": path,
         "timestamp": int(time.time() * 1000),
         "queryuser": "",
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
@@ -170,7 +173,7 @@ def get_checksum(data):
     return checksum
 
 
-def populate_google_snapshot(snapshot):
+def populate_google_snapshot(snapshot, container):
     """
     This is an entrypoint for populating a snapshot of type google.
     All snapshot connectors should take snapshot object and based on
@@ -194,10 +197,15 @@ def populate_google_snapshot(snapshot):
         try:
             for node in snapshot['nodes']:
                 logger.info(node)
-                data = get_node(compute, node, snapshot_source)
+                data = get_node(compute, node, snapshot_source, snapshot)
                 if data:
                     error_str = data.pop('error', None)
-                    insert_one_document(data, data['collection'], dbname)
+                    if get_dbtests():
+                        insert_one_document(data, data['collection'], dbname)
+                    else:
+                        snapshot_dir = make_snapshots_dir(container)
+                        if snapshot_dir:
+                            store_snapshot(snapshot_dir, data)
                     snapshot_data[node['snapshotId']] = False if error_str else True
         except Exception as ex:
             logger.info('Unable to create Google client: %s', ex)

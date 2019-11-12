@@ -14,6 +14,7 @@ from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.database.database import create_indexes, COLLECTION,\
     sort_field, get_documents
 from processor.reporting.json_output import dump_output_results
+from processor.helper.config.rundata_utils import get_dbtests
 
 
 logger = getlogger()
@@ -50,12 +51,13 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
             coll = node['collection'] if 'collection' in node else COLLECTION
             collection = coll.replace('.', '').lower()
             snapshot_data[sid] = collection
-            create_indexes(collection, dbname, [('timestamp', pymongo.TEXT)])
+            if get_dbtests():
+                create_indexes(collection, dbname, [('timestamp', pymongo.TEXT)])
     return snapshot_data
 
 
-def run_validation_test(version, dbname, collection_data, testcase):
-    comparator = Comparator(version, dbname, collection_data, testcase)
+def run_validation_test(version, container, dbname, collection_data, testcase):
+    comparator = Comparator(version, container, dbname, collection_data, testcase)
     result_val = comparator.validate()
     result_val.update(testcase)
     return result_val
@@ -110,7 +112,7 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
             logger.info("No testcases in testSet!...")
             continue
         for testcase in testset['cases']:
-            result_val = run_validation_test(version, dbname, collection_data,
+            result_val = run_validation_test(version, container, dbname, collection_data,
                                              testcase)
             resultset.append(result_val)
     return resultset

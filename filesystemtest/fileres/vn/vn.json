@@ -1,0 +1,83 @@
+{
+  "name": "vnet-hub",
+  "id": "/subscriptions/e43e7132-8b64-xxyy-b32d-f038bbxxyyzz/resourceGroups/vnet-test/providers/Microsoft.Network/virtualNetworks/vnet-hub",
+  "etag": "W/\"2829b391-cf95-43dc-9a5f-502d63349481\"",
+  "type": "Microsoft.Network/virtualNetworks",
+  "location": "eastus2",
+  "properties": {
+    "provisioningState": "Succeeded",
+    "resourceGuid": "cb3a2e1a-91bb-47d1-ae75-04a2fbf8a35e",
+    "addressSpace": {
+      "addressPrefixes": [
+        "12.3.0.0/16"
+      ]
+    },
+    "subnets": [
+      {
+        "name": "default",
+        "id": "/subscriptions/e43e7132-8b64-xxyy-b32d-f038bbxxyyzz/resourceGroups/vnet-test/providers/Microsoft.Network/virtualNetworks/vnet-hub/subnets/default",
+        "etag": "W/\"2829b391-cf95-43dc-9a5f-502d63349481\"",
+        "properties": {
+          "provisioningState": "Succeeded",
+          "addressPrefix": "12.3.0.0/24",
+          "delegations": []
+        },
+        "type": "Microsoft.Network/virtualNetworks/subnets"
+      }
+    ],
+    "virtualNetworkPeerings": [
+      {
+        "name": "spoke1-peering",
+        "id": "/subscriptions/e43e7132-8b64-xxyy-b32d-f038bbxxyyzz/resourceGroups/vnet-test/providers/Microsoft.Network/virtualNetworks/vnet-hub/virtualNetworkPeerings/spoke1-peering",
+        "etag": "W/\"2829b391-cf95-43dc-9a5f-502d63349481\"",
+        "properties": {
+          "provisioningState": "Succeeded",
+          "resourceGuid": "0c9e9f54-baa5-011f-3489-53b0880202b1",
+          "peeringState": "Initiated",
+          "remoteVirtualNetwork": {
+            "id": "/subscriptions/e43e7132-8b64-xxyy-b32d-f038bbxxyyzz/resourceGroups/vnet-test/providers/Microsoft.Network/virtualNetworks/vnet1"
+          },
+          "allowVirtualNetworkAccess": true,
+          "allowForwardedTraffic": false,
+          "allowGatewayTransit": false,
+          "useRemoteGateways": false,
+          "doNotVerifyRemoteGateways": false,
+          "remoteAddressSpace": {
+            "addressPrefixes": [
+              "10.2.0.0/16"
+            ]
+          },
+          "routeServiceVips": {}
+        },
+        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+      },
+      {
+        "name": "spoke2-peering",
+        "id": "/subscriptions/e43e7132-8b64-xxyy-b32d-f038bbxxyyzz/resourceGroups/vnet-test/providers/Microsoft.Network/virtualNetworks/vnet-hub/virtualNetworkPeerings/spoke2-peering",
+        "etag": "W/\"2829b391-cf95-43dc-9a5f-502d63349481\"",
+        "properties": {
+          "provisioningState": "Succeeded",
+          "resourceGuid": "f70a309e-ba90-06f6-0f44-68da93239d7b",
+          "peeringState": "Initiated",
+          "remoteVirtualNetwork": {
+            "id": "/subscriptions/e43e7132-8b64-xxyy-b32d-f038bbxxyyzz/resourceGroups/vnet-test/providers/Microsoft.Network/virtualNetworks/vnet2"
+          },
+          "allowVirtualNetworkAccess": true,
+          "allowForwardedTraffic": false,
+          "allowGatewayTransit": false,
+          "useRemoteGateways": false,
+          "doNotVerifyRemoteGateways": false,
+          "remoteAddressSpace": {
+            "addressPrefixes": [
+              "11.2.0.0/16"
+            ]
+          },
+          "routeServiceVips": {}
+        },
+        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+      }
+    ],
+    "enableDdosProtection": false,
+    "enableVmProtection": false
+  }
+}

@@ -9,7 +9,7 @@ from processor.helper.config.rundata_utils import get_from_currentdata,\
     put_in_currentdata, add_to_exclude_list
 from processor.helper.config.config_utils import config_value
 from processor.helper.httpapi.restapi_azure import get_vault_access_token,\
-    get_keyvault_secret
+    get_keyvault_secret, set_keyvault_secret
 
 logger = getlogger()
 
@@ -23,6 +23,16 @@ def get_vault_data(secret_key=None):
             val = get_azure_vault_data(secret_key)
         elif vaulttype == 'cyberark':
             val = get_cyberark_data(secret_key)
+    return val
+
+
+def set_vault_data(key_name=None, value=None):
+    """Update vault data"""
+    vaulttype = config_value('VAULT', 'type')
+    val = None
+    if vaulttype:
+        if vaulttype == 'azure':
+            val = set_azure_vault_data(key_name, value)
     return val
 
 
@@ -43,8 +53,7 @@ def get_config_value(section, key, env_var, prompt_str=None):
     return client_secret
 
 
-def get_azure_vault_data(secret_key=None):
-    val = None
+def _get_vault_token():
     client_id = config_value('VAULT', 'client_id')
     client_secret = get_config_value('VAULT', 'client_secret', 'CLIENTKEY',
                                      'Enter the client secret to access keyvault: ')
@@ -52,6 +61,13 @@ def get_azure_vault_data(secret_key=None):
     tenant_id = config_value('VAULT', 'tenant_id')
     logger.info('Id: %s, secret: %s, tenant: %s', client_id, client_secret, tenant_id)
     vaulttoken = get_vault_access_token(tenant_id, client_id, client_secret)
+    logger.debug('Vault Token: %s', vaulttoken)
+    return vaulttoken
+
+
+def get_azure_vault_data(secret_key=None):
+    val = None
+    vaulttoken = _get_vault_token()
     logger.debug('Vault Token: %s', vaulttoken)
     if vaulttoken and secret_key:
         keyvault = config_value('VAULT', 'keyvault')
@@ -62,6 +78,21 @@ def get_azure_vault_data(secret_key=None):
             val = secret_data['value']
     logger.info('Secret Value: %s', val)
     return val
+
+
+def set_azure_vault_data(secret_key=None, value=None):
+    val = None
+    vaulttoken = _get_vault_token()
+    logger.debug('Vault Token: %s', vaulttoken)
+    if vaulttoken and secret_key and value:
+        keyvault = config_value('VAULT', 'keyvault')
+        # secret_key = config_value('VAULT', 'secret_key')
+        logger.info('Keyvault: %s, key:%s', keyvault, secret_key)
+        sucess = set_keyvault_secret(keyvault, vaulttoken, secret_key, value)
+        if sucess:
+            return True
+    logger.info('Secret Value: %s', val)
+    return False
 
 
 def get_cyberark_data(secret_key=None):

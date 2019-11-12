@@ -100,12 +100,12 @@ from git import Repo
 from git import Git
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path, remove_file
 from processor.logging.log_handler import getlogger
-from processor.connector.vault import get_vault_data
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    collectiontypes, STRUCTURE, get_field_value_with_default
+    collectiontypes, STRUCTURE, get_field_value_with_default, \
+    make_snapshots_dir, store_snapshot
 from processor.helper.yaml.yaml_utils import yaml_from_file
 from processor.helper.config.config_utils import config_value, get_test_json_dir
-from processor.helper.config.rundata_utils import get_from_currentdata
+from processor.helper.config.rundata_utils import get_from_currentdata, get_dbtests
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME
 from processor.helper.httpapi.restapi_azure import json_source
@@ -386,7 +386,7 @@ def _get_repo_path(connector, snapshot):
     return None, None
 
 
-def populate_custom_snapshot(snapshot):
+def populate_custom_snapshot(snapshot, container):
     """ Populates the resources from git."""
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
@@ -409,7 +409,12 @@ def populate_custom_snapshot(snapshot):
                     data = get_node(repopath, node, snapshot, brnch, sub_data)
                     if data:
                         if validate:
-                            insert_one_document(data, data['collection'], dbname)
+                            if get_dbtests():
+                                insert_one_document(data, data['collection'], dbname)
+                            else:
+                                snapshot_dir = make_snapshots_dir(container)
+                                if snapshot_dir:
+                                    store_snapshot(snapshot_dir, data)
                             if 'masterSnapshotId' in node:
                                 snapshot_data[node['snapshotId']] = node['masterSnapshotId']
                             else:

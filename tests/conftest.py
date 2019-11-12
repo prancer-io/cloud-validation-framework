@@ -111,3 +111,10 @@ def load_test_json(filename):
     return jsondata
 
 
+
+# @pytest.fixture(scope="module", autouse=True)
+# def initialize_logger():
+#     from processor.logging.log_handler import init_logger
+#     init_logger(0)
+
+

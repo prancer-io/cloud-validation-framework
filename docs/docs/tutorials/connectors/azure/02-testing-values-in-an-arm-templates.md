@@ -150,7 +150,7 @@ Copy the following content to a file named `validation/container1/snapshot.json`
 >
 > Our setup is simple, we do not have directories, just a single file. If you had put the `prancer-security-group-tutorial.json` file into a directory, you'd specify the additional directories in there as a relative path to the checkout.
 
-For more information on the structure of snapshot configuration files, please refer to the [Snapshot documentation](../../../snapshots/json.md).
+For more information on the structure of snapshot configuration files, please refer to the [Snapshot documentation](../../../snapshots/filesystem.md).
 
 # Create the tests
 

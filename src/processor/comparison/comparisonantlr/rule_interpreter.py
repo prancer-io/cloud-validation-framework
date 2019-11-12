@@ -6,7 +6,10 @@ from processor.logging.log_handler import getlogger
 from processor.comparison.comparisonantlr.compare_types import EQ, NEQ, GT, GTE, LT, LTE
 from processor.comparison.comparisonantlr.compare_types import compare_none, compare_int,\
     compare_float, compare_boolean, compare_str, compare_list
-
+from processor.helper.config.rundata_utils import get_dbtests
+from processor.helper.config.config_utils import get_test_json_dir
+from processor.helper.file.file_utils import exists_file, exists_dir
+from processor.helper.json.json_utils import json_from_file
 
 comparefuncs = {
     type(None): compare_none,
@@ -130,36 +133,38 @@ class RuleInterpreter:
 
 
     def get_snaphotid_doc(self, sid):
-        dbname = self.kwargs['dbname']
-        coll = self.kwargs['snapshots'][sid] if sid in self.kwargs['snapshots'] else COLLECTION
-        docs = get_documents(coll, {'snapshotId': sid}, dbname,
-                             sort=[('timestamp', pymongo.DESCENDING)], limit=1)
-        # docs = [{
-        # "_id": "5c24af787456217c485ad1e6",
-        # "checksum": "7d814f2f82a32ea91ef37de9e11d0486",
-        # "collection": "microsoftcompute",
-        # "json":{
-        #     "id": 124,
-        #     "location": "eastus2",
-        #     "name": "mno-nonprod-shared-cet-eastus2-tab-as03"
-        # },
-        # "queryuser": "ajeybk1@kbajeygmail.onmicrosoft.com",
-        # "snapshotId": 1,
-        # "timestamp": 1545908086831
-        # }]
-        logger.debug('Number of Snapshot Documents: %s', len(docs))
         doc = None
-        if docs and len(docs):
-            doc = docs[0]['json']
-            self.snapshots.append({
-                'id': docs[0]['snapshotId'],
-                'path': docs[0]['path'],
-                'structure': docs[0]['structure'],
-                'reference': docs[0]['reference'],
-                'source': docs[0]['source']
-            })
-            # print(doc)
+        if get_dbtests():
+            dbname = self.kwargs['dbname']
+            coll = self.kwargs['snapshots'][sid] if sid in self.kwargs['snapshots'] else COLLECTION
+            docs = get_documents(coll, {'snapshotId': sid}, dbname,
+                                 sort=[('timestamp', pymongo.DESCENDING)], limit=1)
+            logger.debug('Number of Snapshot Documents: %s', len(docs))
+            if docs and len(docs):
+                doc = docs[0]['json']
+                self.snapshots.append({
+                    'id': docs[0]['snapshotId'],
+                    'path': docs[0]['path'],
+                    'structure': docs[0]['structure'],
+                    'reference': docs[0]['reference'],
+                    'source': docs[0]['source']
+                })
+        else:
+            json_dir = '%s%s' % (get_test_json_dir(), self.kwargs['container'])
+            if exists_dir(json_dir):
+                fname = '%s/snapshots/%s' % (json_dir, sid)
+                if exists_file(fname):
+                    json_data = json_from_file(fname)
+                    doc = json_data['json']
+                    self.snapshots.append({
+                        'id': json_data['snapshotId'],
+                        'path': json_data['path'],
+                        'structure': json_data['structure'],
+                        'reference': json_data['reference'],
+                        'source': json_data['source']
+                    })
         return doc
+
 
     def compare(self):
         lhs_value = self.get_value(self.lhs_operand)
