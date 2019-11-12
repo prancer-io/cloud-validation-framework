@@ -24,8 +24,25 @@ def mock_get_keyvault_secret(keyvault, secret_key, vaulttoken):
 def mock_set_keyvault_secret(keyvault, vaulttoken, secret_key, value):
     return True
 
+
 def mock_exception_set_keyvault_secret(keyvault, vaulttoken, secret_key, value):
     return False
+
+
+def mock_delete_keyvault_secret(keyvault, vaulttoken, secret_key):
+    return True
+
+
+def mock_exception_delete_keyvault_secret(keyvault, vaulttoken, secret_key):
+    return False
+
+
+def mock_get_all_secrets(keyvault, vaulttoken):
+    return ["hello", "hello2"]
+
+
+def mock_exception_get_all_secrets(keyvault, vaulttoken):
+    return []
 
 
 def mock_get_vault_access_token(tenant_id, vault_client_id, client_secret=None):
@@ -93,6 +110,7 @@ def test_get_azure_vault_data(monkeypatch):
     val = get_azure_vault_data('abcd')
     assert val == 'secret'
 
+
 def test_get_vault_data_cyberark(monkeypatch):
     monkeypatch.setattr('processor.connector.vault.config_value', mock_config_value_cybeark)
     monkeypatch.setattr('processor.connector.vault.Popen', Popen)
@@ -102,6 +120,7 @@ def test_get_vault_data_cyberark(monkeypatch):
     val = get_vault_data('abcd')
     assert val == 'secret'
 
+
 def test_get_vault_data_cyberark_error(monkeypatch):
     monkeypatch.setattr('processor.connector.vault.config_value', mock_config_value_cybeark)
     monkeypatch.setattr('processor.connector.vault.Popen', Popen1)
@@ -109,7 +128,8 @@ def test_get_vault_data_cyberark_error(monkeypatch):
     val = get_vault_data('abcd')
     assert val is None
 
-def test_get_vault_data(monkeypatch):
+
+def test_set_vault_data(monkeypatch):
     monkeypatch.setattr('processor.connector.vault.config_value', mock_config_value)
     monkeypatch.setattr('processor.connector.vault.get_vault_access_token', mock_get_vault_access_token)
     monkeypatch.setattr('processor.connector.vault.set_keyvault_secret', mock_set_keyvault_secret)
@@ -119,4 +139,26 @@ def test_get_vault_data(monkeypatch):
     monkeypatch.setattr('processor.connector.vault.set_keyvault_secret', mock_exception_set_keyvault_secret)
     val = set_vault_data('hello', 'world')
     assert val == False
-    
+
+
+def test_delete_vault_data(monkeypatch):
+    monkeypatch.setattr('processor.connector.vault.config_value', mock_config_value)
+    monkeypatch.setattr('processor.connector.vault.get_vault_access_token', mock_get_vault_access_token)
+    monkeypatch.setattr('processor.connector.vault.delete_keyvault_secret', mock_delete_keyvault_secret)
+    from processor.connector.vault import delete_vault_data
+    val = delete_vault_data('hello')
+    assert val == True
+    monkeypatch.setattr('processor.connector.vault.delete_keyvault_secret', mock_exception_delete_keyvault_secret)
+    val = delete_vault_data('hello')
+    assert val == False
+
+def test_get_all_vault_secrets(monkeypatch):
+    monkeypatch.setattr('processor.connector.vault.config_value', mock_config_value)
+    monkeypatch.setattr('processor.connector.vault.get_vault_access_token', mock_get_vault_access_token)
+    monkeypatch.setattr('processor.connector.vault.get_all_secrets', mock_get_all_secrets)
+    from processor.connector.vault import get_all_vault_secrets
+    val = get_all_vault_secrets()
+    assert val != []
+    monkeypatch.setattr('processor.connector.vault.get_all_secrets', mock_exception_get_all_secrets)
+    val = get_all_vault_secrets()
+    assert val == []

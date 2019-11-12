@@ -239,6 +239,7 @@ def get_all_secrets(keyvault, vaulttoken):
             keys_response.extend(values)
         else:
             put_in_currentdata('errors', data)
+            url = None
             logger.info("Get Id returned invalid status: %s", status)
     for each_key in keys_response:
         key_url = each_key.get("id",None)
