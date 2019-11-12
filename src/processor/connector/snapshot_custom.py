@@ -386,7 +386,7 @@ def _get_repo_path(connector, snapshot):
     return None, None
 
 
-def populate_custom_snapshot(snapshot, container):
+def populate_custom_snapshot(snapshot, container=None):
     """ Populates the resources from git."""
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')

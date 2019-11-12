@@ -146,7 +146,7 @@ def mock_save_json_to_file(object, path):
     pass
 
 
-def mock_get_node(compute, node, snapshot_source):
+def mock_get_node(compute, node, snapshot_source, connector):
     return {
         'hello': 'world',
         'collection': 'dummy'
@@ -222,17 +222,17 @@ def test_get_node(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function', mock_get_google_call_function)
     from processor.connector.snapshot_google import get_node
     node = snapshot['nodes'][0]
-    val = get_node(MyMockCompute(), node, "file.file")
+    val = get_node(MyMockCompute(), node, "file.file", snapshot)
     assert val['json'] == {'hello': 'world'}
-    val = get_node(MyMockComputeNoData(), node, "file.file")
+    val = get_node(MyMockComputeNoData(), node, "file.file", snapshot)
     assert val['json'] == {}
     
 
     monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function', mock_exception_get_google_call_function)
-    val = get_node(MyMockCompute(), node, "file.file")
+    val = get_node(MyMockCompute(), node, "file.file", snapshot)
     assert val['json'] == {}
     monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function', mock_exception_get_google_call_function2)
-    val = get_node(MyMockCompute(), node, "file.file")
+    val = get_node(MyMockCompute(), node, "file.file", snapshot)
     assert val['json'] == {}
 
     
