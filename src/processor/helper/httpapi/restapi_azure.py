@@ -226,31 +226,24 @@ def get_all_secrets(keyvault, vaulttoken):
     logger.info('Get Id REST API invoked!')
     urlstr = 'https://%s.vault.azure.net/secrets?api-version=7.0'
     url = urlstr % (keyvault)
+    keys_response = []
     keys = []
-    key_value = {}
     while url != None:
         status, data = http_get_request(url, hdrs)
         if status and isinstance(status, int) and status == 200:
             logger.debug('Data: %s', data)
             values = data.get("value", [])
             url = data.get("nextLink",None)
-            keys.extend(values)
+            keys_response.extend(values)
         else:
             put_in_currentdata('errors', data)
             logger.info("Get Id returned invalid status: %s", status)
-    for each_key in keys:
+    for each_key in keys_response:
         key_url = each_key.get("id",None)
         if key_url:
             secret_key = key_url.split("secrets/",1)[1].split("/")[0]
-            key_url = key_url + "?api-version=7.0"            
-            status, data = http_get_request(key_url, hdrs)
-            if status and isinstance(status, int) and status == 200:
-                if data and 'value' in data:
-                    key_value[secret_key] = data['value']
-            else:
-                put_in_currentdata('errors', data)
-                logger.info("Get Id returned invalid status: %s", status) 
-    return key_value
+            keys.append(secret_key)
+    return keys
 
 
 def set_keyvault_secret(keyvault, vaulttoken, secret_key, value):

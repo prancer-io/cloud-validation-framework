@@ -35,17 +35,17 @@ def set_vault_data(key_name=None, value=None):
             val = set_azure_vault_data(key_name, value)
     return val
 
-def get_all_vault_data():
-    """Read all vault data"""
+def get_all_vault_secrets():
+    """Read all vault secrets"""
     vaulttype = config_value('VAULT', 'type')
     val = None
     if vaulttype:
         if vaulttype == 'azure':
-            val = get_all_azure_vault_data()
+            val = get_all_azure_secrets()
     return val
 
 
-def get_all_azure_vault_data():
+def get_all_azure_secrets():
     val = None
     vaulttoken = _get_vault_token()
     logger.debug('Vault Token: %s', vaulttoken)
@@ -55,7 +55,7 @@ def get_all_azure_vault_data():
         data = get_all_secrets(keyvault, vaulttoken)
         if data:
             return data
-    return {} 
+    return [] 
 
 
 def get_config_value(section, key, env_var, prompt_str=None):
