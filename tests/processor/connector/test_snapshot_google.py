@@ -78,6 +78,22 @@ def mock_get_test_json_dir():
     return ""
 
 
+def mock_error_get_checksum(data):
+    raise Exception
+
+
+def mock_get_dbtests_false():
+    return False
+
+
+def mock_make_snapshots_dir(container):
+    return True
+
+
+def mock_store_snapshot(snapshot_dir, data):
+    pass
+
+
 def mock_insert_one_document(doc, collection, dbname):
     pass
 
@@ -206,7 +222,21 @@ def test_populate_google_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.get_google_client_data', mock_negative_get_google_client_data)
     val = populate_google_snapshot(snapshot)
     assert val == {'71': False}
-    
+
+
+def test_populate_google_snapshot_with_exception(monkeypatch):
+    monkeypatch.setattr('processor.connector.snapshot_google.config_value', mock_config_value)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_documents', mock_google_get_documents)
+    monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_db_json_source)
+    monkeypatch.setattr('processor.connector.snapshot_google.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_google_client_data', mock_get_google_client_data)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_node', mock_get_node)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_dbtests', mock_get_dbtests_false)
+    monkeypatch.setattr('processor.connector.snapshot_google.make_snapshots_dir', mock_make_snapshots_dir)
+    monkeypatch.setattr('processor.connector.snapshot_google.store_snapshot', mock_store_snapshot)
+    from processor.connector.snapshot_google import populate_google_snapshot
+    val = populate_google_snapshot(snapshot)
+
 
 def test_get_google_client_data(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.save_json_to_file', mock_save_json_to_file)
@@ -226,7 +256,10 @@ def test_get_node(monkeypatch):
     assert val['json'] == {'hello': 'world'}
     val = get_node(MyMockComputeNoData(), node, "file.file", snapshot)
     assert val['json'] == {}
-    
+    monkeypatch.setattr('processor.connector.snapshot_google.get_checksum', mock_error_get_checksum)
+    val = get_node(MyMockCompute(), node, "file.file", snapshot)
+    assert val['error'] != ''
+    monkeypatch.delattr('processor.connector.snapshot_google.get_checksum')
 
     monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function', mock_exception_get_google_call_function)
     val = get_node(MyMockCompute(), node, "file.file", snapshot)
