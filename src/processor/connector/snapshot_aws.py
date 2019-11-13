@@ -154,13 +154,14 @@ def get_node(awsclient, node, snapshot_source):
             db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
     else:
         json_to_put = {}
-        client = get_field_value(node, "client")
-        id_dict = get_field_value(node, "id")
-        resourceid = get_field_value(id_dict, "id")
+        arn_str = get_field_value(node, "arn")
+        arn_obj = arnparse(arn_str)
+        client_str = arn_obj.service
+        resourceid = arn_obj.resource
         for each_method_str in detail_methods:
             function_to_call = getattr(awsclient, each_method_str, None)
             if function_to_call and callable(function_to_call):
-                params = _get_function_kwargs(client, resourceid, each_method_str)
+                params = _get_function_kwargs(client_str, resourceid, each_method_str)
                 try:
                     data = function_to_call(**params)
                     if data:
@@ -232,7 +233,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                         type_list.append(each_method_str)
                 db_record = copy.deepcopy(d_record)
                 db_record['detailMethods'] = type_list
-                db_record['id'] = {'id': each_resource, 'arn':resource_arn}
+                db_record['arn'] = resource_arn
                 db_records.append(db_record)
 
     return db_records
@@ -390,12 +391,10 @@ def populate_aws_snapshot(snapshot, container=None):
                                             'snapshotId': '%s%s' % (node['masterSnapshotId'], str(count)),
                                             'validate': True,
                                             'detailMethods': data['detailMethods'],
-                                            'client': client_str,
-                                            'region': each_region,
                                             'structure': 'aws',
                                             'masterSnapshotId': node['masterSnapshotId'],
                                             'collection': data['collection'],
-                                            'id' : data['id']
+                                            'arn' : data['arn']
                                         })
                                     count += 1
     return snapshot_data
