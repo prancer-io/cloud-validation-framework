@@ -161,7 +161,7 @@ def get_node(awsclient, node, snapshot_source):
         for each_method_str in detail_methods:
             function_to_call = getattr(awsclient, each_method_str, None)
             if function_to_call and callable(function_to_call):
-                params = _get_function_kwargs(client_str, resourceid, each_method_str)
+                params = _get_function_kwargs(client_str, resourceid, each_method_str, json_to_put)
                 try:
                     data = function_to_call(**params)
                     if data:
@@ -248,7 +248,7 @@ def get_checksum(data):
         pass
     return checksum
 
-def _get_function_kwargs(client_str, resource_id, function_name):
+def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
     """Fetches the correct keyword arguments for different detail functions"""
     if client_str == "s3":
         return {'Bucket' : resource_id}
@@ -260,6 +260,47 @@ def _get_function_kwargs(client_str, resource_id, function_name):
     elif client_str == "ec2" and function_name in ["describe_instances", "monitor_instances"]:
         return {
             'InstanceIds': [resource_id]
+        }
+    elif client_str == "ec2" and function_name == "describe_images":
+        try:
+            imageid = existing_json['Reservations'][0]['Instances'][0]['ImageId']
+        except:
+            imageid = ""
+        return {
+            'ImageIds': [imageid]
+        }
+    elif client_str == "ec2" and function_name == "describe_volumes":
+        try:
+            volumeid = existing_json['Reservations'][0]['Instances'][0]['BlockDeviceMappings'][0]['Ebs']['VolumeId']
+        except:
+            volumeid = ""
+        return {
+            'VolumeIds': [volumeid]
+        }
+    elif client_str == "ec2" and function_name == "describe_security_groups":
+        try:
+            groups = existing_json['Reservations'][0]['Instances'][0]['SecurityGroups']
+            groupsidlist = [x['GroupId'] for x in groups]
+        except:
+            volumeid = []
+        return {
+            'GroupIds': groupsidlist
+        }
+    elif client_str == "ec2" and function_name == "describe_vpcs":
+        try:
+            vpicid = existing_json['Reservations'][0]['Instances'][0]['VpcId']
+        except:
+            vpicid = ""
+        return {
+            'VpcIds': [vpicid]
+        }
+    elif client_str == "ec2" and function_name == "describe_subnets":
+        try:
+            subnetid = existing_json['Reservations'][0]['Instances'][0]['SubnetId']
+        except:
+            subnetid = ""
+        return {
+            'SubnetIds': [subnetid]
         }
     else:
         return {}
