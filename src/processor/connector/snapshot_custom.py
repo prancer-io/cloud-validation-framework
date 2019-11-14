@@ -507,7 +507,7 @@ def _get_repo_path(connector, snapshot):
     return None, None
 
 
-def populate_custom_snapshot(snapshot, container):
+def populate_custom_snapshot(snapshot, container=None):
     """ Populates the resources from git."""
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
@@ -547,7 +547,7 @@ def populate_custom_snapshot(snapshot, container):
                         node['status'] = 'inactive'
                     logger.debug('Type: %s', type(data))
                 elif 'masterSnapshotId' in node:
-                    alldata = get_all_nodes(repopath, node, snapshot_source, brnch)
+                    alldata = get_all_nodes(repopath, node, snapshot, brnch, sub_data)
                     if alldata:
                         snapshot_data[node['masterSnapshotId']] = []
                         for data in alldata:
