@@ -9,7 +9,7 @@ from processor.helper.config.rundata_utils import get_from_currentdata,\
     put_in_currentdata, add_to_exclude_list
 from processor.helper.config.config_utils import config_value
 from processor.helper.httpapi.restapi_azure import get_vault_access_token,\
-    get_keyvault_secret, set_keyvault_secret
+    get_keyvault_secret, set_keyvault_secret, get_all_secrets, delete_keyvault_secret
 
 logger = getlogger()
 
@@ -34,6 +34,39 @@ def set_vault_data(key_name=None, value=None):
         if vaulttype == 'azure':
             val = set_azure_vault_data(key_name, value)
     return val
+
+
+def delete_vault_data(secret_key=None):
+    """Delete vault data from config"""
+    vaulttype = config_value('VAULT', 'type')
+    val = None
+    if vaulttype:
+        if vaulttype == 'azure':
+            val = delete_azure_vault_data(secret_key)
+    return val
+
+
+def get_all_vault_secrets():
+    """Read all vault secrets"""
+    vaulttype = config_value('VAULT', 'type')
+    val = None
+    if vaulttype:
+        if vaulttype == 'azure':
+            val = get_all_azure_secrets()
+    return val
+
+
+def get_all_azure_secrets():
+    val = None
+    vaulttoken = _get_vault_token()
+    logger.debug('Vault Token: %s', vaulttoken)
+    if vaulttoken:
+        keyvault = config_value('VAULT', 'keyvault')
+        logger.info('Keyvault: %s', keyvault)
+        data = get_all_secrets(keyvault, vaulttoken)
+        if data:
+            return data
+    return [] 
 
 
 def get_config_value(section, key, env_var, prompt_str=None):
@@ -96,6 +129,19 @@ def set_azure_vault_data(secret_key=None, value=None):
             return True
     logger.info('Secret Value: %s', val)
     return False
+
+
+def delete_azure_vault_data(secret_key=None):
+    """"Delete a key from vault"""
+    success = None
+    vaulttoken = _get_vault_token()
+    logger.debug('Vault Token: %s', vaulttoken)
+    if vaulttoken and secret_key:
+        keyvault = config_value('VAULT', 'keyvault')
+        logger.info('Keyvault: %s, key:%s', keyvault, secret_key)
+        success = delete_keyvault_secret(keyvault, secret_key, vaulttoken)
+    logger.info('Secret Deleted: %s', success)
+    return success
 
 
 def get_cyberark_data(secret_key=None):

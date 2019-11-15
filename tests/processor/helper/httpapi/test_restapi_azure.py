@@ -25,11 +25,36 @@ def mock_valid_http_get_request(url, headers=None, name='GET'):
 def mock_invalid_http_get_request(url, headers=None, name='GET'):
     return 401, {'access_token': None}
 
+
+def mock_valid_http_delete_request(url, headers=None, name='GET'):
+    return 200, {'access_token': 'abcd'}
+
+
+def mock_invalid_http_delete_request(url, headers=None, name='GET'):
+    return 401, {'access_token': None}
+
+
 def mock_valid_http_put_request(url, request_data, headers=None, json_type=True, name='PUT'):
     return 200, {'hello': 'world'}
 
 def mock_invalid_http_put_request(url, request_data, headers=None, json_type=True, name='PUT'):
     return 401, {'hello': 'world'}
+
+
+def mock_all_keys_http_request(url, headers=None, name='GET'):
+    data = {
+        "value" : [{
+                "id": "https://%s.vault.azure.net/secrets/hello"
+            },{
+                "id": "https://%s.vault.azure.net/secrets/hello2"
+            }]
+    }
+    return 200, data
+
+
+def mock_exception_all_keys_http_request(url, headers=None, name='GET'):
+    return 401, {'access_token': None}
+
 
 def mock_get_from_currentdata(key):
     if key == 'subscriptionId':
@@ -222,3 +247,25 @@ def test_set_keyvault_secret(monkeypatch):
     val = set_keyvault_secret('abcdvault', 'vaulttoken', 'key','value')
     assert val == False
     
+
+def test_get_all_secrets(monkeypatch):
+    monkeypatch.setattr('processor.helper.httpapi.restapi_azure.http_get_request',
+                        mock_all_keys_http_request)
+    from processor.helper.httpapi.restapi_azure import get_all_secrets
+    val = get_all_secrets('abcdvault', 'vaulttoken')
+    assert val == ["hello","hello2"]
+    monkeypatch.setattr('processor.helper.httpapi.restapi_azure.http_get_request',
+                        mock_exception_all_keys_http_request)
+    val = get_all_secrets('abcdvault', 'vaulttoken')
+    assert val == []
+
+def test_delete_keyvault_secret(monkeypatch):
+    monkeypatch.setattr('processor.helper.httpapi.restapi_azure.http_delete_request',
+                        mock_valid_http_delete_request)
+    from processor.helper.httpapi.restapi_azure import delete_keyvault_secret
+    val = delete_keyvault_secret('abcdvault', 'abcdsecret', 'vaulttoken')
+    assert val == True
+    monkeypatch.setattr('processor.helper.httpapi.restapi_azure.http_delete_request',
+                        mock_invalid_http_delete_request)
+    val = delete_keyvault_secret('abcdvault', 'abcdsecret', 'vaulttoken')
+    assert val == False
