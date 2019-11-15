@@ -32,7 +32,11 @@ pipeline {
                     currentVersion = setupPyText.split("\n").find{ element -> element.contains("version=") }.split("=")[1].replace("'", "").replace(",", "").trim();
                     currentDirectory = pwd();
                     echo "*** Current version ${currentVersion} from setup.py. ";
-                    sh "rm dist/*";
+                    try {
+                        sh "rm dist/*";
+                    } catch(e) {
+                        echo "Warning: error trying to rm dist/*"
+                    }
                 }
             }
         }
