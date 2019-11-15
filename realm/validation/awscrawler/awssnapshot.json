@@ -1,0 +1,31 @@
+{
+   "$schema": "",
+   "contentVersion": "1.0.0.0",
+   "fileType": "masterSnapshot",
+   "snapshots": [
+       {
+           "source": "awsStructure",
+           "testUser": "prancer_pro",
+           "projectId": [
+               "d34d6141-7a19-4458-b0dd-f038bb7760c1"
+           ],
+           "type" :"aws",
+           "nodes": [
+               {
+                    "masterSnapshotId": "1",
+                    "arn": "arn:aws:s3:us-west-1::",
+                    "collection": "s3",
+                    "listMethod": "list_buckets",
+                    "detailMethods": ["get_bucket_acl","get_bucket_location"]
+               },
+               {
+                    "masterSnapshotId": "102",
+                    "arn": "arn:aws:ec2:::",
+                    "collection": "ec2",
+                    "listMethod": "describe_instances",
+                    "detailMethods": ["describe_instances","monitor_instances"]
+               }
+           ]
+       }
+   ]
+}

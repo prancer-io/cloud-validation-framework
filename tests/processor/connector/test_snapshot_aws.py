@@ -145,7 +145,7 @@ def test_get_checksum():
     from processor.connector.snapshot_aws import get_checksum
     assert get_checksum(None) is not None
     assert get_checksum('abc') is not None
-    assert get_checksum(Mock()) is None
+    assert get_checksum(Mock()) is not None
 
 
 def test_get_node():
