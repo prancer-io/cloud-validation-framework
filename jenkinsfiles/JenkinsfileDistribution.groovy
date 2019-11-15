@@ -9,7 +9,8 @@ pipeline {
 
     environment {
         PYTHON_DOCKER_IMAGE = "python:3.6"
-        PIP_CRENDENTIAL_ID = "PIP_CRENDENTIAL_ID"
+        PIP_CREDENTIAL_ID = "PIP_CREDENTIAL_ID"
+        PIP_TEST_CREDENTIAL_ID = "PIP_TEST_CREDENTIAL_ID"
         DOCKERHUB_CREDENTIAL_ID = "DOCKERHUB_CREDENTIAL_ID"
         DOCKERHUB_IMAGE_NAME = "prancer-basic"
         DOCKERHUB_PUBLIC_REPOSITORY = "https://registry.hub.docker.com/prancer"
@@ -31,6 +32,7 @@ pipeline {
                     currentVersion = setupPyText.split("\n").find{ element -> element.contains("version=") }.split("=")[1].replace("'", "").replace(",", "").trim();
                     currentDirectory = pwd();
                     echo "*** Current version ${currentVersion} from setup.py. ";
+                    sh "rm dist/*";
                 }
             }
         }
@@ -139,8 +141,7 @@ pipeline {
             }
         }
 
-        stage("Push to pip") {
-
+        stage("Push to pypi.org") {
             agent {
                 docker {
                     image PYTHON_DOCKER_IMAGE
@@ -152,11 +153,11 @@ pipeline {
             steps {
                 script {
                     // Install Twine to distribute application. Reference: https://packaging.python.org/tutorials/packaging-projects/
-                    withCredentials([usernamePassword(credentialsId: PIP_CRENDENTIAL_ID, passwordVariable: 'pipPassword', usernameVariable: 'pipUser')]) {
+                    withCredentials([usernamePassword(credentialsId: PIP_CREDENTIAL_ID, passwordVariable: 'pipPassword', usernameVariable: 'pipUser')]) {
                         sh "pip install twine"
                         sh "twine --version"
                         sh "cd ${currentDirectory} && " + 
-                           "twine upload --repository-url https://test.pypi.org/legacy/ dist/* -u ${pipUser} -p ${pipPassword}";
+                           "twine upload dist/* -u ${pipUser} -p ${pipPassword}";
                     }                    
                 }
             }
