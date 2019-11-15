@@ -189,6 +189,8 @@ def _get_resources_from_list_function(response, method):
             for instance in reservation['Instances']:
                 final_list.append(instance['InstanceId'])
         return final_list
+    elif method == 'describe_db_instances':
+        return [x['DBInstanceIdentifier'] for x in response['DBInstances']]
     else:
         return [] 
 
@@ -252,6 +254,11 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
     """Fetches the correct keyword arguments for different detail functions"""
     if client_str == "s3":
         return {'Bucket' : resource_id}
+    elif client_str == "rds" and function_name in ["describe_db_instances",\
+        "describe_db_snapshots"]:
+        return {
+            'DBInstanceIdentifier': resource_id
+        }
     elif client_str == "ec2" and function_name == "describe_instance_attribute":
         return {
             'Attribute': 'instanceType',

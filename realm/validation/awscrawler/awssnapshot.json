@@ -13,17 +13,39 @@
            "nodes": [
                {
                     "masterSnapshotId": "1",
-                    "arn": "arn:aws:s3:us-west-1::",
+                    "arn": "arn:aws:s3:::",
                     "collection": "s3",
                     "listMethod": "list_buckets",
-                    "detailMethods": ["get_bucket_acl","get_bucket_location"]
+                    "detailMethods": ["get_bucket_acl",
+                      "get_bucket_location",
+                      "get_bucket_logging"
+                    ]
                },
                {
-                    "masterSnapshotId": "102",
-                    "arn": "arn:aws:ec2:::",
+                    "masterSnapshotId": "101",
+                    "arn": "arn:aws:ec2:us-west-1::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
-                    "detailMethods": ["describe_instances","monitor_instances"]
+                    "detailMethods": [
+                      "describe_instances",
+                      "monitor_instances",
+                      "describe_images",
+                      "describe_volumes",
+                      "describe_security_groups",
+                      "describe_account_attributes",
+                      "describe_vpcs",
+                      "describe_subnets"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "201",
+                    "arn": "arn:aws:rds:us-west-1::",
+                    "collection": "rds",
+                    "listMethod": "describe_db_instances",
+                    "detailMethods": [
+                      "describe_db_instances",
+                      "describe_db_snapshots"
+                    ]
                }
            ]
        }
