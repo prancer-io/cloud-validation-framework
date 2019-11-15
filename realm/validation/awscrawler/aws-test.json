@@ -68,7 +68,7 @@
                 {           
                     "masterTestId": "202",
                     "rule": "{201}.DBInstances[0].copyTagsToSnapshot=false"
-                },
+                }
             ]
         }
     ]
