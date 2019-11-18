@@ -16,7 +16,8 @@
                     "arn": "arn:aws:s3:::",
                     "collection": "s3",
                     "listMethod": "list_buckets",
-                    "detailMethods": ["get_bucket_acl",
+                    "detailMethods": [
+                      "get_bucket_acl",
                       "get_bucket_location",
                       "get_bucket_logging"
                     ]
@@ -29,17 +30,44 @@
                     "detailMethods": [
                       "describe_instances",
                       "monitor_instances",
+                      "describe_account_attributes"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "102",
+                    "arn": "arn:aws:ec2:us-west-1::",
+                    "collection": "ec2",
+                    "listMethod": "describe_instances",
+                    "detailMethods": [
+                      "describe_instances",
+                      "describe_security_groups"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "103",
+                    "arn": "arn:aws:ec2:us-east-1::",
+                    "collection": "ec2",
+                    "listMethod": "describe_instances",
+                    "detailMethods": [
+                      "describe_instances",
                       "describe_images",
-                      "describe_volumes",
-                      "describe_security_groups",
-                      "describe_account_attributes",
+                      "describe_volumes"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "104",
+                    "arn": "arn:aws:ec2:us-east-1::",
+                    "collection": "ec2",
+                    "listMethod": "describe_instances",
+                    "detailMethods": [
+                      "describe_instances",
                       "describe_vpcs",
                       "describe_subnets"
                     ]
                },
                {
                     "masterSnapshotId": "201",
-                    "arn": "arn:aws:rds:us-west-1::",
+                    "arn": "arn:aws:rds:::",
                     "collection": "rds",
                     "listMethod": "describe_db_instances",
                     "detailMethods": [

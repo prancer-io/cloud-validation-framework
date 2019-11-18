@@ -11,7 +11,7 @@
             "cases": [
                 {
                     "masterTestId": "1",
-                    "rule": "count({1}.Grants[])=1"
+                    "rule": "count({1}.Grants[])>=1"
                 },
                 {
                     "masterTestId": "2",
@@ -35,15 +35,15 @@
                 },
                 {           
                     "masterTestId": "104",
-                    "rule": "{101}.Images[0].Public=true"
+                    "rule": "{103}.Images[0].Public=true"
                 },
                 {           
                     "masterTestId": "105",
-                    "rule": "{101}.Images[0].BlockDeviceMappings[0].Ebs.Encrypted=false"
+                    "rule": "{103}.Images[0].BlockDeviceMappings[0].Ebs.Encrypted=false"
                 },
                 {           
                     "masterTestId": "106",
-                    "rule": "{101}.SecurityGroups['GroupName'='launch-wizard-1'].IpPermissions['FromPort'=80].IpProtocol='tcp'"
+                    "rule": "{102}.SecurityGroups['GroupName'='launch-wizard-1'].IpPermissions['FromPort'=80].IpProtocol='tcp'"
                 },
                 {           
                     "masterTestId": "107",
@@ -51,7 +51,7 @@
                 },
                 {           
                     "masterTestId": "108",
-                    "rule": "{101}.Subnets[0].MapPublicIpOnLaunch=true"
+                    "rule": "{101}.Reservations[0].Instances[0].State.Code!=16"
                 },
                 {           
                     "masterTestId": "201",
@@ -59,15 +59,15 @@
                 },
                 {           
                     "masterTestId": "202",
-                    "rule": "{201}.DBInstances[0].BackupRetentionPeriod<7"
+                    "rule": "{201}.DBInstances[0].BackupRetentionPeriod<=7"
                 },
                 {           
                     "masterTestId": "202",
-                    "rule": "{201}.DBInstances[0].storageEncrypted=false"
+                    "rule": "{201}.DBInstances[0].StorageEncrypted=false"
                 },
                 {           
                     "masterTestId": "202",
-                    "rule": "{201}.DBInstances[0].copyTagsToSnapshot=false"
+                    "rule": "{201}.DBInstances[0].CopyTagsToSnapshot=true"
                 }
             ]
         }
