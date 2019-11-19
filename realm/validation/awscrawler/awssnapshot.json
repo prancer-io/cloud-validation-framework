@@ -12,7 +12,7 @@
            "type" :"aws",
            "nodes": [
                {
-                    "masterSnapshotId": "1",
+                    "masterSnapshotId": "AWS-BUCKETS-01",
                     "arn": "arn:aws:s3:::",
                     "collection": "s3",
                     "listMethod": "list_buckets",
@@ -23,7 +23,7 @@
                     ]
                },
                {
-                    "masterSnapshotId": "101",
+                    "masterSnapshotId": "AWS-EC2-INSTANCE-01",
                     "arn": "arn:aws:ec2:us-west-1::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
@@ -34,7 +34,7 @@
                     ]
                },
                {
-                    "masterSnapshotId": "102",
+                    "masterSnapshotId": "AWS-EC2-SECGROUP-01",
                     "arn": "arn:aws:ec2:us-west-1::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
@@ -44,7 +44,7 @@
                     ]
                },
                {
-                    "masterSnapshotId": "103",
+                    "masterSnapshotId": "AWS-EC2-IMAGE-01",
                     "arn": "arn:aws:ec2:us-east-1::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
@@ -55,7 +55,7 @@
                     ]
                },
                {
-                    "masterSnapshotId": "104",
+                    "masterSnapshotId": "AWS-EC2-VPC-01",
                     "arn": "arn:aws:ec2:us-east-1::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
@@ -66,7 +66,7 @@
                     ]
                },
                {
-                    "masterSnapshotId": "201",
+                    "masterSnapshotId": "AWS-RDS-01",
                     "arn": "arn:aws:rds:::",
                     "collection": "rds",
                     "listMethod": "describe_db_instances",
