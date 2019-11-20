@@ -12,6 +12,7 @@ count({1}.firewall.rules[])=13
 exist({1}.location)=FAlSE
 {1}.firewall.port   =    443
 {1}.firewall.rules['name'='rule1'].port=443
+{1}.firewall.rules[*].port=443
 {1}.firewall.port={2}.firewall.port
 {1}.firewall.rules[0].port={2}.firewall.port
 exist({1}[0].location)
@@ -19,3 +20,24 @@ exist({1}['name'='abc'])
 {1}.firewall.rules['name'='abc'].port={2}.firewall.port
 {1}.firewall.rules['name'='abc'].ports[2].port={2}.firewall.port
 {1}.firewall.cost=443.25
+{13}.resources[].properties.securityRules[]=443
+{13}.resources[*].properties.securityRules[]=443
+{13}.resources[*].properties.securityRules[]=443
+{13}.resources[*].properties.securityRules[*]=443
+{13}.resources[0].properties.securityRules[].properties.access=Allow
+{13}.resources[0].properties.securityRules[*].properties.direction=Inbound
+{15}.resources[*].properties.securityRules[*].properties.direction=Inbound
+{13}.resources[0].properties.securityRules[0].properties.sourceAddressPrefix=443
+{13}.resources[0].properties.securityRules[1].properties=443
+{13}.resources[0].properties.securityRules["name" = "httpFromPublic"]=443
+{13}.resources[0].properties.securityRules['name'='httpFromPublic'].properties.destinationPortRange=443
+{13}.resources[0].properties.securityRules[*].direction=Inbound
+{abcd}.resources[*].properties.securityRules[*].properties.direction=Inbound
+{abcd}.resources[*].properties.securityRules[*].properties.destinationPortRange=443
+{15}.resources[1].properties.securityRules['name' = 'httpFromPublic'].properties.destinationPortRange=80
+{13}.resources[0].properties.securityRules[1].properties.destinationAddressPrefix=172.1.1.0/24
+contains({13}.resources[0].properties.securityRules[1].properties.destinationAddressPrefix)=172.1.1.0
+{AWS-SECURITY_GROUP1}.resources[*].properties.securityRules[*].properties.destinationPortRange=443
+{15}.resources[1].properties.securityRules['name' = 'httpFromPublic'].properties.destinationPortRange=80
+{AWS-SECURITY_GROUP1}.resources[*].properties.securityRules[*].properties.destinationPortRange=443
+{AZR_NSG-2}.resources[*].properties.securityRules[*].properties.destinationPortRange=443
