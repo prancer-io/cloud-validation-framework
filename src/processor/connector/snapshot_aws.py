@@ -15,6 +15,7 @@ identify the resource object.
 import json
 import hashlib
 import time
+import copy
 from boto3 import client
 from boto3 import Session
 from processor.helper.file.file_utils import exists_file
@@ -29,7 +30,7 @@ from processor.database.database import insert_one_document, sort_field, get_doc
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.helper.httpapi.restapi_azure import get_client_secret
 from processor.connector.snapshot_utils import validate_snapshot_nodes
-
+from processor.connector.arn_parser import arnparse
 
 logger = getlogger()
 _valid_service_names = Session().get_available_services()
@@ -40,7 +41,7 @@ def _validate_client_name(client_name):
     A private function to validate whether a given client provided
     in snapshot or aws connector is a valid service in Boto3
     """
-    return client_name.lower() in _valid_service_names
+    return client_name is not None and client_name.lower() in _valid_service_names
 
 
 def get_aws_data(snapshot_source):
@@ -129,40 +130,167 @@ def get_node(awsclient, node, snapshot_source):
         "collection": collection.replace('.', '').lower(),
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
-    function_to_call = _get_aws_function(awsclient, node)
-    if function_to_call and callable(function_to_call):
-        queryval = get_field_value(node, 'id')
-        try:
-            data = function_to_call(**queryval)
-            if data:
-                db_record['json'] = data
-                checksum = get_checksum(data)
-                if checksum:
-                    db_record['checksum'] = checksum
-                else:
-                    put_in_currentdata('errors', data)
-                    logger.info("Describe function does not exist: %s", str(function_to_call))
-                    db_record['error'] = "Describe function does not exist: %s" % str(function_to_call)
-        except Exception as ex:
-            logger.info('Describe function exception: %s', ex)
-            db_record['error'] = 'Describe function exception: %s' % ex
+    detail_methods = get_field_value(node, "detailMethods")
+    if detail_methods is None:
+        function_to_call = _get_aws_function(awsclient, node)
+        if function_to_call and callable(function_to_call):
+            queryval = get_field_value(node, 'id')
+            try:
+                data = function_to_call(**queryval)
+                if data:
+                    db_record['json'] = data
+                    checksum = get_checksum(data)
+                    if checksum:
+                        db_record['checksum'] = checksum
+                    else:
+                        put_in_currentdata('errors', data)
+                        logger.info("Describe function does not exist: %s", str(function_to_call))
+                        db_record['error'] = "Describe function does not exist: %s" % str(function_to_call)
+            except Exception as ex:
+                logger.info('Describe function exception: %s', ex)
+                db_record['error'] = 'Describe function exception: %s' % ex
+        else:
+            logger.info('Invalid function exception: %s', str(function_to_call))
+            db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
     else:
-        logger.info('Invalid function exception: %s', str(function_to_call))
-        db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
+        json_to_put = {}
+        arn_str = get_field_value(node, "arn")
+        arn_obj = arnparse(arn_str)
+        client_str = arn_obj.service
+        resourceid = arn_obj.resource
+        for each_method_str in detail_methods:
+            function_to_call = getattr(awsclient, each_method_str, None)
+            if function_to_call and callable(function_to_call):
+                params = _get_function_kwargs(client_str, resourceid, each_method_str)
+                try:
+                    data = function_to_call(**params)
+                    if data:
+                        json_to_put.update(data) 
+                except Exception as ex:
+                    logger.info('Describe function exception: %s', ex)
+                    db_record['error'] = 'Describe function exception: %s' % ex
+            else:
+                logger.info('Invalid function exception: %s', str(function_to_call))
+                db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
+        db_record['json'] = json_to_put
     return db_record
 
+
+def _get_resources_from_list_function(response, method):
+    """
+    Fetches the resources id from different responses
+    and returns a list of responses.
+    """
+    if method == 'list_buckets':
+        return [x['Name'] for x in response['Buckets']]
+    elif method == 'describe_instances':
+        final_list = []
+        for reservation in response['Reservations']:
+            for instance in reservation['Instances']:
+                final_list.append(instance['InstanceId'])
+        return final_list
+    else:
+        return [] 
+
+def get_all_nodes(awsclient, node, snapshot, connector):
+    """ Fetch all the nodes from the cloned git repository in the given path."""
+    db_records = []
+    arn_string = "arn:aws:%s:%s::%s"
+    collection = node['collection'] if 'collection' in node else COLLECTION
+    snapshot_source = get_field_value(snapshot, 'source')
+    parts = snapshot_source.split('.')
+    d_record = {
+        "structure": "aws",
+        "reference": "",
+        "source": parts[0],
+        "path": '',
+        "timestamp": int(time.time() * 1000),
+        "queryuser": "",
+        "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
+        "node": node,
+        "snapshotId": None,
+        "masterSnapshotId": node['masterSnapshotId'],
+        "collection": collection.replace('.', '').lower(),
+        "json": {}
+    }
+    list_function_name = get_field_value(node, 'listMethod')
+    if list_function_name:
+        list_function = getattr(awsclient, list_function_name, None)
+        if list_function and callable(list_function):
+            try:
+                response = list_function()
+                list_of_resources = _get_resources_from_list_function(response, list_function_name)
+            except Exception as ex:
+                list_of_resources = []
+            detail_methods = get_field_value(node, 'detailMethods')
+            for each_resource in list_of_resources:
+                type_list = []
+                resource_arn = arn_string %(awsclient.meta._service_model.service_name,
+                    awsclient.meta.region_name, each_resource)
+                for each_method_str in detail_methods:
+                    each_method = getattr(awsclient, each_method_str, None)
+                    if each_method and callable(each_method):
+                        type_list.append(each_method_str)
+                db_record = copy.deepcopy(d_record)
+                db_record['detailMethods'] = type_list
+                db_record['arn'] = resource_arn
+                db_records.append(db_record)
+
+    return db_records
 
 def get_checksum(data):
     """ Get the checksum for the AWS data fetched."""
     checksum = None
     try:
-        data_str = json.dumps(data)
+        data_str = json.dumps(data, default=str)
         checksum = hashlib.md5(data_str.encode('utf-8')).hexdigest()
     except:
         pass
     return checksum
 
-def populate_aws_snapshot(snapshot, container):
+def _get_function_kwargs(client_str, resource_id, function_name):
+    """Fetches the correct keyword arguments for different detail functions"""
+    if client_str == "s3":
+        return {'Bucket' : resource_id}
+    elif client_str == "ec2" and function_name == "describe_instance_attribute":
+        return {
+            'Attribute': 'instanceType',
+            'InstanceId': resource_id
+        }
+    elif client_str == "ec2" and function_name in ["describe_instances", "monitor_instances"]:
+        return {
+            'InstanceIds': [resource_id]
+        }
+    else:
+        return {}
+
+def _get_aws_client_data_from_node(node, default_client=None, default_region=None):
+    """
+    Fetches client name and region from ARN, then from the node, 
+    then from the connector.
+    """
+    aws_region = client_str = None
+    arn_str = get_field_value(node, 'arn')
+    if arn_str:
+        arn_obj = arnparse(arn_str)
+        client_str = arn_obj.service
+        aws_region = arn_obj.region
+    if not client_str:
+        client_str = get_field_value(node, 'client')
+    if not client_str:
+        logger.info("No client type provided in snapshot, using client type from connector")
+        client_str = default_client
+    if not aws_region: 
+        aws_region = get_field_value(node, 'region')
+    if not aws_region:
+        logger.info("No region provided in snapshot, using region from connector")
+        aws_region = default_region
+    aws_region = aws_region or default_region
+    client_str = client_str or default_client
+    return client_str, aws_region
+
+
+def populate_aws_snapshot(snapshot, container=None):
     """
     This is an entrypoint for populating a snapshot of type aws.
     All snapshot connectors should take snapshot object and based on
@@ -202,43 +330,73 @@ def populate_aws_snapshot(snapshot, container):
             logger.info("No secret_access in the snapshot to access aws resource!...")
             return snapshot_data
         if access_key and secret_access:
-            existing_aws_client = {}
-            # This will track exisitng AWS client objects to prevent creating redudant clients. 
+            # existing_aws_client = {}
             for node in snapshot['nodes']:
-                client_str = get_field_value(node, 'client')
-                if not client_str:
-                    logger.info("No client type provided in snapshot, using client type from connector")
-                    client_str = connector_client_str
-                else:
+                if 'snapshotId' in node:
+                    client_str, aws_region = _get_aws_client_data_from_node(node,
+                        default_client=connector_client_str, default_region=region)
                     if not _validate_client_name(client_str):
                         logger.error("Invalid Client Name")
                         return snapshot_data
-                aws_region = get_field_value(node, 'region')
-                if not aws_region:
-                    logger.info("No region provided in snapshot, using region from connector")
-                    aws_region = region
-                try:
-                    awsclient = existing_aws_client.get(client_str.lower(), None)
-
-                    if not awsclient:
+                    try:
                         awsclient = client(client_str.lower(), aws_access_key_id=access_key,
                                            aws_secret_access_key=secret_access, region_name=aws_region)
-                except Exception as ex:
-                    logger.info('Unable to create AWS client: %s', ex)
-                    awsclient = None
-                logger.info(awsclient)
-                if awsclient:
-                    existing_aws_client[client_str.lower()] = awsclient
-                    data = get_node(awsclient, node, snapshot_source)
-                    if data:
-                        error_str = data.pop('error', None)
-                        if get_dbtests():
-                            insert_one_document(data, data['collection'], dbname)
-                        else:
-                            snapshot_dir = make_snapshots_dir(container)
-                            if snapshot_dir:
-                                store_snapshot(snapshot_dir, data)
-                        snapshot_data[node['snapshotId']] = False if error_str else True
+                    except Exception as ex:
+                        logger.info('Unable to create AWS client: %s', ex)
+                        awsclient = None
+                    logger.info(awsclient)
+                    if awsclient:
+                        data = get_node(awsclient, node, snapshot_source)
+                        if data:
+                            error_str = data.pop('error', None)
+                            if get_dbtests():
+                                insert_one_document(data, data['collection'], dbname)
+                            else:
+                                snapshot_dir = make_snapshots_dir(container)
+                                if snapshot_dir:
+                                    store_snapshot(snapshot_dir, data)
+                            if 'masterSnapshotId' in node:
+                                snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+                            else:
+                                snapshot_data[node['snapshotId']] = False if error_str else True
+                elif 'masterSnapshotId' in node:
+                    client_str, aws_region = _get_aws_client_data_from_node(node,
+                        default_client=connector_client_str, default_region=region)
+                    if not _validate_client_name(client_str):
+                        logger.error("Invalid Client Name")
+                        return snapshot_data
+                    if aws_region:
+                        all_regions = [aws_region]
+                    else:
+                        all_regions = Session().get_available_regions(client_str.lower())
+                        if client_str.lower() in ['s3']:
+                            all_regions = ['us-east-1']
+                    logger.info("Length of all regions is %s"%(str(len(all_regions))))
+                    count = 0
+                    snapshot_data[node['masterSnapshotId']] = []
+                    for each_region in all_regions:
+                        logger.info(each_region)
+                        try:
+                            awsclient = client(client_str.lower(), aws_access_key_id=access_key,
+                                               aws_secret_access_key=secret_access, region_name=each_region)
+                        except Exception as ex:
+                            logger.info('Unable to create AWS client: %s', ex)
+                        logger.info(awsclient)
+                        if awsclient:
+                            all_data = get_all_nodes(awsclient, node, snapshot, sub_data)
+                            if all_data:
+                                for data in all_data:
+                                    snapshot_data[node['masterSnapshotId']].append(
+                                        {
+                                            'snapshotId': '%s%s' % (node['masterSnapshotId'], str(count)),
+                                            'validate': True,
+                                            'detailMethods': data['detailMethods'],
+                                            'structure': 'aws',
+                                            'masterSnapshotId': node['masterSnapshotId'],
+                                            'collection': data['collection'],
+                                            'arn' : data['arn']
+                                        })
+                                    count += 1
     return snapshot_data
 
 

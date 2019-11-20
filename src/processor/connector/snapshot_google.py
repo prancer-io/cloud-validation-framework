@@ -173,7 +173,7 @@ def get_checksum(data):
     return checksum
 
 
-def populate_google_snapshot(snapshot, container):
+def populate_google_snapshot(snapshot, container=None):
     """
     This is an entrypoint for populating a snapshot of type google.
     All snapshot connectors should take snapshot object and based on

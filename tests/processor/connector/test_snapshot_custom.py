@@ -123,6 +123,7 @@ def test_terraform_get_node(create_terraform, create_temp_dir):
     os.makedirs('%s/%s' % (newpath, data['path']))
     fname = create_terraform('%s/%s' % (newpath, data['path']), '\n'.join(terr_data))
     data['path'] = '%s/%s' % (data['path'], fname)
+    data['type'] = "terraform"
     ret = get_node(newpath, data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert ret['json'] == terr_data_dict
@@ -131,6 +132,46 @@ def test_terraform_get_node(create_terraform, create_temp_dir):
     ret = get_node(newpath, data, snapshot, 'master', connector)
     assert True == isinstance(ret, dict)
     assert ret['json'] == {}
+
+
+def test_yaml_get_node(create_yaml, create_temp_dir):
+    from processor.connector.snapshot_custom import get_node
+    data = {
+        "type": "yaml",
+        'snapshotId': '1',
+        'path': "a/b/c/yaml"
+    }
+    yaml_data = [
+        "runtime: python27",
+        "api_version: 1",
+        "threadsafe: true",
+    ]
+    yaml_data_dict = {
+        'runtime': "python27",
+        'api_version': 1,
+        'threadsafe' : True
+    }
+    snapshot = {
+        'source': 'yaml',
+        'type': 'yaml'
+    }
+    connector = mock_get_custom_data_git(None)
+    ret = get_node('/tmp', data, snapshot, 'master', connector)
+    assert True == isinstance(ret, dict)
+    assert {} == ret['json']
+    newpath = create_temp_dir()
+    os.makedirs('%s/%s' % (newpath, data['path']))
+    fname = create_yaml('%s/%s' % (newpath, data['path']), '\n'.join(yaml_data))
+    data['path'] = '%s/%s' % (data['path'], fname)
+    ret = get_node(newpath, data, snapshot, 'master', connector)
+    assert True == isinstance(ret, dict)
+    assert ret['json'] == yaml_data_dict
+
+    data["type"] = "yaml1"
+    ret = get_node(newpath, data, snapshot, 'master', connector)
+    assert True == isinstance(ret, dict)
+    assert ret['json'] == {}
+
 
 def ignoretest_valid_clone_dir(create_temp_dir):
     from processor.connector.snapshot_custom import valid_clone_dir
@@ -321,6 +362,7 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
             snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
             assert snapshot_data == {'3': False}
 
+
 def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch):
     global frameworkdir
     monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
@@ -366,3 +408,68 @@ def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, 
         assert snapshot_data == {'5': True}
         snapshot_data = populate_custom_snapshot(snapshot1, 'mycontainer1')
         assert snapshot_data == {}
+        snapshot_data = populate_custom_snapshot(snapshot1)
+        assert snapshot_data == {}
+
+def test_get_all_nodes(monkeypatch, create_temp_dir, create_temp_json):
+    global frameworkdir
+    monkeypatch.setattr('processor.connector.snapshot_custom.json_source', mock_false_json_source)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
+    monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
+    # monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
+    from processor.connector.snapshot_custom import populate_custom_snapshot
+    tmpdir = create_temp_dir()
+    frameworkdir = '%s/a/b/c' % tmpdir
+    os.makedirs(frameworkdir)
+    param_structure = {
+        "companyName": "abcd",
+        "folderPath": "/tmp",
+        "username": "abcd",
+        "type" : "filesystem"
+    }
+    test_connector = create_temp_json('%s/a/b' % tmpdir,data=param_structure)
+    test_file = {
+        "parameter_one" : "one"
+    }
+    test_file = create_temp_json('%s' % tmpdir,data=test_file)
+    snapshot = {
+        "source": test_connector,
+        "type": "filesystem",
+        "testUser" : "abcd",
+        "nodes": [
+            {
+            'path': '',
+            'type': 'json',
+            'masterSnapshotId': '123' 
+            }
+        ]
+    }
+    db_records = populate_custom_snapshot(snapshot)
+    assert db_records != []
+    snapshot["nodes"][0]['masterSnapshotId'] = 123
+    
+    db_records = populate_custom_snapshot(snapshot)
+    assert db_records == {123: False}
+    
+    
+    del snapshot["nodes"][0]['masterSnapshotId']
+    db_records = populate_custom_snapshot(snapshot)
+    assert db_records != []
+
+    from processor.connector.snapshot_custom import get_all_nodes
+    newpath = create_temp_dir()
+    testfile = create_temp_json(newpath)
+    node = {
+        'path': '',
+        'type': 'json',
+        'masterSnapshotId': '123' 
+    }
+    snapshot = {
+        "source": "a1.json",
+        "type": "custom",
+        "nodes": []
+    }
+    node['path'] = '/a/b'
+    db_records = get_all_nodes(newpath, node, snapshot, {}, {})
+    assert db_records == []

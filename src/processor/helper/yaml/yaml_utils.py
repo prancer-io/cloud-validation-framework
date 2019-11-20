@@ -21,8 +21,8 @@ def save_yaml_to_file(indata, outfile):
 def yaml_from_string(yaml_str):
     """Get dict from the string in yaml format."""
     try:
-        jsondata = json.loads(yaml_str)
-        return jsondata
+        yamldata = yaml.load(yaml_str)
+        return yamldata
     except:
         print('Failed to load yaml data: %s', yaml_str)
     return None
@@ -43,8 +43,8 @@ def yaml_from_file(yamlfile):
 def valid_yaml(yaml_input):
     """ Checks validity of the yaml """
     try:
-        _ = yaml.loads(yaml_input)
-        return True
+        data = yaml.load(yaml_input)
+        return isinstance(data, dict)
     except:
         print('Not a valid yaml: %s', yaml_input)
     return False

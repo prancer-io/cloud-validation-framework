@@ -156,7 +156,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
     return db_record
 
 
-def populate_azure_snapshot(snapshot, container, snapshot_type='azure'):
+def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     """ Populates the resources from azure."""
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
