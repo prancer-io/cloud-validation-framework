@@ -193,6 +193,8 @@ def _get_resources_from_list_function(response, method):
         return [x['DBInstanceIdentifier'] for x in response['DBInstances']]
     elif method == 'describe_load_balancers':
         return [x['LoadBalancerName'] for x in response['LoadBalancerDescriptions']]
+    elif method == 'list_certificates':
+        return [x['CertificateArn'] for x in response['CertificateSummaryList']]        
     else:
         return [] 
 
@@ -319,6 +321,10 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         "describe_load_balancer_policies"]:
         return {
             'LoadBalancerName': resource_id
+        }
+    elif client_str == "elb" and function_name == "describe_certificate":
+        return {
+            'CertificateArn': resource_id
         }
     else:
         return {}
