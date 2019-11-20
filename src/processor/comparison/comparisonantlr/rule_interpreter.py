@@ -139,9 +139,8 @@ class RuleInterpreter:
 
     def get_snaphotid_doc(self, sid):
         doc = None
-        # if get_dbtests():
-        a = False
-        if a:
+        isdb_fetch = False # get_dbtests()
+        if isdb_fetch:
             dbname = self.kwargs['dbname']
             coll = self.kwargs['snapshots'][sid] if sid in self.kwargs['snapshots'] else COLLECTION
             docs = get_documents(coll, {'snapshotId': sid}, dbname,
@@ -162,14 +161,15 @@ class RuleInterpreter:
                 fname = '%s/snapshots/%s' % (json_dir, sid)
                 if exists_file(fname):
                     json_data = json_from_file(fname)
-                    doc = json_data['json']
-                    self.snapshots.append({
-                        'id': json_data['snapshotId'],
-                        'path': json_data['path'],
-                        'structure': json_data['structure'],
-                        'reference': json_data['reference'],
-                        'source': json_data['source']
-                    })
+                    if json_data and 'json' in json_data:
+                        doc = json_data['json']
+                        self.snapshots.append({
+                            'id': json_data['snapshotId'],
+                            'path': json_data['path'],
+                            'structure': json_data['structure'],
+                            'reference': json_data['reference'],
+                            'source': json_data['source']
+                        })
         return doc
 
 
