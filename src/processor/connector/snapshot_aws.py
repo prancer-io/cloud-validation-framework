@@ -191,6 +191,8 @@ def _get_resources_from_list_function(response, method):
         return final_list
     elif method == 'describe_db_instances':
         return [x['DBInstanceIdentifier'] for x in response['DBInstances']]
+    elif method == 'describe_load_balancers':
+        return [x['LoadBalancerName'] for x in response['LoadBalancerDescriptions']]
     else:
         return [] 
 
@@ -308,6 +310,15 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
             subnetid = ""
         return {
             'SubnetIds': [subnetid]
+        }
+    elif client_str == "elb" and function_name == "describe_load_balancers":
+        return {
+            'LoadBalancerNames': [resource_id]
+        }
+    elif client_str == "elb" and function_name in ["describe_load_balancer_attributes",\
+        "describe_load_balancer_policies"]:
+        return {
+            'LoadBalancerName': resource_id
         }
     else:
         return {}
