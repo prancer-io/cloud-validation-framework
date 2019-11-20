@@ -58,6 +58,17 @@ def create_terraform():
 
     return create_test_terraform
 
+@pytest.fixture
+def create_yaml():
+
+    def create_test_yaml(path, data, fname = 'y1.yaml'):
+        # fname = 'a1.tfvars'
+        fullname = '%s/%s' % (path, fname)
+        with open(fullname, 'w') as f:
+            f.write(data)
+        return fname
+
+    return create_test_yaml
 
 @pytest.fixture
 def load_json_file():

@@ -28,6 +28,34 @@ snapshot_with_client = {
         }
     ]
 }
+master_snapshot =  {
+        "source" : "awsStructure", 
+        "testUser" : "kbajey@gmail.com", 
+        "projectId" : [
+            "d34d6141-7a19-4458-b0dd-f038bb7760c1"
+        ], 
+        "type" : "aws", 
+        "nodes" : [
+            {
+                "masterSnapshotId" : "1", 
+                "arn" : "arn:aws:s3:::", 
+                "collection" : "s3", 
+                "listMethod" : "list_buckets", 
+                "detailMethods" : [
+                    "get_bucket_acl",
+                ]
+            }, 
+            {
+                "masterSnapshotId" : "101", 
+                "arn" : "arn:aws:ec2:us-west-1::", 
+                "collection" : "ec2", 
+                "listMethod" : "describe_instances", 
+                "detailMethods" : [
+                    "describe_instances"
+                ]
+            }
+        ]
+    }
 
 def mock_db_json_source():
     return True
@@ -36,7 +64,7 @@ def mock_fs_json_source():
     return False
 
 def mock_config_value(section, key, default=None):
-    if key == 'structure':
+    if key in ['structure', "STRUCTURE"]:
         return 'structure'
     elif key == 'dbname':
         return 'dbname'
@@ -113,7 +141,44 @@ def mock_describe_regions(**kwargs):
 def mock_get_vault_data(client_id):
     return 'abcd'
 
+def mock_get_bucket_acl(**kwargs):
+    return {'hello', 'world'}
+
+
+def mock_list_buckets(**kwargs):
+    return {
+    'Buckets': [
+        {
+            'Name': 'BucketA',
+            'CreationDate': "datetime(2015, 1, 1)"
+        },
+    ],
+    'Owner': {
+        'DisplayName': 'string',
+        'ID': 'string'
+    }
+}
+
+def mock_describe_instances(**kwargs):
+    return {
+        'Reservations': [
+            {
+                'Instances': [
+                    {
+                        'InstanceId': 'ec2A',
+                    },
+                ],
+            },
+        ],
+    }
+
+class Meta:
+    class _service_model:
+        service_name = "hello"
+    region_name = "world"
+
 class MyMock(Mock):
+    meta = Meta
     def __init__(*args, **kwargs):
         aws_client = args[0]
 
@@ -122,8 +187,17 @@ class MyMock(Mock):
             return mock_describe_security_groups
         elif name == 'describe_regions':
             return mock_describe_regions
+        elif name == 'get_bucket_acl':
+            return mock_get_bucket_acl
+        elif name == 'list_buckets':
+            return mock_list_buckets
+        elif name == 'describe_instances':
+            return mock_describe_instances        
         return None
 
+class MockSession:
+    def get_available_regions(service_name):
+        return ['hello']
 
 def mock_insert_one_document(doc, collection, dbname):
     pass
@@ -195,6 +269,32 @@ def test_get_node():
     assert val is not None
 
 
+def test_get_node_from_snapshot_configuration():
+    from processor.connector.snapshot_aws import get_node
+    awsclient = MyMock()
+    val = get_node(awsclient, {
+        "snapshotId" : "10", 
+        "validate" : True, 
+        "detailMethods" : [
+            "get_bucket_acl",
+            "get_bucket_acl1", 
+        ], 
+        "masterSnapshotId" : "1", 
+        "collection" : "s3", 
+        "arn" : "arn:aws:s3:us-east-1::liqtest01"
+    }, 'awsStructure')
+    assert val is not None
+
+def test_get_all_nodes(monkeypatch):
+    from processor.connector.snapshot_aws import get_all_nodes
+    awsclient = MyMock()
+    connector = mock_aws_get_documents('hello')[0]
+    node = master_snapshot['nodes'][0]
+    val = get_all_nodes(awsclient, node, master_snapshot, connector)
+
+    node = master_snapshot['nodes'][1]
+    val = get_all_nodes(awsclient, node, master_snapshot, connector)
+
 def test_db_get_aws_data(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.get_documents', mock_snapshot_get_documents)
     monkeypatch.setattr('processor.connector.snapshot_aws.config_value', mock_config_value)
@@ -224,6 +324,17 @@ def test_populate_aws_snapshot(monkeypatch):
     val = populate_aws_snapshot(snapshot, 'mycontainer1')
     assert val == {'8': True}
 
+def test_populate_aws_snapshot_with_mastersnapshot(monkeypatch):
+    monkeypatch.setattr('processor.connector.snapshot_aws.config_value', mock_config_value)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_documents', mock_aws_get_documents)
+    monkeypatch.setattr('processor.connector.snapshot_aws.json_source', mock_db_json_source)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_client)
+    monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_aws.Session', MockSession)
+    from processor.connector.snapshot_aws import populate_aws_snapshot
+    val = populate_aws_snapshot(master_snapshot, 'mycontainer1')
+    assert val != {}
 
 def test_exception_populate_aws_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.config_value', mock_config_value)
