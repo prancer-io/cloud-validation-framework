@@ -31,5 +31,5 @@ def main(argv):
         return False
 
 
-# if __name__ == '__main__':
-#     main(sys.argv)
+if __name__ == '__main__':
+    main(sys.argv)
