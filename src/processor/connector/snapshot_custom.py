@@ -110,6 +110,7 @@ from processor.database.database import insert_one_document, sort_field, get_doc
     COLLECTION, DATABASE, DBNAME
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
+from processor.connector.snapshot_arm_template import populate_arm_snapshot
 
 
 logger = getlogger()
@@ -398,45 +399,49 @@ def populate_custom_snapshot(snapshot, container=None):
         if repopath:
             brnch = get_field_value_with_default(sub_data, 'branchName', 'master')
             for node in snapshot_nodes:
-                # logger.debug(node)
-                # data = get_node(repopath, node, snapshot_source, brnch)
-                # if data:
-                #     insert_one_document(data, data['collection'], dbname)
-                #     snapshot_data[node['snapshotId']] = True
-                validate = node['validate'] if 'validate' in node else True
-                if 'snapshotId' in node:
-                    logger.debug(node)
-                    data = get_node(repopath, node, snapshot, brnch, sub_data)
-                    if data:
-                        if validate:
-                            if get_dbtests():
-                                insert_one_document(data, data['collection'], dbname)
+                node_type = node['type'] if 'type' in node and node['type'] else 'json'
+                if node_type == 'arm':
+                    populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot_data, node, repopath)
+                else:
+                    # logger.debug(node)
+                    # data = get_node(repopath, node, snapshot_source, brnch)
+                    # if data:
+                    #     insert_one_document(data, data['collection'], dbname)
+                    #     snapshot_data[node['snapshotId']] = True
+                    validate = node['validate'] if 'validate' in node else True
+                    if 'snapshotId' in node:
+                        logger.debug(node)
+                        data = get_node(repopath, node, snapshot, brnch, sub_data)
+                        if data:
+                            if validate:
+                                if get_dbtests():
+                                    insert_one_document(data, data['collection'], dbname)
+                                else:
+                                    snapshot_dir = make_snapshots_dir(container)
+                                    if snapshot_dir:
+                                        store_snapshot(snapshot_dir, data)
+                                if 'masterSnapshotId' in node:
+                                    snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+                                else:
+                                    snapshot_data[node['snapshotId']] = True
                             else:
-                                snapshot_dir = make_snapshots_dir(container)
-                                if snapshot_dir:
-                                    store_snapshot(snapshot_dir, data)
-                            if 'masterSnapshotId' in node:
-                                snapshot_data[node['snapshotId']] = node['masterSnapshotId']
-                            else:
-                                snapshot_data[node['snapshotId']] = True
+                                snapshot_data[node['snapshotId']] = False
+                            node['status'] = 'active'
                         else:
-                            snapshot_data[node['snapshotId']] = False
-                        node['status'] = 'active'
-                    else:
-                        node['status'] = 'inactive'
-                    logger.debug('Type: %s', type(data))
-                elif 'masterSnapshotId' in node:
-                    alldata = get_all_nodes(repopath, node, snapshot, brnch, sub_data)
-                    if alldata:
-                        snapshot_data[node['masterSnapshotId']] = []
-                        for data in alldata:
-                            snapshot_data[node['masterSnapshotId']].append(
-                                {
-                                    'snapshotId': data['snapshotId'],
-                                    'path': data['path'],
-                                    'validate': True
-                                })
-                    logger.debug('Type: %s', type(alldata))
+                            node['status'] = 'inactive'
+                        logger.debug('Type: %s', type(data))
+                    elif 'masterSnapshotId' in node:
+                        alldata = get_all_nodes(repopath, node, snapshot, brnch, sub_data)
+                        if alldata:
+                            snapshot_data[node['masterSnapshotId']] = []
+                            for data in alldata:
+                                snapshot_data[node['masterSnapshotId']].append(
+                                    {
+                                        'snapshotId': data['snapshotId'],
+                                        'path': data['path'],
+                                        'validate': True
+                                    })
+                        logger.debug('Type: %s', type(alldata))
         if baserepo and os.path.exists(baserepo):
             logger.info('Repo path: %s', baserepo)
             shutil.rmtree(baserepo)
