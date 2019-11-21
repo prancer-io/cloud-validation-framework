@@ -195,6 +195,12 @@ def _get_resources_from_list_function(response, method):
         return [x['LoadBalancerName'] for x in response['LoadBalancerDescriptions']]
     elif method == 'list_certificates':
         return [x['CertificateArn'] for x in response['CertificateSummaryList']]        
+    elif method == 'list_stacks':
+        return [x['StackName'] for x in response['StackSummaries']]        
+    elif method == 'list_stacks':
+        return [x['StackName'] for x in response['StackSummaries']]        
+    elif method == 'describe_stacks':
+        return [x['StackName'] for x in response['Stacks']]        
     else:
         return [] 
 
@@ -325,6 +331,12 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
     elif client_str == "elb" and function_name == "describe_certificate":
         return {
             'CertificateArn': resource_id
+        }
+    elif client_str == "cloudformation" and function_name in ["describe_stack_resource",\
+        "describe_stack_events", "describe_stacks", "describe_stack_resource_drifts", \
+        "get_stack_policy"]:
+        return {
+            'StackName': resource_id
         }
     else:
         return {}
