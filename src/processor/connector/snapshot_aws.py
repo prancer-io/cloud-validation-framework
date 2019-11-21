@@ -197,9 +197,9 @@ def _get_resources_from_list_function(response, method):
         return [x['CertificateArn'] for x in response['CertificateSummaryList']]        
     elif method == 'list_stacks':
         return [x['StackName'] for x in response['StackSummaries']]        
-    elif method == 'list_stacks':
-        return [x['StackName'] for x in response['StackSummaries']]        
-    elif method == 'describe_stacks':
+    elif method == 'list_trails':
+        return [x['Name'] for x in response['Trails']]        
+    elif method in ['describe_stacks', 'list_trails']:
         return [x['StackName'] for x in response['Stacks']]        
     else:
         return [] 
@@ -338,6 +338,15 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         return {
             'StackName': resource_id
         }
+    elif client_str == "cloudtrail" and function_name == "describe_trails":
+        return {
+            'trailNameList': [resource_id]
+        }
+    elif client_str == "cloudtrail" and function_name in ["get_event_selectors",\
+        "get_insight_selectors"]:
+        return {
+            'TrailName': resource_id
+        }
     else:
         return {}
 
@@ -446,8 +455,8 @@ def populate_aws_snapshot(snapshot, container=None):
                         all_regions = [aws_region]
                     else:
                         all_regions = Session().get_available_regions(client_str.lower())
-                        if client_str.lower() in ['s3']:
-                            all_regions = ['us-east-1']
+                        if client_str.lower() in ['s3','cloudtrail']:
+                            all_regions = ['us-west-1']
                     logger.info("Length of all regions is %s"%(str(len(all_regions))))
                     count = 0
                     snapshot_data[node['masterSnapshotId']] = []
