@@ -201,6 +201,8 @@ def _get_resources_from_list_function(response, method):
         return [x['Name'] for x in response['Trails']]        
     elif method in ['describe_stacks', 'list_trails']:
         return [x['StackName'] for x in response['Stacks']]        
+    elif method == 'get_rest_apis':
+        return [x['id'] for x in response['items']]        
     else:
         return [] 
 
@@ -346,6 +348,13 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         "get_insight_selectors"]:
         return {
             'TrailName': resource_id
+        }
+    elif client_str == "apigateway" and function_name in ["get_rest_api",\
+        "get_documentation_parts", "get_documentation_versions",\
+        "get_gateway_responses", "get_models", "get_request_validators",\
+        "get_resources"]:
+        return {
+            'restApiId': resource_id
         }
     else:
         return {}
