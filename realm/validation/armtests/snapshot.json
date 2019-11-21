@@ -1,0 +1,33 @@
+{
+  "fileType": "snapshot",
+  "snapshots": [
+    {
+      "source": "armStructure",
+      "testUser": "vatsal",
+      "nodes": [
+        {
+          "snapshotId": "100",
+          "type": "arm",
+          "collection": "armsnapshots",
+          "location": "EastUS",
+          "paths": [
+            "armtests/azuredeploy",
+            "armtests/azuredeploy.parameters"
+          ],
+          "status": "active"
+        },
+        {
+          "snapshotId": "101",
+          "type": "arm",
+          "collection": "armsnapshots",
+          "location": "EastUS",
+          "paths": [
+            "armtests/azuredeploy",
+            "armtests/azuredeploy.parameters.1"
+          ],
+          "status": "active"
+        }
+      ]
+    }
+  ]
+}

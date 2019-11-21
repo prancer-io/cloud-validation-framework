@@ -1,0 +1,23 @@
+{
+  "fileType": "snapshot",
+  "snapshots": [
+    {
+      "source": "git_connector",
+      "testUser": "git",
+      "branchName": "master",
+      "nodes": [
+        {
+          "snapshotId": "100",
+          "type": "arm",
+          "collection": "armsnapshots",
+          "location": "EastUS",
+          "path": [
+            "101-application-gateway-create/azuredeploy",
+            "101-application-gateway-create/azuredeploy.parameters"
+          ],
+          "status": "inactive"
+        }
+      ]
+    }
+  ]
+}
