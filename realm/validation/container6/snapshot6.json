@@ -6,7 +6,7 @@
         {
             "source": "azureStructure1",
             "testUser": "ajey.khanapuri@liquware.com",
-            "subscriptionId": "<Subscription Id>".
+            "subscriptionId": "<Subscription Id>",
             "nodes": [
                 {
                     "snapshotId": "61",

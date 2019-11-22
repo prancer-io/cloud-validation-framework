@@ -1,0 +1,42 @@
+{
+    "snapshot": "snapshot",
+    "fileType": "test",
+    "testSet": [
+        {
+            "testName ": "ARM Test",
+            "version": "0.1",
+            "cases": [
+                {
+                    "testId": "1",
+                    "rule": "exist({100}.location)"
+                },
+                {
+                    "testId": "2",
+                    "rule": "{100}.location='eastus'"
+                },
+                {
+                    "testId": "3",
+                    "rule": "{100}.name='deployment_dry_run'"
+                }
+            ]
+        },
+        {
+            "testName ": "ARM Test with prameter 2",
+            "version": "0.1",
+            "cases": [
+                {
+                    "testId": "4",
+                    "rule": "exist({101}.location)"
+                },
+                {
+                    "testId": "5",
+                    "rule": "{101}.location='eastus'"
+                },
+                {
+                    "testId": "6",
+                    "rule": "{101}.name='deployment_dry_run'"
+                }
+            ]
+        }
+    ]
+}
