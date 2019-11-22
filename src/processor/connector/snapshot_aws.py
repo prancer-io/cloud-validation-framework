@@ -330,7 +330,7 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         return {
             'LoadBalancerName': resource_id
         }
-    elif client_str == "elb" and function_name == "describe_certificate":
+    elif client_str == "acm" and function_name == "describe_certificate":
         return {
             'CertificateArn': resource_id
         }

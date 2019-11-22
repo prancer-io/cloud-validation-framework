@@ -151,6 +151,16 @@
                     "detailMethods": [
                       "get_request_validators"
                     ]
+               },
+               {
+                    "masterSnapshotId": "601",
+                    "arn": "arn:aws:elb:::",
+                    "collection": "elb",
+                    "listMethod": "describe_load_balancers",
+                    "detailMethods": [
+                      "describe_load_balancer_attributes",
+                      "describe_load_balancer_policies"
+                    ]
                }
            ]
        }
