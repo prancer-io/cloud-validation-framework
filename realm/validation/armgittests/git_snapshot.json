@@ -11,7 +11,7 @@
           "type": "arm",
           "collection": "armsnapshots",
           "location": "EastUS",
-          "path": [
+          "paths": [
             "101-application-gateway-create/azuredeploy",
             "101-application-gateway-create/azuredeploy.parameters"
           ],
