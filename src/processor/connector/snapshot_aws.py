@@ -427,6 +427,7 @@ def populate_aws_snapshot(snapshot, container=None):
         if access_key and secret_access:
             # existing_aws_client = {}
             for node in snapshot['nodes']:
+                mastercode = False
                 if 'snapshotId' in node:
                     client_str, aws_region = _get_aws_client_data_from_node(node,
                         default_client=connector_client_str, default_region=region)
@@ -455,6 +456,7 @@ def populate_aws_snapshot(snapshot, container=None):
                             else:
                                 snapshot_data[node['snapshotId']] = False if error_str else True
                 elif 'masterSnapshotId' in node:
+                    mastercode = True
                     client_str, aws_region = _get_aws_client_data_from_node(node,
                         default_client=connector_client_str, default_region=region)
                     if not _validate_client_name(client_str):
@@ -492,7 +494,31 @@ def populate_aws_snapshot(snapshot, container=None):
                                             'arn' : data['arn']
                                         })
                                     count += 1
+            if mastercode:
+                snapshot_data = eliminate_duplicate_snapshots(snapshot_data)
     return snapshot_data
+
+def eliminate_duplicate_snapshots(snapshot_data):
+    data = {}
+    is_updated = False
+    for snapshot_id, value in snapshot_data.items():
+        is_updated = False
+        for count, snapshot in enumerate(value):
+            for sid, sval in data.items():
+                for cnt, val in enumerate(sval):
+                    if sid == snapshot_id:
+                        continue
+                    if snapshot['arn'] == val['arn'] and snapshot['detailMethods'] == val['detailMethods']:
+                        is_updated = True
+                        s_id = snapshot_data[snapshot_id][count]['masterSnapshotId']
+                        if isinstance(val['masterSnapshotId'], str):
+                            data[sid][cnt]['masterSnapshotId'] = [s_id, val['masterSnapshotId']]
+                        elif isinstance(val['masterSnapshotId'], list):
+                            data[sid][cnt]['masterSnapshotId'].append(s_id)
+
+        if not is_updated:
+            data.update({snapshot_id:value})
+    return data
 
 
 def get_aws_client_data(aws_data, snapshot_user):
