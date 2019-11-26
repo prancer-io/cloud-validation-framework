@@ -154,7 +154,11 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
         mastersnapshots = defaultdict(list)
         snapshot_data = snapshot_status[snapshot_key] if snapshot_key in snapshot_status else {}
         for snapshot_id, mastersnapshot_id in snapshot_data.items():
-            mastersnapshots[mastersnapshot_id].append(snapshot_id)
+            if isinstance(mastersnapshot_id, list):
+                for master_snapshot_id in mastersnapshot_id:
+                    mastersnapshots[master_snapshot_id].append(snapshot_id)
+            elif isinstance(mastersnapshot_id, str):
+                mastersnapshots[mastersnapshot_id].append(snapshot_id)
         test_json_data['snapshot'] = snapshot_key
         testsets = get_field_value_with_default(test_json_data, 'testSet', [])
         for testset in testsets:
@@ -243,7 +247,11 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                 mastersnapshots = defaultdict(list)
                 snapshot_data = snapshot_status[snapshot_key] if snapshot_key in snapshot_status else {}
                 for snapshot_id, mastersnapshot_id in snapshot_data.items():
-                    mastersnapshots[mastersnapshot_id].append(snapshot_id)
+                    if isinstance(mastersnapshot_id, list):
+                        for master_snapshot_id in mastersnapshot_id:
+                            mastersnapshots[master_snapshot_id].append(snapshot_id)
+                    elif isinstance(mastersnapshot_id, str):
+                        mastersnapshots[mastersnapshot_id].append(snapshot_id)
                 test_json_data['snapshot'] = snapshot_key
                 testsets = get_field_value_with_default(test_json_data, 'testSet', [])
                 for testset in testsets:
