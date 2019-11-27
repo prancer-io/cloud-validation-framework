@@ -321,6 +321,14 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         return {
             'SubnetIds': [subnetid]
         }
+    elif client_str == "ec2" and function_name == "describe_snapshots":
+        try:
+            ownerid = existing_json['Reservations'][0]['OwnerId']
+        except:
+            ownerid = ""
+        return {
+            'OwnerIds': [ownerid]
+        }
     elif client_str == "elb" and function_name == "describe_load_balancers":
         return {
             'LoadBalancerNames': [resource_id]
@@ -352,7 +360,7 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
     elif client_str == "apigateway" and function_name in ["get_rest_api",\
         "get_documentation_parts", "get_documentation_versions",\
         "get_gateway_responses", "get_models", "get_request_validators",\
-        "get_resources"]:
+        "get_resources", "get_stages"]:
         return {
             'restApiId': resource_id
         }

@@ -11,75 +11,119 @@
             "cases": [
                 {
                     "masterTestId": "1",
-                    "rule": "count({1}.Grants[])>=1"
+                    "rule": "count({AWS_S3_1}.Grants[])>=1"
                 },
                 {
                     "masterTestId": "2",
-                    "rule": "contains({1}.grants[*].permission)!='FullControl'"
+                    "rule": "contains({AWS_S3_01}.grants[*].permission)!='FullControl'"
                 },
                 {
                     "masterTestId": "2",
-                    "rule": "{1}.Owner.DisplayName='operations'"
+                    "rule": "{AWS_S3_01}.Owner.DisplayName='operations'"
                 },
                 {
                     "masterTestId": "3",
-                    "rule": "{1}.Grants[0].Permission='FULL_CONTROL'"
+                    "rule": "{AWS_S3_01}.Grants[0].Permission='FULL_CONTROL'"
                 },
                 {
                     "masterTestId": "4",
-                    "rule": "{1}.LocationConstraint='us-west-1'"
+                    "rule": "{AWS_S3_01}.LocationConstraint='us-west-1'"
                 },
                 {
                     "masterTestId": "102",
-                    "rule": "{101}.Reservations[0].Instances[0].SecurityGroups[0].GroupName='launch-wizard-1'"
+                    "rule": "{AWS_EC2_01}.Reservations[0].Instances[0].SecurityGroups[0].GroupName='launch-wizard-1'"
                 },
                 {           
                     "masterTestId": "103",
-                    "rule": "{101}.InstanceMonitorings[0].Monitoring.State='enabled'"
+                    "rule": "{AWS_EC2_01}.InstanceMonitorings[0].Monitoring.State='enabled'"
                 },
                 {           
                     "masterTestId": "104",
-                    "rule": "{103}.Images[0].Public=true"
+                    "rule": "{AWS_EC2_03}.Images[0].Public=true"
                 },
                 {           
                     "masterTestId": "105",
-                    "rule": "{103}.Images[0].BlockDeviceMappings[0].Ebs.Encrypted=false"
+                    "rule": "{AWS_EC2_03}.Images[0].BlockDeviceMappings[0].Ebs.Encrypted=false"
                 },
                 {           
                     "masterTestId": "106",
-                    "rule": "{102}.SecurityGroups['GroupName'='launch-wizard-1'].IpPermissions['FromPort'=80].IpProtocol='tcp'"
+                    "rule": "{AWS_EC2_02}.SecurityGroups['GroupName'='launch-wizard-1'].IpPermissions['FromPort'=80].IpProtocol='tcp'"
                 },
                 {           
                     "masterTestId": "107",
-                    "rule": "{101}.AccountAttributes['AttributeName'='max-instances'].AttributeValues[0].AttributeValue='20'"
+                    "rule": "{AWS_EC2_01}.AccountAttributes['AttributeName'='max-instances'].AttributeValues[0].AttributeValue='20'"
                 },
                 {           
                     "masterTestId": "108",
-                    "rule": "{101}.Reservations[0].Instances[0].State.Code!=16"
+                    "rule": "{AWS_EC2_01}.Reservations[0].Instances[0].State.Code!=16"
                 },
                 {           
                     "masterTestId": "109",
-                    "rule": "contains({103}.attachments[*].state)='attached'"
+                    "rule": "contains({AWS_EC2_03}.attachments[*].state)='attached'"
                 },
                 {           
                     "masterTestId": "110",
-                    "rule": "contains({101}.attributeValues[*].attributeValue)!='ec2'"
+                    "rule": "contains({AWS_EC2_01}.attributeValues[*].attributeValue)!='ec2'"
                 },
                 {           
                     "masterTestId": "201",
-                    "rule": "{101}.Subnets[0].MapPublicIpOnLaunch=true"
+                    "rule": "{AWS_EC2_01}.Subnets[0].MapPublicIpOnLaunch=true"
                 },
                 {           
                     "masterTestId": "202",
-                    "rule": "{201}.DBInstances[0].BackupRetentionPeriod<=7"
+                    "rule": "{AWS_RDS_01}.DBInstances[0].BackupRetentionPeriod<=7"
                 },
                 {           
                     "masterTestId": "202",
-                    "rule": "{201}.DBInstances[0].StorageEncrypted=false"
+                    "rule": "{AWS_RDS_01}.DBInstances[0].StorageEncrypted=false"
                 },
                 {           
                     "masterTestId": "202",
-                    "rule": "{201}.DBInstances[0].CopyTagsToSnapshot=true"
+                    "rule": "{AWS_RDS_01}.DBInstances[0].CopyTagsToSnapshot=true"
+                },
+                {           
+                    "masterTestId": "203",
+                    "rule": "{AWS_RDS_01}.DBInstances[0].PubliclyAccessible=false"
+                },
+                {           
+                    "masterTestId": "301",
+                    "rule": "count({AWS_CF_01}.Stacks[0].NotificationARNs[])<1"
+                },
+                {           
+                    "masterTestId": "401",
+                    "rule": "{AWS_CT_01}.trailList[0].IsMultiRegionTrail=false"
+                },
+                {           
+                    "masterTestId": "402",
+                    "rule": "{AWS_CT_01}.trailList[0].LogFileValidationEnabled=false"
+                },
+                {           
+                    "masterTestId": "403",
+                    "rule": "exist({AWS_CT_01}.trailList[0].KmsKeyId)=false"
+                },
+                {           
+                    "masterTestId": "501",
+                    "rule": "exist({AWS_API_04}.items[*].responseType)=true"
+                },
+                {           
+                    "masterTestId": "502",
+                    "rule": "count({AWS_API_05}.items[])>1"
+                },
+                {           
+                    "masterTestId": "601",
+                    "rule": "{AWS_ELB_01}.LoadBalancerAttributes.AccessLog.Enabled=false"
+                },
+                {           
+                    "masterTestId": "602",
+                    "rule": "{AWS_ELB_01}.LoadBalancerAttributes.ConnectionDraining.Enabled=false"
+                },
+                {           
+                    "masterTestId": "603",
+                    "rule": "{AWS_ELB_01}.LoadBalancerAttributes.CrossZoneLoadBalancing.Enabled=false"
+                },
+                {           
+                    "masterTestId": "604",
+                    "rule": "exist({AWS_ELB_01}.PolicyDescriptions.Instances[])=false"
                 }
             ]
         }
