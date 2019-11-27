@@ -8,13 +8,14 @@ will install and you can run the following command from cmd.
 import glob
 import time
 import hashlib
+import os
 
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import get_dbtests
 from processor.helper.json.json_utils import get_container_dir, get_field_value, json_from_file, \
-     make_snapshots_dir, store_snapshot, get_field_value_with_default
+     make_snapshots_dir, store_snapshot, get_field_value_with_default, save_json_to_file
 from processor.helper.config.config_utils import config_value, get_test_json_dir, framework_dir
-from processor.helper.file.file_utils import exists_file
+from processor.helper.file.file_utils import exists_file, exists_dir
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.database.database import insert_one_document, COLLECTION
 
@@ -146,3 +147,117 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
         logger.error("Invalid json : `paths` field is missing for 'arm' node type or it is not a list")
 
     return snapshot_data
+
+
+def create_snapshot_record(snapshot, sub_dir_path, node, template_file_path, deployment_file_path_list):
+    nodes = []
+    collection = get_field_value(node, 'collection')
+    location = get_field_value(node, 'location')
+    test_user = get_field_value(snapshot, 'testUser')
+    source = get_field_value(snapshot, 'source')
+    master_snapshot_id = get_field_value(node, 'masterSnapshotId')
+
+    count = 0
+    for deployment_file_path in deployment_file_path_list:
+        count += 1
+        nodes.append({
+            "snapshotId": '%s%s' % (master_snapshot_id, str(count)),
+            "type": "arm",
+            "collection": collection,
+            "location": location,
+            "paths": [
+                template_file_path,
+                deployment_file_path
+            ],
+            "status": "active"
+        })
+
+    db_record = {
+        "fileType": "snapshot",
+        "snapshots": [
+            {
+                "source": source,
+                "testUser": test_user,
+                "nodes": nodes
+            }
+        ]
+    }
+
+    return db_record
+
+
+
+def populate_sub_directory_snapshot(base_dir_path, sub_dir_path, snapshot, dbname, node, snapshot_data):
+    dir_path = str('%s/%s' % (base_dir_path, sub_dir_path)).replace('//', '/')
+    if exists_dir(dir_path):
+        list_of_file = os.listdir(dir_path)
+        template_file_path = ""
+        deployment_file_path_list = []
+
+        for entry in list_of_file:
+            new_dir_path = ('%s/%s' % (dir_path, entry)).replace('//', '/')
+            new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
+            if exists_dir(new_dir_path):
+                populate_sub_directory_snapshot(base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data)
+            elif exists_file(new_dir_path):
+                if len(entry.split(".")) > 0 and "json" in entry.split(".")[-1]:
+                    json_data = json_from_file(new_dir_path)
+                    if json_data and "$schema" in json_data:
+                        if "deploymentTemplate.json" in json_data['$schema'].split("/")[-1]:
+                            template_file_path = new_sub_directory_path
+                        elif "deploymentParameters.json" in json_data['$schema'].split("/")[-1]:
+                            deployment_file_path_list.append(new_sub_directory_path)
+        
+        if template_file_path and deployment_file_path_list:
+
+            location = get_field_value(node, 'location')
+            new_deployment_file_path_list = []
+
+            template_file_json_path = str('%s/%s' % (base_dir_path, template_file_path)).replace('//', '/')
+            for deployment_file_path in deployment_file_path_list:
+                deployment_file_json_path = str('%s/%s' % (base_dir_path, deployment_file_path)).replace('//', '/')
+
+                response = invoke_az_cli("deployment validate --location " + location +
+                    " --template-file " + template_file_json_path
+                    + " --parameters @" + deployment_file_json_path)
+                
+                if not response['error']:
+                    new_deployment_file_path_list.append(deployment_file_path)
+
+            data_record = create_snapshot_record(snapshot, new_sub_directory_path, node, template_file_path, new_deployment_file_path_list)
+            if node['masterSnapshotId'] not in snapshot_data or not isinstance(snapshot_data[node['masterSnapshotId']], list):
+                snapshot_data[node['masterSnapshotId']] = []
+
+            snapshot_data[node['masterSnapshotId']] = snapshot_data[node['masterSnapshotId']] + data_record['snapshots'][0]['nodes']
+            if get_dbtests():
+                insert_one_document(data_record, node['collection'], dbname)
+            else:
+                snapshot_file = '%s/%s' % (dir_path, "snapshot.json")
+                save_json_to_file(data_record, snapshot_file)
+
+def populate_all_arm_snapshot(snapshot, dbname, sub_data, node, repopath, snapshot_data):
+    """
+    Populate all snapshot by running arm command
+    """
+    root_dir_path = get_field_value(sub_data, 'folderPath')
+    if not root_dir_path:
+        root_dir_path = repopath 
+
+    location = get_field_value(node, 'location')
+    paths = get_field_value(node, 'paths')
+    if paths and isinstance(paths, list):
+        count = 0
+        for path in paths:
+            count += 1
+            dir_path = str('%s/%s' % (root_dir_path, path)).replace('//', '/')
+            if exists_dir(dir_path):
+                list_of_file = os.listdir(dir_path)
+                for entry in list_of_file:
+                    populate_sub_directory_snapshot(dir_path, entry, snapshot, dbname, node, snapshot_data)
+            else:
+                logger.error("Invalid json : directory does not exist : " + dir_path)
+    else:
+        logger.error("Invalid json : `paths` field is missing for 'arm' node type or it is not a list")
+
+    return
+
