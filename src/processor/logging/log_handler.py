@@ -135,7 +135,7 @@ def logging_fw(fwconfigfile, dbargs):
 def init_logger(dbargs, fw_cfg=None):
     """Get the logger for the framework."""
     global FWLOGGER
-    if FWLOGGER:
+    if FWLOGGER and (dbhandler and dbargs == 'FULL'):
         return FWLOGGER
     FWLOGGER = logging_fw(fw_cfg, dbargs)
     return FWLOGGER
