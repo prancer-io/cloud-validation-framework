@@ -1,7 +1,7 @@
 {
     "fileType": "structure",
     "companyName": "prancer-test",
-    "folderPath": "/tmp/mytestpub",
+    "folderPath": "<your-filesystem-path>/realm/validation",
     "username": "vatsal",
     "type": "filesystem"
 }
