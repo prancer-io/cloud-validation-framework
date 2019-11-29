@@ -1,0 +1,20 @@
+{
+  "fileType": "masterSnapshot",
+  "snapshots": [
+    {
+      "source": "armCrawlerStructure",
+      "testUser": "vatsal",
+      "nodes": [
+        {
+          "masterSnapshotId": "100",
+          "type": "arm",
+          "collection": "armMasterSnapshots",
+          "location": "EastUS",
+          "paths": [
+            "armcrawlertest"
+          ]
+        }
+      ]
+    }
+  ]
+}
