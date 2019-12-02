@@ -202,9 +202,17 @@ def _get_resources_from_list_function(response, method):
     elif method in ['describe_stacks', 'list_trails']:
         return [x['StackName'] for x in response['Stacks']]        
     elif method == 'get_rest_apis':
-        return [x['id'] for x in response['items']]        
+        return [x['id'] for x in response['items']]   
+    elif method == 'list_users':
+        return [x['UserName'] for x in response['Users']]
+    elif method == 'list_roles':
+        return [x['RoleName'] for x in response['Roles']]     
+    elif method == 'list_hosted_zones':
+        return [x['Id'] for x in response['HostedZones']]
+    elif method == 'list_geo_locations':
+        return [x.get('CountryCode',"") for x in response['GeoLocationDetailsList']]
     else:
-        return [] 
+        return []
 
 def get_all_nodes(awsclient, node, snapshot, connector):
     """ Fetch all the nodes from the cloned git repository in the given path."""
@@ -363,6 +371,22 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         "get_resources", "get_stages"]:
         return {
             'restApiId': resource_id
+        }
+    elif client_str == "route53" and function_name == "get_hosted_zone":
+        return {
+            'Id': resource_id
+        }
+    elif client_str == "route53" and function_name == "get_geo_location":
+        return {
+            'CountryCode': resource_id
+        }
+    elif client_str == "iam" and function_name in ["get_user", "list_ssh_public_keys"]:
+        return {
+            'UserName': resource_id
+        }
+    elif client_str == "iam" and function_name == "get_role":
+        return {
+            'RoleName': resource_id
         }
     else:
         return {}

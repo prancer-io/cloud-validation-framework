@@ -10,120 +10,132 @@
             "version": "0.1",
             "cases": [
                 {
-                    "masterTestId": "1",
-                    "rule": "count({AWS_S3_1}.Grants[])>=1"
+                    "masterTestId": "AWS_S3_01_TEST_1",
+                    "rule": "count({AWS_S3_01}.Grants[])>=1"
                 },
                 {
-                    "masterTestId": "2",
+                    "masterTestId": "AWS_S3_01_TEST_2",
                     "rule": "contains({AWS_S3_01}.grants[*].permission)!='FullControl'"
                 },
                 {
-                    "masterTestId": "2",
+                    "masterTestId": "AWS_S3_01_TEST_3",
                     "rule": "{AWS_S3_01}.Owner.DisplayName='operations'"
                 },
                 {
-                    "masterTestId": "3",
+                    "masterTestId": "AWS_S3_01_TEST_4",
                     "rule": "{AWS_S3_01}.Grants[0].Permission='FULL_CONTROL'"
                 },
                 {
-                    "masterTestId": "4",
+                    "masterTestId": "AWS_S3_01_TEST_5",
                     "rule": "{AWS_S3_01}.LocationConstraint='us-west-1'"
                 },
                 {
-                    "masterTestId": "102",
+                    "masterTestId": "AWS_EC2_01_TEST_1",
                     "rule": "{AWS_EC2_01}.Reservations[0].Instances[0].SecurityGroups[0].GroupName='launch-wizard-1'"
                 },
                 {           
-                    "masterTestId": "103",
+                    "masterTestId": "AWS_EC2_01_TEST_2",
                     "rule": "{AWS_EC2_01}.InstanceMonitorings[0].Monitoring.State='enabled'"
                 },
                 {           
-                    "masterTestId": "104",
-                    "rule": "{AWS_EC2_03}.Images[0].Public=true"
-                },
-                {           
-                    "masterTestId": "105",
-                    "rule": "{AWS_EC2_03}.Images[0].BlockDeviceMappings[0].Ebs.Encrypted=false"
-                },
-                {           
-                    "masterTestId": "106",
-                    "rule": "{AWS_EC2_02}.SecurityGroups['GroupName'='launch-wizard-1'].IpPermissions['FromPort'=80].IpProtocol='tcp'"
-                },
-                {           
-                    "masterTestId": "107",
+                    "masterTestId": "AWS_EC2_01_TEST_3",
                     "rule": "{AWS_EC2_01}.AccountAttributes['AttributeName'='max-instances'].AttributeValues[0].AttributeValue='20'"
                 },
                 {           
-                    "masterTestId": "108",
+                    "masterTestId": "AWS_EC2_01_TEST_4",
                     "rule": "{AWS_EC2_01}.Reservations[0].Instances[0].State.Code!=16"
                 },
                 {           
-                    "masterTestId": "109",
-                    "rule": "contains({AWS_EC2_03}.attachments[*].state)='attached'"
-                },
-                {           
-                    "masterTestId": "110",
+                    "masterTestId": "AWS_EC2_01_TEST_5",
                     "rule": "contains({AWS_EC2_01}.attributeValues[*].attributeValue)!='ec2'"
                 },
                 {           
-                    "masterTestId": "201",
+                    "masterTestId": "AWS_EC2_01_TEST_6",
                     "rule": "{AWS_EC2_01}.Subnets[0].MapPublicIpOnLaunch=true"
                 },
                 {           
-                    "masterTestId": "202",
+                    "masterTestId": "AWS_EC2_03_TEST_1",
+                    "rule": "{AWS_EC2_03}.Images[0].Public=true"
+                },
+                {           
+                    "masterTestId": "AWS_EC2_03_TEST_2",
+                    "rule": "{AWS_EC2_03}.Images[0].BlockDeviceMappings[0].Ebs.Encrypted=false"
+                },
+                {           
+                    "masterTestId": "AWS_EC2_03_TEST_3",
+                    "rule": "contains({AWS_EC2_03}.attachments[*].state)='attached'"
+                },
+                {           
+                    "masterTestId": "AWS_EC2_02_TEST_1",
+                    "rule": "{AWS_EC2_02}.SecurityGroups['GroupName'='launch-wizard-1'].IpPermissions['FromPort'=80].IpProtocol='tcp'"
+                },
+                {           
+                    "masterTestId": "AWS_RDS_01_TEST_1",
                     "rule": "{AWS_RDS_01}.DBInstances[0].BackupRetentionPeriod<=7"
                 },
                 {           
-                    "masterTestId": "202",
+                    "masterTestId": "AWS_RDS_01_TEST_2",
                     "rule": "{AWS_RDS_01}.DBInstances[0].StorageEncrypted=false"
                 },
                 {           
-                    "masterTestId": "202",
+                    "masterTestId": "AWS_RDS_01_TEST_3",
                     "rule": "{AWS_RDS_01}.DBInstances[0].CopyTagsToSnapshot=true"
                 },
                 {           
-                    "masterTestId": "203",
+                    "masterTestId": "AWS_RDS_01_TEST_4",
                     "rule": "{AWS_RDS_01}.DBInstances[0].PubliclyAccessible=false"
                 },
                 {           
-                    "masterTestId": "301",
+                    "masterTestId": "AWS_CF_01_TEST_1",
                     "rule": "count({AWS_CF_01}.Stacks[0].NotificationARNs[])<1"
                 },
                 {           
-                    "masterTestId": "401",
+                    "masterTestId": "AWS_CT_01_TEST_1",
                     "rule": "{AWS_CT_01}.trailList[0].IsMultiRegionTrail=false"
                 },
                 {           
-                    "masterTestId": "402",
+                    "masterTestId": "AWS_CT_01_TEST_2",
                     "rule": "{AWS_CT_01}.trailList[0].LogFileValidationEnabled=false"
                 },
                 {           
-                    "masterTestId": "403",
+                    "masterTestId": "AWS_CT_01_TEST_3",
                     "rule": "exist({AWS_CT_01}.trailList[0].KmsKeyId)=false"
                 },
                 {           
-                    "masterTestId": "501",
+                    "masterTestId": "AWS_API_04_TEST_1",
                     "rule": "exist({AWS_API_04}.items[*].responseType)=true"
                 },
                 {           
-                    "masterTestId": "502",
+                    "masterTestId": "AWS_API_05_TEST_1",
                     "rule": "count({AWS_API_05}.items[])>1"
                 },
                 {           
-                    "masterTestId": "601",
+                    "masterTestId": "AWS_ELB_01_TEST_1",
                     "rule": "{AWS_ELB_01}.LoadBalancerAttributes.AccessLog.Enabled=false"
                 },
                 {           
-                    "masterTestId": "602",
+                    "masterTestId": "AWS_ELB_01_TEST_2",
                     "rule": "{AWS_ELB_01}.LoadBalancerAttributes.ConnectionDraining.Enabled=false"
                 },
                 {           
-                    "masterTestId": "603",
+                    "masterTestId": "AWS_ELB_01_TEST_3",
                     "rule": "{AWS_ELB_01}.LoadBalancerAttributes.CrossZoneLoadBalancing.Enabled=false"
                 },
                 {           
-                    "masterTestId": "604",
+                    "masterTestId": "AWS_ELB_01_TEST_4",
                     "rule": "exist({AWS_ELB_01}.PolicyDescriptions.Instances[])=false"
+                },
+                {
+                    "masterTestId": "AWS_R53_01_TEST_1",
+                    "rule": "{AWS_R53_01}.HostedZone.Config.PrivateZone=true"                    
+                },
+                {
+                    "masterTestId": "AWS_R53_01_TEST_2",
+                    "rule": "{AWS_R53_01}.ResourceRecordSet[*].type='A'"                    
+                },
+                {
+                    "masterTestId": "AWS_R53_02_TEST_1",
+                    "rule": "{AWS_R53_02}.GeoLocationDetails.CountryCode='*'"                    
                 }
             ]
         }

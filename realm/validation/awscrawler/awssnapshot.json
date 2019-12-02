@@ -11,7 +11,7 @@
            ],
            "type" :"aws",
            "nodes": [
-               {
+              {
                     "masterSnapshotId": "AWS_S3_01",
                     "arn": "arn:aws:s3:::",
                     "collection": "s3",
@@ -162,6 +162,35 @@
                     "detailMethods": [
                       "describe_load_balancer_attributes",
                       "describe_load_balancer_policies"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_R53_01",
+                    "arn": "arn:aws:route53:us-east-1::",
+                    "collection": "route53",
+                    "listMethod": "list_hosted_zones",
+                    "detailMethods": [
+                      "get_hosted_zone",
+                      "list_resource_record_sets"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_R53_02",
+                    "arn": "arn:aws:route53:us-east-1::",
+                    "collection": "route53",
+                    "listMethod": "list_geo_locations",
+                    "detailMethods": [
+                      "get_geo_location"
+                    ]
+              },
+              {
+                    "masterSnapshotId": "AWS_IAM_01",
+                    "arn": "arn:aws:iam:us-east-1::",
+                    "collection": "iam",
+                    "listMethod": "list_users",
+                    "detailMethods": [
+                      "get_user",
+                      "list_ssh_public_keys"
                     ]
                }
            ]
