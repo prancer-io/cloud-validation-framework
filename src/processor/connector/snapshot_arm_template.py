@@ -167,9 +167,9 @@ def create_snapshot_record(snapshot, sub_dir_path, node, template_file_path, dep
             "location": location,
             "paths": [
                 template_file_path,
-                deployment_file_path
+                deployment_file_path['path']
             ],
-            "status": "active"
+            "status": deployment_file_path['status']
         })
 
     db_record = {
@@ -222,7 +222,15 @@ def populate_sub_directory_snapshot(base_dir_path, sub_dir_path, snapshot, dbnam
                     + " --parameters @" + deployment_file_json_path)
                 
                 if not response['error']:
-                    new_deployment_file_path_list.append(deployment_file_path)
+                    new_deployment_file_path_list.append({
+                        "path" : deployment_file_path,
+                        "status" : "active"
+                    })
+                else:
+                    new_deployment_file_path_list.append({
+                        "path" : deployment_file_path,
+                        "status" : "inactive"
+                    })
 
             data_record = create_snapshot_record(snapshot, new_sub_directory_path, node, template_file_path, new_deployment_file_path_list)
             if node['masterSnapshotId'] not in snapshot_data or not isinstance(snapshot_data[node['masterSnapshotId']], list):
