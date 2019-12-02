@@ -71,6 +71,10 @@ def compare_list(loperand, roperand, op):
             return int_funcs[op](loperand, roperand)
     return False
 
+def compare_in(loperand, roperand, op):
+    if loperand and roperand:
+        return roperand in loperand
+    return False
 
 def compare_dict(loperand, roperand, op):
     if type(loperand) is dict and type(roperand) is dict:

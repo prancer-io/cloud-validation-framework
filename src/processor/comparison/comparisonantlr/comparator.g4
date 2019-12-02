@@ -5,7 +5,7 @@ grammar comparator;
 // could have called rule but has clashes with existing rule objects.
 // It's a expression with expression, methodcall with or without comparison 
 expression
-    : (METHOD)? ('(')? (METHOD)? ('(')? FMT1 (')')? (OP (METHOD)? ('(')? FMT1 (')')?)* (')')? (COMP NUMBER|FNUMBER|BOOL|ARRSTRING|DICTSTRING)?
+    : (METHOD)? ('(')? (METHOD)? ('(')? FMT1 (')')? (OP (METHOD)? ('(')? FMT1 (')')?)* (')')? (COMP NUMBER|FNUMBER|BOOL|STRING|ARRSTRING|DICTSTRING)?
     | (METHOD)? ('(')? FMT1 (')')? (OP (METHOD)? ('(')? FMT1 (')')?)* (COMP (METHOD)? ('(')? FMT1 (OP FMT1)* (')')?)?
     | FMT1 (COMP NUMBER|FNUMBER)?
     | FMT1 (COMP IPADDRESS|STRING)?
@@ -21,6 +21,8 @@ METHOD
     : 'exist'
     | 'exists'
     | 'count'
+    | 'contain'
+    | 'contains'
     ;
 
 BOOL
@@ -46,7 +48,7 @@ COMP
 
 // Define the format of the expression to be parsed.
 FMT1
-    : '{' NUMBER '}' (('.' (ATTRFMT1|ATTRFMT2))|ATTRFMT3)+
+    : '{' STRING '}' (('.' (ATTRFMT1|ATTRFMT2))|ATTRFMT3)+
     ;
 
 // Define the attribute formats to access the objects.
@@ -55,18 +57,18 @@ ATTRFMT1
     ;
 
 ATTRFMT2
-    : STRING ('[' (QUOTE)? STRING (QUOTE)?  '=' (QUOTE)? (NUMBER|STRING) (QUOTE)?']')?
+    : STRING ('[' (QUOTE)? STRING (QUOTE)?(WS)*'='(WS)*(QUOTE)? (NUMBER|STRING) (QUOTE)?']')?
     ;
 
 ATTRFMT3
-    :'['(NUMBER | ((QUOTE)? STRING (QUOTE)?  '=' (QUOTE)? (NUMBER|STRING) (QUOTE)?))?']'
+    :'['(NUMBER|STAR|((QUOTE)? STRING (QUOTE)?(WS)*'='(WS)*(QUOTE)? (NUMBER|STRING) (QUOTE)?))?']'
     ;
 
 
 // The regular expression starts with a letter
 // and may follow with any number of alphanumerical characters"
 STRING
-    : [a-zA-Z][a-zA-Z0-9_-]*
+    : [a-zA-Z0-9][a-zA-Z0-9_-]*
     ;
 
 ARRSTRING
@@ -91,7 +93,8 @@ FNUMBER
 
 IPADDRESS : (QUOTE)?NUMBER '.' NUMBER '.' NUMBER '.' NUMBER ('/'NUMBER)?(QUOTE)?;
 
-QUOTE : '\'';
+QUOTE : '\''|'"';
+STAR : '*';
 SQOPEN : '[';
 SQCLOSE : ']';
 FLOPEN : '{';
