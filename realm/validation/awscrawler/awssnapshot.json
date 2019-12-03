@@ -192,7 +192,116 @@
                       "get_user",
                       "list_ssh_public_keys"
                     ]
+               },
+               {
+                    "masterSnapshotId": "AWS_KMS_01",
+                    "arn": "arn:aws:kms:::",
+                    "collection": "kms",
+                    "listMethod": "list_keys",
+                    "detailMethods": [
+                      "get_key_rotation_status"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_ECS_01",
+                    "arn": "arn:aws:ecs:::",
+                    "collection": "ecs",
+                    "listMethod": "list_task_definitions",
+                    "detailMethods": [
+                      "describe_task_definition"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_DYNAMO_01",
+                    "arn": "arn:aws:dynamodb:::",
+                    "collection": "dynamodb",
+                    "listMethod": "list_tables",
+                    "detailMethods": [
+                      "describe_table"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_EKS_01",
+                    "arn": "arn:aws:eks:::",
+                    "collection": "eks",
+                    "listMethod": "list_clusters",
+                    "detailMethods": [
+                      "describe_cluster"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_ELASTICCACHE_01",
+                    "arn": "arn:aws:elasticache:::",
+                    "collection": "elasticache",
+                    "listMethod": "describe_replication_groups",
+                    "detailMethods": [
+                      "describe_replication_groups"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_ES_01",
+                    "arn": "arn:aws:es:::",
+                    "collection": "es",
+                    "listMethod": "list_domain_names",
+                    "detailMethods": [
+                      "describe_elasticsearch_domain"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_KINESIS_01",
+                    "arn": "arn:aws:kinesis:::",
+                    "collection": "kinesis",
+                    "listMethod": "list_streams",
+                    "detailMethods": [
+                      "describe_stream"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_LAMBDA_01",
+                    "arn": "arn:aws:lambda:::",
+                    "collection": "lambda",
+                    "listMethod": "list_functions",
+                    "detailMethods": [
+                      "get_function"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_REDSHIFT_01",
+                    "arn": "arn:aws:redshift:::",
+                    "collection": "redshift",
+                    "listMethod": "describe_clusters",
+                    "detailMethods": [
+                      "describe_clusters"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_SNS_01",
+                    "arn": "arn:aws:sns:::",
+                    "collection": "sns",
+                    "listMethod": "list_topics",
+                    "detailMethods": [
+                      "get_topic_attributes"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_SQS_01",
+                    "arn": "arn:aws:sns:::",
+                    "collection": "sns",
+                    "listMethod": "list_queues",
+                    "detailMethods": [
+                      "get_queue_attributes"
+                    ]
+               },
+               {
+                    "masterSnapshotId": "AWS_CONFIGSERVICE_01",
+                    "arn": "arn:aws:configservice:::",
+                    "collection": "configservice",
+                    "listMethod": "describe_configuration_recorders",
+                    "detailMethods": [
+                      "describe_configuration_recorders"
+                    ]
                }
+
            ]
        }
    ]

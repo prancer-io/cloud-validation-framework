@@ -209,8 +209,30 @@ def _get_resources_from_list_function(response, method):
         return [x['RoleName'] for x in response['Roles']]     
     elif method == 'list_hosted_zones':
         return [x['Id'] for x in response['HostedZones']]
-    elif method == 'list_geo_locations':
-        return [x.get('CountryCode',"") for x in response['GeoLocationDetailsList']]
+    elif method == 'list_keys':
+        return [x.get('KeyId') for x in response['Keys']]
+    elif method == 'list_tables':
+        return response.get("TableNames")
+    elif method == 'list_task_definitions':
+        return response.get('taskDefinitionArns')
+    elif method == 'list_clusters':
+        return response.get("clusters")
+    elif method == 'describe_replication_groups':
+        return [x.get('ReplicationGroupId') for x in response['ReplicationGroups']]
+    elif method == 'list_streams':
+        return response.get("StreamNames")
+    elif method == 'list_functions':
+        return [x.get('FunctionName',"") for x in response['Functions']]
+    elif method == 'describe_clusters':
+        return [x.get('ClusterIdentifier',"") for x in response['Clusters']]
+    elif method == 'list_topics':
+        return [x.get('TopicArn',"") for x in response['Topics']]
+    elif method == 'list_queues':
+        return response.get("QueueUrls")  
+    elif method == 'list_domain_names':
+        return [x.get('DomainName') for x in response['DomainNames']] 
+    elif method == 'describe_configuration_recorders':
+        return [x.get('name') for x in response['ConfigurationRecorders']] 
     else:
         return []
 
@@ -387,6 +409,50 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
     elif client_str == "iam" and function_name == "get_role":
         return {
             'RoleName': resource_id
+        }
+    elif client_str == "kms" and function_name == "get_key_rotation_status":
+        return {
+            'KeyId': resource_id
+        }
+    elif client_str == "dynamodb" and function_name == "describe_table":
+        return {
+            'TableName': resource_id
+        }
+    elif client_str == "ecs" and function_name == "describe_task_definition":
+        return {
+            'taskDefinition': resource_id
+        }
+    elif client_str == "eks" and function_name == "describe_cluster":
+        return {
+            'name': resource_id
+        }
+    elif client_str == "elasticache" and function_name == "describe_replication_groups":
+        return {
+            'ReplicationGroupId': resource_id
+        }
+    elif client_str == "kinesis" and function_name == "describe_stream":
+        return {
+            'StreamName': resource_id
+        }
+    elif client_str == "lambda" and function_name == "get_function":
+        return {
+            'FunctionName': resource_id
+        }
+    elif client_str == "redshift" and function_name == "describe_clusters":
+        return {
+            'ClusterIdentifier': resource_id
+        }
+    elif client_str == "sns" and function_name == "get_topic_attributes":
+        return {
+            'TopicArn': resource_id
+        }
+    elif client_str == "sqs" and function_name == "get_queue_attributes":
+        return {
+            'QueueUrl': resource_id
+        }
+    elif client_str == "configservice" and function_name == "describe_configuration_recorders":
+        return {
+            'ConfigurationRecorderNames': [resource_id]
         }
     else:
         return {}
