@@ -185,6 +185,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
             finalresult = False
     return finalresult
 
+
 def _get_snapshot_type_map(container):
     dbname = config_value(DATABASE, DBNAME)
     collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
@@ -203,6 +204,7 @@ def _get_snapshot_type_map(container):
                         for node in nodes:
                             mappings[node['snapshotId']] = node['type']
     return mappings
+
 
 def run_container_validation_tests_database(container, snapshot_status=None):
     """ Get the test files from the database"""
@@ -294,3 +296,14 @@ def container_snapshots_filesystem(container):
             if snapshot:
                 snapshots.append(snapshot)
     return snapshots
+
+def main(container):
+    run_container_validation_tests_filesystem(container)
+
+
+if __name__ == '__main__':
+    import sys
+    from processor.logging.log_handler import getlogger, init_logger, NONE
+    init_logger(NONE)
+    if len(sys.argv) > 1:
+        main(sys.argv[1])
