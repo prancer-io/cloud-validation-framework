@@ -15,11 +15,11 @@
                 },
                 {
                     "masterTestId": "AWS_S3_01_TEST_2",
-                    "rule": "contains({AWS_S3_01}.grants[*].permission)!='FullControl'"
+                    "rule": "contains({AWS_S3_01}.Grants[*].Permission)!='FullControl'"
                 },
                 {
                     "masterTestId": "AWS_S3_01_TEST_3",
-                    "rule": "{AWS_S3_01}.Owner.DisplayName='operations'"
+                    "rule": "{AWS_S3_01}.Owner.DisplayName='farshid.mahdavipour'"
                 },
                 {
                     "masterTestId": "AWS_S3_01_TEST_4",
@@ -47,11 +47,11 @@
                 },
                 {           
                     "masterTestId": "AWS_EC2_01_TEST_5",
-                    "rule": "contains({AWS_EC2_01}.attributeValues[*].attributeValue)!='ec2'"
+                    "rule": "contains({AWS_EC2_01}.AccountAttributes[*].AttributeValues.[0]AttributeValue)!='ec2'"
                 },
                 {           
                     "masterTestId": "AWS_EC2_01_TEST_6",
-                    "rule": "{AWS_EC2_01}.Subnets[0].MapPublicIpOnLaunch=true"
+                    "rule": "{AWS_EC2_04}.Subnets[0].MapPublicIpOnLaunch=true"
                 },
                 {           
                     "masterTestId": "AWS_EC2_03_TEST_1",
@@ -63,11 +63,15 @@
                 },
                 {           
                     "masterTestId": "AWS_EC2_03_TEST_3",
-                    "rule": "contains({AWS_EC2_03}.attachments[*].state)='attached'"
+                    "rule": "{AWS_EC2_03}.Volumes[0].Attachments[*].State!='attached'"
+                },
+                {           
+                    "masterTestId": "AWS_EC2_03_TEST_4",
+                    "rule": "{AWS_EC2_03}.Volumes[0].Encrypted=false"
                 },
                 {           
                     "masterTestId": "AWS_EC2_02_TEST_1",
-                    "rule": "{AWS_EC2_02}.SecurityGroups['GroupName'='launch-wizard-1'].IpPermissions['FromPort'=80].IpProtocol='tcp'"
+                    "rule": "{AWS_EC2_02}.SecurityGroups['GroupName'='launch-wizard-1'].IpPermissions['FromPort'=22].IpProtocol='tcp'"
                 },
                 {           
                     "masterTestId": "AWS_RDS_01_TEST_1",
@@ -124,6 +128,10 @@
                 {           
                     "masterTestId": "AWS_ELB_01_TEST_4",
                     "rule": "exist({AWS_ELB_01}.PolicyDescriptions.Instances[])=false"
+                },
+                {           
+                    "masterTestId": "AWS_ELB_01_TEST_5",
+                    "rule": "{AWS_ELB_01}.LoadBalancerDescriptions[0].ListenerDescriptions[0].Listener.Protocol='HTTP'"
                 },
                 {
                     "masterTestId": "AWS_R53_01_TEST_1",

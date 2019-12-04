@@ -363,7 +363,7 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         return {
             'LoadBalancerNames': [resource_id]
         }
-    elif client_str == "elb" and function_name in ["describe_load_balancer_attributes",\
+    elif client_str == "elb" and function_name in ["describe_load_balancers", "describe_load_balancer_attributes",\
         "describe_load_balancer_policies"]:
         return {
             'LoadBalancerName': resource_id

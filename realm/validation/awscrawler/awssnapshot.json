@@ -5,7 +5,7 @@
    "snapshots": [
        {
            "source": "awsStructure",
-           "testUser": "prancer_pro",
+           "testUser": "prancer_praveen",
            "projectId": [
                "d34d6141-7a19-4458-b0dd-f038bb7760c1"
            ],
@@ -24,7 +24,7 @@
                },
                {
                     "masterSnapshotId": "AWS_EC2_01",
-                    "arn": "arn:aws:ec2:us-west-1::",
+                    "arn": "arn:aws:ec2:::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
                     "detailMethods": [
@@ -35,7 +35,7 @@
                },
                {
                     "masterSnapshotId": "AWS_EC2_02",
-                    "arn": "arn:aws:ec2:us-west-1::",
+                    "arn": "arn:aws:ec2:::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
                     "detailMethods": [
@@ -45,7 +45,7 @@
                },
                {
                     "masterSnapshotId": "AWS_EC2_03",
-                    "arn": "arn:aws:ec2:us-east-1::",
+                    "arn": "arn:aws:ec2:::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
                     "detailMethods": [
@@ -57,7 +57,7 @@
                },
                {
                     "masterSnapshotId": "AWS_EC2_04",
-                    "arn": "arn:aws:ec2:us-east-1::",
+                    "arn": "arn:aws:ec2:::",
                     "collection": "ec2",
                     "listMethod": "describe_instances",
                     "detailMethods": [
@@ -68,7 +68,7 @@
                },
                {
                     "masterSnapshotId": "AWS_RDS_01",
-                    "arn": "arn:aws:rds:us-east-1::",
+                    "arn": "arn:aws:rds:::",
                     "collection": "rds",
                     "listMethod": "describe_db_instances",
                     "detailMethods": [
@@ -78,7 +78,7 @@
                },
                {
                     "masterSnapshotId": "AWS_CF_01",
-                    "arn": "arn:aws:cloudformation:us-east-1::",
+                    "arn": "arn:aws:cloudformation:::",
                     "collection": "cloudformation",
                     "listMethod": "list_stacks",
                     "detailMethods": [
@@ -100,7 +100,7 @@
                },
                {
                     "masterSnapshotId": "AWS_API_01",
-                    "arn": "arn:aws:apigateway:us-east-1::",
+                    "arn": "arn:aws:apigateway:::",
                     "collection": "apigateway",
                     "listMethod": "get_rest_apis",
                     "detailMethods": [
@@ -110,7 +110,7 @@
                },
                {
                     "masterSnapshotId": "AWS_API_02",
-                    "arn": "arn:aws:apigateway:us-east-1::",
+                    "arn": "arn:aws:apigateway:::",
                     "collection": "apigateway",
                     "listMethod": "get_rest_apis",
                     "detailMethods": [
@@ -119,7 +119,7 @@
                },
                {
                     "masterSnapshotId": "AWS_API_03",
-                    "arn": "arn:aws:apigateway:us-east-1::",
+                    "arn": "arn:aws:apigateway:::",
                     "collection": "apigateway",
                     "listMethod": "get_rest_apis",
                     "detailMethods": [
@@ -128,7 +128,7 @@
                },
                {
                     "masterSnapshotId": "AWS_API_04",
-                    "arn": "arn:aws:apigateway:us-east-1::",
+                    "arn": "arn:aws:apigateway:::",
                     "collection": "apigateway",
                     "listMethod": "get_rest_apis",
                     "detailMethods": [
@@ -137,7 +137,7 @@
                },
                {
                     "masterSnapshotId": "AWS_API_05",
-                    "arn": "arn:aws:apigateway:us-east-1::",
+                    "arn": "arn:aws:apigateway:::",
                     "collection": "apigateway",
                     "listMethod": "get_rest_apis",
                     "detailMethods": [
@@ -146,7 +146,7 @@
                },
                {
                     "masterSnapshotId": "AWS_API_06",
-                    "arn": "arn:aws:apigateway:us-east-1::",
+                    "arn": "arn:aws:apigateway:::",
                     "collection": "apigateway",
                     "listMethod": "get_rest_apis",
                     "detailMethods": [
@@ -160,13 +160,14 @@
                     "collection": "elb",
                     "listMethod": "describe_load_balancers",
                     "detailMethods": [
+                      "describe_load_balancers",
                       "describe_load_balancer_attributes",
                       "describe_load_balancer_policies"
                     ]
                },
                {
                     "masterSnapshotId": "AWS_R53_01",
-                    "arn": "arn:aws:route53:us-east-1::",
+                    "arn": "arn:aws:route53:::",
                     "collection": "route53",
                     "listMethod": "list_hosted_zones",
                     "detailMethods": [
@@ -176,7 +177,7 @@
                },
                {
                     "masterSnapshotId": "AWS_R53_02",
-                    "arn": "arn:aws:route53:us-east-1::",
+                    "arn": "arn:aws:route53:::",
                     "collection": "route53",
                     "listMethod": "list_geo_locations",
                     "detailMethods": [
@@ -185,7 +186,7 @@
               },
               {
                     "masterSnapshotId": "AWS_IAM_01",
-                    "arn": "arn:aws:iam:us-east-1::",
+                    "arn": "arn:aws:iam:::",
                     "collection": "iam",
                     "listMethod": "list_users",
                     "detailMethods": [
