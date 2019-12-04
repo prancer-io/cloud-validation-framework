@@ -130,7 +130,7 @@ def get_rego_rule_filename(rego_file, container):
     rego_file_name = None
     json_dir = get_test_json_dir()
     if exists_dir(json_dir):
-        rego_file_name = '%s/%s/snapshots/%s' % (json_dir, container, rego_file)
+        rego_file_name = '%s/%s/%s' % (json_dir, container, rego_file)
         if exists_file(rego_file_name):
             pass
         else:
@@ -214,7 +214,7 @@ class ComparatorV01:
             rego_rule = self.rule
             rego_match=re.match(r'^file\((.*)\)$', rego_rule, re.I)
             if rego_match:
-                rego_file = get_rego_rule_filename(rego_match.groups()[0])
+                rego_file = get_rego_rule_filename(rego_match.groups()[0], self.container)
                 if rego_file:
                     pass
                 else:
@@ -230,7 +230,7 @@ class ComparatorV01:
                 rego_file = '/tmp/input.rego'
                 open(rego_file, 'w').write('\n'.join(rego_txt))
             if rego_file:
-                os.system('%s eval -i /tmp/input.json -d /tmp/input.rego "%s" > /tmp/a.json' % (opa_exe, rule_expr))
+                os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
                 resultval = json_from_file('/tmp/a.json')
                 if resultval:
                     resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')

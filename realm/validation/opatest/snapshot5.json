@@ -1,0 +1,25 @@
+{
+  "$schema": "",
+  "contentVersion": "1.0.0.0",
+  "fileType": "snapshot",
+  "snapshots": [
+    {
+      "source": "awsStructure",
+      "type": "aws",
+      "testUser": "ajeybk",
+      "account-id": "3684074453691",
+      "nodes": [
+        {
+          "snapshotId": "51",
+          "type": "security_groups",
+          "collection": "security_groups",
+          "id": {
+            "GroupNames": [
+              "launch-wizard-1"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
