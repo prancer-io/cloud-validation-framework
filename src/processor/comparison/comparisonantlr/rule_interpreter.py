@@ -139,7 +139,7 @@ class RuleInterpreter:
 
     def get_snaphotid_doc(self, sid):
         doc = None
-        isdb_fetch = False # get_dbtests()
+        isdb_fetch = get_dbtests()
         if isdb_fetch:
             dbname = self.kwargs['dbname']
             coll = self.kwargs['snapshots'][sid] if sid in self.kwargs['snapshots'] else COLLECTION
