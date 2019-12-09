@@ -410,7 +410,7 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         return {
             'RoleName': resource_id
         }
-    elif client_str == "kms" and function_name == "get_key_rotation_status":
+    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key"]:
         return {
             'KeyId': resource_id
         }
@@ -448,11 +448,15 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         }
     elif client_str == "sqs" and function_name == "get_queue_attributes":
         return {
-            'QueueUrl': resource_id
+            'QueueUrl': 'https:{url}'.format(url=resource_id), 'AttributeNames': ['All']
         }
     elif client_str == "configservice" and function_name == "describe_configuration_recorders":
         return {
             'ConfigurationRecorderNames': [resource_id]
+        }
+    elif client_str == "es" and function_name == "describe_elasticsearch_domain":
+        return {
+            'DomainName': resource_id
         }
     else:
         return {}
