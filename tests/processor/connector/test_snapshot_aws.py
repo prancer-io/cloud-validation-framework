@@ -369,3 +369,73 @@ def test_client_acceptance_from_snapshot_negative(monkeypatch):
     from processor.connector.snapshot_aws import populate_aws_snapshot
     val = populate_aws_snapshot(snapshot, 'mycontainer1')
     assert val == {'8': False}
+
+def test_get_function_kwargs(monkeypatch):
+    # client_str, resource_id, function_name, existing_json
+    from processor.connector.snapshot_aws import _get_function_kwargs
+    val = _get_function_kwargs("rds", "res1", "describe_db_instances",{})
+    assert val ==  {'DBInstanceIdentifier': "res1"}
+    val = _get_function_kwargs("s3", "res1", "get_bucket_acl",{})
+    assert val ==  {'Bucket': "res1"}
+    val = _get_function_kwargs("ec2", "res1", "describe_instances",{})
+    assert val ==  {'InstanceIds': ["res1"]}
+    val = _get_function_kwargs("elb", "res1", "describe_load_balancers",{})
+    assert val ==  {'LoadBalancerNames': ["res1"]}
+    val = _get_function_kwargs("elb", "res1", "describe_load_balancer_attributes",{})
+    assert val ==  {'LoadBalancerName': "res1"}
+    val = _get_function_kwargs("acm", "res1", "describe_certificate",{})
+    assert val ==  {'CertificateArn': "res1"}
+    val = _get_function_kwargs("cloudformation", "res1", "describe_stacks",{})
+    assert val ==  {'StackName': "res1"}
+    val = _get_function_kwargs("cloudtrail", "res1", "describe_trails",{})
+    assert val ==  {'trailNameList': ["res1"]}
+    val = _get_function_kwargs("cloudtrail", "res1", "get_insight_selectors",{})
+    assert val ==  {'TrailName': "res1"}
+    val = _get_function_kwargs("apigateway", "res1", "get_request_validators",{})
+    assert val ==  {'restApiId': "res1"}
+    existing_json = {
+        'Reservations': [
+            {'Instances':[
+                {'ImageId': "hello"}
+            ]}
+        ]}
+    val = _get_function_kwargs("ec2", "res1", "describe_images",existing_json)
+    assert val ==  {'ImageIds': ["hello"]}
+    existing_json = {
+        'Reservations': [
+            {'Instances':[
+                {'VpcId': "hello"}
+            ]}
+        ]}
+    val = _get_function_kwargs("ec2", "res1", "describe_vpcs",existing_json)
+    assert val ==  {'VpcIds': ["hello"]}
+    existing_json = {
+        'Reservations': [
+            {'Instances':[
+                {'SubnetId': "hello"}
+            ]}
+        ]}
+    val = _get_function_kwargs("ec2", "res1", "describe_subnets",existing_json)
+    assert val ==  {'SubnetIds': ["hello"]}
+    existing_json = {
+        'Reservations': [
+            {'OwnerId': "world"}
+        ]}
+    val = _get_function_kwargs("ec2", "res1", "describe_snapshots",existing_json)
+    assert val ==  {'OwnerIds': ["world"]}
+    existing_json = {
+        'Reservations': [
+            {'Instances':[
+                {'ImageId': "hello"}
+            ]}
+        ]}
+
+
+
+
+
+
+
+
+
+

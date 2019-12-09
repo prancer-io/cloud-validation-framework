@@ -1,0 +1,173 @@
+# AWS Crawler
+Following are the components of an aws crawler. 
+The code for aws crawler lies in **/cloud-validation-framework/realm/awscrawler**. You can find mastersnapshot and mastertest configuration files here. 
+
+AWS Structure is the connector configuration file has information about how to connect to that provider and the credential.
+    
+### AWS Structure
+    {
+	    "organization": "<Company Name>",
+	    "type": "aws",
+	    "fileType": "structure",
+	    "organization-unit": [
+	        {
+	            "name": "<Organization Unit Name>",
+	            "accounts": [
+	                {
+	                    "account-name": "<Account Name>",
+	                    "account-description": "AWS cloud details",
+	                    "account-id": "<Account ID>",
+	                    "account-user": "<user email>",
+	                    "users": [
+	                        {
+	                            "name": "<IAM User Name>",
+	                            "access-key": "<AWS Access Key>",
+	                            "secret-access": "<AWS Secret Key>",
+	                            "region":"<region name>",
+	                            "client": "<client name>"
+	                        }
+	                    ]
+	                }
+	            ]
+	        }
+	    ]
+	}
+| Key | Value | Example |
+|:-----------|:------------|:------------:|
+| region       |        region where service instance is to be searched. Its optional|     us-west-1     |
+| client     |      AWS service name. Its optional|    EC2, S3 etc    |
+
+
+Here is the sample mastersnapshot -
+
+### Basic Structure of a mastersnapshot:
+	{
+	    "$schema": "",
+	    "contentVersion": "1.0.0.0",
+	    "fileType": "masterSnapshot",
+	    "snapshots": [
+	       {
+	           "source": "<name of connector file>",
+	           "testUser": "<IAM user name>",
+	           "projectId": [
+	               "<your project id>"
+	           ],
+	           "type" :"aws",
+	           "nodes": [
+	               {
+	                    "masterSnapshotId": "<mastersnapshot id>",
+	                    "arn": "<your arn>",
+	                    "collection": "<name of collection in mongo db>",
+	                    "listMethod": "<list method of service>",
+	                    "detailMethods": [
+	                      "<detail method of service>",
+	                      "<detail method of service>"
+	                    ]
+	               }
+	           ]
+	       }
+	   ]
+    }
+
+| Key 		        |Value		  | Example		 |
+|:---------------- |:------------|:------------|
+| masterSnapshotId  |        Name of the snapshot to be used  in test files |     AWS_EC2_01     |
+| arn     			|      It uniquely identify AWS resources. It consists of service name(ec2), region(us-west-2), account id, region id. |    arn:aws:ec2:us-west-1::, arn:aws:ec2:::, arn:aws:rds:::, arn:aws:rds:us-east-1::    |
+| collection       	|        It represents the name of the collection in mongo db. |     ec2     |
+| listMethod        |          This includes a list method that can be called on boto client of particular service and returns various ids and other data in reponse. For example, describe_instances returns image_id in response along with other data. |      describe_instances      |
+| detailMethods     |       Every detail method uses response of list method(id or some other data) and gives detailed information for that particular service. Here describe_images used image_id from list method response and returns detailed image response. |    "describe_instances", "describe_images",	                    "describe_volumes"    |
+
+Here's the sample mastertest -
+
+###Sample Mastersnapshot:
+	{
+	    "$schema": "",
+	    "contentVersion": "1.0.0.0",
+	    "fileType": "masterSnapshot",
+	    "snapshots": [
+	       {
+	           "source": "awsStructure",
+	           "testUser": "<IAM user name>",
+	           "projectId": [
+	               "<your project id>"
+	           ],
+	           "type" :"aws",
+	           "nodes": [
+	               {
+	                    "masterSnapshotId": "AWS_EC2_01",
+	                    "arn": "arn:aws:ec2:us-west-1::",
+	                    "collection": "ec2",
+	                    "listMethod": "describe_instances",
+	                    "detailMethods": [
+	                      "describe_instances",
+	                      "describe_images",
+	                      "describe_volumes"
+	                    ]
+	               }
+	           ]
+	       }
+	   ]
+    }
+### Note :
+	If we have two mastersnapshots with same arn, and detailMethods, then snapshots for these mastersnapshots will be common with the list of mastersnapshot ids
+	
+### Basic mastertest Structure:
+
+    {
+	    "$schema": "",
+	    "contentVersion": "1.0.0.0",
+	    "fileType": "mastertest",
+	    "notification": [],
+	    "masterSnapshot": "awssnapshot",
+	    "testSet": [
+	        {
+	            "masterTestName": "test3",
+	            "version": "0.1",
+	            "cases": [
+	                {
+	                    "masterTestId": "<test id>",
+	                    "rule": "<rule >"
+	                }
+	            ]
+	        }
+	    ]
+    }
+
+| Key        | Value       | Example 	  |
+|:-----------|:------------|:------------|
+| cases       |        All the test cases are written under this section |     The json enclosed in cases block (Refer below)    |
+| masterTestId     |      The id of the master test case |    AWS_EC2_02    |
+| rule       |        Programmatic representation of the rule we want to test |     {AWS_EC2_01}.Reservations[0].Instances[0].SecurityGroups[0].GroupName='launch-wizard-1'     |
+
+
+### Sample Test:
+
+    {
+	    "$schema": "",
+	    "contentVersion": "1.0.0.0",
+	    "fileType": "mastertest",
+	    "notification": [],
+	    "masterSnapshot": "awssnapshot",
+	    "testSet": [
+	        {
+	            "masterTestName": "test3",
+	            "version": "0.1",
+	            "cases": [
+	                {
+	                    "masterTestId": "AWS_EC2_02",
+	                    "rule": "{AWS_EC2_01}.Reservations[0].Instances[0].SecurityGroups[0].GroupName='launch-wizard-1'"
+	                }
+	            ]
+	        }
+	    ]
+    }
+
+### Steps to run aws crawler:
+	
+	populate_json lq --file ./realm/awsStructure.json --type structure : Stores aws srtucture in mongodb collection named structures
+	
+	populate_json crawlertest --dir ./realm/validation/awscrawler : loads entire directory in mongodb
+	
+	prancer --crawler crawlertest --db FULL  : Generates snapshots from mastersnapshot
+	
+	prancer crawlertest --db FULL: Fetches snapshots and runs tests from mastertests on them.
