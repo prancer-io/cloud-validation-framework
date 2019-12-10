@@ -329,6 +329,7 @@ def set_snapshot_data(node, items, snapshot_data):
                     "status" : "active",
                     "validate" : True
                 })
+    return snapshot_data
 
 def get_checksum(data):
     """ Get the checksum for the Google data fetched."""
