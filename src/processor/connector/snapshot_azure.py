@@ -66,7 +66,7 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         "node": node,
         "snapshotId": None,
         "mastersnapshot": True,
-        "masterSnapshotId": node['masterSnapshotId'],
+        "masterSnapshotId": [node['masterSnapshotId']],
         "collection": collection.replace('.', '').lower(),
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
@@ -214,18 +214,35 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                     node['status'] = 'inactive'
                 logger.debug('Type: %s', type(data))
             else:
-                alldata = get_all_nodes(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
+                alldata = get_all_nodes(
+                    token, sub_name, sub_id, node, snapshot_user, snapshot_source)
                 if alldata:
                     snapshot_data[node['masterSnapshotId']] = []
                     for data in alldata:
                         # insert_one_document(data, data['collection'], dbname)
-                        snapshot_data[node['masterSnapshotId']].append(
-                            {
-                                'snapshotId': data['snapshotId'],
-                                'path': data['path'],
-                                'validate': validate,
-                                'status': 'active'
-                            })
+                        found_old_record = False
+                        for masterSnapshotId, snapshot_list in snapshot_data.items():
+                            old_record = None
+                            if isinstance(snapshot_list, list):
+                                for item in snapshot_list:
+                                    if item["path"] == data['path']:
+                                        old_record = item
+
+                                if old_record:
+                                    found_old_record = True
+                                    if node['masterSnapshotId'] not in old_record['masterSnapshotId']:
+                                        old_record['masterSnapshotId'].append(
+                                            node['masterSnapshotId'])
+
+                        if not found_old_record:
+                            snapshot_data[node['masterSnapshotId']].append(
+                                {
+                                    'masterSnapshotId': [node['masterSnapshotId']],
+                                    'snapshotId': data['snapshotId'],
+                                    'path': data['path'],
+                                    'validate': validate,
+                                    'status': 'active'
+                                })
                     # snapshot_data[node['masterSnapshotId']] = True
                 logger.debug('Type: %s', type(alldata))
         delete_from_currentdata('resources')
