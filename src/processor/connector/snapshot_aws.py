@@ -388,7 +388,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         }
     elif client_str == "acm" and function_name == "describe_certificate":
         return {
-            'CertificateArn': resource_id
+            'CertificateArn': arn_str
         }
     elif client_str == "cloudformation" and function_name in ["describe_stack_resource",\
         "describe_stack_events", "describe_stacks", "describe_stack_resource_drifts", \
