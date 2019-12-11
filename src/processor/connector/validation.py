@@ -245,24 +245,16 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                 mastersnapshots = defaultdict(list)
                 snapshot_data = snapshot_status[snapshot_key] if snapshot_key in snapshot_status else {}
                 for snapshot_id, mastersnapshot_id in snapshot_data.items():
-                    mastersnapshots[mastersnapshot_id].append(snapshot_id)
+                    if isinstance(mastersnapshot_id, list):
+                        for msnp_id in mastersnapshot_id:
+                            mastersnapshots[msnp_id].append(snapshot_id)    
+                    else:
+                        mastersnapshots[mastersnapshot_id].append(snapshot_id)
                 test_json_data['snapshot'] = snapshot_key
                 testsets = get_field_value_with_default(test_json_data, 'testSet', [])
                 for testset in testsets:
                     testcases = get_field_value_with_default(testset, 'cases', [])
-                    newcases = []
-                    for testcase in testcases:
-                        rule_str = get_field_value_with_default(testcase, 'rule', '')
-                        ms_ids = re.findall(r'\{(.*)\}', rule_str)
-                        # detail_method = get_field_value(testcase, 'detailMethod')
-                        for ms_id in ms_ids:
-                            for s_id in mastersnapshots[ms_id]:
-                                # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
-                                # if not detail_method or detail_method == snapshots_details_map[s_id]:
-                                new_rule_str = rule_str.replace('{%s}' % ms_id, '{%s}' % s_id)
-                                new_testcase = {'rule': new_rule_str, 'testId': testcase['masterTestId']}
-                                newcases.append(new_testcase)
-                    testset['cases'] = newcases
+                    testset['cases'] = _get_new_testcases(testcases, mastersnapshots)
                 # print(json.dumps(test_json_data, indent=2))
                 resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status)
                 if resultset:
@@ -278,6 +270,39 @@ def run_container_validation_tests_database(container, snapshot_status=None):
         logger.info('No mastertest Documents found!')
         finalresult = False
     return finalresult
+
+
+def _get_new_testcases(testcases, mastersnapshots):
+    newcases = []
+    for testcase in testcases:
+        test_parser_type = testcase.get('type', None)
+        if test_parser_type == 'rego':
+            new_cases = _get_rego_testcase(testcase, mastersnapshots)
+            newcases.extend(new_cases)
+        else:
+            rule_str = get_field_value_with_default(testcase, 'rule', '')
+            ms_ids = re.findall(r'\{(.*)\}', rule_str)
+            # detail_method = get_field_value(testcase, 'detailMethod')
+            for ms_id in ms_ids:
+                for s_id in mastersnapshots[ms_id]:
+                    # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
+                    # if not detail_method or detail_method == snapshots_details_map[s_id]:
+                    new_rule_str = rule_str.replace('{%s}' % ms_id, '{%s}' % s_id)
+                    new_testcase = {'rule': new_rule_str, 'testId': testcase['masterTestId']}
+                    newcases.append(new_testcase)
+    return newcases
+
+def _get_rego_testcase(testcase, mastersnapshots):
+    newcases = []
+    ms_ids = testcase.get('masterSnapshotId')
+    for ms_id in ms_ids:
+        for s_id in mastersnapshots[ms_id]:
+            # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
+            # if not detail_method or detail_method == snapshots_details_map[s_id]:
+            new_testcase = testcase
+            new_testcase['snapshotId'] = [s_id]
+            newcases.append(new_testcase)
+    return newcases
 
 
 def container_snapshots_filesystem(container):

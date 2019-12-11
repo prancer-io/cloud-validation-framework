@@ -406,8 +406,10 @@ def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, 
         RepoMockHelper.return_value.clone_from.return_value = None
         snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
         assert snapshot_data == {'5': True}
+
         snapshot_data = populate_custom_snapshot(snapshot1, 'mycontainer1')
         assert snapshot_data == {}
+
         snapshot_data = populate_custom_snapshot(snapshot1)
         assert snapshot_data == {}
 
