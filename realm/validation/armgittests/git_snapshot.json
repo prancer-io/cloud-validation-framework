@@ -12,10 +12,10 @@
           "collection": "armsnapshots",
           "location": "EastUS",
           "paths": [
-            "101-application-gateway-create/azuredeploy",
-            "101-application-gateway-create/azuredeploy.parameters"
+            "armcrawlertest/application-gateway-create/azuredeploy",
+            "armcrawlertest/application-gateway-create/azuredeploy.parameters"
           ],
-          "status": "inactive"
+          "status": "active"
         }
       ]
     }

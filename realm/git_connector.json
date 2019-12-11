@@ -2,7 +2,7 @@
   "fileType": "structure",
   "type": "filesystem",
   "companyName": "prancer-test",
-  "gitProvider": "https://github.com/Azure/azure-quickstart-templates.git",
+  "gitProvider": "https://github.com/vatsalgit5118/testing-repo.git",
   "branchName": "master",
   "httpsUser": null,
   "httpsPassword": null,
