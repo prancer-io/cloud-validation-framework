@@ -161,7 +161,7 @@ def get_node(awsclient, node, snapshot_source):
         for each_method_str in detail_methods:
             function_to_call = getattr(awsclient, each_method_str, None)
             if function_to_call and callable(function_to_call):
-                params = _get_function_kwargs(client_str, resourceid, each_method_str, json_to_put)
+                params = _get_function_kwargs(arn_str, each_method_str, json_to_put)
                 try:
                     data = function_to_call(**params)
                     if data:
@@ -212,6 +212,9 @@ def _get_resources_from_list_function(response, method):
     elif method == 'list_keys':
         return [x.get('KeyId') for x in response['Keys']]
     elif method == 'list_tables':
+        return response.get("TableNames")
+    elif method == 'list_backups':
+        return [x.get('BackupArn',"") for x in response['BackupSummaries']]
         return response.get("TableNames")
     elif method == 'list_task_definitions':
         return response.get('taskDefinitionArns')
@@ -269,8 +272,11 @@ def get_all_nodes(awsclient, node, snapshot, connector):
             detail_methods = get_field_value(node, 'detailMethods')
             for each_resource in list_of_resources:
                 type_list = []
-                resource_arn = arn_string %(awsclient.meta._service_model.service_name,
-                    awsclient.meta.region_name, each_resource)
+                if "arn:" in each_resource:
+                    resource_arn = each_resource
+                else:
+                    resource_arn = arn_string %(awsclient.meta._service_model.service_name,
+                        awsclient.meta.region_name, each_resource)
                 for each_method_str in detail_methods:
                     each_method = getattr(awsclient, each_method_str, None)
                     if each_method and callable(each_method):
@@ -292,8 +298,11 @@ def get_checksum(data):
         pass
     return checksum
 
-def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
+def _get_function_kwargs(arn_str, function_name, existing_json):
     """Fetches the correct keyword arguments for different detail functions"""
+    arn = arnparse(arn_str)
+    client_str = arn.service
+    resource_id = arn.resource
     if client_str == "s3":
         return {'Bucket' : resource_id}
     elif client_str == "rds" and function_name in ["describe_db_instances",\
@@ -359,6 +368,15 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         return {
             'OwnerIds': [ownerid]
         }
+    elif client_str == "ec2" and function_name == "describe_snapshot_attribute":
+        try:
+            snapshot_id = existing_json['Snapshots'][0]['SnapshotId']
+        except:
+            snapshot_id = ""
+        return {
+            'SnapshotId': snapshot_id,
+            'Attribute' : 'createVolumePermission'
+        }
     elif client_str == "elb" and function_name == "describe_load_balancers":
         return {
             'LoadBalancerNames': [resource_id]
@@ -410,13 +428,17 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         return {
             'RoleName': resource_id
         }
-    elif client_str == "kms" and function_name == "get_key_rotation_status":
+    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key"]:
         return {
             'KeyId': resource_id
         }
     elif client_str == "dynamodb" and function_name == "describe_table":
         return {
             'TableName': resource_id
+        }
+    elif client_str == "dynamodb" and function_name == "describe_backup":
+        return {
+            'BackupArn': arn_str
         }
     elif client_str == "ecs" and function_name == "describe_task_definition":
         return {
@@ -448,11 +470,15 @@ def _get_function_kwargs(client_str, resource_id, function_name, existing_json):
         }
     elif client_str == "sqs" and function_name == "get_queue_attributes":
         return {
-            'QueueUrl': resource_id
+            'QueueUrl': 'https:{url}'.format(url=resource_id), 'AttributeNames': ['All']
         }
     elif client_str == "configservice" and function_name == "describe_configuration_recorders":
         return {
             'ConfigurationRecorderNames': [resource_id]
+        }
+    elif client_str == "es" and function_name == "describe_elasticsearch_domain":
+        return {
+            'DomainName': resource_id
         }
     else:
         return {}

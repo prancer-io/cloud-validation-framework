@@ -1,7 +1,7 @@
 {
     "fileType": "structure",
     "companyName": "prancer-test",
-    "folderPath": "<your-filesystem-path>/realm/validation",
+    "folderPath": "/realm/validation",
     "username": "vatsal",
     "type": "git"
 }
