@@ -7,6 +7,7 @@ from collections import OrderedDict
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor.helper.config.config_utils import get_test_json_dir
 from processor.logging.log_handler import getlogger
+from bson import json_util
 
 SNAPSHOT = 'snapshot'
 MASTERSNAPSHOT = 'masterSnapshot'
@@ -47,7 +48,7 @@ def save_json_to_file(indata, outfile):
     """Save json data to the file"""
     if indata is not None:
         try:
-            instr = json.dumps(indata, indent=2)
+            instr = json.dumps(indata, indent=2, default=json_util.default)
             with open(outfile, 'w') as jsonwrite:
                 jsonwrite.write(instr)
         except:
