@@ -371,27 +371,26 @@ def test_client_acceptance_from_snapshot_negative(monkeypatch):
     assert val == {'8': False}
 
 def test_get_function_kwargs(monkeypatch):
-    # client_str, resource_id, function_name, existing_json
     from processor.connector.snapshot_aws import _get_function_kwargs
-    val = _get_function_kwargs("rds", "res1", "describe_db_instances",{})
+    val = _get_function_kwargs("arn:aws:rds:us-east-2::res1", "describe_db_instances", {})
     assert val ==  {'DBInstanceIdentifier': "res1"}
-    val = _get_function_kwargs("s3", "res1", "get_bucket_acl",{})
+    val = _get_function_kwargs("arn:aws:s3:us-east-2::res1", "get_bucket_acl", {})
     assert val ==  {'Bucket': "res1"}
-    val = _get_function_kwargs("ec2", "res1", "describe_instances",{})
+    val = _get_function_kwargs("arn:aws:ec2:us-east-2::res1", "describe_instances", {})
     assert val ==  {'InstanceIds': ["res1"]}
-    val = _get_function_kwargs("elb", "res1", "describe_load_balancers",{})
+    val = _get_function_kwargs("arn:aws:elb:us-east-2::res1", "describe_load_balancers", {})
     assert val ==  {'LoadBalancerNames': ["res1"]}
-    val = _get_function_kwargs("elb", "res1", "describe_load_balancer_attributes",{})
+    val = _get_function_kwargs("arn:aws:elb:us-east-2::res1", "describe_load_balancer_attributes", {})
     assert val ==  {'LoadBalancerName': "res1"}
-    val = _get_function_kwargs("acm", "res1", "describe_certificate",{})
+    val = _get_function_kwargs("arn:aws:acm:us-east-2::res1", "describe_certificate", {})
     assert val ==  {'CertificateArn': "res1"}
-    val = _get_function_kwargs("cloudformation", "res1", "describe_stacks",{})
+    val = _get_function_kwargs("arn:aws:cloudformation:us-east-2::res1", "describe_stacks", {})
     assert val ==  {'StackName': "res1"}
-    val = _get_function_kwargs("cloudtrail", "res1", "describe_trails",{})
+    val = _get_function_kwargs("arn:aws:cloudtrail:us-east-2::res1", "describe_trails", {})
     assert val ==  {'trailNameList': ["res1"]}
-    val = _get_function_kwargs("cloudtrail", "res1", "get_insight_selectors",{})
+    val = _get_function_kwargs("arn:aws:cloudtrail:us-east-2::res1", "get_insight_selectors", {})
     assert val ==  {'TrailName': "res1"}
-    val = _get_function_kwargs("apigateway", "res1", "get_request_validators",{})
+    val = _get_function_kwargs("arn:aws:apigateway:us-east-2::res1", "get_request_validators", {})
     assert val ==  {'restApiId': "res1"}
     existing_json = {
         'Reservations': [
@@ -399,7 +398,7 @@ def test_get_function_kwargs(monkeypatch):
                 {'ImageId': "hello"}
             ]}
         ]}
-    val = _get_function_kwargs("ec2", "res1", "describe_images",existing_json)
+    val = _get_function_kwargs("arn:aws:ec2:us-east-2::res1", "describe_images", existing_json)
     assert val ==  {'ImageIds': ["hello"]}
     existing_json = {
         'Reservations': [
@@ -407,7 +406,7 @@ def test_get_function_kwargs(monkeypatch):
                 {'VpcId': "hello"}
             ]}
         ]}
-    val = _get_function_kwargs("ec2", "res1", "describe_vpcs",existing_json)
+    val = _get_function_kwargs("arn:aws:ec2:us-east-2::res1", "describe_vpcs", existing_json)
     assert val ==  {'VpcIds': ["hello"]}
     existing_json = {
         'Reservations': [
@@ -415,13 +414,13 @@ def test_get_function_kwargs(monkeypatch):
                 {'SubnetId': "hello"}
             ]}
         ]}
-    val = _get_function_kwargs("ec2", "res1", "describe_subnets",existing_json)
+    val = _get_function_kwargs("arn:aws:ec2:us-east-2::res1", "describe_subnets", existing_json)
     assert val ==  {'SubnetIds': ["hello"]}
     existing_json = {
         'Reservations': [
             {'OwnerId': "world"}
         ]}
-    val = _get_function_kwargs("ec2", "res1", "describe_snapshots",existing_json)
+    val = _get_function_kwargs("arn:aws:ec2:us-east-2::res1", "describe_snapshots", existing_json)
     assert val ==  {'OwnerIds': ["world"]}
     existing_json = {
         'Reservations': [
