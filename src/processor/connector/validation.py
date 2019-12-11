@@ -254,7 +254,6 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                             mastersnapshots[msnp_id].append(snapshot_id)    
                     else:
                         mastersnapshots[mastersnapshot_id].append(snapshot_id)
-                        
                 test_json_data['snapshot'] = snapshot_key
                 testsets = get_field_value_with_default(test_json_data, 'testSet', [])
                 for testset in testsets:
