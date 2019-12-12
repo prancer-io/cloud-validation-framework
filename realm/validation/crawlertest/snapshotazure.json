@@ -20,6 +20,11 @@
           "masterSnapshotId": "32",
           "type": "Microsoft.Network/virtualNetworks",
           "collection": "Microsoft.Network"
+        },
+        {
+          "masterSnapshotId": "33",
+          "type": "Microsoft.Network/virtualNetworks",
+          "collection": "Microsoft.Network"
         }
       ]
     }

@@ -32,6 +32,14 @@
                 {
                     "masterTestId": "6",
                     "rule": "exist({32}.tags.OWNER)"
+                },
+                {
+                    "masterTestId": "7",
+                    "rule": "exist({33}.tags.OWNER)"
+                },
+                {
+                    "masterTestId": "8",
+                    "rule": "exist({33}.tags.OWNER)"
                 }
             ]
         }

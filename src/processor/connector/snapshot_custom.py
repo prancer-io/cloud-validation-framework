@@ -110,7 +110,7 @@ from processor.database.database import insert_one_document, sort_field, get_doc
     COLLECTION, DATABASE, DBNAME
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
-from processor.connector.snapshot_arm_template import populate_arm_snapshot
+from processor.connector.snapshot_arm_template import populate_arm_snapshot, populate_all_arm_snapshot
 
 
 logger = getlogger()
@@ -401,7 +401,10 @@ def populate_custom_snapshot(snapshot, container=None):
             for node in snapshot_nodes:
                 node_type = node['type'] if 'type' in node and node['type'] else 'json'
                 if node_type == 'arm':
-                    populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot_data, node, repopath)
+                    if 'snapshotId' in node:
+                        populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot_data, node, repopath)
+                    elif 'masterSnapshotId' in node:
+                        populate_all_arm_snapshot(snapshot, dbname, sub_data, node, repopath, snapshot_data)
                 else:
                     # logger.debug(node)
                     # data = get_node(repopath, node, snapshot_source, brnch)
