@@ -236,6 +236,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get('DomainName') for x in response['DomainNames']] 
     elif method == 'describe_configuration_recorders':
         return [x.get('name') for x in response['ConfigurationRecorders']] 
+    elif method == 'list_distributions':
+        return [x.get('Id') for x in response['DistributionList']['Items']]
     else:
         return []
 
@@ -388,7 +390,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         }
     elif client_str == "acm" and function_name == "describe_certificate":
         return {
-            'CertificateArn': resource_id
+            'CertificateArn': arn_str
         }
     elif client_str == "cloudformation" and function_name in ["describe_stack_resource",\
         "describe_stack_events", "describe_stacks", "describe_stack_resource_drifts", \
@@ -466,7 +468,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         }
     elif client_str == "sns" and function_name == "get_topic_attributes":
         return {
-            'TopicArn': resource_id
+            'TopicArn': arn_str
         }
     elif client_str == "sqs" and function_name == "get_queue_attributes":
         return {
@@ -479,6 +481,10 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     elif client_str == "es" and function_name == "describe_elasticsearch_domain":
         return {
             'DomainName': resource_id
+        }
+    elif client_str == "cloudfront" and function_name == "get_distribution":
+        return {
+            'Id': resource_id
         }
     else:
         return {}
