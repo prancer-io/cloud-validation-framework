@@ -426,7 +426,8 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'CountryCode': resource_id
         }
-    elif client_str == "iam" and function_name in ["get_user", "list_ssh_public_keys"]:
+    elif client_str == "iam" and function_name in ["get_user", "list_ssh_public_keys", \
+        "get_account_summary", "get_account_password_policy", "list_attached_user_policies"]:
         return {
             'UserName': resource_id
         }
@@ -434,7 +435,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'RoleName': resource_id
         }
-    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key"]:
+    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key",]:
         return {
             'KeyId': resource_id
         }
