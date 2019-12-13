@@ -238,6 +238,10 @@ def _get_resources_from_list_function(response, method):
         return [x.get('name') for x in response['ConfigurationRecorders']] 
     elif method == 'list_distributions':
         return [x.get('Id') for x in response['DistributionList']['Items']]
+    elif method == 'describe_vpn_gateways':
+        return [x.get('VpnGatewayId') for x in response['VpnGateways']]
+    elif method == 'describe_file_systems':
+        return [x.get('FileSystemId') for x in response['FileSystems']]
     else:
         return []
 
@@ -474,7 +478,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'QueueUrl': 'https:{url}'.format(url=resource_id), 'AttributeNames': ['All']
         }
-    elif client_str == "configservice" and function_name == "describe_configuration_recorders":
+    elif client_str == "config" and function_name in ["describe_configuration_recorders", "describe_configuration_recorder_status"]:
         return {
             'ConfigurationRecorderNames': [resource_id]
         }
@@ -485,6 +489,14 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     elif client_str == "cloudfront" and function_name == "get_distribution":
         return {
             'Id': resource_id
+        }
+    elif client_str == "ec2" and function_name == "describe_vpn_gateways":
+        return {
+            'VpnGatewayIds': [resource_id]
+        }
+    elif client_str == "efs" and function_name == "describe_file_systems":
+        return {
+            'FileSystemId': resource_id
         }
     else:
         return {}
