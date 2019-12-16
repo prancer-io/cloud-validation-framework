@@ -62,6 +62,51 @@ def get_google_data(snapshot_source):
     return sub_data
 
 
+def get_call_kwargs_for_crawler(node, project_id):
+    """Get argument names and their values in kwargs for Crawler"""
+    kwargs = None
+    logger.info("Get node's kwargs")
+    params_source = config_value('GOOGLE', 'params')
+    paramsversions = None
+    if json_source():
+        dbname = config_value(DATABASE, DBNAME)
+        collection = config_value(DATABASE, collectiontypes[STRUCTURE])
+        parts = params_source.rsplit('/')
+        name = parts[-1].split('.')
+        qry = {'name': name[0]}
+        sort = [sort_field('timestamp', False)]
+        docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
+        logger.info('Number of Google Params versions: %s', len(docs))
+        if docs and len(docs):
+            paramsversions = docs[0]['json']
+    else:
+        paramsversions_file = '%s/%s' % (framework_dir(), params_source)
+        logger.info(paramsversions_file)
+        if exists_file(paramsversions_file):
+            paramsversions = json_from_file(paramsversions_file)
+    if paramsversions:
+        if node and 'type' in node:
+            aggregated_list = paramsversions['aggregatedList'] if 'aggregatedList' in paramsversions else []
+            global_list = paramsversions['globalList'] if 'globalList' in paramsversions else []
+
+            kwargs = {}
+            if node['type'] in aggregated_list:
+                kwargs['type'] = "aggregated"
+                kwargs['param'] = {
+                    "project" : project_id
+                }
+
+            elif node['type'] in global_list:
+                kwargs['type'] = "global"
+                kwargs['param'] = {
+                    "project" : project_id
+                }
+
+            else:
+                logger.error("Invalid JSON: '" + node['type'] + "' is not a valid node type")
+                
+    return kwargs
+
 def get_call_kwargs(node, params):
     """Get argument names and their values in kwargs"""
     kwargs = {}
@@ -93,8 +138,15 @@ def get_call_kwargs(node, params):
             pfields = paramsversions[node['type']]
             pcount = 0
             for idx in range(2, len(params), 2):
-                kwargs[pfields[pcount]] = params[idx+1]
-                pcount += 1
+                index = idx + 1
+                if idx == 4 and params[idx] == "global":
+                    index += 1
+
+                if index >= len(params):
+                    break
+
+                kwargs[pfields[pcount]] = params[index]
+                pcount += 1   
     return kwargs
 
 
@@ -107,10 +159,21 @@ def get_google_call_function(node):
         path = path[:-1] if path and path.endswith('/') else path
         path = path[1:] if path and path.startswith('/') else path
         params = path.split('/')
-        fn_str = params[-2]
+        if ((len(params)%2) != 0 and params[4] == "global") or (len(params)%2) == 0 and params[4] != "global":
+            fn_str = params[-2]
+        else:
+            fn_str = params[-1]
         kwargs = get_call_kwargs(node, params)
     return fn_str, kwargs
 
+def get_google_call_function_for_crawler(node, project_id):
+    """Get the callable for the type of compute resource."""
+    fn_str = None
+    kwargs = None
+    if node and 'type' in node and node['type']:
+        fn_str = get_field_value(node, 'type')
+        kwargs = get_call_kwargs_for_crawler(node, project_id)
+    return fn_str, kwargs
 
 def get_node(compute, node, snapshot_source, snapshot):
     """
@@ -162,6 +225,112 @@ def get_node(compute, node, snapshot_source, snapshot):
     return db_record
 
 
+def get_all_nodes(compute, node, snapshot_source, snapshot, snapshot_data):
+    """
+    Fetch all nodes from google using connection using google client API's functions.
+    """
+    collection = node['collection'] if 'collection' in node else COLLECTION
+    parts = snapshot_source.split('.')
+    project_id = get_field_value_with_default(snapshot, 'project-id',"")
+    node_type = get_field_value_with_default(node, 'type',"")
+    
+    db_record = {
+        "structure": "google",
+        "error": None,
+        "reference": project_id,
+        "source": parts[0],
+        "path": "",
+        "timestamp": int(time.time() * 1000),
+        "queryuser": "",
+        "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
+        "node": node,
+        "snapshotId": None,
+        "masterSnapshotId": [node['masterSnapshotId']],
+        "collection": collection.replace('.', '').lower(),
+        "json": {},  # Refactor when node is absent it should None, when empty object put it as {}
+        "items": []
+    }
+
+    if node_type:
+        fn_str, kwargs = get_google_call_function_for_crawler(node, project_id)
+        if fn_str and kwargs:
+            compute_fn = getattr(compute, fn_str, None)
+            if compute_fn and callable(compute_fn):
+                try:
+                    data = None
+                    if 'type' in kwargs and kwargs['type']:
+                        if kwargs['type'] == "aggregated":
+                            data = compute_fn().aggregatedList(**kwargs['param']).execute()
+                        elif kwargs['type'] == "global":
+                            data = compute_fn().list(**kwargs['param']).execute()
+                    
+                    if data:
+                        db_record['json'] = data
+                        
+                        if kwargs['type'] == "aggregated":
+                            for name, scoped_dict in data['items'].items():
+                                if node_type in scoped_dict:
+                                    db_record['items'] = db_record['items'] + scoped_dict[node_type]
+                        
+                        elif kwargs['type'] == "global":
+                            db_record['items'] = data['items']
+
+                        set_snapshot_data(node, db_record['items'], snapshot_data)
+
+                        checksum = get_checksum(data)
+                        if checksum:
+                            db_record['checksum'] = checksum
+                    else:
+                        put_in_currentdata('errors', data)
+                        logger.info("Compute function does not exist: %s", fn_str)
+                        db_record['error'] = "Compute function does not exist: %s" % fn_str
+                except Exception as ex:
+                    logger.info('Compute function exception: %s', ex)
+                    db_record['error'] = 'Compute function exception: %s' % ex
+            else:
+                logger.info('Invalid Compute function exception: %s', fn_str)
+                db_record['error'] = 'Invalid Compute function exception: %s' % fn_str
+        else:
+            logger.info('Missing Compute function')
+            db_record['error'] = 'Missing Compute function'
+    return db_record
+
+def set_snapshot_data(node, items, snapshot_data):
+    if node['masterSnapshotId'] not in snapshot_data or not isinstance(snapshot_data[node['masterSnapshotId']], list):
+        snapshot_data[node['masterSnapshotId']] =  []
+
+    count = 0
+    for item in items:
+        count += 1
+        path = item['selfLink'].split('https://www.googleapis.com')[1]
+
+        found_old_record = False
+        for masterSnapshotId, snapshot_list in snapshot_data.items():
+            old_record = None
+            if isinstance(snapshot_list, list):
+                for item in snapshot_list:
+                    if item["path"] == path:
+                        old_record = item
+
+                if old_record:
+                    found_old_record = True
+                    if node['masterSnapshotId'] not in old_record['masterSnapshotId']:
+                        old_record['masterSnapshotId'].append(
+                            node['masterSnapshotId'])
+
+        if not found_old_record:
+            snapshot_data[node['masterSnapshotId']].append(
+                {
+                    "masterSnapshotId" : [node['masterSnapshotId']],
+                    "snapshotId": '%s%s' % (node['masterSnapshotId'], str(count)),
+                    "type": node['type'],
+                    "collection": node['collection'],
+                    "path": path,
+                    "status" : "active",
+                    "validate" : True
+                })
+    return snapshot_data
+
 def get_checksum(data):
     """ Get the checksum for the Google data fetched."""
     checksum = None
@@ -197,16 +366,24 @@ def populate_google_snapshot(snapshot, container=None):
         try:
             for node in snapshot['nodes']:
                 logger.info(node)
-                data = get_node(compute, node, snapshot_source, snapshot)
-                if data:
-                    error_str = data.pop('error', None)
-                    if get_dbtests():
-                        insert_one_document(data, data['collection'], dbname)
-                    else:
-                        snapshot_dir = make_snapshots_dir(container)
-                        if snapshot_dir:
-                            store_snapshot(snapshot_dir, data)
-                    snapshot_data[node['snapshotId']] = False if error_str else True
+                if 'snapshotId' in node:
+                    data = get_node(compute, node, snapshot_source, snapshot)
+                    if data:
+                        error_str = data.pop('error', None)
+                        if get_dbtests():
+                            insert_one_document(data, data['collection'], dbname)
+                        else:
+                            snapshot_dir = make_snapshots_dir(container)
+                            if snapshot_dir:
+                                store_snapshot(snapshot_dir, data)
+                    
+                        if 'masterSnapshotId' in node:
+                            snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+                        else:
+                            snapshot_data[node['snapshotId']] = False if error_str else True
+                elif 'masterSnapshotId' in node:
+                        data = get_all_nodes(compute, node, snapshot_source, snapshot, snapshot_data)
+                        logger.debug('Type: %s', type(data))
         except Exception as ex:
             logger.info('Unable to create Google client: %s', ex)
     return snapshot_data

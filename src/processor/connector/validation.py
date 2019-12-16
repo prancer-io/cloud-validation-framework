@@ -4,6 +4,8 @@
 import json
 import re
 import pymongo
+import copy 
+
 from collections import defaultdict
 from processor.logging.log_handler import getlogger
 from processor.comparison.interpreter import Comparator
@@ -163,17 +165,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
         testsets = get_field_value_with_default(test_json_data, 'testSet', [])
         for testset in testsets:
             testcases = get_field_value_with_default(testset, 'cases', [])
-            newcases = []
-            for testcase in testcases:
-                rule_str = get_field_value_with_default(testcase, 'rule', '')
-                ms_ids = re.findall(r'\{(.*)\}', rule_str)
-                for ms_id in ms_ids:
-                    for s_id in mastersnapshots[ms_id]:
-                        # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
-                        new_rule_str = rule_str.replace('{%s}' % ms_id, '{%s}' % s_id)
-                        new_testcase = {'rule': new_rule_str, 'testId': testcase['masterTestId']}
-                        newcases.append(new_testcase)
-            testset['cases'] = newcases
+            testset['cases'] = _get_new_testcases(testcases, mastersnapshots)
         # print(json.dumps(test_json_data, indent=2))
         resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status)
         if resultset:
@@ -303,7 +295,7 @@ def _get_rego_testcase(testcase, mastersnapshots):
         for s_id in mastersnapshots[ms_id]:
             # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
             # if not detail_method or detail_method == snapshots_details_map[s_id]:
-            new_testcase = testcase
+            new_testcase = copy.copy(testcase)
             new_testcase['snapshotId'] = [s_id]
             newcases.append(new_testcase)
     return newcases
