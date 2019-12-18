@@ -6,9 +6,10 @@ A **provider** is a system which provides data to **Prancer**. For example:
 
 - Azure
 - Amazon Web Services
+- Google Cloud
 - Filesystem
 
-A **connector** file is used to connect to those providers and extract data from them that will be used in testing scenarios. Each connector has its own configuration file that details the credentials (if applicable) and location of the provider to represent.
+A **connector** file is used to connect to those providers and extract data from them that will be used to take the snapshot and in testing scenarios. Each connector has its own configuration file that details the credentials (if applicable) and location of the provider to represent.
 
 # Monitored resources & snapshots
 
@@ -16,9 +17,9 @@ A **monitored resource**, is an item that you want **Prancer** to observe and va
 
 A **snapshot configuration** file is used to define what you want to observe. It will use a **connector** that you previously configured to get a representation of a **monitored resource** on the referenced **provider**. By using different **connectors**, you can gather a broad snapshot of your different systems and then run tests on this data.
 
-A **master snapshot configuration** file is used to define the type of resources you want to observe. **crawler** processor uses the **master snapshot configuration** file to find new resources in the target environment based on the **connector** file.
+A **master snapshot configuration** file is used to define the type of resources you want to observe. The **crawler** processor uses the **master snapshot configuration** file to find new resources in the target environment based on the **connector** file.
 
-When you gather data about your **monitored resources** you are creating **snapshots**. **snapshots** are actual represantation of **monitored resource** in json format. These **snapshots** are kept in a file system or database over time so you can track the changes if anything happens. You then run tests on those **snapshots** to validate that your infrastructure (but also files) are still healthy.
+When you gather data about your **monitored resources** you are creating **snapshots**. **snapshots** are actual represantation of **monitored resources** in json format. These **snapshots** are kept in a file system or database over time so you can track the changes if anything happens. You then run tests on those **snapshots** to validate that your infrastructure (but also files) are still healthy.
 
 # Tests, rules & reports
 

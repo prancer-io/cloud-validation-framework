@@ -12,6 +12,7 @@ nav:
   - Terminology: terminology.md
   - Workflow: workflow.md
   - Installation: installation.md
+  - How to Access: access.md
   - Configuration:
     - Basics: configuration/basics.md
     - Logging: configuration/logging.md
@@ -34,6 +35,7 @@ nav:
     - Master test file: tests/master-test.md
     - Looking for test data: tests/look-for-data.md
     - Rule syntax: tests/syntax.md
+    - OPA Integration: tests/opa.md
     - Test ouput files: tests/outputs.md
   - Limitations & workarounds:
     - AWS resources: limitations/aws-limitations.md
