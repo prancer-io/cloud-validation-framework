@@ -98,7 +98,7 @@ def get_call_kwargs_for_crawler(node, project_id):
                 
     return kwargs
 
-def get_call_kwargs(node, params):
+def get_call_kwargs(node):
     """Get argument names and their values in kwargs"""
     kwargs = {
         "params" : {}
@@ -153,7 +153,7 @@ def get_google_call_function(node):
             fn_str = get_field_value(node, 'type')
             if fn_str:
                 fn_str_list = fn_str.split(".")
-            kwargs = get_call_kwargs(node, fn_str_list)
+            kwargs = get_call_kwargs(node)
     return fn_str_list, kwargs
 
 def get_google_call_function_for_crawler(node, project_id):
@@ -193,7 +193,7 @@ def get_node(compute_fn, node, snapshot_source, snapshot):
     if fn_str_list:
         for i in range(0, len(fn_str_list)):
             compute_fn = getattr(compute_fn, fn_str_list[i], None)
-            if i != len(fn_str_list)-1:
+            if compute_fn and i != len(fn_str_list)-1:
                 compute_fn = compute_fn()
 
         response_param = ""
@@ -254,7 +254,7 @@ def get_all_nodes(compute_fn, node, snapshot_source, snapshot, snapshot_data):
         if fn_str_list and kwargs:
             for i in range(0, len(fn_str_list)):
                 compute_fn = getattr(compute_fn, fn_str_list[i], None)
-                if i != len(fn_str_list)-1:
+                if compute_fn and i != len(fn_str_list)-1:
                     compute_fn = compute_fn()
 
             response_param = ""

@@ -2,19 +2,19 @@
 from unittest.mock import Mock
 
 snapshot =  {
-        "source": "googleStructure",
-        "type": "google",
-        "testUser": "ajeybk",
-        "project-id": "liquproj",
-        "nodes": [
-            {
-                "snapshotId": "71",
-                "type": "instances",
-                "collection": "instances",
-                "path":"/compute/v1/projects/liquproj/zones/us-west1-b/instances/proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55"
-            }
-        ]
-    }
+    "source": "googleStructure",
+    "type": "google",
+    "testUser": "ajeybk",
+    "project-id": "liquproj",
+    "nodes": [
+        {
+            "snapshotId": "71",
+            "type": "instances.get",
+            "collection": "instances",
+            "path":"/compute/v1/projects/liquproj/zones/us-west1-b/instances/proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55"
+        }
+    ]
+}
 
 master_snapshot = {
     "source": "googleStructure",
@@ -24,7 +24,7 @@ master_snapshot = {
     "nodes": [
         {
             "masterSnapshotId": "1",
-            "type": "instances",
+            "type": "instances.aggregatedList",
             "collection": "instances"
         }
     ]
@@ -134,7 +134,7 @@ def mock_file_exist(path):
 
 class MyMockCompute:
   
-    def mock_compute_method(self):
+    def mock_compute_method(self, param={}):
         return MyMockCompute()
 
     def get(self):
@@ -179,7 +179,7 @@ def mock_negative_get_google_client_data(sub_data, snapshot_user):
     return None
 
 
-def mock_get_google_client_data(sub_data, snapshot_user):
+def mock_get_google_client_data(sub_data, snapshot_user, node_type):
     return MyMockCompute()
 
 
@@ -195,10 +195,10 @@ def mock_get_node(compute, node, snapshot_source, connector):
 
 
 def mock_get_google_call_function(node):
-    return "mock_compute_method", {}
+    return ["mock_compute_method"], {"params" : {}}
 
 def mock_get_google_call_function_for_crawler(node, project_id):
-    return "mock_compute_method", {"type" : "aggregated", "param" : {}}
+    return ["mock_compute_method"], {"param" : "project-id"}
 
 def mock_exception_get_google_call_function(node):
     return None, {}
@@ -216,20 +216,65 @@ def mock_google_param_version(path):
         "firewalls": ["project", "firewall"],
         "fileType": "structure",
         "type": "others",
-        "aggregatedList" : [
-            "acceleratorTypes", "addresses", "autoscalers", "backendServices", "diskTypes", "disks", 
-            "forwardingRules", "operations", "healthChecks", "instanceGroupManagers","instanceGroups", 
-            "instances","interconnectAttachments","machineTypes", "networkEndpointGroups","nodeGroups","nodeTemplates",
-            "nodeTypes","commitments","reservations", "resourcePolicies","routers","sslCertificates", 
-            "subnetworks","targetHttpProxies","targetHttpsProxies", "targetInstances","targetPools",
-            "targetVpnGateways","urlMaps","vpnGateways","vpnTunnels"
+        "crawlerMethods" : {
+            "aggregatedList" : [
+                "acceleratorTypes", "addresses", "autoscalers", "backendServices", "diskTypes", "disks", 
+                "forwardingRules", "operations", "healthChecks", "instanceGroupManagers","instanceGroups", 
+                "instances","interconnectAttachments","machineTypes", "networkEndpointGroups","nodeGroups","nodeTemplates",
+                "nodeTypes","commitments","reservations", "resourcePolicies","routers","sslCertificates", 
+                "subnetworks","targetHttpProxies","targetHttpsProxies", "targetInstances","targetPools",
+                "targetVpnGateways","urlMaps","vpnGateways","vpnTunnels"
+            ],
+            "globalList" : [
+                "backendBuckets", "externalVpnGateways", "firewalls", "httpHealthChecks", "httpsHealthChecks", 
+                "images", "instanceTemplates", "interconnectLocations", "interconnects", "licenses", "networks", 
+                "routes", "securityPolicies", "snapshots", "sslPolicies", "targetSslProxies", "targetTcpProxies"
+            ],
+            "getIamPolicy" : [
+                "organizations", "projects"
+            ]
+        },
+        "queryprameters" : {
+            "firewalls.get" : {
+            "project" : "projects",
+                "firewall" : "firewalls"
+            },
+            "instances.get" : {
+                "project" : "projects",
+                "zone" : "zones",
+                "instance" : "instances"
+            },
+            "projects.zones.clusters.get" : {
+                "projectId" : "projects",
+                "zone" : "zones",
+                "clusterId" : "clusters"
+            }
+        },
+        "crawler_queryprameters" : [
+            {
+                "params" : ["project"],
+                "services" : [
+                    "firewalls.list", "instances.aggregatedList"
+                ]
+            },
+            {
+                "params" : ["projectId", "zone"],
+                "services" : ["projects.zones.clusters.list"]
+            }
         ],
-        "globalList" : [
-            "backendBuckets", "externalVpnGateways", "firewalls", "httpHealthChecks", "httpsHealthChecks", 
-            "images", "instanceTemplates", "interconnectLocations", "interconnects", "licenses", "networks", 
-            "routes", "securityPolicies", "snapshots", "sslPolicies", "targetSslProxies", "targetTcpProxies"
-        ]
+        "serviceName" : {
+            "cloudresourcemanager" : [
+                "organizations", "projects", "folders", "liens", "operations"
+            ],
+            "compute" : [
+                "firewalls", "instances"
+            ],
+            "container" : [
+                "projects.zones.clusters"
+            ]
+        }
     }
+
 
 
 def mock_google_param_version_document(collection, query=None, dbname=None, sort=None, limit=10):
@@ -285,7 +330,7 @@ def test_get_google_client_data(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.discovery', MyMockDiscovery)
     test_user = snapshot['testUser']
     from processor.connector.snapshot_google import get_google_client_data
-    val = get_google_client_data(connector, test_user)
+    val = get_google_client_data(connector, test_user, "instances.get")
     assert isinstance(val, MyMockCompute)
 
 
@@ -335,20 +380,21 @@ def test_get_call_kwargs(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.exists_file', mock_file_exist)
     from processor.connector.snapshot_google import get_call_kwargs
     node = snapshot['nodes'][0]
-    val = get_call_kwargs(node, "12345678")
-    assert val == {'instance': '8', 'project': '4', 'zone': '6'}
+    val = get_call_kwargs(node)
+    assert val == {'params': {'zone': 'us-west1-b', 'project': 'liquproj', 'instance': 'proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55'}}
 
     monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_db_json_source)
     monkeypatch.setattr('processor.connector.snapshot_google.get_documents', mock_google_param_version)
     monkeypatch.setattr('processor.connector.snapshot_google.get_documents', mock_google_param_version_document)
     from processor.connector.snapshot_google import get_call_kwargs
     node = snapshot['nodes'][0]
-    val = get_call_kwargs(node, "12345678")
-    assert val == {'instance': '8', 'project': '4', 'zone': '6'}
+    val = get_call_kwargs(node)
+    assert val == {'params': {'zone': 'us-west1-b', 'project': 'liquproj', 'instance': 'proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55'}}
 
     from processor.connector.snapshot_google import get_google_call_function
-    val = get_google_call_function(node)
-    assert val == ('instances', {'project': 'liquproj', 'zone': 'us-west1-b', 'instance': 'proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55'})
+    fn_str_list, kwargs = get_google_call_function(node)
+    assert kwargs == {'params': {'zone': 'us-west1-b', 'project': 'liquproj', 'instance': 'proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55'}}
+    assert fn_str_list == ["instances", "get"]
 
 def test_get_call_kwargs_for_crawler(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.config_value', mock_config_value)
@@ -359,12 +405,12 @@ def test_get_call_kwargs_for_crawler(monkeypatch):
     node = master_snapshot['nodes'][0]
     projectId = master_snapshot['project-id']
     val = get_call_kwargs_for_crawler(node, projectId)
-    assert val == { "type" : "aggregated", "param" : { "project" : "project-id" } }
+    assert val == {'project': 'project-id'}
 
     from processor.connector.snapshot_google import get_google_call_function_for_crawler
-    fn_str, kwargs = get_google_call_function_for_crawler(node, projectId)
-    assert fn_str ==  "instances"
-    assert kwargs ==  { "type" : "aggregated", "param" : { "project" : "project-id" } }
+    fn_str_list, kwargs = get_google_call_function_for_crawler(node, projectId)
+    assert fn_str_list ==  ["instances", "aggregatedList"]
+    assert kwargs ==  {'project': 'project-id'}
 
 def test_get_google_data(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_fs_json_source)
