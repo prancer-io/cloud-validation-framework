@@ -199,7 +199,7 @@ class MockSession:
     def get_available_regions(service_name):
         return ['hello']
 
-def mock_insert_one_document(doc, collection, dbname):
+def mock_insert_one_document(doc, collection, dbname, check_key):
     pass
 
 
@@ -383,7 +383,7 @@ def test_get_function_kwargs(monkeypatch):
     val = _get_function_kwargs("arn:aws:elb:us-east-2::res1", "describe_load_balancer_attributes", {})
     assert val ==  {'LoadBalancerName': "res1"}
     val = _get_function_kwargs("arn:aws:acm:us-east-2::res1", "describe_certificate", {})
-    assert val ==  {'CertificateArn': "res1"}
+    assert val ==  {'CertificateArn': "arn:aws:acm:us-east-2::res1"}
     val = _get_function_kwargs("arn:aws:cloudformation:us-east-2::res1", "describe_stacks", {})
     assert val ==  {'StackName': "res1"}
     val = _get_function_kwargs("arn:aws:cloudtrail:us-east-2::res1", "describe_trails", {})

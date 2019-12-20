@@ -236,6 +236,14 @@ def _get_resources_from_list_function(response, method):
         return [x.get('DomainName') for x in response['DomainNames']] 
     elif method == 'describe_configuration_recorders':
         return [x.get('name') for x in response['ConfigurationRecorders']] 
+    elif method == 'list_distributions':
+        return [x.get('Id') for x in response['DistributionList']['Items']]
+    elif method == 'describe_vpn_gateways':
+        return [x.get('VpnGatewayId') for x in response['VpnGateways']]
+    elif method == 'describe_file_systems':
+        return [x.get('FileSystemId') for x in response['FileSystems']]
+    elif method == 'describe_parameters':
+        return [x.get('Name') for x in response['Parameters']]
     else:
         return []
 
@@ -388,7 +396,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         }
     elif client_str == "acm" and function_name == "describe_certificate":
         return {
-            'CertificateArn': resource_id
+            'CertificateArn': arn_str
         }
     elif client_str == "cloudformation" and function_name in ["describe_stack_resource",\
         "describe_stack_events", "describe_stacks", "describe_stack_resource_drifts", \
@@ -416,11 +424,12 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'Id': resource_id
         }
-    elif client_str == "route53" and function_name == "get_geo_location":
+    elif client_str == "route53" and function_name == "list_resource_record_sets":
         return {
-            'CountryCode': resource_id
+            'HostedZoneId': resource_id
         }
-    elif client_str == "iam" and function_name in ["get_user", "list_ssh_public_keys"]:
+    elif client_str == "iam" and function_name in ["get_user", "list_ssh_public_keys", \
+        "get_account_summary", "get_account_password_policy", "list_attached_user_policies"]:
         return {
             'UserName': resource_id
         }
@@ -428,7 +437,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'RoleName': resource_id
         }
-    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key"]:
+    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key",]:
         return {
             'KeyId': resource_id
         }
@@ -466,19 +475,31 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         }
     elif client_str == "sns" and function_name == "get_topic_attributes":
         return {
-            'TopicArn': resource_id
+            'TopicArn': arn_str
         }
     elif client_str == "sqs" and function_name == "get_queue_attributes":
         return {
             'QueueUrl': 'https:{url}'.format(url=resource_id), 'AttributeNames': ['All']
         }
-    elif client_str == "configservice" and function_name == "describe_configuration_recorders":
+    elif client_str == "config" and function_name in ["describe_configuration_recorders", "describe_configuration_recorder_status"]:
         return {
             'ConfigurationRecorderNames': [resource_id]
         }
     elif client_str == "es" and function_name == "describe_elasticsearch_domain":
         return {
             'DomainName': resource_id
+        }
+    elif client_str == "cloudfront" and function_name == "get_distribution":
+        return {
+            'Id': resource_id
+        }
+    elif client_str == "ec2" and function_name == "describe_vpn_gateways":
+        return {
+            'VpnGatewayIds': [resource_id]
+        }
+    elif client_str == "efs" and function_name == "describe_file_systems":
+        return {
+            'FileSystemId': resource_id
         }
     else:
         return {}
@@ -570,7 +591,8 @@ def populate_aws_snapshot(snapshot, container=None):
                         if data:
                             error_str = data.pop('error', None)
                             if get_dbtests():
-                                insert_one_document(data, data['collection'], dbname)
+                                check_key = is_check_keys_required(data)
+                                insert_one_document(data, data['collection'], dbname, check_key)
                             else:
                                 snapshot_dir = make_snapshots_dir(container)
                                 if snapshot_dir:
@@ -621,6 +643,13 @@ def populate_aws_snapshot(snapshot, container=None):
             if mastercode:
                 snapshot_data = eliminate_duplicate_snapshots(snapshot_data)
     return snapshot_data
+
+def is_check_keys_required(data):
+    try:
+        data = json.dumps(data)
+        return True
+    except Exception:
+        return False
 
 def eliminate_duplicate_snapshots(snapshot_data):
     data = {}
