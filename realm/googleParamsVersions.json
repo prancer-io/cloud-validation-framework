@@ -3,6 +3,20 @@
     "projects": ["project"],
     "zones": ["project", "zone"],
     "disks": ["project", "zone", "disk"],
+    "firewalls": ["project", "firewall"],
     "fileType": "structure",
-    "type": "others"
+    "type": "others",
+    "aggregatedList" : [
+        "acceleratorTypes", "addresses", "autoscalers", "backendServices", "diskTypes", "disks", 
+        "forwardingRules", "operations", "healthChecks", "instanceGroupManagers","instanceGroups", 
+        "instances","interconnectAttachments","machineTypes", "networkEndpointGroups","nodeGroups","nodeTemplates",
+        "nodeTypes","commitments","reservations", "resourcePolicies","routers","sslCertificates", 
+        "subnetworks","targetHttpProxies","targetHttpsProxies", "targetInstances","targetPools",
+        "targetVpnGateways","urlMaps","vpnGateways","vpnTunnels"
+    ],
+    "globalList" : [
+        "backendBuckets", "externalVpnGateways", "firewalls", "httpHealthChecks", "httpsHealthChecks", 
+        "images", "instanceTemplates", "interconnectLocations", "interconnects", "licenses", "networks", 
+        "routes", "securityPolicies", "snapshots", "sslPolicies", "targetSslProxies", "targetTcpProxies"
+    ]
 }

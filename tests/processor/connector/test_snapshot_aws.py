@@ -199,7 +199,7 @@ class MockSession:
     def get_available_regions(service_name):
         return ['hello']
 
-def mock_insert_one_document(doc, collection, dbname):
+def mock_insert_one_document(doc, collection, dbname, check_key):
     pass
 
 
