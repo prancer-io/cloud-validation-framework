@@ -244,6 +244,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get('FileSystemId') for x in response['FileSystems']]
     elif method == 'describe_parameters':
         return [x.get('Name') for x in response['Parameters']]
+    elif method == 'describe_cache_subnet_groups':
+        return [x.get('CacheSubnetGroupName') for x in response['CacheSubnetGroups']]
     else:
         return []
 
@@ -273,7 +275,8 @@ def get_all_nodes(awsclient, node, snapshot, connector):
         list_function = getattr(awsclient, list_function_name, None)
         if list_function and callable(list_function):
             try:
-                response = list_function()
+                list_kwargs = _get_list_function_kwargs(awsclient.meta._service_model.service_name, list_function_name)
+                response = list_function(**list_kwargs)
                 list_of_resources = _get_resources_from_list_function(response, list_function_name)
             except Exception as ex:
                 list_of_resources = []
@@ -305,6 +308,19 @@ def get_checksum(data):
     except:
         pass
     return checksum
+
+def _get_list_function_kwargs(service, function_name):
+    if service == "cloudformation" and function_name == 'list_stacks':
+        return {
+            'StackStatusFilter' : ['CREATE_IN_PROGRESS', 'CREATE_COMPLETE', 'ROLLBACK_IN_PROGRESS',\
+            'ROLLBACK_COMPLETE', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', \
+            'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_FAILED', \
+            'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE', \
+            'REVIEW_IN_PROGRESS', 'IMPORT_IN_PROGRESS', 'IMPORT_COMPLETE', 'IMPORT_ROLLBACK_IN_PROGRESS', \
+            'IMPORT_ROLLBACK_FAILED', 'IMPORT_ROLLBACK_COMPLETE']
+        }
+    else:
+        return {}
 
 def _get_function_kwargs(arn_str, function_name, existing_json):
     """Fetches the correct keyword arguments for different detail functions"""
@@ -460,6 +476,10 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     elif client_str == "elasticache" and function_name == "describe_replication_groups":
         return {
             'ReplicationGroupId': resource_id
+        }
+    elif client_str == "elasticache" and function_name == "describe_cache_subnet_groups":
+        return {
+            'CacheSubnetGroupName': resource_id
         }
     elif client_str == "kinesis" and function_name == "describe_stream":
         return {
