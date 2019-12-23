@@ -289,13 +289,23 @@ def _get_new_testcases(testcases, mastersnapshots):
     return newcases
 
 def _get_rego_testcase(testcase, mastersnapshots):
+    is_first = True
     newcases = []
     ms_ids = testcase.get('masterSnapshotId')
+    service = ms_ids[0].split('_')[1]
     for ms_id in ms_ids:
         for s_id in mastersnapshots[ms_id]:
             # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
             # if not detail_method or detail_method == snapshots_details_map[s_id]:
             new_testcase = copy.copy(testcase)
+            if service not in ms_id:
+                if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
+                    [x['snapshotId'].append(s_id) for x in newcases]
+                else:
+                    y = copy.deepcopy(newcases)
+                    [t['snapshotId'].pop(-1) and t['snapshotId'].append(s_id) for t in y]
+                    newcases.extend(y)
+                continue    
             new_testcase['snapshotId'] = [s_id]
             newcases.append(new_testcase)
     return newcases

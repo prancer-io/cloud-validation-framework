@@ -200,6 +200,7 @@ class ComparatorV01:
             self.format = None
 
     def process_rego_test_case(self):
+        inputjson = {}
         result = False
         opa_exe = opa_binary()
         if not opa_exe:
@@ -207,8 +208,13 @@ class ComparatorV01:
         rule_expr = get_field_value(self.testcase, 'eval')
         if not rule_expr:
             rule_expr = 'data.rule.rulepass'
-        sid = self.testcase['snapshotId'][0]
-        inputjson = self.get_snaphotid_doc(sid)
+        if len(self.testcase['snapshotId'])==1:
+            sid = self.testcase['snapshotId'][0]
+            inputjson = self.get_snaphotid_doc(sid)
+        else:
+            ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
+            for sid in self.testcase['snapshotId']:
+                inputjson.update({ms_id[sid]: self.get_snaphotid_doc(sid)})
         if inputjson:
             save_json_to_file(inputjson, '/tmp/input.json')
             rego_rule = self.rule
