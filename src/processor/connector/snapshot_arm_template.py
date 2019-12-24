@@ -31,7 +31,7 @@ def get_dir_path(folder_path):
     return deployment_dir_path.replace('//', '/')
 
 
-def invoke_az_cli(args_str, sub_data):
+def invoke_az_cli(args_str):
     """ 
     Invoke azure cli command
     """
@@ -138,7 +138,7 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
         if template_file_path and deployment_file_path:
             response = invoke_az_cli("deployment validate --location " + location +
                 " --template-file " + template_file_path
-                + " --parameters @" + deployment_file_path, sub_data)
+                + " --parameters @" + deployment_file_path)
 
             data_record = create_database_record(node, snapshot_source, response, sub_data)
             
