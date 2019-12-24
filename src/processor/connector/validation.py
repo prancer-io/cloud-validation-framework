@@ -300,11 +300,11 @@ def _get_rego_testcase(testcase, mastersnapshots):
             new_testcase = copy.copy(testcase)
             if service not in ms_id:
                 if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
-                    [x['snapshotId'].append(s_id) for x in newcases]
+                    [newcase['snapshotId'].append(s_id) for newcase in newcases]
                 else:
-                    y = copy.deepcopy(newcases)
-                    [t['snapshotId'].pop(-1) and t['snapshotId'].append(s_id) for t in y]
-                    newcases.extend(y)
+                    new_cases = copy.deepcopy(newcases)
+                    [new_case['snapshotId'].pop(-1) and new_case['snapshotId'].append(s_id) for new_case in new_cases]
+                    newcases.extend(new_cases)
                 continue    
             new_testcase['snapshotId'] = [s_id]
             newcases.append(new_testcase)
