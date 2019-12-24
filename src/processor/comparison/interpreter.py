@@ -116,13 +116,20 @@ def interpret_additional_operations(roperand):
 
 def opa_binary():
     opa_exe = None
-    opa_enabled = config_value("OPA", "opa")
+    opa_enabled = parsebool(config_value("OPA", "opa"), False)
     if opa_enabled:
-        opa_exe = config_value("OPA", "opaexe")
+        opa_exe = os.getenv('OPAEXE', None)
+        # print(opa_exe)
         if opa_exe and exists_file(opa_exe):
+            # print('%' * 50)
             pass
         else:
-            opa_exe = None
+            # print('$' * 50)
+            opa_exe = config_value("OPA", "opaexe")
+            if opa_exe and exists_file(opa_exe):
+                pass
+            else:
+                opa_exe = None
     return opa_exe
 
 
@@ -203,6 +210,7 @@ class ComparatorV01:
         result = False
         opa_exe = opa_binary()
         if not opa_exe:
+            # print('*' * 50)
             return result
         rule_expr = get_field_value(self.testcase, 'eval')
         if not rule_expr:
@@ -214,11 +222,15 @@ class ComparatorV01:
             rego_rule = self.rule
             rego_match=re.match(r'^file\((.*)\)$', rego_rule, re.I)
             if rego_match:
-                rego_file = get_rego_rule_filename(rego_match.groups()[0], self.container)
+                # rego_file = get_rego_rule_filename(rego_match.groups()[0], self.container)
+                rego_file = self.rego_rule_filename(rego_match.groups()[0], self.container)
                 if rego_file:
                     pass
                 else:
                     rego_file = None
+                # rego_file1 = self.rego_rule_filename(rego_match.groups()[0], "google_crawler_container")
+                # rego_file1 = self.rego_rule_filename('google_crawler.rego', "google_crawler_container")
+                # print(rego_file1)
             else:
                 rego_txt = [
                     "package rule",
@@ -295,6 +307,40 @@ class ComparatorV01:
                             'source': json_data['source']
                         })
         return doc
+
+
+    def rego_rule_filename(self, rego_file, container):
+        rego_file_name = None
+        isdb_fetch = get_dbtests()
+        if isdb_fetch:
+            dbname = self.dbname
+            coll = 'structures'
+            docs = get_documents(coll, { 'type': 'others', "container" : container}, dbname,
+                                 sort=[('timestamp', pymongo.DESCENDING)], limit=1)
+            # print('Number of other Documents: %s' % len(docs))
+            logger.debug('Number of other Documents: %s', len(docs))
+            if docs and len(docs):
+                doc = docs[0]['json']
+                if doc and 'file' in doc and isinstance(doc['file'], list):
+                    for file_doc in doc['file']:
+                        name = get_field_value(file_doc, 'name')
+                        # print(name, rego_file)
+                        if name == rego_file:
+                            content = get_field_value(file_doc, 'container_file')
+                            if content:
+                                rego_file_name = '/tmp/%s' % rego_file
+                                open(rego_file_name, 'w').write(content)
+                # print(doc)
+        else:
+            json_dir = get_test_json_dir()
+            if exists_dir(json_dir):
+                rego_file_name = '%s/%s/%s' % (json_dir, container, rego_file)
+                if exists_file(rego_file_name):
+                    pass
+                else:
+                    rego_file_name = None
+        return rego_file_name
+
 
     def validate(self):
         result_val = {"result": "failed"}
