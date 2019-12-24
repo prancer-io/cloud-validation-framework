@@ -31,15 +31,25 @@ def get_dir_path(folder_path):
     return deployment_dir_path.replace('//', '/')
 
 
-def invoke_az_cli(args_str):
+def invoke_az_cli(args_str, sub_data):
     """ 
     Invoke azure cli command
     """
+    login_user = os.environ.get('AD_LOGIN_USER', None)
+    login_password = os.environ.get('AD_LOGIN_PASSWORD', None)
+
+    if not login_user or not login_password:
+        logger.error("`loginUser` or `loginPassword` field is not set in environment")
+        return {"error" : "`loginUser` or `loginPassword` field is not set in environment"}
+        
+    os.system("az login -u " + login_user + " -p " + login_password)
+
     args = args_str.split()
     cli = get_default_cli()
     cli.invoke(args)
     logger.info('Invoked Azure CLI command :: az %s' % args)
     if cli.result.result:
+        os.system("az logout")
         return cli.result.result
     elif cli.result.error:
         raise cli.result.error
@@ -128,7 +138,7 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
         if template_file_path and deployment_file_path:
             response = invoke_az_cli("deployment validate --location " + location +
                 " --template-file " + template_file_path
-                + " --parameters @" + deployment_file_path)
+                + " --parameters @" + deployment_file_path, sub_data)
 
             data_record = create_database_record(node, snapshot_source, response, sub_data)
             
