@@ -171,3 +171,27 @@ Here's the sample mastertest -
 	prancer --crawler crawlertest --db FULL  : Generates snapshots from mastersnapshot
 	
 	prancer crawlertest --db FULL: Fetches snapshots and runs tests from mastertests on them.
+
+
+
+### Support for using multiple services in a single rego test case
+Here's the testcase format :
+  
+	{           
+      "masterTestId": "AWS_EFS_01_KMS_01_TEST_1",
+      "type": "rego",
+      "rule": "file(input_efs_kms_1.rego)",
+      "masterSnapshotId": ["AWS_EFS_01", "AWS_KMS_01"],
+      "eval": "data.rule.rulepass"
+    }
+ 
+ Here's the rego rule :
+
+	package rule
+	default rulepass = false
+	rulepass = true{
+	    contains(input[AWS_EFS_01].FileSystems[_].KmsKeyId, input[AWS_KMS_01].KeyMetadata.KeyId)
+	    input[AWS_KMS_01].KeyMetadata.KeyManager="AWS"
+	    }
+
+To include multiple services in a single test case, we need to provide the mastersnapshot Ids of all the services in **masterSnapshotId** in testcase and then access the response using mastersnapshot ids in rego file.
