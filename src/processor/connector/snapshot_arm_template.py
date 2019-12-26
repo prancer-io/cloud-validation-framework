@@ -42,14 +42,15 @@ def invoke_az_cli(args_str):
         logger.error("`loginUser` or `loginPassword` field is not set in environment")
         return {"error" : "`loginUser` or `loginPassword` field is not set in environment"}
         
-    os.system("az login -u " + login_user + " -p " + login_password)
+    azexe = os.environ.get('AZEXE', 'az')
+    os.system(azexe + " login -u " + login_user + " -p " + login_password)
 
     args = args_str.split()
     cli = get_default_cli()
     cli.invoke(args)
     logger.info('Invoked Azure CLI command :: az %s' % args)
     if cli.result.result:
-        os.system("az logout")
+        os.system(azexe + " logout")
         return cli.result.result
     elif cli.result.error:
         raise cli.result.error
