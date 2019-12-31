@@ -105,6 +105,15 @@ def insert_documents(docs, collection, dbname):
         doc_ids = [str(inserted_id) for inserted_id in result.inserted_ids]
     return doc_ids
 
+def delete_documents(collection, query, dbname):
+    """ Delete the document based on the query """
+    db = mongodb(dbname)
+    collection = db[collection] if db and collection else None
+    if collection:
+        doc = collection.delete_many(query)
+        return True
+    return False
+
 
 def check_document(collection, docid, dbname=None):
     """ Find the document based on the docid """

@@ -6,17 +6,61 @@
     "firewalls": ["project", "firewall"],
     "fileType": "structure",
     "type": "others",
-    "aggregatedList" : [
-        "acceleratorTypes", "addresses", "autoscalers", "backendServices", "diskTypes", "disks", 
-        "forwardingRules", "operations", "healthChecks", "instanceGroupManagers","instanceGroups", 
-        "instances","interconnectAttachments","machineTypes", "networkEndpointGroups","nodeGroups","nodeTemplates",
-        "nodeTypes","commitments","reservations", "resourcePolicies","routers","sslCertificates", 
-        "subnetworks","targetHttpProxies","targetHttpsProxies", "targetInstances","targetPools",
-        "targetVpnGateways","urlMaps","vpnGateways","vpnTunnels"
+    "crawlerMethods" : {
+        "aggregatedList" : [
+            "acceleratorTypes", "addresses", "autoscalers", "backendServices", "diskTypes", "disks", 
+            "forwardingRules", "operations", "healthChecks", "instanceGroupManagers","instanceGroups", 
+            "instances","interconnectAttachments","machineTypes", "networkEndpointGroups","nodeGroups","nodeTemplates",
+            "nodeTypes","commitments","reservations", "resourcePolicies","routers","sslCertificates", 
+            "subnetworks","targetHttpProxies","targetHttpsProxies", "targetInstances","targetPools",
+            "targetVpnGateways","urlMaps","vpnGateways","vpnTunnels"
+        ],
+        "globalList" : [
+            "backendBuckets", "externalVpnGateways", "firewalls", "httpHealthChecks", "httpsHealthChecks", 
+            "images", "instanceTemplates", "interconnectLocations", "interconnects", "licenses", "networks", 
+            "routes", "securityPolicies", "snapshots", "sslPolicies", "targetSslProxies", "targetTcpProxies"
+        ],
+        "getIamPolicy" : [
+            "organizations", "projects"
+        ]
+    },
+    "queryprameters" : {
+        "firewalls.get" : {
+           "project" : "projects",
+            "firewall" : "firewalls"
+        },
+        "instances.get" : {
+            "project" : "projects",
+            "zone" : "zones",
+            "instance" : "instances"
+        },
+        "projects.zones.clusters.get" : {
+            "projectId" : "projects",
+            "zone" : "zones",
+            "clusterId" : "clusters"
+        }
+    },
+    "crawler_queryprameters" : [
+        {
+            "params" : ["project"],
+            "services" : [
+                "firewalls.list", "instances.aggregatedList"
+            ]
+        },
+        {
+            "params" : ["projectId", "zone"],
+            "services" : ["projects.zones.clusters.list"]
+        }
     ],
-    "globalList" : [
-        "backendBuckets", "externalVpnGateways", "firewalls", "httpHealthChecks", "httpsHealthChecks", 
-        "images", "instanceTemplates", "interconnectLocations", "interconnects", "licenses", "networks", 
-        "routes", "securityPolicies", "snapshots", "sslPolicies", "targetSslProxies", "targetTcpProxies"
-    ]
+    "serviceName" : {
+        "cloudresourcemanager" : [
+            "organizations", "projects", "folders", "liens", "operations"
+        ],
+        "compute" : [
+            "firewalls", "instances"
+        ],
+        "container" : [
+            "projects.zones.clusters"
+        ]
+    }
 }
