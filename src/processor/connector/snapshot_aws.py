@@ -26,7 +26,7 @@ from processor.helper.json.json_utils import get_field_value, json_from_file,\
 from processor.connector.vault import get_vault_data
 from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.database.database import insert_one_document, sort_field, get_documents,\
-    COLLECTION, DATABASE, DBNAME
+    COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.helper.httpapi.restapi_azure import get_client_secret
 from processor.connector.snapshot_utils import validate_snapshot_nodes
@@ -611,6 +611,9 @@ def populate_aws_snapshot(snapshot, container=None):
                         if data:
                             error_str = data.pop('error', None)
                             if get_dbtests():
+                                if get_collection_size(data['collection']) == 0:
+                                    #Creating indexes for collection
+                                    create_indexes(data['collection'], config_value(DATABASE, DBNAME), [('collection', pymongo.TEXT), ('snapshotId', pymongo.TEXT), ('structure', pymongo.TEXT)])
                                 check_key = is_check_keys_required(data)
                                 insert_one_document(data, data['collection'], dbname, check_key)
                             else:

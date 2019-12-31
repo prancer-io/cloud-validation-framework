@@ -168,6 +168,10 @@ def create_indexes(collection, dbname, fields):
         result = collection.create_index(fields, unique=True)
     return result
 
+def get_collection_size(collection_name):
+    db_name = config_value(DATABASE, DBNAME)
+    collection = get_collection(db_name, collection_name)
+    return collection.count()
 
 def index_information(collection, dbname):
     """ index information of the collection """
