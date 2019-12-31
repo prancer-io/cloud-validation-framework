@@ -73,6 +73,8 @@ def mock_config_value(section, key, default=None):
 def mock_snapshot_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{'json': snapshot}]
 
+def mock_get_collection_size(collection_name):
+    return 100
 
 def mock_aws_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [
@@ -320,6 +322,7 @@ def test_populate_aws_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.get_vault_data', mock_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_client)
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_aws import populate_aws_snapshot
     val = populate_aws_snapshot(snapshot, 'mycontainer1')
     assert val == {'8': True}
@@ -332,6 +335,7 @@ def test_populate_aws_snapshot_with_mastersnapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_client)
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
     monkeypatch.setattr('processor.connector.snapshot_aws.Session', MockSession)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_aws import populate_aws_snapshot
     val = populate_aws_snapshot(master_snapshot, 'mycontainer1')
     assert val != {}
@@ -343,6 +347,7 @@ def test_exception_populate_aws_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.get_vault_data', mock_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_invalid_client)
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_aws import populate_aws_snapshot
     val = populate_aws_snapshot(snapshot, 'mycontainer1')
     assert val == {'8': False}
@@ -355,6 +360,7 @@ def test_client_acceptance_from_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.get_vault_data', mock_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_client)
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_aws import populate_aws_snapshot
     val = populate_aws_snapshot(snapshot_with_client, 'mycontainer1')
     assert val == {'8': True}
@@ -366,6 +372,7 @@ def test_client_acceptance_from_snapshot_negative(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_aws.get_vault_data', mock_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_aws.client', mock_client)
     monkeypatch.setattr('processor.connector.snapshot_aws.insert_one_document', mock_insert_one_document)
+    monkeypatch.setattr('processor.connector.snapshot_aws.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_aws import populate_aws_snapshot
     val = populate_aws_snapshot(snapshot, 'mycontainer1')
     assert val == {'8': False}
