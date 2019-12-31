@@ -16,6 +16,7 @@ import json
 import hashlib
 import time
 import copy
+import pymongo
 from boto3 import client
 from boto3 import Session
 from processor.helper.file.file_utils import exists_file
