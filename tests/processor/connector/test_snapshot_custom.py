@@ -35,6 +35,8 @@ def mock_get_vault_data(client_id):
 def mock_empty_get_vault_data(client_id):
     return None
 
+def mock_get_collection_size(collection_name):
+    return 100
 
 def mock_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [{
@@ -219,6 +221,7 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
     # monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
     frameworkdir = '%s/a/b/c' % tmpdir
@@ -262,6 +265,7 @@ def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, mo
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
     # monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_empty_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
     frameworkdir = '%s/a/b/c' % tmpdir
@@ -295,6 +299,8 @@ def test_populate_custom_snapshot_exception(create_temp_dir, create_temp_json, m
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
     monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_collection_size', mock_get_collection_size)
+    
     from git import Repo
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
@@ -329,6 +335,7 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
     monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_collection_size', mock_get_collection_size)
     from git import Git
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()
@@ -369,6 +376,7 @@ def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, 
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
     # monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.connector.snapshot_custom.get_collection_size', mock_get_collection_size)
     monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()

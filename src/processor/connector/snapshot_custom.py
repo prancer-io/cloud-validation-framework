@@ -107,7 +107,7 @@ from processor.helper.yaml.yaml_utils import yaml_from_file
 from processor.helper.config.config_utils import config_value, get_test_json_dir
 from processor.helper.config.rundata_utils import get_from_currentdata, get_dbtests
 from processor.database.database import insert_one_document, sort_field, get_documents,\
-    COLLECTION, DATABASE, DBNAME
+    COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.connector.snapshot_arm_template import populate_arm_snapshot, populate_all_arm_snapshot
@@ -418,6 +418,9 @@ def populate_custom_snapshot(snapshot, container=None):
                         if data:
                             if validate:
                                 if get_dbtests():
+                                    if get_collection_size(data['collection']) == 0:
+                                        #Creating indexes for collection
+                                        create_indexes(data['collection'], config_value(DATABASE, DBNAME), [('collection', pymongo.TEXT), ('snapshotId', pymongo.TEXT), ('structure', pymongo.TEXT)])
                                     insert_one_document(data, data['collection'], dbname)
                                 else:
                                     snapshot_dir = make_snapshots_dir(container)
