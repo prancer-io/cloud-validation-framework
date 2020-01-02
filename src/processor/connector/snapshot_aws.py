@@ -614,7 +614,10 @@ def populate_aws_snapshot(snapshot, container=None):
                             if get_dbtests():
                                 if get_collection_size(data['collection']) == 0:
                                     #Creating indexes for collection
-                                    create_indexes(data['collection'], config_value(DATABASE, DBNAME), [('collection', pymongo.TEXT), ('snapshotId', pymongo.TEXT), ('structure', pymongo.TEXT)])
+                                    create_indexes(data['collection'],
+                                        config_value(DATABASE, DBNAME), 
+                                        [('snapshotId', pymongo.ASCENDING),
+                                        ('timestamp', pymongo.DESCENDING)])
                                 check_key = is_check_keys_required(data)
                                 insert_one_document(data, data['collection'], dbname, check_key)
                             else:
