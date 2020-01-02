@@ -9,7 +9,7 @@ import glob
 import time
 import hashlib
 import os
-
+import pymongo
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import get_dbtests
 from processor.helper.json.json_utils import get_container_dir, get_field_value, json_from_file, \
@@ -17,7 +17,8 @@ from processor.helper.json.json_utils import get_container_dir, get_field_value,
 from processor.helper.config.config_utils import config_value, get_test_json_dir, framework_dir
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor.connector.snapshot_utils import validate_snapshot_nodes
-from processor.database.database import insert_one_document, COLLECTION
+from processor.database.database import insert_one_document, COLLECTION, DATABASE, DBNAME, \
+    get_collection_size, create_indexes
 
 from azure.cli.core import get_default_cli
 
@@ -144,6 +145,16 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
             data_record = create_database_record(node, snapshot_source, response, sub_data)
             
             if get_dbtests():
+                if get_collection_size(node['collection']) == 0:
+                    #Creating indexes for collection
+                    create_indexes(
+                        node['collection'], 
+                        config_value(DATABASE, DBNAME), 
+                        [
+                            ('snapshotId', pymongo.ASCENDING),
+                            ('timestamp', pymongo.DESCENDING)
+                        ]
+                    )
                 insert_one_document(data_record, node['collection'], dbname)
             else:
                 snapshot_dir = make_snapshots_dir(container)

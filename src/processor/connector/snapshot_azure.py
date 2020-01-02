@@ -5,6 +5,7 @@ import json
 import copy
 import hashlib
 import time
+import pymongo
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
@@ -16,8 +17,8 @@ from processor.helper.httpapi.restapi_azure import get_access_token,\
 from processor.connector.vault import get_vault_data
 from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import config_value, framework_dir
-from processor.database.database import insert_one_document, COLLECTION
-from processor.database.database import DATABASE, DBNAME, sort_field, get_documents
+from processor.database.database import insert_one_document, COLLECTION, get_collection_size, create_indexes, \
+     DATABASE, DBNAME, sort_field, get_documents
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 
 
@@ -197,6 +198,16 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                 if data:
                     if validate:
                         if get_dbtests():
+                            if get_collection_size(data['collection']) == 0:
+                                # Creating indexes for collection
+                                create_indexes(
+                                    data['collection'], 
+                                    config_value(DATABASE, DBNAME), 
+                                    [
+                                        ('snapshotId', pymongo.ASCENDING),
+                                        ('timestamp', pymongo.DESCENDING)
+                                    ]
+                                )
                             insert_one_document(data, data['collection'], dbname)
                         else:
                             snapshot_dir = make_snapshots_dir(container)
