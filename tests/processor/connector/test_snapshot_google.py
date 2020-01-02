@@ -131,6 +131,8 @@ def mock_db_json_source():
 def mock_file_exist(path):
   return True
 
+def mock_get_collection_size(collection_name):
+    return 100
 
 class MyMockCompute:
   
@@ -302,6 +304,7 @@ def test_populate_google_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.insert_one_document', mock_insert_one_document)
     monkeypatch.setattr('processor.connector.snapshot_google.get_google_client_data', mock_get_google_client_data)
     monkeypatch.setattr('processor.connector.snapshot_google.get_node', mock_get_node)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_google import populate_google_snapshot
     val = populate_google_snapshot(snapshot)
     assert val == {'71': True}
@@ -320,6 +323,7 @@ def test_populate_google_snapshot_with_exception(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.get_dbtests', mock_get_dbtests_false)
     monkeypatch.setattr('processor.connector.snapshot_google.make_snapshots_dir', mock_make_snapshots_dir)
     monkeypatch.setattr('processor.connector.snapshot_google.store_snapshot', mock_store_snapshot)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_google import populate_google_snapshot
     val = populate_google_snapshot(snapshot)
 

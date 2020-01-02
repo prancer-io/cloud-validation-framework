@@ -84,6 +84,8 @@ def mock_db_json_source():
 def mock_fs_json_source():
     return False
 
+def mock_get_collection_size(collection_name):
+    return 100
 
 def mock_config_value(section, key, default=None):
     if key == 'structure':
@@ -155,6 +157,7 @@ def test_populate_azure_snapshot(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_azure.get_web_client_data', mock1_get_web_client_data)
     monkeypatch.setattr('processor.connector.snapshot_azure.get_vault_data', mock_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_azure.get_client_secret', mock_get_client_secret)
+    monkeypatch.setattr('processor.connector.snapshot_azure.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_azure import populate_azure_snapshot
     val = populate_azure_snapshot(snapshot, 'azure')
     assert val == {'1': True}
@@ -168,6 +171,7 @@ def test_populate_azure_snapshot_invalid_token(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_azure.insert_one_document', mock_insert_one_document)
     monkeypatch.setattr('processor.connector.snapshot_azure.get_vault_data', mock_get_vault_data)
     monkeypatch.setattr('processor.connector.snapshot_azure.get_client_secret', mock_get_client_secret)
+    monkeypatch.setattr('processor.connector.snapshot_azure.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_azure import populate_azure_snapshot
     snapshot["testUser"] = "ajeybk1@kbajeygmail.onmicrosoft.com"
     val = populate_azure_snapshot(snapshot, 'azure')
