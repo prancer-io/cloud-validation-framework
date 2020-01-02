@@ -15,6 +15,7 @@ identify the resource object.
 import json
 import hashlib
 import time
+import pymongo
 from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
 from processor.helper.file.file_utils import exists_file
@@ -26,7 +27,7 @@ from processor.helper.json.json_utils import get_field_value, json_from_file,\
 from processor.connector.vault import get_vault_data
 from processor.helper.config.config_utils import config_value, get_test_json_dir, framework_dir
 from processor.database.database import insert_one_document, sort_field, get_documents,\
-    COLLECTION, DATABASE, DBNAME
+    COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 
@@ -393,6 +394,16 @@ def populate_google_snapshot(snapshot, container=None):
                     if data:
                         error_str = data.pop('error', None)
                         if get_dbtests():
+                            if get_collection_size(data['collection']) == 0:
+                                #Creating indexes for collection
+                                create_indexes(
+                                    data['collection'], 
+                                    config_value(DATABASE, DBNAME), 
+                                    [
+                                        ('snapshotId', pymongo.ASCENDING),
+                                        ('timestamp', pymongo.DESCENDING)
+                                    ]
+                                )
                             insert_one_document(data, data['collection'], dbname)
                         else:
                             snapshot_dir = make_snapshots_dir(container)
