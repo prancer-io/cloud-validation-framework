@@ -95,7 +95,6 @@ def _get_vault_token():
     tenant_id = config_value('VAULT', 'tenant_id')
     logger.info('Id: %s, secret: %s, tenant: %s', client_id, client_secret, tenant_id)
     vaulttoken = get_vault_access_token(tenant_id, client_id, client_secret)
-    logger.debug('Vault Token: %s', vaulttoken)
     return vaulttoken
 
 
@@ -111,7 +110,6 @@ def get_azure_vault_data(secret_key=None):
         secret_data = get_keyvault_secret(keyvault, secret_key, vaulttoken)
         if secret_data and 'value' in secret_data:
             val = secret_data['value']
-    logger.info('Secret Value: %s', val)
     return val
 
 
@@ -127,7 +125,6 @@ def set_azure_vault_data(secret_key=None, value=None):
         sucess = set_keyvault_secret(keyvault, vaulttoken, secret_key, value)
         if sucess:
             return True
-    logger.info('Secret Value: %s', val)
     return False
 
 
