@@ -49,10 +49,19 @@ def framework_currentdata():
 
 def framework_config():
     """Return the framework config file."""
-    global FRAMEWORKCONFIG
-    if FRAMEWORKCONFIG:
+    space_id = os.getenv('SPACE_ID', None)
+    if space_id:
+        return get_framework_config_for_customer(space_id)
+    else:
+        global FRAMEWORKCONFIG
+        if FRAMEWORKCONFIG:
+            return FRAMEWORKCONFIG
+        FRAMEWORKCONFIG = '%s/%s' % (framework_dir(), CFGFILE)
         return FRAMEWORKCONFIG
-    FRAMEWORKCONFIG = '%s/%s' % (framework_dir(), CFGFILE)
+
+def get_framework_config_for_customer(space_id):
+    """Return the framework config file path for customer."""
+    FRAMEWORKCONFIG = '%s/config/%s/%s' % (framework_dir(), space_id, CFGFILE)
     return FRAMEWORKCONFIG
 
 
