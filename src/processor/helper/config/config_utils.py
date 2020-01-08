@@ -1,6 +1,7 @@
 """Framework Configuration utilities"""
 import configparser
 import os
+import threading
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 FRAMEWORKDIR = None
@@ -49,7 +50,7 @@ def framework_currentdata():
 
 def framework_config():
     """Return the framework config file."""
-    space_id = os.getenv('SPACE_ID', None)
+    space_id = os.getenv(str(threading.currentThread().ident) + "_SPACE_ID", None)
     if space_id:
         return get_framework_config_for_customer(space_id)
     else:
