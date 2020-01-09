@@ -318,6 +318,9 @@ class ComparatorV01:
     def rego_rule_filename(self, rego_file, container):
         rego_file_name = None
         isdb_fetch = get_dbtests()
+        #It give same value for DB and SNAPSHOT, So for SNAPSHOT, we'll check it in 
+        #db first and if file isn't there, then we are fetching it from file path '''
+        
         if isdb_fetch:
             dbname = self.dbname
             coll = 'structures'
