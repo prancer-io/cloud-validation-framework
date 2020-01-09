@@ -336,15 +336,15 @@ class ComparatorV01:
                             if content:
                                 rego_file_name = '/tmp/%s' % rego_file
                                 open(rego_file_name, 'w').write(content)
+                                return rego_file_name
                 # print(doc)
-        else:
-            json_dir = get_test_json_dir()
-            if exists_dir(json_dir):
-                rego_file_name = '%s/%s/%s' % (json_dir, container, rego_file)
-                if exists_file(rego_file_name):
-                    pass
-                else:
-                    rego_file_name = None
+        json_dir = get_test_json_dir()
+        if exists_dir(json_dir):
+            rego_file_name = '%s/%s/%s' % (json_dir, container, rego_file)
+            if exists_file(rego_file_name):
+                pass
+            else:
+                rego_file_name = None
         return rego_file_name
 
 
