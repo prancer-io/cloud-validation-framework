@@ -9,13 +9,18 @@ def generate_password():
 def generate_azure_vault_key():
 
 	key = input("Enter the key to add or update its password: ")
-	password = get_vault_data(secret_key=key)
 
-	if password:
-		print("Regenerating password for key: ", key)
-	else:
-		print("Creating and generating password for key: ", key)
+	is_key_exists = get_vault_data(secret_key=key)
 
 	password = generate_password()
-	new_password = set_vault_data(key_name=key, value=password)
-	set_key_visbility(key, EDITABLE)
+
+	is_created = set_vault_data(key_name=key, value=password)
+
+	if is_key_exists and is_created:
+		print("Regenerating password for key: ", key)
+	elif is_created:
+		set_key_visbility(key, EDITABLE)
+		print("Creating and generating password for key: ", key)
+	else:
+		print("Getting issue while generating key:", key)
+
