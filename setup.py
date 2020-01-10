@@ -16,7 +16,7 @@ LONG_DESCRIPTION = """
 
 setup(
     name='prancer-basic',
-    version='0.1.29',
+    version='0.1.31',
     description='Prancer Basic, http://prancer.io/',
     long_description=LONG_DESCRIPTION,
     license = "BSD",
@@ -43,7 +43,8 @@ setup(
             'validator = processor.helper.utils.cli_validator:validator_main',
             'prancer = processor.helper.utils.cli_validator:validator_main',
             'populate_json = processor.helper.utils.cli_populate_json:populate_json_main',
-            'terraform_to_json = processor.helper.utils.cli_terraform_to_json:terraform_to_json_main'
+            'terraform_to_json = processor.helper.utils.cli_terraform_to_json:terraform_to_json_main',
+            'register_key_in_azure_vault = processor.helper.utils.cli_generate_azure_vault_key:generate_azure_vault_key'
         ],
     }
 )
