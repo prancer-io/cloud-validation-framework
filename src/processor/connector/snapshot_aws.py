@@ -247,6 +247,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get('Name') for x in response['Parameters']]
     elif method == 'describe_cache_subnet_groups':
         return [x.get('CacheSubnetGroupName') for x in response['CacheSubnetGroups']]
+    elif method == 'describe_route_tables':
+        return [x.get('RouteTableId') for x in response['RouteTables']]
     else:
         return []
 
@@ -521,6 +523,10 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     elif client_str == "efs" and function_name == "describe_file_systems":
         return {
             'FileSystemId': resource_id
+        }
+    elif client_str=='ec2'and function_name == 'describe_route_tables':
+        return{
+            'RouteTableIds': [resource_id]
         }
     else:
         return {}
