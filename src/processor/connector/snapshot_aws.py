@@ -249,6 +249,10 @@ def _get_resources_from_list_function(response, method):
         return [x.get('CacheSubnetGroupName') for x in response['CacheSubnetGroups']]
     elif method == 'describe_route_tables':
         return [x.get('RouteTableId') for x in response['RouteTables']]
+    elif method == 'describe_network_acls':
+        return [x.get('NetworkAclId') for x in response['NetworkAcls']]
+    elif method == 'describe_event_subscriptions':
+        return [x.get('EventSubscriptionArn').split(':')[-1] for x in response['EventSubscriptionsList']]
     else:
         return []
 
@@ -527,6 +531,14 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     elif client_str=='ec2'and function_name == 'describe_route_tables':
         return{
             'RouteTableIds': [resource_id]
+        }
+    elif client_str=='ec2'and function_name == 'describe_network_acls':
+        return{
+            'NetworkAclIds': [resource_id]
+        }
+    elif client_str=='rds'and function_name == 'describe_event_subscriptions':
+        return{
+            'SubscriptionName': resource_id
         }
     else:
         return {}
