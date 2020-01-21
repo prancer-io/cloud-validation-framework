@@ -498,7 +498,8 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'FunctionName': resource_id
         }
-    elif client_str == "redshift" and function_name == "describe_clusters":
+    elif client_str == "redshift" and function_name in ["describe_clusters",\
+     "describe_logging_status"]:
         return {
             'ClusterIdentifier': resource_id
         }
