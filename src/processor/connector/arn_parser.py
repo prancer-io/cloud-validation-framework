@@ -24,7 +24,7 @@ def arnparse(arn_str):
     service = elements[2]
     resource = elements[5]
 
-    if service in ['s3', 'sns', 'apigateway', 'execute-api', 'acm']:
+    if service in ['s3', 'sns', 'apigateway', 'execute-api', 'acm', 'rds']:
         resource_type = None
     else:
         resource_type, resource = _parse_resource(resource)
