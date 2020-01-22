@@ -16,6 +16,7 @@ CFGFILE = 'config.ini'
 NONE = 'NONE'
 SNAPSHOT = 'SNAPSHOT'
 FULL = 'FULL'
+SINGLETEST = 'singletest'
 DBVALUES = [NONE, SNAPSHOT, FULL]
 
 

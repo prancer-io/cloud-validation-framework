@@ -60,7 +60,7 @@ import json
 import os
 from inspect import currentframe, getframeinfo
 from processor.helper.config.config_utils import framework_dir, config_value, \
-    CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, container_exists
+    CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, SINGLETEST, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 
@@ -137,6 +137,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
                             help='NONE - Mongo database not used, SNAPSHOT - for storing snapshots, FULL - Tests, configurations, outputs and snapshots in database')
     cmd_parser.add_argument('--crawler', action='store_true', default=False,
                             help='Crawl and generate snapshot files only')
+    cmd_parser.add_argument('--test', action='store', default=None, help='Run a single test in NODB mode')
     args = cmd_parser.parse_args(arg_vals)
 
     if args.db:
@@ -150,6 +151,9 @@ def validator_main(arg_vals=None, delete_rundata=True):
             args.db = DBVALUES.index(nodb.upper())
         else:
             args.db = DBVALUES.index(SNAPSHOT)
+
+    if args.test:
+        args.db = DBVALUES.index(NONE)
 
     # Check if we want to run in NO DATABASE MODE
     if args.db:
@@ -198,6 +202,10 @@ def validator_main(arg_vals=None, delete_rundata=True):
         fs = True if args.db > DBVALUES.index(SNAPSHOT) else False
         put_in_currentdata('jsonsource', fs)
         put_in_currentdata(DBTESTS, args.db)
+        if args.test:
+            put_in_currentdata(SINGLETEST, args.test)
+        else:
+            put_in_currentdata(SINGLETEST, False)
         if not args.db:
             retval = 0 if container_exists(args.container) else 2
             if retval:
