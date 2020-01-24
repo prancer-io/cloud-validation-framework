@@ -30,7 +30,7 @@
                 {
                     "testId": "12",
                     "type": "rego",
-                    "rule": "count(input.properties.subnets)>=1",
+                    "rule": "count(input.properties.subnets)==1",
                     "snapshotId": ["12"],
                     "eval": "data.rule.rulepass",
                     "tags": {

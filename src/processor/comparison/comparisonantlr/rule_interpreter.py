@@ -7,8 +7,8 @@ from processor.logging.log_handler import getlogger, init_logger
 from processor.comparison.comparisonantlr.compare_types import EQ, NEQ, GT, GTE, LT, LTE
 from processor.comparison.comparisonantlr.compare_types import compare_none, compare_int,\
     compare_float, compare_boolean, compare_str, compare_list, compare_in
-from processor.helper.config.rundata_utils import get_dbtests
-from processor.helper.config.config_utils import get_test_json_dir
+from processor.helper.config.rundata_utils import get_dbtests, get_from_currentdata
+from processor.helper.config.config_utils import get_test_json_dir, SINGLETEST
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor.helper.json.json_utils import json_from_file
 
@@ -163,13 +163,24 @@ class RuleInterpreter:
                     json_data = json_from_file(fname)
                     if json_data and 'json' in json_data:
                         doc = json_data['json']
-                        self.snapshots.append({
+                        # self.snapshots.append({
+                        #     'id': json_data['snapshotId'],
+                        #     'path': json_data['path'],
+                        #     'structure': json_data['structure'],
+                        #     'reference': json_data['reference'],
+                        #     'source': json_data['source']
+                        # })
+                        snapshot_val = {
                             'id': json_data['snapshotId'],
                             'path': json_data['path'],
                             'structure': json_data['structure'],
                             'reference': json_data['reference'],
                             'source': json_data['source']
-                        })
+                        }
+                        singletest = get_from_currentdata(SINGLETEST)
+                        if singletest:
+                            snapshot_val['json'] = doc
+                        self.snapshots.append(snapshot_val)
         return doc
 
 

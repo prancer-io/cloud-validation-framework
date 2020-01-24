@@ -204,6 +204,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
         put_in_currentdata(DBTESTS, args.db)
         if args.test:
             put_in_currentdata(SINGLETEST, args.test)
+            put_in_currentdata('container', args.container)
         else:
             put_in_currentdata(SINGLETEST, False)
         if not args.db:
