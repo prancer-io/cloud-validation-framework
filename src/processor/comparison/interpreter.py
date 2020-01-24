@@ -7,7 +7,7 @@ import os
 import re
 import pymongo
 from processor.helper.json.json_utils import get_field_value, json_from_file, save_json_to_file
-from processor.helper.config.config_utils import get_test_json_dir, parsebool, config_value
+from processor.helper.config.config_utils import get_test_json_dir, parsebool, config_value, SINGLETEST
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor.database.database import COLLECTION, get_documents
 from processor.comparison.comparison_functions import equality,\
@@ -17,7 +17,7 @@ from antlr4 import CommonTokenStream
 from processor.comparison.comparisonantlr.comparatorLexer import comparatorLexer
 from processor.comparison.comparisonantlr.comparatorParser import comparatorParser
 from processor.comparison.comparisonantlr.rule_interpreter import RuleInterpreter
-from processor.helper.config.rundata_utils import get_dbtests
+from processor.helper.config.rundata_utils import get_dbtests, get_from_currentdata
 from processor.logging.log_handler import getlogger
 
 
@@ -305,13 +305,17 @@ class ComparatorV01:
                     json_data = json_from_file(fname)
                     if json_data and 'json' in json_data:
                         doc = json_data['json']
-                        self.snapshots.append({
+                        snapshot_val = {
                             'id': json_data['snapshotId'],
                             'path': json_data['path'],
                             'structure': json_data['structure'],
                             'reference': json_data['reference'],
                             'source': json_data['source']
-                        })
+                        }
+                        singletest = get_from_currentdata(SINGLETEST)
+                        if singletest:
+                            snapshot_val['json'] = doc
+                        self.snapshots.append(snapshot_val)
         return doc
 
 

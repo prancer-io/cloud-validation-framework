@@ -12,11 +12,11 @@ from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
     json_from_file, TEST, collectiontypes, SNAPSHOT, JSONTEST, MASTERTEST, get_field_value_with_default
 from processor.helper.config.config_utils import config_value, get_test_json_dir,\
-    DATABASE, DBNAME, framework_dir
+    DATABASE, DBNAME, SINGLETEST, framework_dir
 from processor.database.database import create_indexes, COLLECTION,\
     sort_field, get_documents
 from processor.reporting.json_output import dump_output_results
-from processor.helper.config.rundata_utils import get_dbtests
+from processor.helper.config.rundata_utils import get_dbtests, get_from_currentdata
 
 
 logger = getlogger()
@@ -71,11 +71,24 @@ def run_file_validation_tests(test_file, container, filesystem=True, snapshot_st
     test_json_data = json_from_file(test_file)
     if not test_json_data:
         logger.info("Test file %s looks to be empty, next!...", test_file)
+    singletest = get_from_currentdata(SINGLETEST)
+    if singletest:
+        testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+        for testset in testsets:
+            newtestcases = []
+            for testcase in testset['cases']:
+                if ('testId' in testcase and testcase['testId'] == singletest) or \
+                        ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
+                    newtestcases.append(testcase)
+            testset['cases'] = newtestcases
     resultset = run_json_validation_tests(test_json_data, container, filesystem, snapshot_status)
     finalresult = True
     if resultset:
         snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
-        dump_output_results(resultset, container, test_file, snapshot, filesystem)
+        if singletest:
+            print(json.dumps(resultset, indent=2))
+        else:
+            dump_output_results(resultset, container, test_file, snapshot, filesystem)
         for result in resultset:
             if 'result' in result:
                 if not re.match(r'passed', result['result'], re.I):
@@ -167,10 +180,22 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
             testcases = get_field_value_with_default(testset, 'cases', [])
             testset['cases'] = _get_new_testcases(testcases, mastersnapshots)
         # print(json.dumps(test_json_data, indent=2))
+        singletest = get_from_currentdata(SINGLETEST)
+        if singletest:
+            for testset in testsets:
+                newtestcases = []
+                for testcase in testset['cases']:
+                    if ('testId' in testcase and  testcase['testId'] == singletest) or \
+                            ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
+                        newtestcases.append(testcase)
+                testset['cases'] = newtestcases
         resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status)
         if resultset:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
-            dump_output_results(resultset, container, test_file, snapshot, True)
+            if singletest:
+                print(json.dumps(resultset, indent=2))
+            else:
+                dump_output_results(resultset, container, test_file, snapshot, True)
             for result in resultset:
                 if 'result' in result:
                     if not re.match(r'passed', result['result'], re.I):

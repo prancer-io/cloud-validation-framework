@@ -20,14 +20,24 @@
             "cases": [
                 {
                     "testId": "11",
-                    "rule": "{11}.location='eastus2'"
+                    "rule": "{11}.location='eastus2'",
+                    "tags": {
+                        "cloud": "azure",
+                        "compliance": ["sci"],
+                        "service": ["Microsoft.Compute"]
+                    }
                 },
                 {
                     "testId": "12",
                     "type": "rego",
-                    "rule": "count(input.properties.subnets)>=1",
+                    "rule": "count(input.properties.subnets)==1",
                     "snapshotId": ["12"],
-                    "eval": "data.rule.rulepass"
+                    "eval": "data.rule.rulepass",
+                    "tags": {
+                        "cloud": "azure",
+                        "compliance": ["hippa", "custom"],
+                        "service": ["Microsoft.Network"]
+                    }
                 }
             ]
         }

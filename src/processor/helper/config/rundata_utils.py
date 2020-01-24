@@ -6,12 +6,13 @@ import datetime
 import json
 import socket
 import os.path
-from processor.helper.config.config_utils import config_value, framework_currentdata, TESTS, DBTESTS, DBVALUES, SNAPSHOT
-from processor.helper.json.json_utils import json_from_file, save_json_to_file
+import shutil
+from processor.helper.config.config_utils import config_value, framework_currentdata, TESTS, DBTESTS, DBVALUES, SNAPSHOT, SINGLETEST
+from processor.helper.json.json_utils import json_from_file, save_json_to_file,get_container_dir
 from processor.logging.log_handler import getlogger, FWLOGFILENAME
 from processor.helper.file.file_utils import remove_file, exists_dir, mkdir_path
 
-exclude_list = ['token', 'clientSecret', 'vaulttoken']
+exclude_list = ['token', 'clientSecret', 'vaulttoken','container']
 
 def get_dbtests():
     currdata = get_currentdata()
@@ -103,6 +104,12 @@ def save_currentdata(curr_data):
 def delete_currentdata():
     """Delete the rundata file when exiting of the script."""
     logger = getlogger()
+    singletest = get_from_currentdata(SINGLETEST)
+    if singletest:
+        container = get_from_currentdata('container')
+        cdir = get_container_dir(container)
+        shutil.rmtree('%s/snapshots' % cdir)
+
     logger.critical("END: Completed the run and cleaning up.")
     runctx = get_currentdata()
     runctx['end'] = int(time.time() * 1000)
@@ -116,3 +123,5 @@ def delete_currentdata():
     logger.info("\033[92m Run Stats: %s\033[00m" % json.dumps(runctx, indent=2))
     run_file = framework_currentdata()
     remove_file(run_file)
+
+
