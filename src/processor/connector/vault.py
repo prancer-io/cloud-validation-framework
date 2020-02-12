@@ -8,7 +8,7 @@ from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import get_from_currentdata,\
     put_in_currentdata, add_to_exclude_list
 from processor.helper.config.config_utils import config_value
-from processor.helper.httpapi.restapi_azure import get_vault_access_token,\
+from processor.helper.httpapi.restapi_azure import get_vault_access_token, get_uami_vault_access_token,\
     get_keyvault_secret, set_keyvault_secret, get_all_secrets, delete_keyvault_secret
 
 logger = getlogger()
@@ -88,13 +88,16 @@ def get_config_value(section, key, env_var, prompt_str=None):
 
 def _get_vault_token():
     """Fetches the bearer token for Azure Vault API calls"""
-    client_id = config_value('VAULT', 'client_id')
-    client_secret = get_config_value('VAULT', 'client_secret', 'CLIENTKEY',
-                                     'Enter the client secret to access keyvault: ')
-    # client_secret = config_value('VAULT', 'client_secret')
-    tenant_id = config_value('VAULT', 'tenant_id')
-    logger.info('Id: %s, secret: %s, tenant: %s', client_id, client_secret, tenant_id)
-    vaulttoken = get_vault_access_token(tenant_id, client_id, client_secret)
+    if 'UAMI' in os.environ and os.environ['UAMI'] == 'true':
+        vaulttoken = get_uami_vault_access_token()
+    else:
+        client_id = config_value('VAULT', 'client_id')
+        client_secret = get_config_value('VAULT', 'client_secret', 'CLIENTKEY',
+                                         'Enter the client secret to access keyvault: ')
+        # client_secret = config_value('VAULT', 'client_secret')
+        tenant_id = config_value('VAULT', 'tenant_id')
+        logger.info('Id: %s, secret: %s, tenant: %s', client_id, client_secret, tenant_id)
+        vaulttoken = get_vault_access_token(tenant_id, client_id, client_secret)
     return vaulttoken
 
 

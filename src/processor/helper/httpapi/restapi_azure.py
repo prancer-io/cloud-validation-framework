@@ -15,6 +15,7 @@ from processor.database.database import DATABASE, DBNAME, sort_field, get_docume
 
 ACCESSTOKEN = 'token'
 VAULTACCESSTOKEN = 'vaulttoken'
+UAMIVAULTACCESSTOKEN = 'uamivaulttoken'
 SUBSCRIPTION = 'subscriptionId'
 TENANT = 'tenant_id'
 RESOURCEGROUP = 'rg'
@@ -23,6 +24,7 @@ CLIENTID = 'clientId'
 CLIENTSECRET = 'clientSecret'
 VAULTCLIENTSECRET = 'vaultClientSecret'
 VAULTOKENEXPIRY = 'vaultTokenExpiry'
+UAMIVAULTOKENEXPIRY = 'uamivaultTokenExpiry'
 JSONSOURCE = 'jsonsource'
 
 
@@ -200,6 +202,33 @@ def get_vault_access_token(tenant_id, vault_client_id, client_secret=None):
             else:
                 put_in_currentdata('errors', data)
                 logger.info("Get Azure token returned invalid status: %s", status)
+    return vaulttoken
+
+def get_uami_vault_access_token():
+    """
+    Get the vault access token to get all the other passwords/secrets.
+    """
+    vaulttoken = get_from_currentdata(UAMIVAULTACCESSTOKEN)
+    # print(vaulttoken)
+    hdrs = {
+       "Metadata": "true",
+       "Cache-Control": "no-cache"
+    }
+    if not vaulttoken:
+        url = 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net'
+        # logger.info('Get Azure UAMI token REST API invoked!')
+        print('Get Azure UAMI token REST API invoked!')
+        status, data = http_get_request(url, headers=hdrs)
+        print(data)
+        if status and isinstance(status, int) and status == 200:
+            vaulttoken = data['access_token']
+            expiry_time = data['expires_on']
+            put_in_currentdata(UAMIVAULTACCESSTOKEN, vaulttoken)
+            put_in_currentdata(UAMIVAULTOKENEXPIRY, expiry_time)
+        else:
+            put_in_currentdata('errors', data)
+            # logger.info("Get Azure token returned invalid status: %s", status)
+            print("Get Azure token returned invalid status: %s" % status)
     return vaulttoken
 
 
