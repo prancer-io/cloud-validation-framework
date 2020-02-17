@@ -27,7 +27,6 @@ jobs:
     displayName: 'Install dependencies'
 
   - script: |
-      pip install pytest
       CURPWD=`pwd`
       export PYTHONPATH=$CURPWD/src
       py.test --cov=src/processor tests/ --cov-report term-missing --junitxml=junit/test-results.xml
