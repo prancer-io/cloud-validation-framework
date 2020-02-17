@@ -26,7 +26,8 @@ jobs:
   - script: python -m pip install --upgrade pip && pip install -r requirements.txt
     displayName: 'Install dependencies'
 
-  - script:
+  - script: |
+      pip install pytest
       CURPWD=`pwd`
       export PYTHONPATH=$CURPWD/src
       py.test --cov=src/processor tests/ --cov-report term-missing --junitxml=junit/test-results.xml
