@@ -95,7 +95,10 @@ def logging_fw(fwconfigfile, dbargs):
     }
     if fw_cfg and 'LOGGING' in fw_cfg:
         fwconf = fw_cfg['LOGGING']
-        log_config['level'] = logging.getLevelName(fwconf['level']) \
+        # log_config['level'] = logging.getLevelName(fwconf['level']) \
+        #     if 'level' in fwconf and fwconf['level'] else logging.INFO
+        # Fixed issue of only CRITICAL Logs were getting store
+        log_config['level'] = fwconf['level'].upper() \
             if 'level' in fwconf and fwconf['level'] else logging.INFO
         log_config['size'] = fwconf.getint('size') if 'size' in fwconf else 10
         log_config['backups'] = fwconf.getint('backups') if 'backups' in fwconf else 10
@@ -107,9 +110,11 @@ def logging_fw(fwconfigfile, dbargs):
     loglevel = level if level and level in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'] \
         else log_config['level']
     logformat = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
-    logging.basicConfig(level=loglevel, format=logformat)
+    # logging.basicConfig(level=loglevel, format=logformat)
+    logging.basicConfig(format=logformat)
     logger = logging.getLogger(__name__)
     logger.propagate = log_config['propagate']
+    logger.setLevel(loglevel)
     # logpath = '%s/log/' % get_logdir(fw_cfg)
     _, logpath = get_logdir(fw_cfg)
     FWLOGFILENAME = '%s/%s.log' % (logpath, datetime.datetime.today().strftime(fwlogfile))
@@ -132,10 +137,10 @@ def logging_fw(fwconfigfile, dbargs):
     return logger
 
 
-def init_logger(dbargs, fw_cfg=None):
+def init_logger(dbargs, fw_cfg=None, refresh_logger=False):
     """Get the logger for the framework."""
     global FWLOGGER
-    if FWLOGGER and (dbhandler and dbargs == 'FULL'):
+    if FWLOGGER and (dbhandler and dbargs == 'FULL') and not refresh_logger:
         return FWLOGGER
     FWLOGGER = logging_fw(fw_cfg, dbargs)
     return FWLOGGER
