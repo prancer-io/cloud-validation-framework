@@ -1,5 +1,4 @@
 """Helper functions to setup logging for the framework."""
-import datetime
 import logging
 from logging.handlers import RotatingFileHandler
 import datetime
@@ -8,7 +7,8 @@ import os
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 from processor.helper.config.config_utils import framework_dir,\
-    get_config_data, framework_config, TESTS, DBVALUES, NONE, config_value
+    get_config_data, framework_config, DBVALUES, NONE
+from processor.logging.dburl_kv import get_dburl
 
 
 FWLOGGER = None
@@ -16,7 +16,6 @@ FWLOGFILENAME = None
 MONGOLOGGER = None
 DBLOGGER = None
 dbhandler = None
-
 
 
 class MongoDBHandler(logging.Handler):
@@ -105,7 +104,7 @@ def logging_fw(fwconfigfile, dbargs):
         log_config['propagate'] = fwconf.getboolean('propagate') if 'propagate' in fwconf \
             else True
         log_config['db'] = fwconf['dbname'] if 'dbname' in fwconf else None
-        log_config['dburl'] = fw_cfg['MONGODB']['dburl'] if 'dbname' in fwconf else None
+        log_config['dburl'] = get_dburl() if 'dbname' in fwconf else None
     level = os.getenv('LOGLEVEL', None)
     loglevel = level if level and level in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'] \
         else log_config['level']

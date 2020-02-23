@@ -53,6 +53,7 @@
 """
 
 import argparse
+import threading
 import sys
 import datetime
 import atexit
@@ -62,6 +63,24 @@ from inspect import currentframe, getframeinfo
 from processor.helper.config.config_utils import framework_dir, config_value, \
     CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, SINGLETEST, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir
+
+
+
+def set_customer():
+    wkEnv = os.getenv('PRANCER_WK_ENV', None)
+    customer = os.getenv('CUSTOMER', None)
+    if wkEnv and wkEnv.upper() in ['STAGING', 'PRODUCTION']:
+        config_path = 'prod' if wkEnv.upper() == 'PRODUCTION' else 'staging'
+        if customer:
+            os.environ[str(threading.currentThread().ident) + "_SPACE_ID"] = config_path + "/" + customer
+        else:
+            os.environ[str(threading.currentThread().ident) + "_SPACE_ID"] = "staging/default"
+        return True
+    elif customer:
+        os.environ[str(threading.currentThread().ident) + "_SPACE_ID"] = "staging/" + customer
+        return True
+    return  False
+
 
 
 def console_log(message, cf):
@@ -129,8 +148,9 @@ def validator_main(arg_vals=None, delete_rundata=True):
            the tests execution could not be started or completed.
     """
     retval = 2
-    if search_config_ini():
-        return retval
+    if not set_customer():
+        if search_config_ini():
+            return retval
     cmd_parser = argparse.ArgumentParser("Prancer Basic Functionality")
     cmd_parser.add_argument('container', action='store', help='Container tests directory.')
     cmd_parser.add_argument('--db', action='store', default=None, choices=['NONE', 'SNAPSHOT', 'FULL'],
@@ -164,12 +184,14 @@ def validator_main(arg_vals=None, delete_rundata=True):
             msg = "Mongo DB connection timed out after %d ms, check the mongo server, exiting!....." % TIMEOUT
             console_log(msg, currentframe())
             return retval
+
     # Check the log directory and also check if it is writeable.
     from processor.logging.log_handler import init_logger, get_logdir
     log_writeable, logdir = get_logdir(None)
     if not log_writeable:
         console_log('Logging directory(%s) is not writeable, exiting....' % logdir)
         return retval
+
     # Alls well from this point, check container exists in the directory configured
     retval = 0
     logger = init_logger(args.db)
