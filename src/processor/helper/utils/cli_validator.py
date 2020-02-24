@@ -227,13 +227,13 @@ def validator_main(arg_vals=None, delete_rundata=True):
         fs = True if args.db > DBVALUES.index(SNAPSHOT) else False
         put_in_currentdata('jsonsource', fs)
         put_in_currentdata(DBTESTS, args.db)
-        if args.db == DBVALUES.index(FULL):
-            from processor.logging.log_handler import get_dblogger
-            log_name = get_dblogger()
-            if log_name:
-                pid = open('/tmp/pid_%s' % os.getpid(), 'w')
-                pid.write(log_name)
-                pid.close()
+        # if args.db == DBVALUES.index(FULL):
+        #     from processor.logging.log_handler import get_dblogger
+        #     log_name = get_dblogger()
+        #     if log_name:
+        #         pid = open('/tmp/pid_%s' % os.getpid(), 'w')
+        #         pid.write(log_name)
+        #         pid.close()
         if args.test:
             put_in_currentdata(SINGLETEST, args.test)
             put_in_currentdata('container', args.container)

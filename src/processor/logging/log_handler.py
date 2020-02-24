@@ -43,7 +43,9 @@ class MongoDBHandler(logging.Handler):
 
     def set_log_collection(self):
         global DBLOGGER
-        log_name = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        log_name = os.getenv('LOGNAME', None)
+        if not log_name:
+            log_name = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         coll = self.db[self.coll_name]
         self.collection = coll
         DBLOGGER = log_name
@@ -127,6 +129,7 @@ def logging_fw(fwconfigfile, dbargs):
     handler.setLevel(loglevel)
     logger.addHandler(handler)
     unittest = os.getenv('UNITTEST', "false")
+    # print(log_config)
     if log_config['db'] and unittest != "true" and dbargs:
         dblogformat = '%(asctime)s-%(message)s'
         dbhandler = MongoDBHandler(log_config['dburl'], log_config['db'])
