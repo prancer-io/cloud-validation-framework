@@ -61,14 +61,14 @@ import json
 import os
 from inspect import currentframe, getframeinfo
 from processor.helper.config.config_utils import framework_dir, config_value, \
-    CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, SINGLETEST, container_exists
+    CFGFILE, get_config_data, FULL, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, SINGLETEST, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 
 
-def set_customer():
+def set_customer(cust=None):
     wkEnv = os.getenv('PRANCER_WK_ENV', None)
-    customer = os.getenv('CUSTOMER', None)
+    customer = cust if cust else os.getenv('CUSTOMER', None)
     if wkEnv and wkEnv.upper() in ['STAGING', 'PRODUCTION']:
         config_path = 'prod' if wkEnv.upper() == 'PRODUCTION' else 'staging'
         if customer:
@@ -158,8 +158,11 @@ def validator_main(arg_vals=None, delete_rundata=True):
     cmd_parser.add_argument('--crawler', action='store_true', default=False,
                             help='Crawl and generate snapshot files only')
     cmd_parser.add_argument('--test', action='store', default=None, help='Run a single test in NODB mode')
+    cmd_parser.add_argument('--customer', action='store', default=None, help='customer name for config')
     args = cmd_parser.parse_args(arg_vals)
 
+    if args.customer:
+        set_customer(args.customer)
     if args.db:
         if args.db.upper() in DBVALUES:
             args.db = DBVALUES.index(args.db.upper())
@@ -224,6 +227,13 @@ def validator_main(arg_vals=None, delete_rundata=True):
         fs = True if args.db > DBVALUES.index(SNAPSHOT) else False
         put_in_currentdata('jsonsource', fs)
         put_in_currentdata(DBTESTS, args.db)
+        if args.db == DBVALUES.index(FULL):
+            from processor.logging.log_handler import get_dblogger
+            log_name = get_dblogger()
+            if log_name:
+                pid = open('/tmp/pid_%s' % os.getpid(), 'w')
+                pid.write(log_name)
+                pid.close()
         if args.test:
             put_in_currentdata(SINGLETEST, args.test)
             put_in_currentdata('container', args.container)
