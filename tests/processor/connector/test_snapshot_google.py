@@ -177,7 +177,7 @@ def validate_negative_snapshot_nodes(snapshot_source):
     return None, None
 
 
-def mock_negative_get_google_client_data(sub_data, snapshot_user):
+def mock_negative_get_google_client_data(sub_data, snapshot_user, node_type):
     return None
 
 
