@@ -158,7 +158,8 @@ def get_config_value(section, key, env_var, prompt_str=None):
 
 def get_dburl():
     dburl = get_azure_vault_data(DBURL)
-    os.environ[DBURL] = dburl
+    if dburl:
+        os.environ[DBURL] = dburl
     return dburl
 
 
