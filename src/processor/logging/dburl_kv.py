@@ -136,8 +136,7 @@ def _get_vault_token():
         vaulttoken = get_uami_vault_access_token()
     else:
         client_id = config_value('VAULT', 'client_id')
-        client_secret = get_config_value('VAULT', 'client_secret', 'CLIENTKEY',
-                                         'Enter the client secret to access keyvault: ')
+        client_secret = get_config_value('VAULT', 'client_secret', 'CLIENTKEY')
         tenant_id = config_value('VAULT', 'tenant_id')
         vaulttoken = get_vault_access_token(tenant_id, client_id, client_secret)
     return vaulttoken
