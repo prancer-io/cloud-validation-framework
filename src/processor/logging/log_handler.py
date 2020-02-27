@@ -94,6 +94,7 @@ def logging_fw(fwconfigfile, dbargs):
         "backups": 10,
         "db": None
     }
+    unittest = os.getenv('UNITTEST', "false")
     if fw_cfg and 'LOGGING' in fw_cfg:
         fwconf = fw_cfg['LOGGING']
         # log_config['level'] = logging.getLevelName(fwconf['level']) \
@@ -106,7 +107,7 @@ def logging_fw(fwconfigfile, dbargs):
         log_config['propagate'] = fwconf.getboolean('propagate') if 'propagate' in fwconf \
             else True
         log_config['db'] = fwconf['dbname'] if 'dbname' in fwconf else None
-        log_config['dburl'] = get_dburl() if 'dbname' in fwconf else None
+        log_config['dburl'] = get_dburl() if 'dbname' in fwconf and unittest != "true" else None
     level = os.getenv('LOGLEVEL', None)
     loglevel = level if level and level in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'] \
         else log_config['level']
@@ -128,7 +129,6 @@ def logging_fw(fwconfigfile, dbargs):
     # handler.setLevel(log_config['level'])
     handler.setLevel(loglevel)
     logger.addHandler(handler)
-    unittest = os.getenv('UNITTEST', "false")
     # print(log_config)
     if log_config['db'] and unittest != "true" and dbargs:
         dblogformat = '%(asctime)s-%(message)s'
