@@ -150,7 +150,7 @@ def get_access_token():
         if tenant_id:
             url = 'https://login.microsoftonline.com/%s/oauth2/token' % tenant_id
             logger.info('Get Azure token REST API invoked!')
-            status, data = http_post_request(url, data, headers=hdrs)
+            status, data = http_post_request(url, data, headers=hdrs, json_type=True)
             if status and isinstance(status, int) and status == 200:
                 token = data['access_token']
                 put_in_currentdata(ACCESSTOKEN, token)
@@ -208,13 +208,16 @@ def get_uami_vault_access_token():
     """
     Get the vault access token to get all the other passwords/secrets.
     """
-    vaulttoken = get_from_currentdata(UAMIVAULTACCESSTOKEN)
-    # print(vaulttoken)
     hdrs = {
        "Metadata": "true",
        "Cache-Control": "no-cache"
     }
-    if not vaulttoken:
+    vaulttoken = get_from_currentdata(UAMIVAULTACCESSTOKEN)
+    # print(vaulttoken)
+    expiry_time = get_from_currentdata(UAMIVAULTOKENEXPIRY)
+    is_token_valid = isinstance(expiry_time, str) and \
+        datetime.now() < datetime.fromtimestamp(float(expiry_time))
+    if (not vaulttoken) or (not is_token_valid):
         url = 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net'
         # logger.info('Get Azure UAMI token REST API invoked!')
         print('Get Azure UAMI token REST API invoked!')

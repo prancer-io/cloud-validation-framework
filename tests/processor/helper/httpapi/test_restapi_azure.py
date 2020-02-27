@@ -13,10 +13,10 @@ def mock_empty_getenv(key, default=None):
 def mock_input(text):
     return 'clientSecret'
 
-def mock_valid_http_post_request(url, data, headers={}):
+def mock_valid_http_post_request(url, data, headers={}, json_type=False):
     return 200, {'access_token': 'abcd', 'expires_on': '1234'}
 
-def mock_invalid_http_post_request(url, data, headers={}):
+def mock_invalid_http_post_request(url, data, headers={}, json_type=False):
     return 401, {'access_token': None}
 
 def mock_valid_http_get_request(url, headers=None, name='GET'):
