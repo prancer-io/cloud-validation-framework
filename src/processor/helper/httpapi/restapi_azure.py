@@ -150,7 +150,7 @@ def get_access_token():
         if tenant_id:
             url = 'https://login.microsoftonline.com/%s/oauth2/token' % tenant_id
             logger.info('Get Azure token REST API invoked!')
-            status, data = http_post_request(url, data, headers=hdrs)
+            status, data = http_post_request(url, data, headers=hdrs, json_type=True)
             if status and isinstance(status, int) and status == 200:
                 token = data['access_token']
                 put_in_currentdata(ACCESSTOKEN, token)
