@@ -16,6 +16,7 @@ import json
 import hashlib
 import time
 import pymongo
+import os
 from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
 from processor.helper.file.file_utils import exists_file
@@ -419,6 +420,7 @@ def populate_google_snapshot(snapshot, container=None):
                         logger.debug('Type: %s', type(data))
         except Exception as ex:
             logger.info('Unable to create Google client: %s', ex)
+            raise ex
     return snapshot_data
 
 
@@ -459,6 +461,23 @@ def get_service_name(node_type):
                 
     return service
 
+def get_private_key(gce):
+    """
+    Fetches the Private Key for get the google service account credentials
+    """
+    if ('UAMI' in os.environ and os.environ['UAMI'] == 'true') or \
+        ('PRANCER_WK_ENV' in os.environ and \
+            ( os.environ['PRANCER_WK_ENV'] == 'STAGING' or os.environ['PRANCER_WK_ENV'] == 'PRODUCTION')
+        ):
+        private_key = get_vault_data(gce['private_key_id'])
+        if private_key:
+            gce["private_key"] = private_key.replace("\\n","\n")
+        else:
+            raise Exception("Private key does not set in a vault")
+    
+    return gce
+    
+
 def get_google_client_data(google_data, snapshot_user, node_type):
     """
     AWS client information as required by the Boto client, viz access_key
@@ -482,6 +501,7 @@ def get_google_client_data(google_data, snapshot_user, node_type):
                                     found = True
                                     gce = get_field_value(user, 'gce')
                                     if gce:
+                                        gce = get_private_key(gce)
                                         save_json_to_file(gce, '/tmp/gce.json')
                                         scopes = ['https://www.googleapis.com/auth/compute', "https://www.googleapis.com/auth/cloud-platform"]
                                         credentials = ServiceAccountCredentials.from_json_keyfile_name('/tmp/gce.json', scopes)
