@@ -17,6 +17,7 @@ import hashlib
 import time
 import copy
 import pymongo
+import os
 from boto3 import client
 from boto3 import Session
 from processor.helper.file.file_utils import exists_file
@@ -605,12 +606,19 @@ def populate_aws_snapshot(snapshot, container=None):
         if not access_key:
             logger.info("No access_key in the snapshot to access aws resource!...")
             return snapshot_data
+
+        # Read the client secrets from envirnment variable or Standard input
+        # if not secret_access and ('UAMI' not in os.environ or os.environ['UAMI'] != 'true'):
+        #     secret_access = get_client_secret()
+        #     logger.info('Environment variable or Standard input, Secret: %s', '*' * len(secret_access))
+        
+        # Read the client secrets from the vault
         if not secret_access:
             secret_access = get_vault_data(access_key)
-            logger.info('Vault Secret: %s', '*' * len(secret_access))
-        if not secret_access:
-            secret_access = get_client_secret()
-            logger.info('Environment variable or Standard input, Secret: %s', '*' * len(secret_access))
+            if secret_access:
+                logger.info('Vault Secret: %s', '*' * len(secret_access))
+            else:
+                raise Exception("Secret Access key does not set in a vault")
         if not secret_access:
             logger.info("No secret_access in the snapshot to access aws resource!...")
             return snapshot_data
@@ -750,7 +758,9 @@ def get_aws_client_data(aws_data, snapshot_user):
                                 if username and username == snapshot_user:
                                     found = True
                                     accesskey = get_field_value(user, 'access-key')
-                                    secret_access = get_field_value(user, 'secret-access')
+                                    if ('UAMI' not in os.environ or os.environ['UAMI'] != 'true') or \
+                                        ('PRANCER_WK_ENV' in os.environ and os.environ['PRANCER_WK_ENV'] == "DEVELOPMENT" ):
+                                        secret_access = get_field_value(user, 'secret-access')
                                     region = get_field_value(user, 'region')
                                     client_str = get_field_value(user, 'client')
                                     if client_str and not _validate_client_name(client_str):
