@@ -465,10 +465,11 @@ def get_private_key(gce):
     """
     Fetches the Private Key for get the google service account credentials
     """
-    if ('UAMI' in os.environ and os.environ['UAMI'] == 'true') or \
-        ('PRANCER_WK_ENV' in os.environ and \
-            ( os.environ['PRANCER_WK_ENV'] == 'STAGING' or os.environ['PRANCER_WK_ENV'] == 'PRODUCTION')
-        ):
+    if ('UAMI' not in os.environ or os.environ['UAMI'] != 'true'):
+        # if private_key does not exist then it will set to None:
+        gce["private_key"] = get_field_value(gce, 'private_key')
+
+    if ('UAMI' in os.environ and os.environ['UAMI'] == 'true') or not gce["private_key"]:
         private_key = get_vault_data(gce['private_key_id'])
         if private_key:
             gce["private_key"] = private_key.replace("\\n","\n")

@@ -605,7 +605,8 @@ def populate_aws_snapshot(snapshot, container=None):
             get_aws_client_data(sub_data, snapshot_user)
         if not access_key:
             logger.info("No access_key in the snapshot to access aws resource!...")
-            return snapshot_data
+            raise Exception("No access_key in the snapshot to access aws resource!...")
+            # return snapshot_data
 
         # Read the client secrets from envirnment variable or Standard input
         # if not secret_access and ('UAMI' not in os.environ or os.environ['UAMI'] != 'true'):
@@ -618,6 +619,7 @@ def populate_aws_snapshot(snapshot, container=None):
             if secret_access:
                 logger.info('Vault Secret: %s', '*' * len(secret_access))
             else:
+                logger.info("Secret Access key does not set in a vault")
                 raise Exception("Secret Access key does not set in a vault")
         if not secret_access:
             logger.info("No secret_access in the snapshot to access aws resource!...")
@@ -758,8 +760,7 @@ def get_aws_client_data(aws_data, snapshot_user):
                                 if username and username == snapshot_user:
                                     found = True
                                     accesskey = get_field_value(user, 'access-key')
-                                    if ('UAMI' not in os.environ or os.environ['UAMI'] != 'true') or \
-                                        ('PRANCER_WK_ENV' in os.environ and os.environ['PRANCER_WK_ENV'] == "DEVELOPMENT" ):
+                                    if ('UAMI' not in os.environ or os.environ['UAMI'] != 'true'):
                                         secret_access = get_field_value(user, 'secret-access')
                                     region = get_field_value(user, 'region')
                                     client_str = get_field_value(user, 'client')
