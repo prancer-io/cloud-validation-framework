@@ -28,6 +28,7 @@ logger = getlogger()
 def get_version_for_type(node):
     """Url version of the resource."""
     version = None
+    apiversions = None
     logger.info("Get type's version")
     api_source = config_value('AZURE', 'api')
     if json_source():
@@ -168,7 +169,8 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
         get_web_client_data(snapshot_type, snapshot_source, snapshot_user)
     if not client_id:
         logger.info("No client_id in the snapshot to access azure resource!...")
-        return snapshot_data
+        # return {}
+        raise Exception("No client id in the snapshot to access azure resource!...")
     if not client_secret:
         client_secret = get_vault_data(client_id)
         if client_secret:
@@ -180,7 +182,8 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                         '*' * len(client_secret))
     if not client_secret:
         logger.info("No client secret in the snapshot to access azure resource!...")
-        return snapshot_data
+        raise Exception("No client secret in the snapshot to access azure resource!...")
+        # return {}
     logger.info('Sub:%s, tenant:%s, client: %s', sub_id, tenant_id, client_id)
     put_in_currentdata('clientId', client_id)
     put_in_currentdata('clientSecret', client_secret)
@@ -188,6 +191,11 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     put_in_currentdata('tenant_id', tenant_id)
     token = get_access_token()
     logger.debug('TOKEN: %s', token)
+    if not token:
+        logger.info("Unable to get access token, will not run tests....")
+        raise Exception("Unable to get access token, will not run tests....")
+        # return {}
+
     # snapshot_nodes = get_field_value(snapshot, 'nodes')
     # snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and token and snapshot_nodes:

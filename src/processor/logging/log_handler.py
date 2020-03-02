@@ -43,7 +43,7 @@ class MongoDBHandler(logging.Handler):
 
     def set_log_collection(self):
         global DBLOGGER
-        log_name = os.getenv('LOGNAME', None)
+        log_name = os.getenv('LOG_NAME', None)
         if not log_name:
             log_name = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         coll = self.db[self.coll_name]
