@@ -1,4 +1,5 @@
 """ Tests for snapshot azure"""
+import pytest
 
 snapshot = {
     "source": "azureStructure.json",
@@ -162,8 +163,10 @@ def test_populate_azure_snapshot(monkeypatch):
     val = populate_azure_snapshot(snapshot, 'azure')
     assert val == {'1': True}
     snapshot['testUser'] = 'abcd'
-    val = populate_azure_snapshot(snapshot, 'azure')
-    assert val == {'1': False}
+    with pytest.raises(Exception):
+        populate_azure_snapshot(snapshot, 'azure')
+    # val = populate_azure_snapshot(snapshot, 'azure')
+    # assert val == {'1': False}
 
 def test_populate_azure_snapshot_invalid_token(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_azure.http_get_request', mock_http_get_request_happy)
@@ -174,8 +177,10 @@ def test_populate_azure_snapshot_invalid_token(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_azure.get_collection_size', mock_get_collection_size)
     from processor.connector.snapshot_azure import populate_azure_snapshot
     snapshot["testUser"] = "ajeybk1@kbajeygmail.onmicrosoft.com"
-    val = populate_azure_snapshot(snapshot, 'azure')
-    assert val == {'1': False}
+    with pytest.raises(Exception):
+        populate_azure_snapshot(snapshot, 'azure')
+    # val = populate_azure_snapshot(snapshot, 'azure')
+    # assert val == {'1': False}
 
 
 def test_populate_azure_snapshot_invalid_secret(monkeypatch):
@@ -187,8 +192,10 @@ def test_populate_azure_snapshot_invalid_secret(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_azure.get_client_secret', mock_get_client_secret)
     from processor.connector.snapshot_azure import populate_azure_snapshot
     snapshot["testUser"] = "ajeybk1@kbajeygmail.onmicrosoft.com"
-    val = populate_azure_snapshot(snapshot, 'azure')
-    assert val == {'1': False}
+    with pytest.raises(Exception):
+        populate_azure_snapshot(snapshot, 'azure')
+    # val = populate_azure_snapshot(snapshot, 'azure')
+    # assert val == {'1': False}
 
 
 def test_populate_azure_snapshot_crawler(monkeypatch):

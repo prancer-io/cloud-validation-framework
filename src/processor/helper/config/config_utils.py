@@ -1,5 +1,6 @@
 """Framework Configuration utilities"""
 import configparser
+import time
 import os
 import threading
 from processor.helper.file.file_utils import exists_file, exists_dir
@@ -39,14 +40,26 @@ def parsebool(val, defval=False):
             retval = bool(parseint(val))
     return retval
 
-
-def framework_currentdata():
-    """Return the framework current data."""
+def get_framework_currentdata_for_customer(space_id):
+    """Return the framework currentdata file path for customer."""
     global CURRENTDATA
     if CURRENTDATA:
         return CURRENTDATA
-    CURRENTDATA = '%s/rundata' % framework_dir()
+    CURRENTDATA = '%s/config/%s/%d_rundata' % (framework_dir(), space_id, int(time.time() * 1000))
     return CURRENTDATA
+
+
+def framework_currentdata():
+    """Return the framework current data."""
+    space_id = os.getenv(str(threading.currentThread().ident) + "_SPACE_ID", None)
+    if space_id:
+        return get_framework_currentdata_for_customer(space_id)
+    else:
+        global CURRENTDATA
+        if CURRENTDATA:
+            return CURRENTDATA
+        CURRENTDATA = '%s/rundata' % framework_dir()
+        return CURRENTDATA
 
 
 def framework_config():

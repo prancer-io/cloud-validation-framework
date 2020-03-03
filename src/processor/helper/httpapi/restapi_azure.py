@@ -113,15 +113,37 @@ def json_source():
     return val if val else False
 
 
-def get_client_secret(key='CLIENTKEY'):
+def get_client_secret1(key='CLIENTKEY'):
     """ Return the client secret used for the current run"""
     client_secret = get_from_currentdata(CLIENTSECRET)
     if not client_secret:
         client_secret = os.getenv(key, None)
-    if not client_secret:
-        client_secret = input('Enter the client secret for the app: ')
+    # if not client_secret:
+    #     client_secret = input('Enter the client secret for the app: ')
     return client_secret
 
+
+def get_client_secret(key='CLIENTKEY', client_id=None):
+    """ Return the client secret used for the current run"""
+    logger.info('before get_from_currentdata CLIENTSECRET invoked! ')
+    client_secret = get_from_currentdata(CLIENTSECRET)
+    logger.info('after get_from_currentdata CLIENTSECRET invoked! %s', client_secret)
+    if not client_secret:
+        if 'UAMI' in os.environ and os.environ['UAMI'] == 'true':
+            # client_secret = get_vault_data(client_id)
+            vaulttoken = get_uami_vault_access_token()
+            keyvault = config_value('VAULT', 'keyvault')
+            # secret_key = config_value('VAULT', 'secret_key')
+            logger.info('Keyvault: %s, key:%s', keyvault, client_id)
+            secret_data = get_keyvault_secret(keyvault, client_id, vaulttoken)
+            if secret_data and 'value' in secret_data:
+                client_secret = secret_data['value']
+        else:
+            if not client_secret:
+                client_secret = os.getenv(key, None)
+            if not client_secret:
+                client_secret = input('Enter the client secret for the app: ')
+    return client_secret
 
 def get_access_token():
     """
@@ -133,7 +155,8 @@ def get_access_token():
         tenant_id = get_tenant_id()
         client_id = get_client_id()
         if client_id:
-            client_secret = get_client_secret()
+            # client_secret = get_client_secret()
+            client_secret = get_client_secret(key='CLIENTKEY',client_id=client_id)
         else:
             logger.info('client Id required for REST API access!')
             return None
@@ -243,7 +266,7 @@ def get_keyvault_secret(keyvault, secret_key, vaulttoken):
     urlstr = 'https://%s.vault.azure.net/secrets/%s?api-version=7.0'
     url = urlstr % (keyvault, secret_key)
     status, data = http_get_request(url, hdrs)
-    logger.info('Get Id status: %s', status)
+    logger.debug('Get Id status: %s', status)
 
     if status and isinstance(status, int) and status == 200:
         logger.debug('Data: %s', data)

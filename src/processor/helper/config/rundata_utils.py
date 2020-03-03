@@ -114,8 +114,9 @@ def delete_currentdata():
     runctx = get_currentdata()
     runctx['end'] = int(time.time() * 1000)
     runctx['log'] = FWLOGFILENAME
-    runctx['duration'] = '%d seconds' % int((runctx['end'] - runctx['start'])/1000)
-    runctx['start'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runctx['start']/1000))
+    if 'start' in runctx:
+        runctx['duration'] = '%d seconds' % int((runctx['end'] - runctx['start'])/1000)
+        runctx['start'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runctx['start']/1000))
     runctx['end'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runctx['end']/1000))
     for field in exclude_list:
         if field in runctx:
