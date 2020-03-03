@@ -19,8 +19,10 @@ def mongoconnection(dbport=27017, to=TIMEOUT):
     global MONGO
     if MONGO:
         return MONGO
-    dburl = get_dburl()
-    # os.getenv(DBURL, None)
+    dburl = os.getenv('DBURL', None)
+    if not dburl:
+        dburl = get_dburl()
+    # print(dburl)
     if dburl:
         MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
     else:
