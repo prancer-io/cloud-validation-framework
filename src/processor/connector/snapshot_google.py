@@ -377,6 +377,7 @@ def populate_google_snapshot(snapshot, container=None):
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     snapshot_user = get_field_value(snapshot, 'testUser')
+    project_id = get_field_value(snapshot, 'project-id')
     sub_data = get_google_data(snapshot_source)
     snapshot_nodes = get_field_value(snapshot, 'nodes')
     snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
@@ -386,7 +387,7 @@ def populate_google_snapshot(snapshot, container=None):
             for node in snapshot['nodes']:
                 logger.info(node)
                 node_type = get_field_value_with_default(node, 'type',"")
-                compute = get_google_client_data(sub_data, snapshot_user, node_type)
+                compute = get_google_client_data(sub_data, snapshot_user, node_type, project_id)
                 if not compute:
                     logger.info("No  GCE connection in the snapshot to access Google resource!...")
                     return snapshot_data
@@ -477,40 +478,52 @@ def get_private_key(gce):
             raise Exception("Private key does not set in a vault")
     
     return gce
-    
 
-def get_google_client_data(google_data, snapshot_user, node_type):
+def generate_gce(google_data, project, user):
     """
-    AWS client information as required by the Boto client, viz access_key
-    access_secret, AWS command type like EC2, S3 etc and region
-    The access_secret is either read from structure json or env variable or keyvault
+    Generate client secret json from the google data
+    """
+    print("Generate GC called")
+    gce = {
+        "type": get_field_value(user, "type"),
+        "project_id": get_field_value(project, "project-id"),
+        "private_key_id": get_field_value(user, "private_key_id"),
+        "client_email": get_field_value(user, "client_email"),
+        "client_id": get_field_value(user, "client_id"),
+        "auth_uri": get_field_value(google_data, "auth_uri"),
+        "token_uri": get_field_value(google_data, "token_uri"),
+        "auth_provider_x509_cert_url": get_field_value(google_data, "auth_provider_x509_cert_url"),
+        "client_x509_cert_url": get_field_value(google_data, "client_x509_cert_url"),
+    }
+    gce = get_private_key(gce)
+    return gce
+
+
+def get_google_client_data(google_data, snapshot_user, node_type, project_id):
+    """
+    Generate Google compute object from the google structure file.
     """
     compute = None
+    found = False
     if google_data and snapshot_user:
-        org_units = get_field_value(google_data, "organization-unit")
-        if org_units:
-            found = False
-            for org_unit in org_units:
-                accounts = get_field_value(org_unit, 'accounts')
-                if accounts:
-                    for account in accounts:
-                        users = get_field_value(account, 'users')
-                        if users:
-                            for user in users:
-                                username = get_field_value(user, 'name')
-                                if username and username == snapshot_user:
-                                    found = True
-                                    gce = get_field_value(user, 'gce')
-                                    if gce:
-                                        gce = get_private_key(gce)
-                                        save_json_to_file(gce, '/tmp/gce.json')
-                                        scopes = ['https://www.googleapis.com/auth/compute', "https://www.googleapis.com/auth/cloud-platform"]
-                                        credentials = ServiceAccountCredentials.from_json_keyfile_name('/tmp/gce.json', scopes)
-                                        service_name = get_service_name(node_type)
-                                        compute = discovery.build(service_name, 'v1', credentials=credentials, cache_discovery=False)
-                                    break                                                                                                                                                                                                                                                   
-                        if found:
-                            break
-                if found:
-                    break
+        projects = get_field_value(google_data, "projects")
+        for project in projects:
+            structure_project_id = get_field_value(project, 'project-id')
+            if structure_project_id == project_id:
+                users = get_field_value(project, 'users')
+                if users:
+                    for user in users:
+                        user_name = get_field_value(user, 'name')
+                        if user_name == snapshot_user:
+                            found = True
+                            gce = generate_gce(google_data, project, user)
+                            if gce:
+                                save_json_to_file(gce, '/tmp/gce.json')
+                                scopes = ['https://www.googleapis.com/auth/compute', "https://www.googleapis.com/auth/cloud-platform"]
+                                credentials = ServiceAccountCredentials.from_json_keyfile_name('/tmp/gce.json', scopes)
+                                service_name = get_service_name(node_type)
+                                compute = discovery.build(service_name, 'v1', credentials=credentials, cache_discovery=False)
+                            break 
+            if found:
+                break
     return compute
