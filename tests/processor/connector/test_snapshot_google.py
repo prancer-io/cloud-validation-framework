@@ -34,40 +34,66 @@ connector = {
     "organization": "company1",
     "type": "google",
     "fileType": "structure",
-    "organization-unit": [
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "<As in from google.json file>",
+    "projects": [
         {
-            "name": "ABC",
-            "accounts": [
+            "project-name": "<Project Name>",
+            "project-id": "<Project Id>",
+            "users": [
                 {
-                    "account-name": "<Account Name>",
-                    "account-description": "Google Cloud Engine details",
-                    "project-id": "<Project Name>",
-                    "account-user": "kbajey@gmail.com",
-                    "users": [
-                        {
-                            "name": "ajeybk",
-                            "gce": {
-                                "type": "service_account",
-                                "project_id": "<Project Id>",
-                                "private_key_id": "Private Key Id",
-                                "private_key": "<Actual Private Key>",
-                                "client_email": "<acc>@<project>.iam.gserviceaccount.com",
-                                "client_id": "<client id>",
-                                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                                "token_uri": "https://oauth2.googleapis.com/token",
-                                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                                "client_x509_cert_url": "<As in from google.json file>"
-                            },
-                            "project":"<Project Name>",
-                            "zone":"us-west1-b",
-                            "client": "Compute"
-                        }
-                    ]
+                    "name": "prancer-test-account",
+                    "type": "service_account",
+                    "private_key_id": "Private Key Id",
+                    "private_key": "<Actual Private Key>",
+                    "client_email": "<acc>@<project>.iam.gserviceaccount.com",
+                    "client_id": "<client id>"
                 }
             ]
         }
     ]
 }
+
+# connector = {
+#     "organization": "company1",
+#     "type": "google",
+#     "fileType": "structure",
+#     "organization-unit": [
+#         {
+#             "name": "ABC",
+#             "accounts": [
+#                 {
+#                     "account-name": "<Account Name>",
+#                     "account-description": "Google Cloud Engine details",
+#                     "project-id": "<Project Name>",
+#                     "account-user": "kbajey@gmail.com",
+#                     "users": [
+#                         {
+#                             "name": "ajeybk",
+#                             "gce": {
+#                                 "type": "service_account",
+#                                 "project_id": "<Project Id>",
+#                                 "private_key_id": "Private Key Id",
+#                                 "private_key": "<Actual Private Key>",
+#                                 "client_email": "<acc>@<project>.iam.gserviceaccount.com",
+#                                 "client_id": "<client id>",
+#                                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+#                                 "token_uri": "https://oauth2.googleapis.com/token",
+#                                 "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+#                                 "client_x509_cert_url": "<As in from google.json file>"
+#                             },
+#                             "project":"<Project Name>",
+#                             "zone":"us-west1-b",
+#                             "client": "Compute"
+#                         }
+#                     ]
+#                 }
+#             ]
+#         }
+#     ]
+# }
 
 instanse_data = {
     "selfLink": "https://www.googleapis.com/compute/v1/projects/",
@@ -177,11 +203,11 @@ def validate_negative_snapshot_nodes(snapshot_source):
     return None, None
 
 
-def mock_negative_get_google_client_data(sub_data, snapshot_user, node_type):
+def mock_negative_get_google_client_data(sub_data, snapshot_user, node_type, project_id):
     return None
 
 
-def mock_get_google_client_data(sub_data, snapshot_user, node_type):
+def mock_get_google_client_data(sub_data, snapshot_user, node_type, project_id):
     return MyMockCompute()
 
 
@@ -332,9 +358,10 @@ def test_get_google_client_data(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.save_json_to_file', mock_save_json_to_file)
     monkeypatch.setattr('processor.connector.snapshot_google.ServiceAccountCredentials', MyMockServiceAccountCredentials)
     monkeypatch.setattr('processor.connector.snapshot_google.discovery', MyMockDiscovery)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_google_client_data', mock_get_google_client_data)
     test_user = snapshot['testUser']
     from processor.connector.snapshot_google import get_google_client_data
-    val = get_google_client_data(connector, test_user, "instances.get")
+    val = get_google_client_data(connector, test_user, "instances.get", snapshot["project-id"])
     assert isinstance(val, MyMockCompute)
 
 
