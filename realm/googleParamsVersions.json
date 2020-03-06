@@ -1,65 +1,163 @@
 {
-    "instances": ["project", "zone", "instance"],
-    "projects": ["project"],
-    "zones": ["project", "zone"],
-    "disks": ["project", "zone", "disk"],
-    "firewalls": ["project", "firewall"],
+    "instances": [
+        "project",
+        "zone",
+        "instance"
+    ],
+    "projects": [
+        "project"
+    ],
+    "zones": [
+        "project",
+        "zone"
+    ],
+    "disks": [
+        "project",
+        "zone",
+        "disk"
+    ],
+    "firewalls": [
+        "project",
+        "firewall"
+    ],
     "fileType": "structure",
     "type": "others",
-    "crawlerMethods" : {
-        "aggregatedList" : [
-            "acceleratorTypes", "addresses", "autoscalers", "backendServices", "diskTypes", "disks", 
-            "forwardingRules", "operations", "healthChecks", "instanceGroupManagers","instanceGroups", 
-            "instances","interconnectAttachments","machineTypes", "networkEndpointGroups","nodeGroups","nodeTemplates",
-            "nodeTypes","commitments","reservations", "resourcePolicies","routers","sslCertificates", 
-            "subnetworks","targetHttpProxies","targetHttpsProxies", "targetInstances","targetPools",
-            "targetVpnGateways","urlMaps","vpnGateways","vpnTunnels"
+    "crawlerMethods": {
+        "aggregatedList": [
+            "acceleratorTypes",
+            "addresses",
+            "autoscalers",
+            "backendServices",
+            "diskTypes",
+            "disks",
+            "forwardingRules",
+            "operations",
+            "healthChecks",
+            "instanceGroupManagers",
+            "instanceGroups",
+            "instances",
+            "interconnectAttachments",
+            "machineTypes",
+            "networkEndpointGroups",
+            "nodeGroups",
+            "nodeTemplates",
+            "nodeTypes",
+            "commitments",
+            "reservations",
+            "resourcePolicies",
+            "routers",
+            "sslCertificates",
+            "subnetworks",
+            "targetHttpProxies",
+            "targetHttpsProxies",
+            "targetInstances",
+            "targetPools",
+            "targetVpnGateways",
+            "urlMaps",
+            "vpnGateways",
+            "vpnTunnels"
         ],
-        "globalList" : [
-            "backendBuckets", "externalVpnGateways", "firewalls", "httpHealthChecks", "httpsHealthChecks", 
-            "images", "instanceTemplates", "interconnectLocations", "interconnects", "licenses", "networks", 
-            "routes", "securityPolicies", "snapshots", "sslPolicies", "targetSslProxies", "targetTcpProxies"
+        "globalList": [
+            "backendBuckets",
+            "externalVpnGateways",
+            "firewalls",
+            "httpHealthChecks",
+            "httpsHealthChecks",
+            "images",
+            "instanceTemplates",
+            "interconnectLocations",
+            "interconnects",
+            "licenses",
+            "networks",
+            "routes",
+            "securityPolicies",
+            "snapshots",
+            "sslPolicies",
+            "targetSslProxies",
+            "targetTcpProxies"
         ],
-        "getIamPolicy" : [
-            "organizations", "projects"
+        "getIamPolicy": [
+            "organizations",
+            "projects"
         ]
     },
-    "queryprameters" : {
-        "firewalls.get" : {
-           "project" : "projects",
-            "firewall" : "firewalls"
+    "queryprameters": {
+        "firewalls.get": {
+            "project": "projects",
+            "firewall": "firewalls"
         },
-        "instances.get" : {
-            "project" : "projects",
-            "zone" : "zones",
-            "instance" : "instances"
+        "networks.get": {
+            "project": "projects",
+            "network": "networks"
         },
-        "projects.zones.clusters.get" : {
-            "projectId" : "projects",
-            "zone" : "zones",
-            "clusterId" : "clusters"
+        "instances.get": {
+            "project": "projects",
+            "zone": "zones",
+            "instance": "instances"
+        },
+        "projects.zones.clusters.get": {
+            "projectId": "projects",
+            "zone": "zones",
+            "clusterId": "clusters"
+        },
+        "projects.getIamPolicy": {
+            "resource": "projects",
+            "body": null
         }
     },
-    "crawler_queryprameters" : [
+    "single_apis": [
         {
-            "params" : ["project"],
-            "services" : [
-                "firewalls.list", "instances.aggregatedList"
+            "api_path": "/v1/projects/{resource}:getIamPolicy",
+            "node_type": "projects.getIamPolicy"
+        }
+    ],
+    "crawler_queryprameters": [
+        {
+            "params": [
+                "project"
+            ],
+            "services": [
+                "firewalls.list",
+                "networks.list",
+                "subnetworks.list",
+                "instances.aggregatedList",
+                "objects.list"
             ]
         },
         {
-            "params" : ["projectId", "zone"],
-            "services" : ["projects.zones.clusters.list"]
+            "params": [
+                "projectId",
+                "zone"
+            ],
+            "services": [
+                "projects.zones.clusters.list"
+            ]
+        },
+        {
+            "params": [
+                "resource",
+                "body"
+            ],
+            "services": [
+                "projects.getIamPolicy"
+            ]
         }
     ],
-    "serviceName" : {
-        "cloudresourcemanager" : [
-            "organizations", "projects", "folders", "liens", "operations"
+    "serviceName": {
+        "cloudresourcemanager": [
+            "organizations",
+            "projects",
+            "folders",
+            "liens",
+            "operations"
         ],
-        "compute" : [
-            "firewalls", "instances"
+        "compute": [
+            "firewalls",
+            "instances",
+            "subnetworks",
+            "networks"
         ],
-        "container" : [
+        "container": [
             "projects.zones.clusters"
         ]
     }

@@ -588,6 +588,7 @@ def populate_aws_snapshot(snapshot, container=None):
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     snapshot_user = get_field_value(snapshot, 'testUser')
+    account_id = get_field_value(snapshot, 'accountId')
     sub_data = get_aws_data(snapshot_source)
     snapshot_nodes = get_field_value(snapshot, 'nodes')
     snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
@@ -602,7 +603,7 @@ def populate_aws_snapshot(snapshot, container=None):
     if valid_snapshotids and sub_data and snapshot_nodes:
         logger.debug(sub_data)
         access_key, secret_access, region, connector_client_str = \
-            get_aws_client_data(sub_data, snapshot_user)
+            get_aws_client_data(sub_data, snapshot_user, account_id)
         if not access_key:
             logger.info("No access_key in the snapshot to access aws resource!...")
             raise Exception("No access_key in the snapshot to access aws resource!...")
@@ -735,7 +736,7 @@ def eliminate_duplicate_snapshots(snapshot_data):
     return data
 
 
-def get_aws_client_data(aws_data, snapshot_user):
+def get_aws_client_data(aws_data, snapshot_user, account_id):
     """
     AWS client information as required by the Boto client, viz access_key
     access_secret, AWS command type like EC2, S3 etc and region
@@ -746,29 +747,25 @@ def get_aws_client_data(aws_data, snapshot_user):
     region = None
     client_str = None
     if aws_data and snapshot_user:
-        org_units = get_field_value(aws_data, "organization-unit")
-        if org_units:
+        accounts = get_field_value(aws_data, "accounts")
+        if accounts:
             found = False
-            for org_unit in org_units:
-                accounts = get_field_value(org_unit, 'accounts')
-                if accounts:
-                    for account in accounts:
-                        users = get_field_value(account, 'users')
-                        if users:
-                            for user in users:
-                                username = get_field_value(user, 'name')
-                                if username and username == snapshot_user:
-                                    found = True
-                                    accesskey = get_field_value(user, 'access-key')
-                                    if ('UAMI' not in os.environ or os.environ['UAMI'] != 'true'):
-                                        secret_access = get_field_value(user, 'secret-access')
-                                    region = get_field_value(user, 'region')
-                                    client_str = get_field_value(user, 'client')
-                                    if client_str and not _validate_client_name(client_str):
-                                        logger.error("Invalid Client Name")
-                                    break
-                        if found:
-                            break
+            for account in accounts:
+                if account_id == get_field_value(account, "account-id"):
+                    users = get_field_value(account, "users")
+                    if users:
+                        for user in users:
+                            if snapshot_user == get_field_value(user, "name"):
+                                found = True
+                                accesskey = get_field_value(user, 'access-key')
+                                if ('UAMI' not in os.environ or os.environ['UAMI'] != 'true'):
+                                    secret_access = get_field_value(user, 'secret-access')
+                                region = get_field_value(user, 'region')
+                                client_str = get_field_value(user, 'client')
+                                if client_str and not _validate_client_name(client_str):
+                                    logger.error("Invalid Client Name")
+                                break
                 if found:
                     break
+
     return accesskey, secret_access, region, client_str

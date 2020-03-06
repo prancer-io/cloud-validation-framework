@@ -4,6 +4,7 @@ from unittest.mock import Mock
 snapshot = {
     "source": "awsStructure.json",
     "testUser": "kbajey@gmail.com",
+    "accountId" : "70a339d4-2b78-41ed-b000-270f1ff04b5f",
     "nodes": [
         {
             "snapshotId": "8",
@@ -17,6 +18,7 @@ snapshot = {
 snapshot_with_client = {
     "source": "awsStructure.json",
     "testUser": "kbajey@gmail.com",
+    "accountId" : "70a339d4-2b78-41ed-b000-270f1ff04b5f",
     "nodes": [
         {
             "snapshotId": "8",
@@ -31,6 +33,7 @@ snapshot_with_client = {
 master_snapshot =  {
         "source" : "awsStructure", 
         "testUser" : "kbajey@gmail.com", 
+        "accountId" : "70a339d4-2b78-41ed-b000-270f1ff04b5f",
         "projectId" : [
             "d34d6141-7a19-4458-b0dd-f038bb7760c1"
         ], 
@@ -71,6 +74,7 @@ def mock_config_value(section, key, default=None):
     return 'pytestdb'
 
 def mock_snapshot_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
+    print("mock_snapshot_get_documents")
     return [{'json': snapshot}]
 
 def mock_get_collection_size(collection_name):
@@ -78,60 +82,51 @@ def mock_get_collection_size(collection_name):
 
 def mock_aws_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [
-      {
-        'json':{
-          "organization": "company1",
-          "organization-unit": [
-            {
-              "name": "abc",
-              "accounts": [
-                {
-                  "account-name": "Ajey K",
-                  "account-description": "AWS cloud details",
-                  "account-id": "3684074453691",
-                  "users": [
+        {
+            'json':{
+                "organization": "<Company Name>",
+                "type": "aws",
+                "fileType": "structure",
+                "accounts": [
                     {
-                      "name": "kbajey@gmail.com",
-                      "access-key": "AKIAIY7ZSPUJE4XLZ4WA",
-                      "secret-access": "",
-                      "region": "us-west-2",
-                      "client": "EC2"
+                        "account-name": "Test Account",
+                        "account-id": "70a339d4-2b78-41ed-b000-270f1ff04b5f",
+                        "users": [
+                            {
+                                "name": "kbajey@gmail.com",
+                                "access-key": "<Secret Key for IAM User>",
+                                "region": "us-east-2",
+                                "client": "EC2"
+                            }
+                        ]
                     }
-                  ]
-                }
-              ]
+                ]
             }
-          ]
         }
-      }
     ]
 
 def mock_aws_get_documents_wthout_client(collection, query=None, dbname=None, sort=None, limit=10):
     return [
-      {
-        'json':{
-          "organization": "company1",
-          "organization-unit": [
-            {
-              "name": "abc",
-              "accounts": [
-                {
-                  "account-name": "Ajey K",
-                  "account-description": "AWS cloud details",
-                  "account-id": "3684074453691",
-                  "users": [
+        { 
+            'json':{
+                "organization": "<Company Name>",
+                "type": "aws",
+                "fileType": "structure",
+                "accounts": [
                     {
-                      "name": "kbajey@gmail.com",
-                      "access-key": "AKIAIY7ZSPUJE4XLZ4WA",
-                      "secret-access": ""
+                        "account-name": "Test Account",
+                        "account-id": "70a339d4-2b78-41ed-b000-270f1ff04b5f",
+                        "users": [
+                            {
+                                "name": "kbajey@gmail.com",
+                                "access-key": "<Secret Key for IAM User>",
+                                "region": "us-east-2"
+                            }
+                        ]
                     }
-                  ]
-                }
-              ]
+                ]
             }
-          ]
         }
-      }
     ]
 
 def mock_describe_security_groups(**kwargs):

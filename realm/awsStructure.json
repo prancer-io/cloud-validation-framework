@@ -2,24 +2,16 @@
     "organization": "<Company Name>",
     "type": "aws",
     "fileType": "structure",
-    "organization-unit": [
+    "accounts": [
         {
-            "name": "<Organization Unit Name>",
-            "accounts": [
+            "account-name": "<Account Name>",
+            "account-id": "<Account Id>",
+            "users": [
                 {
-                    "account-name": "<Account Name>",
-                    "account-description": "AWS cloud details",
-                    "account-id": "<Account ID>",
-                    "account-user": "kbajey@gmail.com",
-                    "users": [
-                        {
-                            "name": "<IAM Account Name>",
-                            "access-key": "<Secret Key for IAM User>",
-                            "secret-access": "<Will prompt Secret access if not present>",
-                            "region":"us-west-2",
-                            "client": "EC2"
-                        }
-                    ]
+                    "name": "<IAM Account Name>",
+                    "access-key": "<Secret Key for IAM User>",
+                    "region": "us-east-2",
+                    "client": "EC2"
                 }
             ]
         }
