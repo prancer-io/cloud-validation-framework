@@ -628,8 +628,9 @@ def populate_aws_snapshot(snapshot, container=None):
         if access_key and secret_access:
             # existing_aws_client = {}
             for node in snapshot['nodes']:
+                validate = node['validate'] if 'validate' in node else True
                 mastercode = False
-                if 'snapshotId' in node:
+                if 'snapshotId' in node and validate:
                     client_str, aws_region = _get_aws_client_data_from_node(node,
                         default_client=connector_client_str, default_region=region)
                     if not _validate_client_name(client_str):
@@ -694,7 +695,7 @@ def populate_aws_snapshot(snapshot, container=None):
                                     snapshot_data[node['masterSnapshotId']].append(
                                         {
                                             'snapshotId': '%s%s' % (node['masterSnapshotId'], str(count)),
-                                            'validate': True,
+                                            'validate': validate,
                                             'detailMethods': data['detailMethods'],
                                             'structure': 'aws',
                                             'masterSnapshotId': node['masterSnapshotId'],
