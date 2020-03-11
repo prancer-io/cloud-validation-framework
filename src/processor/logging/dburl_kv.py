@@ -156,6 +156,9 @@ def get_config_value(section, key, env_var, prompt_str=None):
     return client_secret
 
 def get_dburl():
+    unittest = os.getenv('UNITTEST', "false")
+    if unittest == 'true':
+        return None
     dburl = get_azure_vault_data(DBURL)
     if dburl:
         os.environ[DBURL] = dburl

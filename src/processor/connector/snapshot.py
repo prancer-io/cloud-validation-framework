@@ -171,6 +171,8 @@ def populate_container_snapshots_database(container):
     if docs and len(docs):
         logger.info('Number of Snapshot Documents: %s', len(docs))
         snapshots = container_snapshots_database(container)
+        if not snapshots:
+            raise Exception("No snapshots for this container: %s, add and run again!...", container)
         populated = []
         for doc in docs:
             if doc['json']:
@@ -183,6 +185,8 @@ def populate_container_snapshots_database(container):
                     update_one_document(doc, collection, dbname)
                     populated.append(snapshot)
                     snapshots_status[snapshot] = snapshot_file_data
+    if not snapshots_status:
+        raise Exception("No snapshots contained for this container: %s, add and run again!...", container)
     return snapshots_status
 
 

@@ -230,6 +230,8 @@ def _get_snapshot_type_map(container):
 def run_container_validation_tests_database(container, snapshot_status=None):
     """ Get the test files from the database"""
     dbname = config_value(DATABASE, DBNAME)
+    test_files_found = True
+    mastertest_files_found = True
     # For test files
     collection = config_value(DATABASE, collectiontypes[TEST])
     qry = {'container': container}
@@ -252,6 +254,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                                 break
     else:
         logger.info('No test Documents found!')
+        test_files_found = False
         finalresult = False
     # For mastertest files
     collection = config_value(DATABASE, collectiontypes[MASTERTEST])
@@ -289,7 +292,10 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                                 break
     else:
         logger.info('No mastertest Documents found!')
+        mastertest_files_found = False
         finalresult = False
+    if not test_files_found and not mastertest_files_found:
+        raise Exception("No complaince tests for this container: %s, add and run!", container)
     return finalresult
 
 
