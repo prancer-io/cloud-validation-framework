@@ -225,8 +225,8 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                             snapshot_data[node['snapshotId']] = node['masterSnapshotId']
                         else:
                             snapshot_data[node['snapshotId']] = True
-                    else:
-                        snapshot_data[node['snapshotId']] = False
+                    # else:
+                    #     snapshot_data[node['snapshotId']] = False
                     node['status'] = 'active'
                 else:
                     # TODO alert if notification enabled or summary for inactive.

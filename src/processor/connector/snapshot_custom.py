@@ -434,8 +434,8 @@ def populate_custom_snapshot(snapshot, container=None):
                                     snapshot_data[node['snapshotId']] = node['masterSnapshotId']
                                 else:
                                     snapshot_data[node['snapshotId']] = True
-                            else:
-                                snapshot_data[node['snapshotId']] = False
+                            # else:
+                            #     snapshot_data[node['snapshotId']] = False
                             node['status'] = 'active'
                         else:
                             node['status'] = 'inactive'
@@ -449,7 +449,7 @@ def populate_custom_snapshot(snapshot, container=None):
                                     {
                                         'snapshotId': data['snapshotId'],
                                         'path': data['path'],
-                                        'validate': True
+                                        'validate': validate
                                     })
                         logger.debug('Type: %s', type(alldata))
         if baserepo and os.path.exists(baserepo):
