@@ -418,6 +418,8 @@ def populate_google_snapshot(snapshot, container=None):
                                 snapshot_data[node['snapshotId']] = node['masterSnapshotId']
                             else:
                                 snapshot_data[node['snapshotId']] = False if error_str else True
+                        else:
+                            node['status'] = 'inactive'
                 elif 'masterSnapshotId' in node:
                         data = get_all_nodes(compute, node, snapshot_source, snapshot, snapshot_data)
                         logger.debug('Type: %s', type(data))

@@ -664,6 +664,8 @@ def populate_aws_snapshot(snapshot, container=None):
                                 snapshot_data[node['snapshotId']] = node['masterSnapshotId']
                             else:
                                 snapshot_data[node['snapshotId']] = False if error_str else True
+                        else:
+                            node['status'] = 'inactive'
                 elif 'masterSnapshotId' in node:
                     mastercode = True
                     client_str, aws_region = _get_aws_client_data_from_node(node,
@@ -700,7 +702,8 @@ def populate_aws_snapshot(snapshot, container=None):
                                             'structure': 'aws',
                                             'masterSnapshotId': node['masterSnapshotId'],
                                             'collection': data['collection'],
-                                            'arn' : data['arn']
+                                            'arn' : data['arn'],
+                                            'status' : 'active'
                                         })
                                     count += 1
             if mastercode:
