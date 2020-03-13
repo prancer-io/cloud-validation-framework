@@ -350,7 +350,7 @@ def set_snapshot_data(node, items, snapshot_data):
                     "collection": node['collection'],
                     "path": path,
                     "status" : "active",
-                    "validate" : True
+                    "validate" : node['validate'] if 'validate' in node else True
                 })
     return snapshot_data
 
@@ -385,6 +385,7 @@ def populate_google_snapshot(snapshot, container=None):
         logger.debug(sub_data)
         try:
             for node in snapshot['nodes']:
+                validate = node['validate'] if 'validate' in node else True
                 logger.info(node)
                 node_type = get_field_value_with_default(node, 'type',"")
                 compute = get_google_client_data(sub_data, snapshot_user, node_type, project_id)
@@ -392,30 +393,33 @@ def populate_google_snapshot(snapshot, container=None):
                     logger.info("No  GCE connection in the snapshot to access Google resource!...")
                     return snapshot_data
                 if 'snapshotId' in node:
-                    data = get_node(compute, node, snapshot_source, snapshot)
-                    if data:
-                        error_str = data.pop('error', None)
-                        if get_dbtests():
-                            if get_collection_size(data['collection']) == 0:
-                                #Creating indexes for collection
-                                create_indexes(
-                                    data['collection'], 
-                                    config_value(DATABASE, DBNAME), 
-                                    [
-                                        ('snapshotId', pymongo.ASCENDING),
-                                        ('timestamp', pymongo.DESCENDING)
-                                    ]
-                                )
-                            insert_one_document(data, data['collection'], dbname)
-                        else:
-                            snapshot_dir = make_snapshots_dir(container)
-                            if snapshot_dir:
-                                store_snapshot(snapshot_dir, data)
+                    if validate:
+                        data = get_node(compute, node, snapshot_source, snapshot)
+                        if data:
+                            error_str = data.pop('error', None)
+                            if get_dbtests():
+                                if get_collection_size(data['collection']) == 0:
+                                    #Creating indexes for collection
+                                    create_indexes(
+                                        data['collection'], 
+                                        config_value(DATABASE, DBNAME), 
+                                        [
+                                            ('snapshotId', pymongo.ASCENDING),
+                                            ('timestamp', pymongo.DESCENDING)
+                                        ]
+                                    )
+                                insert_one_document(data, data['collection'], dbname)
+                            else:
+                                snapshot_dir = make_snapshots_dir(container)
+                                if snapshot_dir:
+                                    store_snapshot(snapshot_dir, data)
                     
-                        if 'masterSnapshotId' in node:
-                            snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+                            if 'masterSnapshotId' in node:
+                                snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+                            else:
+                                snapshot_data[node['snapshotId']] = False if error_str else True
                         else:
-                            snapshot_data[node['snapshotId']] = False if error_str else True
+                            node['status'] = 'inactive'
                 elif 'masterSnapshotId' in node:
                         data = get_all_nodes(compute, node, snapshot_source, snapshot, snapshot_data)
                         logger.debug('Type: %s', type(data))
@@ -483,7 +487,7 @@ def generate_gce(google_data, project, user):
     """
     Generate client secret json from the google data
     """
-    print("Generate GC called")
+    logger.info("Generating GCE")
     gce = {
         "type": get_field_value(user, "type"),
         "project_id": get_field_value(project, "project-id"),
