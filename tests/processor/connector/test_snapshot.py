@@ -1,5 +1,6 @@
 
 """ Tests for common snapshot file."""
+import pytest
 from tests.conftest import load_test_json
 
 def mock_container_snapshot_get_documents(collection, query=None, dbname=None,
@@ -137,7 +138,9 @@ def test_empty_snapshot_populate_container_snapshots(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot.get_documents',
                         mock_empty_snapshot_get_documents)
     from processor.connector.snapshot import populate_container_snapshots
-    assert {} == populate_container_snapshots('abc')
+    with pytest.raises(Exception, match=r"No snapshots for this container.*"):
+        populate_container_snapshots('abc')
+
 
 
 def test_empty_populate_container_snapshots(monkeypatch):
@@ -148,7 +151,9 @@ def test_empty_populate_container_snapshots(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot.get_documents',
                         mock_empty_get_documents)
     from processor.connector.snapshot import populate_container_snapshots
-    assert {} == populate_container_snapshots('abc')
+    # assert {} == populate_container_snapshots('abc')
+    with pytest.raises(Exception, match=r"No snapshots contained for this container.*"):
+        populate_container_snapshots('abc')
 
 
 def test_populate_container_snapshots(monkeypatch):
@@ -160,7 +165,9 @@ def test_populate_container_snapshots(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot.update_one_document', mock_update_one_document)
     from processor.connector.snapshot import populate_container_snapshots, snapshot_fns
     snapshot_fns['git'] = mock_populate_git_snapshot
-    assert {} == populate_container_snapshots('container2')
+    # assert {} == populate_container_snapshots('container2')
+    with pytest.raises(Exception, match=r"No snapshots for this container.*"):
+        populate_container_snapshots('container2')
     assert {'snapshot3': {'1': True, '31': True, '32': False, '33': True, '34': False}} == \
            populate_container_snapshots('container3', False)
     assert {'snapshot': {'1': True, '31': True, '32': False, '33': True, '34': False}} == populate_container_snapshots('gitcontainer', False)
