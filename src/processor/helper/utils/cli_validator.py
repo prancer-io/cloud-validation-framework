@@ -60,7 +60,7 @@ import atexit
 import json
 import os
 from inspect import currentframe, getframeinfo
-from processor.helper.config.config_utils import framework_dir, config_value, \
+from processor.helper.config.config_utils import framework_dir, config_value, framework_config, \
     CFGFILE, get_config_data, FULL, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, SINGLETEST, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir
 
@@ -111,6 +111,7 @@ def valid_config_ini(config_ini):
 def search_config_ini():
     """Need the config.ini file to read initial configuration data"""
     error = False
+    config_ini = None
     fwdir = os.getenv('FRAMEWORKDIR', None)
     if fwdir:
         if exists_dir(fwdir):
@@ -130,7 +131,7 @@ def search_config_ini():
             console_log("FRAMEWORDIR environment variable NOT SET, searching in current directory.", currentframe())
             console_log(error_msg, currentframe())
             error = True
-    return error
+    return error, config_ini
 
 
 def validator_main(arg_vals=None, delete_rundata=True):
@@ -148,8 +149,9 @@ def validator_main(arg_vals=None, delete_rundata=True):
            the tests execution could not be started or completed.
     """
     retval = 2
-    if not set_customer():
-        if search_config_ini():
+    set_customer()
+    cfg_error, config_ini = search_config_ini()
+    if cfg_error:
             return retval
     cmd_parser = argparse.ArgumentParser("Prancer Basic Functionality")
     cmd_parser.add_argument('container', action='store', help='Container tests directory.')
@@ -189,8 +191,9 @@ def validator_main(arg_vals=None, delete_rundata=True):
             return retval
 
     # Check the log directory and also check if it is writeable.
-    from processor.logging.log_handler import init_logger, get_logdir
-    log_writeable, logdir = get_logdir(None)
+    from processor.logging.log_handler import init_logger, get_logdir, default_logging, add_file_logging
+    fw_cfg = get_config_data(framework_config())
+    log_writeable, logdir = get_logdir(fw_cfg, framework_dir())
     if not log_writeable:
         console_log('Logging directory(%s) is not writeable, exiting....' % logdir)
         return retval
@@ -198,7 +201,9 @@ def validator_main(arg_vals=None, delete_rundata=True):
     # Alls well from this point, check container exists in the directory configured
     retval = 0
     logger = init_logger(args.db)
+    # logger = add_file_logging(config_ini)
     logger.critical("START: Argument parsing and Run Initialization.")
+
 
     from processor.connector.snapshot import populate_container_snapshots
     from processor.connector.validation import run_container_validation_tests
