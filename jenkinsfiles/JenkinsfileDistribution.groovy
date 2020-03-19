@@ -183,6 +183,20 @@ pipeline {
                 }
             }
         }
+    }
 
+    post {
+        success {
+            script {
+                echo "*** Sending success notification";
+                slackSend color: 'good', message: "cloud-validation-framework [SUCCESS] ${BUILD_URL}";
+            }
+        }
+        failure {
+            script {
+                echo "*** Sending failure notification"
+                slackSend color: 'danger', message: "cloud-validation-framework [FAILURE] ${BUILD_URL}";
+            }
+        }
     }
 }
