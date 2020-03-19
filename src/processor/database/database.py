@@ -6,7 +6,7 @@ from pymongo.errors import ServerSelectionTimeoutError
 from bson.objectid import ObjectId
 from processor.helper.config.config_utils import config_value, DATABASE, DBNAME, DBURL
 from processor.logging.dburl_kv import get_dburl
-
+# import threading
 
 
 MONGO = None
@@ -18,11 +18,13 @@ def mongoconnection(dbport=27017, to=TIMEOUT):
     """ Global connection handle for mongo """
     global MONGO
     if MONGO:
-        return MONGO
+       return MONGO
     dburl = os.getenv('DBURL', None)
+    #dburl = os.getenv(str(threading.currentThread().ident) + '_DBURL', None)
+    #print("DBURL THREAD: " + str(threading.currentThread().ident))
     if not dburl:
         dburl = get_dburl()
-    # print(dburl)
+    # print("Dburl: %s", dburl)
     if dburl:
         MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
     else:
@@ -34,6 +36,7 @@ def mongodb(dbname=None):
     """ Get the dbhandle for the database, if none then default database, 'test' """
     dbconnection = mongoconnection()
     if dbname:
+        # print("DB NAME: " + dbname)
         db = dbconnection[dbname]
     else:
         db = dbconnection['test']

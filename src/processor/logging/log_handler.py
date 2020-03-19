@@ -6,9 +6,6 @@ import time
 import os
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
-from processor.helper.config.config_utils import framework_dir,\
-    get_config_data, framework_config, DBVALUES, NONE
-from processor.logging.dburl_kv import get_dburl
 
 
 FWLOGGER = None
@@ -16,6 +13,30 @@ FWLOGFILENAME = None
 MONGOLOGGER = None
 DBLOGGER = None
 dbhandler = None
+LOGFORMAT = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
+
+
+def get_dblog_name():
+    """ Set as per current datetime formay, could be passed thru an environment variable"""
+    dblog_name = os.getenv('DBLOG_NAME', None)
+    if not dblog_name:
+        dblog_name = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    return dblog_name
+
+
+def get_loglevel(fwconf=None):
+    """ Highest priority is at command line, then ini file otherwise default is INFO"""
+    loglevels = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']
+    level = os.getenv('LOGLEVEL', None)
+    loglevel = level if level and level in loglevels else None
+    cfglevel = fwconf['level'].upper() if fwconf and 'level' in fwconf and fwconf['level'] and fwconf['level'].upper() in \
+                                          loglevels else None
+    if loglevel:
+        return loglevel
+    elif cfglevel:
+        return cfglevel
+    else:
+        return logging.INFO
 
 
 class MongoDBHandler(logging.Handler):
@@ -30,8 +51,9 @@ class MongoDBHandler(logging.Handler):
                 db = dbconnection[dbname]
             else:
                 db = dbconnection['test']
-            # collection = 'logs_%s' % datetime.datetime.now().strftime('%Y%M%d%H%M%S')
+            # Collection where the log statements are being put in.
             self.coll_name = collection
+            # Every run of the prancer-basic will have a log name associated with it.
             self.log_name = ''
             if db:
                 self.db = db
@@ -43,20 +65,16 @@ class MongoDBHandler(logging.Handler):
 
     def set_log_collection(self):
         global DBLOGGER
-        log_name = os.getenv('LOG_NAME', None)
-        if not log_name:
-            log_name = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        coll = self.db[self.coll_name]
-        self.collection = coll
-        DBLOGGER = log_name
-        self.log_name = log_name
-        self.collection.insert({'name': log_name, 'logs': []}, check_keys=False)
+        self.collection = self.db[self.coll_name]
+        DBLOGGER = get_dblog_name()
+        self.dblog_name = DBLOGGER
+        self.collection.insert({'name': self.dblog_name, 'logs': []}, check_keys=False)
 
     def get_log_collection(self):
-        return self.log_name
+        return self.dblog_name
 
     def reset_log_collection(self):
-        self.log_name = ''
+        self.dblog_name = ''
 
     def emit(self, record):
         """Add record to the database"""
@@ -74,103 +92,25 @@ class MongoDBHandler(logging.Handler):
         try:
             if self.collection and self.log_name:
                 # self.collection.insert(db_record, check_keys=False)
-                self.collection.update({'name': self.log_name}, {'$push': {'logs': db_record}})
+                self.collection.update({'name': self.dblog_name}, {'$push': {'logs': db_record}})
         except Exception as e:
             print('CRITICAL Logger DB ERROR: Logging to database not possible!')
 
 
-
-def logging_fw(fwconfigfile, dbargs):
-    """Framework file logging"""
-    global FWLOGFILENAME, dbhandler
-    fwlogfile = '%Y%m%d-%H%M%S'
-    if not fwconfigfile:
-        fwconfigfile = framework_config()
-    fw_cfg = get_config_data(fwconfigfile)
-    log_config = {
-        "level": logging.INFO,
-        "propagate": True,
-        "size": 10,
-        "backups": 10,
-        "db": None
-    }
-    unittest = os.getenv('UNITTEST', "false")
-    if fw_cfg and 'LOGGING' in fw_cfg:
-        fwconf = fw_cfg['LOGGING']
-        # log_config['level'] = logging.getLevelName(fwconf['level']) \
-        #     if 'level' in fwconf and fwconf['level'] else logging.INFO
-        # Fixed issue of only CRITICAL Logs were getting store
-        log_config['level'] = fwconf['level'].upper() \
-            if 'level' in fwconf and fwconf['level'] else logging.INFO
-        log_config['size'] = fwconf.getint('size') if 'size' in fwconf else 10
-        log_config['backups'] = fwconf.getint('backups') if 'backups' in fwconf else 10
-        log_config['propagate'] = fwconf.getboolean('propagate') if 'propagate' in fwconf \
-            else True
-        log_config['db'] = fwconf['dbname'] if 'dbname' in fwconf else None
-        log_config['dburl'] = get_dburl() if 'dbname' in fwconf and unittest != "true" else None
-    level = os.getenv('LOGLEVEL', None)
-    loglevel = level if level and level in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'] \
-        else log_config['level']
-    logformat = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
-    # logging.basicConfig(level=loglevel, format=logformat)
-    logging.basicConfig(format=logformat)
-    logger = logging.getLogger(__name__)
-    logger.propagate = log_config['propagate']
-    logger.setLevel(loglevel)
-    # logpath = '%s/log/' % get_logdir(fw_cfg)
-    _, logpath = get_logdir(fw_cfg)
-    FWLOGFILENAME = '%s/%s.log' % (logpath, datetime.datetime.today().strftime(fwlogfile))
-    handler = RotatingFileHandler(
-        FWLOGFILENAME,
-        maxBytes=1024 * 1024 * log_config['size'],
-        backupCount=log_config['backups']
-    )
-    handler.setFormatter(logging.Formatter(logformat))
-    # handler.setLevel(log_config['level'])
-    handler.setLevel(loglevel)
-    logger.addHandler(handler)
-    # print(log_config)
-    if log_config['db'] and unittest != "true" and dbargs:
-        dblogformat = '%(asctime)s-%(message)s'
-        dbhandler = MongoDBHandler(log_config['dburl'], log_config['db'])
-        dbhandler.setFormatter(logging.Formatter(dblogformat))
-        dbhandler.setLevel(loglevel)
-        logger.addHandler(dbhandler)
-    return logger
-
-
-def init_logger(dbargs, fw_cfg=None, refresh_logger=False):
-    """Get the logger for the framework."""
-    global FWLOGGER
-    if FWLOGGER and (dbhandler and dbargs == 'FULL') and not refresh_logger:
-        return FWLOGGER
-    FWLOGGER = logging_fw(fw_cfg, dbargs)
-    return FWLOGGER
-
-
-def getlogger(fw_cfg=None):
-    """Get the logger for the framework."""
-    global FWLOGGER
-    if FWLOGGER:
-        return FWLOGGER
-    FWLOGGER = logging_fw(fw_cfg, DBVALUES.index(NONE))
-    return FWLOGGER
-
-def get_logdir(fw_cfg):
-    log_writeable = True
+def get_logdir(fw_cfg, baselogdir):
+    """ Given ini logging config and base framework dir, checks if the log folder is writeable."""
     if not fw_cfg:
-        cfgini = framework_config()
-        fw_cfg = get_config_data(cfgini)
-    logdir = '%s' % framework_dir()
+        return False, None
+    log_writeable = True
     if fw_cfg and 'LOGGING' in fw_cfg:
         fwconf = fw_cfg['LOGGING']
-        if 'logFolder' in fwconf and fwconf['logFolder'] and os.path.isdir(logdir):
-            logdir = '%s/%s' % (logdir, fwconf['logFolder'])
-            try:
-                if not os.path.exists(logdir):
-                    os.makedirs(logdir)
-            except:
-                log_writeable = False
+        if 'logFolder' in fwconf and fwconf['logFolder'] and os.path.isdir(baselogdir):
+            logdir = '%s/%s' % (baselogdir, fwconf['logFolder'])
+    try:
+        if not os.path.exists(logdir):
+            os.makedirs(logdir)
+    except:
+        log_writeable = False
     try:
         if log_writeable:
             from pathlib import Path
@@ -184,8 +124,118 @@ def get_logdir(fw_cfg):
         log_writeable = False
     return log_writeable, logdir
 
+
+def ini_logging_config(fwconfigfile):
+    """logging config"""
+    from processor.helper.config.config_utils import framework_config, get_config_data, framework_dir
+    if not fwconfigfile:
+        fwconfigfile = framework_config()
+    fw_cfg = get_config_data(fwconfigfile)
+    log_config = {
+        "level": logging.INFO,
+        "propagate": True,
+        "size": 10,
+        "backups": 10,
+        "db": None,
+        'logpath': None
+    }
+    if fw_cfg and 'LOGGING' in fw_cfg:
+        logwriteable, logpath = get_logdir(fw_cfg, framework_dir())
+        if logwriteable and logpath:
+            log_config['logpath'] = logpath
+        fwconf = fw_cfg['LOGGING']
+        log_config['level'] = get_loglevel(fwconf)
+        log_config['size'] = fwconf.getint('size') if 'size' in fwconf else 10
+        log_config['backups'] = fwconf.getint('backups') if 'backups' in fwconf else 10
+        log_config['propagate'] = fwconf.getboolean('propagate') if 'propagate' in fwconf else True
+        log_config['db'] = fwconf['dbname'] if 'dbname' in fwconf else None
+    return log_config
+
+
+def default_logging():
+    """Framework default logging to console"""
+    logging.basicConfig(format=LOGFORMAT)
+    logger = logging.getLogger(__name__)
+    logger.propagate = True
+    logger.setLevel(get_loglevel())
+    return logger
+
+
+def add_file_logging(fwconfigfile):
+    """ Add file logging to the basic logging"""
+    global FWLOGGER, FWLOGFILENAME
+    log_config = ini_logging_config(fwconfigfile)
+    if not log_config['logpath']:
+        return
+    dblogname = os.getenv('DBLOG_NAME', None)
+    FWLOGFILENAME = dblogname if dblogname else '%s/%s.log' % (log_config['logpath'], datetime.datetime.today().strftime('%Y%m%d-%H%M%S'))
+    if not FWLOGGER:
+        FWLOGGER = default_logging()
+    handler = RotatingFileHandler(
+        FWLOGFILENAME,
+        maxBytes=1024 * 1024 * log_config['size'],
+        backupCount=log_config['backups']
+    )
+    handler.setFormatter(logging.Formatter(LOGFORMAT))
+    handler.setLevel(log_config['level'])
+    FWLOGGER.addHandler(handler)
+
+
+def add_db_logging(fwconfigfile, dburl, dbargs):
+    """ Add database logging to the basic logging"""
+    global FWLOGGER, dbhandler
+    log_config = ini_logging_config(fwconfigfile)
+    unittest = os.getenv('UNITTEST', "false")
+    if log_config['db'] and unittest != "true" and dbargs and dburl:
+        if not FWLOGGER:
+            FWLOGGER = default_logging()
+        dblogformat = '%(asctime)s-%(message)s'
+        dbhandler = MongoDBHandler(dburl, log_config['db'])
+        dbhandler.setFormatter(logging.Formatter(dblogformat))
+        dbhandler.setLevel(log_config['level'])
+        FWLOGGER.addHandler(dbhandler)
+
+
+def getlogger(fw_cfg=None):
+    """Get the logger for the framework."""
+    global FWLOGGER
+    if FWLOGGER:
+        return FWLOGGER
+    FWLOGGER = default_logging()
+    return FWLOGGER
+
+def logging_fw(fwconfigfile, dbargs, refresh_logger=False):
+    """Framework file logging"""
+    global FWLOGGER
+    if FWLOGGER and (dbhandler and dbargs == 'FULL') and not refresh_logger:
+        return FWLOGGER
+    FWLOGGER = default_logging()
+    add_file_logging(fwconfigfile)
+    unittest = os.getenv('UNITTEST', "false")
+    if unittest != "true":
+        from processor.logging.dburl_kv import get_dburl
+        dburl = get_dburl()
+        add_db_logging(fwconfigfile, dburl, dbargs)
+    return FWLOGGER
+
+
+def init_logger(dbargs, fw_cfg=None, refresh_logger=False):
+    """Get the logger for the framework."""
+    return logging_fw(fw_cfg, dbargs, refresh_logger)
+
+
+def init_logger_old(dbargs, fw_cfg=None, refresh_logger=False):
+    """Get the logger for the framework."""
+    global FWLOGGER
+    if FWLOGGER and (dbhandler and dbargs == 'FULL') and not refresh_logger:
+        return FWLOGGER
+    FWLOGGER = logging_fw(fw_cfg, dbargs)
+    return FWLOGGER
+
+
 def get_dblogger():
     return DBLOGGER
+
 
 def get_dblog_handler():
     return dbhandler
