@@ -157,6 +157,8 @@ def get_node(awsclient, node, snapshot_source):
     else:
         json_to_put = {}
         arn_str = get_field_value(node, "arn")
+        db_record["path"] = arn_str if arn_str else ""
+        
         arn_obj = arnparse(arn_str)
         client_str = arn_obj.service
         resourceid = arn_obj.resource

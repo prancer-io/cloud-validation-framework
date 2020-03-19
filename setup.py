@@ -16,7 +16,7 @@ LONG_DESCRIPTION = """
 
 setup(
     name='prancer-basic',
-    version='0.1.45',
+    version='0.1.46',
     description='Prancer Basic, http://prancer.io/',
     long_description=LONG_DESCRIPTION,
     license = "BSD",
