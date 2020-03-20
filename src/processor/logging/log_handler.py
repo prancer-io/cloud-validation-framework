@@ -90,7 +90,7 @@ class MongoDBHandler(logging.Handler):
         }
 
         try:
-            if self.collection and self.log_name:
+            if self.collection and self.dblog_name:
                 # self.collection.insert(db_record, check_keys=False)
                 self.collection.update({'name': self.dblog_name}, {'$push': {'logs': db_record}})
         except Exception as e:
