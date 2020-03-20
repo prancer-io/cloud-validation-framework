@@ -168,7 +168,8 @@ def add_file_logging(fwconfigfile):
     if not log_config['logpath']:
         return
     dblogname = os.getenv('DBLOG_NAME', None)
-    FWLOGFILENAME = dblogname if dblogname else '%s/%s.log' % (log_config['logpath'], datetime.datetime.today().strftime('%Y%m%d-%H%M%S'))
+    logname  = dblogname if dblogname else datetime.datetime.today().strftime('%Y%m%d-%H%M%S')
+    FWLOGFILENAME = '%s/%s.log' % (log_config['logpath'], logname)
     if not FWLOGGER:
         FWLOGGER = default_logging()
     handler = RotatingFileHandler(
