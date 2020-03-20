@@ -263,7 +263,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
                 retval = 0 if status else 1
             else:
                 retval = 1
-            # check_send_notification(args.container, args.db)
+            check_send_notification(args.container, args.db)
     except (Exception, KeyboardInterrupt) as ex:
         logger.error("Execution exception: %s", ex)
         retval = 2
