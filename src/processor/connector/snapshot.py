@@ -45,7 +45,7 @@ from processor.connector.snapshot_custom import populate_custom_snapshot, get_cu
 from processor.connector.snapshot_aws import populate_aws_snapshot
 from processor.connector.snapshot_google import populate_google_snapshot
 from processor.helper.config.rundata_utils import get_from_currentdata
-
+from processor.reporting.json_output import dump_output_results
 
 
 logger = getlogger()
@@ -177,14 +177,18 @@ def populate_container_snapshots_database(container):
         for doc in docs:
             if doc['json']:
                 snapshot = doc['name']
-                if snapshot in snapshots and snapshot not in populated:
-                    # Take the snapshot and populate whether it was successful or not.
-                    # Then pass it back to the validation tests, so that tests for those
-                    # snapshots that have been susccessfully fetched shall be executed.
-                    snapshot_file_data = populate_snapshots_from_json(doc['json'], container)
-                    update_one_document(doc, collection, dbname)
-                    populated.append(snapshot)
-                    snapshots_status[snapshot] = snapshot_file_data
+                try:
+                    if snapshot in snapshots and snapshot not in populated:
+                        # Take the snapshot and populate whether it was successful or not.
+                        # Then pass it back to the validation tests, so that tests for those
+                        # snapshots that have been susccessfully fetched shall be executed.
+                        snapshot_file_data = populate_snapshots_from_json(doc['json'], container)
+                        update_one_document(doc, collection, dbname)
+                        populated.append(snapshot)
+                        snapshots_status[snapshot] = snapshot_file_data
+                except Exception as e:
+                    dump_output_results([], container, "-", snapshot, False)
+                    raise e
     if not snapshots_status:
         raise Exception("No snapshots contained for this container: %s, add and run again!...", container)
     return snapshots_status
