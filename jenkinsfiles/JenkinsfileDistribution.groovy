@@ -32,7 +32,11 @@ pipeline {
                     currentVersion = setupPyText.split("\n").find{ element -> element.contains("version=") }.split("=")[1].replace("'", "").replace(",", "").trim();
                     currentDirectory = pwd();
                     echo "*** Current version ${currentVersion} from setup.py. ";
-                    sh "rm dist/*";
+                    try {
+                        sh "rm dist/*";
+                    } catch(e) {
+                        echo "Warning: error trying to rm dist/*"
+                    }
                 }
             }
         }
@@ -169,10 +173,30 @@ pipeline {
                     docker.withRegistry(DOCKERHUB_PUBLIC_REPOSITORY, DOCKERHUB_CREDENTIAL_ID) {
                         def customImage = docker.build("${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}", "-f dockerfiles/Dockerfile .");
                         customImage.push();
+                        // Clean image pushed from local registry
+                        try {
+                            sh "docker image rm ${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}";
+                        } catch(e) {
+                            echo "Exception with 'docker image rm' ${e}";
+                        }
                     }
                 }
             }
         }
+    }
 
+    post {
+        success {
+            script {
+                echo "*** Sending success notification";
+                slackSend color: 'good', message: "cloud-validation-framework [SUCCESS] ${BUILD_URL}";
+            }
+        }
+        failure {
+            script {
+                echo "*** Sending failure notification"
+                slackSend color: 'danger', message: "cloud-validation-framework [FAILURE] ${BUILD_URL}";
+            }
+        }
     }
 }
