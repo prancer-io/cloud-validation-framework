@@ -425,6 +425,16 @@ def populate_custom_snapshot(snapshot, container=None):
                                             config_value(DATABASE, DBNAME), 
                                             [('snapshotId', pymongo.ASCENDING),
                                             ('timestamp', pymongo.DESCENDING)])
+                                            
+                                        create_indexes(
+                                            data['collection'], 
+                                            config_value(DATABASE, DBNAME), 
+                                            [
+                                                ('_id', pymongo.DESCENDING),
+                                                ('timestamp', pymongo.DESCENDING),
+                                                ('snapshotId', pymongo.ASCENDING)
+                                            ]
+                                        )
                                     insert_one_document(data, data['collection'], dbname)
                                 else:
                                     snapshot_dir = make_snapshots_dir(container)
