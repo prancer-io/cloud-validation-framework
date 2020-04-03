@@ -155,6 +155,16 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
                             ('timestamp', pymongo.DESCENDING)
                         ]
                     )
+
+                    create_indexes(
+                        node['collection'], 
+                        config_value(DATABASE, DBNAME), 
+                        [
+                            ('_id', pymongo.DESCENDING),
+                            ('timestamp', pymongo.DESCENDING),
+                            ('snapshotId', pymongo.ASCENDING)
+                        ]
+                    )
                 insert_one_document(data_record, node['collection'], dbname)
             else:
                 snapshot_dir = make_snapshots_dir(container)
