@@ -46,7 +46,7 @@ from processor.connector.snapshot_aws import populate_aws_snapshot
 from processor.connector.snapshot_google import populate_google_snapshot
 from processor.helper.config.rundata_utils import get_from_currentdata
 from processor.reporting.json_output import dump_output_results
-
+from processor.connector.populate_json import pull_json_data
 
 logger = getlogger()
 # Different types of snapshots supported by the validation framework.
@@ -107,6 +107,13 @@ def populate_snapshots_from_file(snapshot_file, container):
     if not snapshot_json_data:
         logger.error("Snapshot file %s looks to be empty, next!...", snapshot_file)
         return {}
+
+    if "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data:
+        pull_response = pull_json_data(snapshot_json_data)
+        logger.info(snapshot_json_data)
+        if not pull_response:
+            return {}
+
     logger.debug(json.dumps(snapshot_json_data, indent=2))
     snapshot_data = populate_snapshots_from_json(snapshot_json_data, container)
     save_json_to_file(snapshot_json_data, snapshot_file)
@@ -177,6 +184,10 @@ def populate_container_snapshots_database(container):
         for doc in docs:
             if doc['json']:
                 snapshot = doc['name']
+                if "connector" in doc['json'] and "remoteFile" in doc['json']:
+                    pull_response = pull_json_data(doc['json'])
+                    if not pull_response:
+                        break
                 try:
                     if snapshot in snapshots and snapshot not in populated:
                         # Take the snapshot and populate whether it was successful or not.
