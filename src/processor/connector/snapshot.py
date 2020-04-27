@@ -116,7 +116,7 @@ def populate_snapshots_from_file(snapshot_file, container):
 
     logger.debug(json.dumps(snapshot_json_data, indent=2))
     snapshot_data = populate_snapshots_from_json(snapshot_json_data, container)
-    save_json_to_file(snapshot_json_data, snapshot_file)
+    # save_json_to_file(snapshot_json_data, snapshot_file)
     return snapshot_data
 
 

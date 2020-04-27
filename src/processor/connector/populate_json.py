@@ -2,7 +2,7 @@ from processor.helper.json.json_utils import get_field_value_with_default, get_f
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.vault import get_vault_data
-from processor.connector.snapshot_custom import get_custom_data
+from processor.connector.snapshot_custom import get_custom_data, git_clone_dir
 from processor.logging.log_handler import getlogger
 from subprocess import Popen, PIPE
 import tempfile
@@ -33,139 +33,6 @@ def run_subprocess_cmd(cmd, ignoreerror=False, maskoutput=False, outputmask="Err
             else:
                 logger.info("CMD: '%s', OUTPUT: %s, ERROR: %s", cmd, result, error_result)
     return error_result, result
-
-def get_pwd_from_vault(password_key):
-    password = get_vault_data(password_key)
-    if not password:
-        logger.info("Password does not set in the vault")
-    return password
-
-
-def git_clone_dir(connector):
-    logger.info('connector')
-    logger.info(connector)
-    clonedir = None
-    git_cmd = None
-    repopath = tempfile.mkdtemp()
-    subdir = False
-    if connector and isinstance(connector, dict):
-        giturl = get_field_value(connector, 'gitProvider')
-        if not giturl:
-            logger.error("Git connector does not have valid git provider URL")
-            return repopath, clonedir
-        brnch = get_field_value_with_default(connector, 'branchName', 'master')
-        isprivate = get_field_value(connector, 'private')
-        isprivate = True if isprivate is None or not isinstance(isprivate, bool) else isprivate
-        logger.info("Repopath: %s", repopath)
-        http_match = re.match(r'^http(s)?://', giturl, re.I)
-        if http_match:
-            logger.info("Http (private:%s) giturl: %s, Repopath: %s", "YES" if isprivate else "NO",
-                        giturl, repopath)
-            
-            logger.info(connector)
-            username = get_field_value(connector, 'httpsUser')
-            logger.info("username")
-            logger.info(username)
-            if username:
-                pwd = get_field_value(connector, 'httpsPassword')
-                schema = giturl[:http_match.span()[-1]]
-                other_part = giturl[http_match.span()[-1]:]
-                pwd = pwd if not json_source() else get_pwd_from_vault(pwd)
-                if pwd:
-                    git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username),
-                                                        urllib.parse.quote_plus(pwd), other_part, repopath)
-                # else:
-                #     git_cmd = 'git clone %s%s@%s %s' % (schema, urllib.parse.quote_plus(username),
-                #                                      other_part, repopath)
-            else:
-                git_cmd = 'git clone %s %s' % (giturl, repopath)
-        else:
-            logger.info("SSH (private:%s) giturl: %s, Repopath: %s", "YES" if isprivate else "NO",
-                        giturl, repopath)
-            if isprivate:
-                ssh_key_file = get_field_value(connector, 'sshKeyfile')
-                if not exists_file(ssh_key_file):
-                    logger.error("Git connector points to a non-existent ssh keyfile!")
-                    return repopath, clonedir
-                ssh_host = get_field_value(connector, 'sshHost')
-                ssh_user = get_field_value_with_default(connector, 'sshUser', 'git')
-                if not ssh_host:
-                    logger.error("SSH host not set, could be like github.com, gitlab.com, 192.168.1.45 etc")
-                    return repopath, clonedir
-                ssh_dir = '%s/.ssh' % repopath
-                if exists_dir(ssh_dir):
-                    logger.error("Git ssh dir: %s already exists, cannot recreate it!", ssh_dir)
-                    return repopath, clonedir
-                os.mkdir('%s/.ssh' % repopath, 0o700)
-                ssh_cfg = create_ssh_config(ssh_dir, ssh_key_file, ssh_user)
-                if not ssh_cfg:
-                    logger.error("Creation of Git ssh config in dir: %s failed!", ssh_dir)
-                    return repopath, clonedir
-                git_ssh_cmd = 'ssh -o "StrictHostKeyChecking=no" -F %s' % ssh_cfg
-                git_cmd = 'git clone %s %s/tmpclone' % (giturl, repopath)
-                subdir = True
-            else:
-                git_ssh_cmd = 'ssh -o "StrictHostKeyChecking=no"'
-                git_cmd = 'git clone %s %s' % (giturl, repopath)
-            os.environ['GIT_SSH_COMMAND'] = git_ssh_cmd
-            logger.info("GIT_SSH_COMMAND=%s", git_ssh_cmd)
-        git_cmd = '%s --branch %s' % (git_cmd, brnch)
-        logger.info("os.system(%s)", git_cmd)
-        if git_cmd:
-            run_subprocess_cmd(git_cmd)
-            checkdir = '%s/tmpclone' % repopath if subdir else repopath
-            clonedir = checkdir if exists_dir('%s/.git' % checkdir) else None
-        if 'GIT_SSH_COMMAND' in os.environ:
-            os.environ.pop('GIT_SSH_COMMAND')
-    return repopath, clonedir
-
-def pull_json_data(document_json):
-    """
-    Pull the JSON data from the git based on filetype and it will update the document json.
-    """
-    connector = get_field_value(document_json, "connector")
-    file_location = get_field_value(document_json, "remoteFile")
-    file_type = get_field_value(document_json, "fileType")
-    
-
-    if not connector:
-        logger.info("Invalid snapshot: 'connector' field does not exists or it is empty.")
-        return False
-
-    if not file_location:
-        logger.info("Invalid snapshot: 'remoteFile' field does not exists or it is empty.")
-        return False
-
-    if not file_type:
-        logger.info("Invalid snapshot: 'fileType' field does not exists or it is empty.")
-        return False
-
-    connector_data = get_custom_data(connector)
-    baserepo, repopath = git_clone_dir(connector_data)
-    
-    if repopath:
-        json_path = '%s/%s' % (repopath, file_location)
-        file_path = json_path.replace('//', '/')
-        json_data = json_from_file(file_path, escape_chars=['$'])
-
-        validate = False
-        if file_type == "snapshot":
-            validate = validate_snapshot_data(json_data, document_json)
-
-        if file_type == "masterSnapshot":
-            validate = validate_master_snapshot_data(json_data, document_json)
-
-        if file_type == "test":
-            validate = validate_test_data(json_data, document_json)
-
-        if file_type == "mastertest":
-            validate = validate_master_test_data(json_data, document_json)
-        
-        return validate
-    else:
-        logger.info('Require valid fields for populate JSON are not present!')
-
-    return False
 
 def validate_snapshot_data(snapshot_json, document_json):
     validate = True
@@ -256,12 +123,144 @@ def validate_master_snapshot_data(master_snapshot_json, document_json):
             break
 
     if validate:
+        document_json.pop("connector")
+        document_json.pop("remoteFile")
+        document_json.pop("connectorUsers")
         document_json["snapshots"] = master_snapshot_json["snapshots"]
     
     return validate    
 
 def validate_test_data(test_json, document_json):
-    pass
+    validate = True
+    
+    if "testSet" not in test_json:
+        logger.info("Invalid json: 'testSet' field does not exists.")
+        return False
+
+    testsets = test_json["testSet"]
+    if not isinstance(testsets, list):
+        logger.info("Invalid json: 'testSet' field is not type list.")
+        return False
+
+    for testset in testsets:
+        if "testName" not in testset:
+            logger.info("Invalid json: 'testName' field is not exists in testset.")
+            validate = False
+            break
+            
+        if "cases" not in testset:
+            logger.info("Invalid json: 'cases' field is not exists in testset.")
+            validate = False
+            break
+
+        if not isinstance(testset["cases"], list):
+            logger.info("Invalid json: 'testset -> cases' field is not type list.")
+            validate = False
+            break
+
+        for case in testset["cases"]:
+            if "testId" not in case:
+                logger.info("Invalid json: 'testId' field is not exists in case.")
+                validate = False
+                break
+        
+        if not validate:
+            break
+
+    if validate:
+        document_json.pop("connector")
+        document_json.pop("remoteFile")
+        document_json["testSet"] = test_json["testSet"]
+    
+    return validate
 
 def validate_master_test_data(master_test_json, document_json):
-    pass
+    validate = True
+    
+    if "testSet" not in master_test_json:
+        logger.info("Invalid json: 'testSet' field does not exists.")
+        return False
+
+    testsets = master_test_json["testSet"]
+    if not isinstance(testsets, list):
+        logger.info("Invalid json: 'testSet' field is not type list.")
+        return False
+
+    for testset in testsets:
+        if "testName" not in testset:
+            logger.info("Invalid json: 'testName' field is not exists in testset.")
+            validate = False
+            break
+            
+        if "cases" not in testset:
+            logger.info("Invalid json: 'cases' field is not exists in testset.")
+            validate = False
+            break
+
+        if not isinstance(testset["cases"], list):
+            logger.info("Invalid json: 'testset -> cases' field is not type list.")
+            validate = False
+            break
+
+        for case in testset["cases"]:
+            if "masterTestId" not in case:
+                logger.info("Invalid json: 'masterTestId' field is not exists in case.")
+                validate = False
+                break
+        
+        if not validate:
+            break
+
+    if validate:
+        document_json.pop("connector")
+        document_json.pop("remoteFile")
+        document_json["testSet"] = master_test_json["testSet"]
+    
+    return validate
+
+def pull_json_data(document_json):
+    """
+    Pull the JSON data from the git based on filetype and it will update the document json.
+    """
+    connector = get_field_value(document_json, "connector")
+    file_location = get_field_value(document_json, "remoteFile")
+    file_type = get_field_value(document_json, "fileType")
+    
+    if not connector:
+        logger.info("Invalid snapshot: 'connector' field does not exists or it is empty.")
+        return False
+
+    if not file_location:
+        logger.info("Invalid snapshot: 'remoteFile' field does not exists or it is empty.")
+        return False
+
+    if not file_type:
+        logger.info("Invalid snapshot: 'fileType' field does not exists or it is empty.")
+        return False
+
+    connector_data = get_custom_data(connector)
+    baserepo, repopath = git_clone_dir(connector_data)
+    
+    if repopath:
+        json_path = '%s/%s' % (repopath, file_location)
+        file_path = json_path.replace('//', '/')
+        json_data = json_from_file(file_path, escape_chars=['$'])
+
+        validate = False
+        if file_type == "snapshot":
+            validate = validate_snapshot_data(json_data, document_json)
+
+        if file_type == "masterSnapshot":
+            validate = validate_master_snapshot_data(json_data, document_json)
+
+        if file_type == "test":
+            validate = validate_test_data(json_data, document_json)
+
+        if file_type == "mastertest":
+            validate = validate_master_test_data(json_data, document_json)
+        
+        return validate
+    else:
+        logger.info('Require valid fields for populate JSON are not present!')
+
+    return False
