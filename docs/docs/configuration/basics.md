@@ -102,6 +102,21 @@ Example:
     logFolder = logs
     dbname = logs
 
+# General configuration
+
+**Prancer** supports a varity of APIs in the enterprise edition. To access these some extra parameters need to be set.
+
+The `INI` section to use in the configuration file is `[DEFAULT]` and here are all the possible configurations you can use:
+
+| Key | Possible values | Explanation |
+|------|:-------:|----------|
+| space_id | *string* | space_id of the customer (required to access enterprise APIs for the particular customer) |
+
+Example:
+
+    [DEFAULT]
+    space_id = 50973a54-16a7-4590-bcc0-755d0e83c7c9
+
 # Notification configuration
 
 **Prancer** supports notifications when using the [Enterprise edition documentation](../enterprise/basics.md). This section allows you to turn on or off the notifications engine.
