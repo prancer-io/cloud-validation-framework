@@ -112,6 +112,7 @@ from processor.database.database import insert_one_document, sort_field, get_doc
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.connector.snapshot_arm_template import populate_arm_snapshot, populate_all_arm_snapshot
+from processor.connector.vault import get_vault_data
 
 
 logger = getlogger()

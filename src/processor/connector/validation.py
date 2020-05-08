@@ -39,6 +39,12 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
         logger.info('Number of Snapshot Documents: %s', len(docs))
         if docs and len(docs):
             snapshot_json_data = docs[0]['json']
+            if "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data \
+                and snapshot_json_data["connector"] and snapshot_json_data["remoteFile"]:
+                pull_response = pull_json_data(snapshot_json_data)
+                if not pull_response:
+                    return snapshot_data
+
     snapshots = get_field_value(snapshot_json_data, 'snapshots')
     if not snapshots:
         logger.info("Snapshot does not contain snapshots...")
@@ -256,7 +262,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
         logger.info('Number of test Documents: %s', len(docs))
         for doc in docs:
             if doc['json']:
-                if "connector" in doc['json'] and "remoteFile" in doc['json']:
+                if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
                     pull_response = pull_json_data(doc['json'])
                     logger.info(doc['json'])
                     if not pull_response:
