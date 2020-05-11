@@ -109,7 +109,12 @@ def validate_master_snapshot_data(master_snapshot_json, document_json):
                 validate = False
                 break
 
-            if "type" not in node:
+            if snapshot["type"] == "aws" and "arn" not in node:
+                logger.info("Invalid json: 'arn' field is not exists in node.")
+                validate = False
+                break
+
+            elif snapshot["type"] != "aws" and "type" not in node:
                 logger.info("Invalid json: 'type' field is not exists in node.")
                 validate = False
                 break
