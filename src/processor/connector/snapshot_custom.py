@@ -112,6 +112,7 @@ from processor.database.database import insert_one_document, sort_field, get_doc
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.connector.snapshot_arm_template import populate_arm_snapshot, populate_all_arm_snapshot
+from processor.connector.vault import get_vault_data
 
 
 logger = getlogger()
@@ -254,6 +255,13 @@ def create_ssh_config(ssh_dir, ssh_key_file, ssh_user):
     return ssh_config
 
 
+def get_pwd_from_vault(password_key):
+    """ Return the git password from vault """
+    password = get_vault_data(password_key)
+    if not password:
+        logger.info("Password does not set in the vault")
+    return password
+
 def get_git_pwd(key='GIT_PWD'):
     """ Return the git password for https connection"""
     git_pwd = get_from_currentdata('GIT_PWD')
@@ -309,7 +317,7 @@ def git_clone_dir(connector):
                 pwd = get_field_value(connector, 'httpsPassword')
                 schema = giturl[:http_match.span()[-1]]
                 other_part = giturl[http_match.span()[-1]:]
-                pwd = pwd if pwd else get_git_pwd()
+                pwd = pwd if (pwd and not json_source()) else (get_git_pwd() if not json_source() else get_pwd_from_vault(pwd))
                 if pwd:
                     git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username),
                                                         urllib.parse.quote_plus(pwd), other_part, repopath)

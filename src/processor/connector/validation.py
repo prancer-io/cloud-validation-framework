@@ -17,7 +17,7 @@ from processor.database.database import create_indexes, COLLECTION,\
     sort_field, get_documents
 from processor.reporting.json_output import dump_output_results
 from processor.helper.config.rundata_utils import get_dbtests, get_from_currentdata
-
+from processor.connector.populate_json import pull_json_data
 
 logger = getlogger()
 
@@ -39,6 +39,12 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
         logger.info('Number of Snapshot Documents: %s', len(docs))
         if docs and len(docs):
             snapshot_json_data = docs[0]['json']
+            if "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data \
+                and snapshot_json_data["connector"] and snapshot_json_data["remoteFile"]:
+                pull_response = pull_json_data(snapshot_json_data)
+                if not pull_response:
+                    return snapshot_data
+
     snapshots = get_field_value(snapshot_json_data, 'snapshots')
     if not snapshots:
         logger.info("Snapshot does not contain snapshots...")
@@ -71,6 +77,13 @@ def run_file_validation_tests(test_file, container, filesystem=True, snapshot_st
     test_json_data = json_from_file(test_file)
     if not test_json_data:
         logger.info("Test file %s looks to be empty, next!...", test_file)
+
+    if test_json_data and "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
+        pull_response = pull_json_data(test_json_data)
+        logger.info(test_json_data)
+        if not pull_response:
+            return {}
+
     singletest = get_from_currentdata(SINGLETEST)
     if singletest:
         testsets = get_field_value_with_default(test_json_data, 'testSet', [])
@@ -165,6 +178,13 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
         if not test_json_data:
             logger.info("Test file %s looks to be empty, next!...", test_file)
             continue
+
+        if "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
+            pull_response = pull_json_data(test_json_data)
+            logger.info(test_json_data)
+            if not pull_response:
+                return {}
+
         snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
         mastersnapshots = defaultdict(list)
         snapshot_data = snapshot_status[snapshot_key] if snapshot_key in snapshot_status else {}
@@ -242,6 +262,11 @@ def run_container_validation_tests_database(container, snapshot_status=None):
         logger.info('Number of test Documents: %s', len(docs))
         for doc in docs:
             if doc['json']:
+                if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
+                    pull_response = pull_json_data(doc['json'])
+                    logger.info(doc['json'])
+                    if not pull_response:
+                        return {}
                 resultset = run_json_validation_tests(doc['json'], container, False)
                 if resultset:
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
@@ -265,6 +290,11 @@ def run_container_validation_tests_database(container, snapshot_status=None):
         for doc in docs:
             test_json_data = doc['json']
             if test_json_data:
+                if "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
+                    pull_response = pull_json_data(test_json_data)
+                    logger.info(doc['json'])
+                    if not pull_response:
+                        return {}
                 snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
                 mastersnapshots = defaultdict(list)
                 snapshot_data = snapshot_status[snapshot_key] if snapshot_key in snapshot_status else {}

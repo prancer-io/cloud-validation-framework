@@ -46,7 +46,7 @@ from processor.connector.snapshot_aws import populate_aws_snapshot
 from processor.connector.snapshot_google import populate_google_snapshot
 from processor.helper.config.rundata_utils import get_from_currentdata
 from processor.reporting.json_output import dump_output_results
-
+from processor.connector.populate_json import pull_json_data
 
 logger = getlogger()
 # Different types of snapshots supported by the validation framework.
@@ -107,9 +107,16 @@ def populate_snapshots_from_file(snapshot_file, container):
     if not snapshot_json_data:
         logger.error("Snapshot file %s looks to be empty, next!...", snapshot_file)
         return {}
+
+    if "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data and snapshot_json_data["connector"] and snapshot_json_data["remoteFile"]:
+        pull_response = pull_json_data(snapshot_json_data)
+        logger.info(snapshot_json_data)
+        if not pull_response:
+            return {}
+
     logger.debug(json.dumps(snapshot_json_data, indent=2))
     snapshot_data = populate_snapshots_from_json(snapshot_json_data, container)
-    save_json_to_file(snapshot_json_data, snapshot_file)
+    # save_json_to_file(snapshot_json_data, snapshot_file)
     return snapshot_data
 
 
@@ -177,13 +184,25 @@ def populate_container_snapshots_database(container):
         for doc in docs:
             if doc['json']:
                 snapshot = doc['name']
+
+                git_connector_json = False
+                if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
+                    git_connector_json = True
+
+                if git_connector_json:
+                    pull_response = pull_json_data(doc['json'])
+                    if not pull_response:
+                        break
                 try:
                     if snapshot in snapshots and snapshot not in populated:
                         # Take the snapshot and populate whether it was successful or not.
                         # Then pass it back to the validation tests, so that tests for those
                         # snapshots that have been susccessfully fetched shall be executed.
                         snapshot_file_data = populate_snapshots_from_json(doc['json'], container)
-                        update_one_document(doc, collection, dbname)
+
+                        if not git_connector_json:
+                            update_one_document(doc, collection, dbname)
+                            
                         populated.append(snapshot)
                         snapshots_status[snapshot] = snapshot_file_data
                 except Exception as e:
