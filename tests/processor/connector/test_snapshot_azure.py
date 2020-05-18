@@ -31,7 +31,7 @@ snapshot_crawler =     {
       ]
     }
 
-def mock_insert_one_document(doc, collection, dbname):
+def mock_insert_one_document(doc, collection, dbname, check_keys=True):
     pass
 
 def mock_get_access_token():
