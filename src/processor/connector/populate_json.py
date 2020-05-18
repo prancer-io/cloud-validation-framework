@@ -148,16 +148,10 @@ def validate_test_data(test_json, document_json):
         return False
 
     for testset in testsets:
-        if document_json.get("fileType") == "mastertest":
-            if "masterTestName" not in testset:
-                logger.info("Invalid json: 'masterTestName' field is not exists in testset.")
-                validate = False
-                break
-        else:
-            if "testName" not in testset:
-                logger.info("Invalid json: 'testName' field is not exists in testset.")
-                validate = False
-                break
+        if "testName" not in testset:
+            logger.info("Invalid json: 'testName' field is not exists in testset.")
+            validate = False
+            break
             
         if "cases" not in testset:
             logger.info("Invalid json: 'cases' field is not exists in testset.")
@@ -198,8 +192,8 @@ def validate_master_test_data(master_test_json, document_json):
         return False
 
     for testset in testsets:
-        if "testName" not in testset:
-            logger.info("Invalid json: 'testName' field is not exists in testset.")
+        if "masterTestName" not in testset:
+            logger.info("Invalid json: 'masterTestName' field is not exists in testset.")
             validate = False
             break
             
