@@ -70,12 +70,18 @@ def json_from_file(jsonfile, escape_chars=None):
     jsondata = None
     try:
         if exists_file(jsonfile):
-            with open(jsonfile) as infile:
-                data = infile.read()
-                if escape_chars and isinstance(escape_chars, list):
-                    for escape_char in escape_chars:
-                        data = data.replace(escape_char, '\\\%s' % escape_char)
-                jsondata = json.loads(data, object_pairs_hook=OrderedDict)
+            file_data = None
+            try:
+                with open(jsonfile) as infile:
+                    file_data = infile.read()
+            except UnicodeDecodeError:
+                with open(jsonfile, 'r', encoding='utf-8') as infile:
+                    file_data = infile.read()
+
+            if escape_chars and isinstance(escape_chars, list):
+                for escape_char in escape_chars:
+                    file_data = file_data.replace(escape_char, '\\\%s' % escape_char)
+            jsondata = json.loads(file_data, object_pairs_hook=OrderedDict)
     except Exception as ex:
         logger.debug('Failed to load json from file: %s, exception: %s', jsonfile, ex)
     return jsondata
