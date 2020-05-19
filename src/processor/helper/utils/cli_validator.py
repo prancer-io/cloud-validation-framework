@@ -63,6 +63,7 @@ from inspect import currentframe, getframeinfo
 from processor.helper.config.config_utils import framework_dir, config_value, framework_config, \
     CFGFILE, get_config_data, FULL, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, SINGLETEST, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir
+from processor import __version__
 
 
 
@@ -154,6 +155,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
     if cfg_error:
             return retval
     cmd_parser = argparse.ArgumentParser("Prancer Basic Functionality")
+    cmd_parser.add_argument('--version', action='version', version=("Prancer %s" % __version__) , help='Show prancer version')
     cmd_parser.add_argument('container', action='store', help='Container tests directory.')
     cmd_parser.add_argument('--db', action='store', default=None, choices=['NONE', 'SNAPSHOT', 'FULL'],
                             help='NONE - Mongo database not used, SNAPSHOT - for storing snapshots, FULL - Tests, configurations, outputs and snapshots in database')
