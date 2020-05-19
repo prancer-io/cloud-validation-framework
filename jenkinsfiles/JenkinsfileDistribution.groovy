@@ -173,6 +173,7 @@ pipeline {
                     docker.withRegistry(DOCKERHUB_PUBLIC_REPOSITORY, DOCKERHUB_CREDENTIAL_ID) {
                         def customImage = docker.build("${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}", "-f dockerfiles/Dockerfile .");
                         customImage.push();
+                        customImage.push("latest");
                         // Clean image pushed from local registry
                         try {
                             sh "docker image rm ${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}";
