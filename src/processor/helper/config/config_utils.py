@@ -80,6 +80,11 @@ def get_framework_config_for_customer(space_id):
     return FRAMEWORKCONFIG
 
 
+def get_base_log_dir():
+    logdir = os.getenv('LOGDIR', None)
+    return logdir
+
+
 def framework_dir():
     """Return top level framework directory"""
     global FRAMEWORKDIR
