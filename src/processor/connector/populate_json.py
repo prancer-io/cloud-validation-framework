@@ -192,8 +192,8 @@ def validate_master_test_data(master_test_json, document_json):
         return False
 
     for testset in testsets:
-        if "testName" not in testset:
-            logger.info("Invalid json: 'testName' field is not exists in testset.")
+        if "masterTestName" not in testset:
+            logger.info("Invalid json: 'masterTestName' field is not exists in testset.")
             validate = False
             break
             
@@ -252,17 +252,18 @@ def pull_json_data(document_json):
         json_data = json_from_file(file_path, escape_chars=['$'])
 
         validate = False
-        if file_type == "snapshot":
-            validate = validate_snapshot_data(json_data, document_json)
+        if json_data:
+            if file_type == "snapshot":
+                validate = validate_snapshot_data(json_data, document_json)
 
-        if file_type == "masterSnapshot":
-            validate = validate_master_snapshot_data(json_data, document_json)
+            if file_type == "masterSnapshot":
+                validate = validate_master_snapshot_data(json_data, document_json)
 
-        if file_type == "test":
-            validate = validate_test_data(json_data, document_json)
+            if file_type == "test":
+                validate = validate_test_data(json_data, document_json)
 
-        if file_type == "mastertest":
-            validate = validate_master_test_data(json_data, document_json)
+            if file_type == "mastertest":
+                validate = validate_master_test_data(json_data, document_json)
         
         return validate
     else:

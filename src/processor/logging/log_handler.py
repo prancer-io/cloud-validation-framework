@@ -125,9 +125,10 @@ def get_logdir(fw_cfg, baselogdir):
     return log_writeable, logdir
 
 
+
 def ini_logging_config(fwconfigfile):
     """logging config"""
-    from processor.helper.config.config_utils import framework_config, get_config_data, framework_dir
+    from processor.helper.config.config_utils import framework_config, get_config_data, framework_dir, get_base_log_dir
     if not fwconfigfile:
         fwconfigfile = framework_config()
     fw_cfg = get_config_data(fwconfigfile)
@@ -140,7 +141,10 @@ def ini_logging_config(fwconfigfile):
         'logpath': None
     }
     if fw_cfg and 'LOGGING' in fw_cfg:
-        logwriteable, logpath = get_logdir(fw_cfg, framework_dir())
+        base_log_dir = get_base_log_dir()
+        if base_log_dir is None:
+            base_log_dir = framework_dir()
+        logwriteable, logpath = get_logdir(fw_cfg, base_log_dir)
         if logwriteable and logpath:
             log_config['logpath'] = logpath
         fwconf = fw_cfg['LOGGING']
