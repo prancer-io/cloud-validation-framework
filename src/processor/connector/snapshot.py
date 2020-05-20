@@ -110,7 +110,6 @@ def populate_snapshots_from_file(snapshot_file, container):
 
     if "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data and snapshot_json_data["connector"] and snapshot_json_data["remoteFile"]:
         pull_response = pull_json_data(snapshot_json_data)
-        logger.info(snapshot_json_data)
         if not pull_response:
             return {}
 

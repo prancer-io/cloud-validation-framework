@@ -80,7 +80,6 @@ def run_file_validation_tests(test_file, container, filesystem=True, snapshot_st
 
     if test_json_data and "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
         pull_response = pull_json_data(test_json_data)
-        logger.info(test_json_data)
         if not pull_response:
             return {}
 
@@ -181,7 +180,6 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
 
         if "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
             pull_response = pull_json_data(test_json_data)
-            logger.info(test_json_data)
             if not pull_response:
                 return {}
 
@@ -264,7 +262,6 @@ def run_container_validation_tests_database(container, snapshot_status=None):
             if doc['json']:
                 if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
                     pull_response = pull_json_data(doc['json'])
-                    logger.info(doc['json'])
                     if not pull_response:
                         return {}
                 resultset = run_json_validation_tests(doc['json'], container, False)
@@ -292,7 +289,6 @@ def run_container_validation_tests_database(container, snapshot_status=None):
             if test_json_data:
                 if "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
                     pull_response = pull_json_data(test_json_data)
-                    logger.info(doc['json'])
                     if not pull_response:
                         return {}
                 snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
