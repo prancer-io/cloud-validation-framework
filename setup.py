@@ -4,6 +4,7 @@
 # setuptools for distribution
 from setuptools import find_packages, setup
 import os
+from src import processor
 
 
 with open('requirements.txt') as f:
@@ -16,7 +17,7 @@ LONG_DESCRIPTION = """
 
 setup(
     name='prancer-basic',
-    version='1.0.2',
+    version=processor.__version__,
     description='Prancer Basic, http://prancer.io/',
     long_description=LONG_DESCRIPTION,
     license = "BSD",
