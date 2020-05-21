@@ -29,7 +29,8 @@ pipeline {
                 script {
                     git url: "https://github.com/${GITHUB_ORG}/${GITHUB_REPO}.git", branch: branch;
                     setupPyText = readFile file: "setup.py";
-                    currentVersion = setupPyText.split("\n").find{ element -> element.contains("version=") }.split("=")[1].replace("'", "").replace(",", "").trim();
+                    currentVersionLine = setupPyText.split("\n").find{ element -> element.contains("version=") };
+                    currentVersion = currentVersionLine.split("=")[1].replace("'", "").replace("\"", "").replace(",", "").trim();
                     currentDirectory = pwd();
                     echo "*** Current version ${currentVersion} from setup.py. ";
                     try {
