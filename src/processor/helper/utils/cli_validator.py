@@ -205,7 +205,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
     retval = 0
     logger = init_logger(args.db)
     # logger = add_file_logging(config_ini)
-    logger.critical("START: Argument parsing and Run Initialization.")
+    logger.critical("START: Argument parsing and Run Initialization. Version %s", __version__)
 
 
     from processor.connector.snapshot import populate_container_snapshots
