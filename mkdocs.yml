@@ -21,7 +21,7 @@ nav:
     - Definition: connectors/connector-definition.md
     - AWS connector: connectors/aws.md
     - Azure connector: connectors/azure.md
-    - Git connector: connectors/git.md
+    - Filesystem connector: connectors/git.md
   - Crawler:
     - Definition: crawler/crawler-definition.md
   - Snapshots:

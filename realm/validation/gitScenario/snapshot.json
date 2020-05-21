@@ -1,0 +1,16 @@
+{
+    "fileType": "snapshot",
+    "snapshots": [
+        {
+            "source": "gitConnector",
+            "nodes": [
+                {
+                    "snapshotId": "1",
+                    "type": "json",
+                    "collection": "webserver",
+                    "path": "realm/validation/gitScenario/resource-pass.json"
+                }
+            ]
+        }
+    ]
+}
