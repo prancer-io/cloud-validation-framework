@@ -17,12 +17,16 @@ for more information you can check the website: http://www.prancer.io
 ## prerequisites
 - Linux based OS
 - Python 3.6
-- virtualenv (If you want to run it on a virtual env)
-- mongo server (apt-get install -y mongodb)
+- virtualenv
+- mongo database 
+
+*Note:* virtualenv is not a hard requirement. it is better to run the python code in a virtual environment. To understand more about python virtual environment, [check python website](https://docs.python.org/3/library/venv.html)
+
+*Note:* mongo database is not a hard requirement to run prancer cloud validation framework. It is possible to run the framework and write all the outputs to the file system. To learn more, you can review [prancer documentations](https://docs.prancer.io/configuration/basics/#database-configuration)
 
 ## prancer installation
-- Clone the cloud validation framework https://github.com/prancer-io/cloud-validation-framework.git
-- cd cloud-validation-framework/
+- Clone the cloud validation framework repository at `https://github.com/prancer-io/cloud-validation-framework.git`
+- `cd cloud-validation-framework`
 - Create virtual environment using `virtualenv --python=python3 cloudenv`. The cloud validation has been tested and continuously integrated with python > 3.5
 - Set the virtual environment. `source cloudenv/bin/activate`
 - Upgrade the package manager `pip install -U pip`
@@ -30,8 +34,9 @@ for more information you can check the website: http://www.prancer.io
 - Install mongo server and start the service. (The mongoDB could be local or remote and you can set it in config.ini file "dburl")
 - Update config.ini to reflect the database server settings.
 - export the following variables:
-  ---------------------------------------
+  ```
   export BASEDIR=`pwd`
   export PYTHONPATH=$BASEDIR/src
   export FRAMEWORKDIR=$BASEDIR
-- Run the tests from the filesystem. `python utilities/validator.py gitcontainer`
+  ```
+- Run the tests from the filesystem: `python utilities/validator.py gitScenario`
