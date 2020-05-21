@@ -149,13 +149,8 @@ def validator_main(arg_vals=None, delete_rundata=True):
        2 - Exception, missing config.ini, Mongo connection failure or http connection exception,
            the tests execution could not be started or completed.
     """
-    retval = 2
-    set_customer()
-    cfg_error, config_ini = search_config_ini()
-    if cfg_error:
-            return retval
     cmd_parser = argparse.ArgumentParser("Prancer Basic Functionality")
-    cmd_parser.add_argument('--version', action='version', version=("Prancer %s" % __version__) , help='Show prancer version')
+    cmd_parser.add_argument('-v','--version', action='version', version=("Prancer %s" % __version__) , help='Show prancer version')
     cmd_parser.add_argument('container', action='store', help='Container tests directory.')
     cmd_parser.add_argument('--db', action='store', default=None, choices=['NONE', 'SNAPSHOT', 'FULL'],
                             help='NONE - Mongo database not used, SNAPSHOT - for storing snapshots, FULL - Tests, configurations, outputs and snapshots in database')
@@ -164,6 +159,12 @@ def validator_main(arg_vals=None, delete_rundata=True):
     cmd_parser.add_argument('--test', action='store', default=None, help='Run a single test in NODB mode')
     cmd_parser.add_argument('--customer', action='store', default=None, help='customer name for config')
     args = cmd_parser.parse_args(arg_vals)
+
+    retval = 2
+    set_customer()
+    cfg_error, config_ini = search_config_ini()
+    if cfg_error:
+        return retval
 
     if args.customer:
         set_customer(args.customer)
