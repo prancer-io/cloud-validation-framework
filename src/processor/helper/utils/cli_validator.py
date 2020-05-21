@@ -202,7 +202,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
 
     # Alls well from this point, check container exists in the directory configured
     retval = 0
-    logger = init_logger(args.db)
+    logger = init_logger(args.db, framework_config())
     # logger = add_file_logging(config_ini)
     logger.critical("START: Argument parsing and Run Initialization.")
 
