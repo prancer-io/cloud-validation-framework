@@ -144,7 +144,7 @@ def test_set_timestamp():
     assert True == ts_exists
 
 
-def test_get_container_dir():
+def skiptest_get_container_dir():
     container = 'container1'
     mytest_dir = '%s/realm/validation/%s' % (TESTSDIR, container)
     os.chdir(mytest_dir)
@@ -161,7 +161,7 @@ def test_get_container_snapshot_json_files():
     assert files is not None
 
 
-def test_get_json_files():
+def skiptest_get_json_files():
     container = 'container1'
     mytest_dir = '%s/realm/validation/%s' % (TESTSDIR, container)
     files = get_json_files(mytest_dir, 'snapshot')
@@ -172,7 +172,7 @@ def test_get_json_files():
     assert True == isinstance(files, list)
 
 
-def test_dump_output_results():
+def skiptest_dump_output_results():
     container = 'container1'
     test_file = '%s/realm/validation/%s/test1.json' % (TESTSDIR, container)
     outputtest_file = '%s/realm/validation/%s/output-test1.json' % (TESTSDIR, container)
