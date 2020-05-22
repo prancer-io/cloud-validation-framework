@@ -10,18 +10,19 @@ theme:
 nav:
   - Getting Started!: index.md
   - Terminology: terminology.md
-  - Workflow: workflow.md
   - Installation: installation.md
+  - Workflow: workflow.md
   - How to Access: access.md
   - Configuration:
-    - Basics: configuration/basics.md
+    - Files and Folders structure: configuration/basics.md
+    - Configuration file: configuration/config.md
     - Logging: configuration/logging.md
     - Secrets: configuration/secrets.md
   - Connectors:
     - Definition: connectors/connector-definition.md
+    - Filesystem connector: connectors/git.md
     - AWS connector: connectors/aws.md
     - Azure connector: connectors/azure.md
-    - Git connector: connectors/git.md
   - Crawler:
     - Definition: crawler/crawler-definition.md
   - Snapshots:

@@ -1,4 +1,18 @@
-To better understand how to use **Prancer**, read the different sections below. They detail the high level workflows of **Prancer**.
+**Prancer** expects some configuration files to be available on your system, in order to complete its workflow.
+We have two options to get up and running with prancer cloud validation framework:
+    - Easy way
+    - Hard way
+
+# prancer workflow: easy way
+The easiest way (recommended way) is to clone the `Hello World!` application and start building your project around that.
+
+> you can find the detail of the `Hello World` application [here](https://www.prancer.io/guidance/)
+
+Then after that you can put the required files at the same locations as the `Hello World` application. By doing this, you will up and running in minutes without dealing with all the details.
+
+# prancer workflow: hard way
+Based on the filing structure, you can start creating the required folders and putting the config files there.
+
 
 # Setup the framework
 
@@ -38,7 +52,7 @@ Each time the tool is ran, the test suite is executed in a sequential way:
 
 1. Configuration files are read (Project configuration, Connector configuration, Snapshot configuration, Tests)
 2. Providers are communicated with, snapshots are built and then saved to the database
-3. Tests are ran againsts the snapshots
+3. Tests are ran against the snapshots
 4. Reports are produced
 
 ![High-Level process](images/high-level-process.png)

@@ -1,9 +1,0 @@
-{
-    "fileType": "structure",
-    "type": "git",
-    "companyName": "abcd",
-    "gitProvider": "https://bitbucket.org/ajeybk/mytestpub.git",
-    "repoCloneAddress":"/tmp/m",
-    "branchName":"master",
-    "username":"ajey.khanapuri@liquware.com"
-}
