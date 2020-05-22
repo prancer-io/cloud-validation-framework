@@ -156,12 +156,16 @@ def ini_logging_config(fwconfigfile):
     return log_config
 
 
-def default_logging():
+def default_logging(fwconfigfile=None):
     """Framework default logging to console"""
+    log_config = None
+    if fwconfigfile:
+        log_config = ini_logging_config(fwconfigfile)
+
     logging.basicConfig(format=LOGFORMAT)
     logger = logging.getLogger(__name__)
-    logger.propagate = True
-    logger.setLevel(get_loglevel())
+    logger.propagate = log_config['propagate'] if log_config and 'propagate' in log_config else True
+    logger.setLevel(get_loglevel(log_config))
     return logger
 
 
@@ -214,7 +218,7 @@ def logging_fw(fwconfigfile, dbargs, refresh_logger=False):
     global FWLOGGER
     if FWLOGGER and (dbhandler and dbargs == 'FULL') and not refresh_logger:
         return FWLOGGER
-    FWLOGGER = default_logging()
+    FWLOGGER = default_logging(fwconfigfile)
     add_file_logging(fwconfigfile)
     unittest = os.getenv('UNITTEST', "false")
     if unittest != "true":

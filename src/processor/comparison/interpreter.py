@@ -342,7 +342,7 @@ class ComparatorV01:
                             content = get_field_value(file_doc, 'container_file')
                             if content:
                                 rego_file_name = '/tmp/%s' % rego_file
-                                open(rego_file_name, 'w').write(content)
+                                open(rego_file_name, 'w', encoding="utf-8").write(content)
                                 return rego_file_name
                 # print(doc)
         json_dir = get_test_json_dir()
