@@ -2,7 +2,7 @@ Generating comprehensive log information is a must today and **Prancer** doesn't
 
 # Configuration
 
-To configure the loggin behavior, consult the [Configuration](basics.md) section and read on for detailed information.
+To configure the logging behavior, consult the [Configuration](config.md) section and read on for detailed information.
 
 # Logging level
 
