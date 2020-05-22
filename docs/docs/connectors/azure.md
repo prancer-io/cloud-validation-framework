@@ -2,54 +2,34 @@ The **Azure** connector allows you to inspect your **Azure** infrastructure usin
 
 # Azure principals
 
-To use the **Azure** connector, you must create a service principal name (SPN) in the **Azure Active Directory** and configure its permissions properly. The SPN requires read policies on all services that you wish to inspect.
+To use the **Azure** connector, you must create a service principal name (SPN) in the **Azure Active Directory** and configure its permissions properly. The SPN requires read permission on all services that you wish to inspect.
 
-Here are steps to creating such a user if you don't have one yet:
+It is recommended that you follow official Microsoft documentation to understand more about the [service principal objects](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals)
+
+Here are the recommended steps to creating such a user if you don't have one yet:
 
 1. Visit the [Azure Active Directory](https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview)
-2. Visit the [App registrations](https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredAppsPreview)
-3. Register a new application, we suggest the name `prancer_ro` and  with the web url `http://localhost/` (the url doesn't really matter)
+2. Visit the [App registrations](https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps)
+3. Register a new application, we suggest the name `prancer_ro`, choose a single tenant app and with the redirect url `http://localhost/` (the url doesn't really matter)
 4. Click `Register`
-5. New page should show the **Client id** and **Tenant id** in the block at the top of the page, note them down.
+5. New page should show the **Application (client) ID** and **Directory (tenant) ID** in the block at the top of the page, note them down.
 6. Go to `Certificates and secrets` section
-7. Create a new secret
-8. Note down the secret, it will disapear if you don't
+7. Create a new client secret
+8. Note down the secret, it will disappear if you don't
 9. Go to [Subscriptions](https://portal.azure.com/#blade/Microsoft_Azure_Billing/SubscriptionsBlade), create a subscription if needed
 10. Select your subscription
 11. Note down the subscription ID, you will need it later
 13. Visit **Access control (IAM)** in the **subscription** panel
-14. Click on `Add`, then `Role assignment`
-15. Select `Reader` for the **role** and select your application's name (We suggested `prancer_ro` before) in the **Application name**
+14. Select `Role assignments` tab, Click on `Add`, then `Add role assignment`
+15. Select `Reader` for the **Role** and select your application's name (We suggested `prancer_ro` before) in the Application name **Select** section and click save.
+
+> <NoteTitle>Notes: Multiple SPNs</NoteTitle>
+> Prancer cloud validation framework supports multiple SPNs to connect to the Azure. By doing that, you can have different permissions set for each SPN to run various validation scenarios!
+
 
 # Azure api versions
 
-**Prancer** requires a special configuration to support calling the **Azure** apis. Each **Azure** api needs a specific version that the software should support and instead of baking this into the application we went for a description file that everyone can contribute to.
-
-To configure this, first copy the following code into a file. Then, go to the [Azure api configuration](../configuration/basics.md) section and update the configuration file with the name of this file:
-
-> <NoteTitle>Notes: Naming conventions</NoteTitle>
->
-> This file can be named anything you want but we suggest `azureApiVersions.json`
-
-    {
-        "Microsoft.Compute/availabilitySets": {
-            "version": "2018-06-01"
-        },
-        "Microsoft.Network/virtualNetworks": {
-            "version": "2018-07-01"
-        },
-        "Microsoft.Storage/storageAccounts": {
-            "version": "2018-07-01"
-        },
-        "Microsoft.KeyVault/vaults": {
-            "version": "2015-06-01"
-        },
-        "Microsoft.Network/networkSecurityGroups": {
-            "version": "2018-11-01"
-        },
-        "fileType": "structure",
-        "type": "others"
-    }
+**Prancer** requires a special configuration to support calling the **Azure** apis. To understand more, go to the [Azure api configuration](../configuration/basics.md) section.
 
 # Connector configuration file
 
@@ -94,9 +74,9 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 
 # Company and tenant
 
-You need an **Azure** tenant to work with **Prancer**. Each `azureConnector.json` can only feature 1 tenant but can feature many accounts and users.
+You need an **Azure** tenant to work with **Prancer**. Each `azureConnector.json` can only feature 1 tenant but can feature many subscriptions and users.
 
-You do not need to have a real account/department name for the accounts section, you can use your application's name or organization's name. The accounts section is strictly for organizing your configuration.
+You do not need to have a real account/department name for the accounts section, you can use your application's name or organization's name. The accounts section is strictly for organizing your configuration and Microsoft Enterprise customers.
 
 # Subscription and users
 
