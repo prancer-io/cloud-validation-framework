@@ -31,6 +31,7 @@ pipeline {
                     setupPyText = readFile file: "setup.py";
                     currentVersionLine = setupPyText.split("\n").find{ element -> element.contains("version=") };
                     currentVersion = currentVersionLine.split("=")[1].replace("'", "").replace("\"", "").replace(",", "").trim();
+                    currentVersion = currentVersion.trim().split(" ")[0];
                     currentDirectory = pwd();
                     echo "*** Current version ${currentVersion} from setup.py. ";
                     try {
