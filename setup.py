@@ -17,7 +17,7 @@ LONG_DESCRIPTION = """
 
 setup(
     name='prancer-basic',
-    version='1.0.5',
+    version='1.0.6', # also update the version in processor.__init__.py file
     description='Prancer Basic, http://prancer.io/',
     long_description=LONG_DESCRIPTION,
     license = "BSD",
