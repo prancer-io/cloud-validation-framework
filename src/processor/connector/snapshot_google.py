@@ -507,7 +507,7 @@ def generate_gce(google_data, project, user):
         "auth_uri": get_field_value(google_data, "auth_uri"),
         "token_uri": get_field_value(google_data, "token_uri"),
         "auth_provider_x509_cert_url": get_field_value(google_data, "auth_provider_x509_cert_url"),
-        "client_x509_cert_url": get_field_value(google_data, "client_x509_cert_url"),
+        "client_x509_cert_url": get_field_value(user, "client_x509_cert_url"),
     }
     gce = get_private_key(gce)
     return gce
