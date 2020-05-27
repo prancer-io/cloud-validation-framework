@@ -21,12 +21,12 @@ from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
-from processor.helper.config.rundata_utils import put_in_currentdata, get_dbtests
+from processor.helper.config.rundata_utils import put_in_currentdata, get_dbtests, get_from_currentdata
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE, save_json_to_file, get_field_value_with_default,\
     make_snapshots_dir, store_snapshot
 from processor.connector.vault import get_vault_data
-from processor.helper.config.config_utils import config_value, get_test_json_dir, framework_dir
+from processor.helper.config.config_utils import config_value, get_test_json_dir, framework_dir, CUSTOMER
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 from processor.helper.httpapi.restapi_azure import json_source
@@ -475,23 +475,6 @@ def get_service_name(node_type):
                 
     return service
 
-def get_private_key(gce):
-    """
-    Fetches the Private Key for get the google service account credentials
-    """
-    if ('UAMI' not in os.environ or os.environ['UAMI'] != 'true'):
-        # if private_key does not exist then it will set to None:
-        gce["private_key"] = get_field_value(gce, 'private_key')
-
-    if ('UAMI' in os.environ and os.environ['UAMI'] == 'true') or not gce["private_key"]:
-        private_key = get_vault_data(gce['private_key_id'])
-        if private_key:
-            gce["private_key"] = private_key.replace("\\n","\n")
-        else:
-            raise Exception("Private key does not set in a vault")
-    
-    return gce
-
 def generate_gce(google_data, project, user):
     """
     Generate client secret json from the google data
@@ -501,7 +484,7 @@ def generate_gce(google_data, project, user):
         "type": get_field_value(user, "type"),
         "project_id": get_field_value(project, "project-id"),
         "private_key_id": get_field_value(user, "private_key_id"),
-        "private_key": get_field_value(user, "private_key") if not json_source() else None,
+        "private_key": get_field_value(user, "private_key"),
         "client_email": get_field_value(user, "client_email"),
         "client_id": get_field_value(user, "client_id"),
         "auth_uri": get_field_value(google_data, "auth_uri"),
@@ -509,7 +492,34 @@ def generate_gce(google_data, project, user):
         "auth_provider_x509_cert_url": get_field_value(google_data, "auth_provider_x509_cert_url"),
         "client_x509_cert_url": get_field_value(user, "client_x509_cert_url"),
     }
-    gce = get_private_key(gce)
+
+    # Read the private key from the key path
+    if not gce['private_key'] and get_field_value(user, "private_key_path"):
+        private_key_path = get_field_value(user, "private_key_path")
+        logger.info("Private key path : %s ", private_key_path)
+        try:
+            gce['private_key'] = open(private_key_path, 'r', encoding="utf-8").read().replace("\\n","\n")
+            if gce['private_key']:
+                logger.info('Private ket from Private key path, Secret: %s', '*' * len(gce['private_key']))
+        except Exception as e:
+            raise Exception("Failed to read the private key from private key path : %s " % str(e))
+    
+    # Read the private key from the vault
+    if not gce['private_key']:
+        private_key = get_vault_data(gce['private_key_id'])
+        if private_key:
+            gce["private_key"] = private_key.replace("\\n","\n")
+            if gce["private_key"]:
+                logger.info('Private key from vault Secret: %s', '*' * len(gce["private_key"]))
+        elif get_from_currentdata(CUSTOMER):
+            raise Exception("Private key does not set in a vault")
+    
+    if not gce['private_key']:
+        raise Exception("No `private_key` field in the connector file to access Google resource!...")
+
+    if (None in list(gce.values())):
+        raise Exception("Connector file does not contains valid values or some fields are missing for access Google resources.")
+
     return gce
 
 

@@ -6,6 +6,7 @@ import copy
 import hashlib
 import time
 import pymongo
+import os
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
@@ -16,7 +17,7 @@ from processor.helper.httpapi.restapi_azure import get_access_token,\
     get_web_client_data, get_client_secret, json_source
 from processor.connector.vault import get_vault_data
 from processor.helper.httpapi.http_utils import http_get_request
-from processor.helper.config.config_utils import config_value, framework_dir
+from processor.helper.config.config_utils import config_value, framework_dir, CUSTOMER
 from processor.database.database import insert_one_document, COLLECTION, get_collection_size, create_indexes, \
      DATABASE, DBNAME, sort_field, get_documents
 from processor.connector.snapshot_utils import validate_snapshot_nodes
@@ -152,7 +153,8 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
             db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
         else:
             put_in_currentdata('errors', data)
-            logger.info("Get Id returned invalid status: %s", status)
+            logger.info("Get Id returned invalid status: %s, response: %s", status, data)
+            logger.error("Failed to get Azure resourse with given path : %s, please verify your azure connector detail and path given in snapshot.", node['path'])
     else:
         logger.info('Get requires valid subscription, token and path.!')
     return db_record
@@ -169,21 +171,26 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
         get_web_client_data(snapshot_type, snapshot_source, snapshot_user)
     if not client_id:
         logger.info("No client_id in the snapshot to access azure resource!...")
-        # return {}
         raise Exception("No client id in the snapshot to access azure resource!...")
+
+    # Read the client secrets from envirnment variable
+    if not client_secret:
+        client_secret = os.getenv(snapshot_user, None)
+        if client_secret:
+            logger.info('Client Secret from environment variable, Secret: %s', '*' * len(client_secret))
+        
+    # Read the client secrets from the vault
     if not client_secret:
         client_secret = get_vault_data(client_id)
         if client_secret:
-            logger.info('Vault Secret: %s', '*' * len(client_secret))
+            logger.info('Client Secret from Vault, Secret: %s', '*' * len(client_secret))
+        elif get_from_currentdata(CUSTOMER):
+            logger.error("Client Secret key does not set in a vault")
+            raise Exception("Client Secret key does not set in a vault")
+
     if not client_secret:
-        client_secret = get_client_secret()
-        if client_secret:
-            logger.info('Environment variable or Standard input, Secret: %s',
-                        '*' * len(client_secret))
-    if not client_secret:
-        logger.info("No client secret in the snapshot to access azure resource!...")
-        raise Exception("No client secret in the snapshot to access azure resource!...")
-        # return {}
+        raise Exception("No `client_secret` key in the connector file to access azure resource!...")
+
     logger.info('Sub:%s, tenant:%s, client: %s', sub_id, tenant_id, client_id)
     put_in_currentdata('clientId', client_id)
     put_in_currentdata('clientSecret', client_secret)
