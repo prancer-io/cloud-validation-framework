@@ -9,7 +9,7 @@ from processor.helper.config.rundata_utils import get_from_currentdata, put_in_c
 from processor.helper.httpapi.http_utils import http_post_request, http_get_request,\
     http_put_request, http_delete_request
 from processor.helper.json.json_utils import get_field_value, json_from_file, collectiontypes, STRUCTURE
-from processor.helper.config.config_utils import get_test_json_dir, config_value
+from processor.helper.config.config_utils import get_test_json_dir, config_value, CUSTOMER
 from processor.database.database import DATABASE, DBNAME, sort_field, get_documents
 
 
@@ -141,7 +141,7 @@ def get_client_secret(key='CLIENTKEY', client_id=None):
         else:
             if not client_secret:
                 client_secret = os.getenv(key, None)
-            if not client_secret:
+            if not client_secret and not get_from_currentdata(CUSTOMER):
                 client_secret = input('Enter the client secret for the app: ')
     return client_secret
 

@@ -61,7 +61,7 @@ import json
 import os
 from inspect import currentframe, getframeinfo
 from processor.helper.config.config_utils import framework_dir, config_value, framework_config, \
-    CFGFILE, get_config_data, FULL, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, SINGLETEST, container_exists
+    CFGFILE, get_config_data, FULL, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, CUSTOMER, SINGLETEST, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor import __version__
 
@@ -242,6 +242,8 @@ def validator_main(arg_vals=None, delete_rundata=True):
         #         pid = open('/tmp/pid_%s' % os.getpid(), 'w')
         #         pid.write(log_name)
         #         pid.close()
+        if args.customer:
+            put_in_currentdata(CUSTOMER, args.customer)
         if args.test:
             put_in_currentdata(SINGLETEST, args.test)
             put_in_currentdata('container', args.container)

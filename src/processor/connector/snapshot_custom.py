@@ -267,6 +267,8 @@ def get_git_pwd(key='GIT_PWD'):
     git_pwd = get_from_currentdata('GIT_PWD')
     if not git_pwd:
         git_pwd = os.getenv(key, None)
+        if git_pwd:
+            logger.info("Git password from envirnment: %s", '*' * len(git_pwd))
     return git_pwd
 
 
@@ -317,12 +319,19 @@ def git_clone_dir(connector):
                 pwd = get_field_value(connector, 'httpsPassword')
                 schema = giturl[:http_match.span()[-1]]
                 other_part = giturl[http_match.span()[-1]:]
-                pwd = pwd if (pwd and not json_source()) else (get_git_pwd() if not json_source() else get_pwd_from_vault(pwd))
+                # pwd = pwd if (pwd and not json_source()) else (get_git_pwd() if not json_source() else get_pwd_from_vault(pwd))
+                pwd = pwd if pwd else get_git_pwd(key=username)
+
+                # populate the password from vault
+                if not pwd:
+                    pwd = get_pwd_from_vault(username)
+                    if pwd:
+                        logger.info("Git password from vault: %s", '*' * len(pwd))
                 if pwd:
                     git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username),
                                                         urllib.parse.quote_plus(pwd), other_part, repopath)
                 else:
-                    git_cmd = 'git clone %s%s@%s %s' % (schema, urllib.parse.quote_plus(username),
+                    git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username), "",
                                                      other_part, repopath)
             else:
                 git_cmd = 'git clone %s %s' % (giturl, repopath)

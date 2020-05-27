@@ -22,11 +22,11 @@ from boto3 import client
 from boto3 import Session
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
-from processor.helper.config.rundata_utils import put_in_currentdata, get_dbtests
+from processor.helper.config.rundata_utils import put_in_currentdata, get_dbtests, get_from_currentdata
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE, make_snapshots_dir, store_snapshot
 from processor.connector.vault import get_vault_data
-from processor.helper.config.config_utils import config_value, get_test_json_dir
+from processor.helper.config.config_utils import config_value, get_test_json_dir, CUSTOMER
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 from processor.helper.httpapi.restapi_azure import json_source
@@ -611,22 +611,24 @@ def populate_aws_snapshot(snapshot, container=None):
             raise Exception("No access_key in the snapshot to access aws resource!...")
             # return snapshot_data
 
-        # Read the client secrets from envirnment variable or Standard input
-        # if not secret_access and ('UAMI' not in os.environ or os.environ['UAMI'] != 'true'):
-        #     secret_access = get_client_secret()
-        #     logger.info('Environment variable or Standard input, Secret: %s', '*' * len(secret_access))
+        # Read the client secrets from envirnment variable
+        if not secret_access:
+            secret_access = os.getenv(snapshot_user, None)
+            if secret_access:
+                logger.info('Secret Access key from environment variable, Secret: %s', '*' * len(secret_access))
         
         # Read the client secrets from the vault
         if not secret_access:
             secret_access = get_vault_data(access_key)
             if secret_access:
-                logger.info('Vault Secret: %s', '*' * len(secret_access))
-            else:
-                logger.info("Secret Access key does not set in a vault")
+                logger.info('Secret Access key from vault Secret: %s', '*' * len(secret_access))
+            elif get_from_currentdata(CUSTOMER):
+                logger.error("Secret Access key does not set in a vault")
                 raise Exception("Secret Access key does not set in a vault")
+
         if not secret_access:
-            logger.info("No secret_access in the snapshot to access aws resource!...")
-            return snapshot_data
+            raise Exception("No `secret-access` key in the connector file to access aws resource!...")
+
         if access_key and secret_access:
             # existing_aws_client = {}
             for node in snapshot['nodes']:
@@ -773,8 +775,7 @@ def get_aws_client_data(aws_data, snapshot_user, account_id):
                             if snapshot_user == get_field_value(user, "name"):
                                 found = True
                                 accesskey = get_field_value(user, 'access-key')
-                                if ('UAMI' not in os.environ or os.environ['UAMI'] != 'true'):
-                                    secret_access = get_field_value(user, 'secret-access')
+                                secret_access = get_field_value(user, 'secret-access')
                                 region = get_field_value(user, 'region')
                                 client_str = get_field_value(user, 'client')
                                 if client_str and not _validate_client_name(client_str):
