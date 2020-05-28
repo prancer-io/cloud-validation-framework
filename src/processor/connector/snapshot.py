@@ -37,14 +37,16 @@ import json
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     get_container_snapshot_json_files, SNAPSHOT, JSONTEST,\
-    collectiontypes, get_json_files, TEST, MASTERTEST, save_json_to_file
-from processor.helper.config.config_utils import config_value, framework_dir
+    collectiontypes, get_json_files, TEST, MASTERTEST, save_json_to_file, get_field_value_with_default
+from processor.helper.config.config_utils import config_value, framework_dir, SINGLETEST
 from processor.database.database import DATABASE, DBNAME, get_documents, sort_field, update_one_document
 from processor.connector.snapshot_azure import populate_azure_snapshot
-from processor.connector.snapshot_custom import populate_custom_snapshot
+from processor.connector.snapshot_custom import populate_custom_snapshot, get_custom_data
 from processor.connector.snapshot_aws import populate_aws_snapshot
 from processor.connector.snapshot_google import populate_google_snapshot
-
+from processor.helper.config.rundata_utils import get_from_currentdata
+from processor.reporting.json_output import dump_output_results
+from processor.connector.populate_json import pull_json_data
 
 logger = getlogger()
 # Different types of snapshots supported by the validation framework.
@@ -52,28 +54,33 @@ snapshot_fns = {
     'azure': populate_azure_snapshot,
     'git': populate_custom_snapshot,
     'aws': populate_aws_snapshot,
-    'google': populate_google_snapshot
+    'google': populate_google_snapshot,
+    'filesystem': populate_custom_snapshot
 }
 
 
-def populate_snapshot(snapshot):
+def populate_snapshot(snapshot, container):
     """
     Every snapshot should have collection of nodes which are to be populated.
     Each node in the nodes list of the snapshot shall have a unique id in this
     container so as not to clash with other node of a snapshots.
     """
     snapshot_data = {}
-    snapshot_type = get_field_value(snapshot, 'type')
+    snapshot_type = None
+    snapshot_source = get_field_value(snapshot, "source")
+    connector_data = get_custom_data(snapshot_source)
+    if connector_data:
+        snapshot_type = get_field_value(connector_data, "type")
     if snapshot_type and snapshot_type in snapshot_fns:
         if 'nodes' not in snapshot or not snapshot['nodes']:
             logger.error("No nodes in snapshot to be backed up!...")
             return snapshot_data
-        snapshot_data = snapshot_fns[snapshot_type](snapshot)
+        snapshot_data = snapshot_fns[snapshot_type](snapshot, container)
     logger.info('Snapshot: %s', snapshot_data)
     return snapshot_data
 
 
-def populate_snapshots_from_json(snapshot_json_data):
+def populate_snapshots_from_json(snapshot_json_data, container):
     """
     Get the snapshot and validate list of snapshots in the json.
     The json could be from the database or from a filesystem.
@@ -84,12 +91,12 @@ def populate_snapshots_from_json(snapshot_json_data):
         logger.error("Json Snapshot does not contain snapshots, next!...")
         return snapshot_data
     for snapshot in snapshots:
-        current_data = populate_snapshot(snapshot)
+        current_data = populate_snapshot(snapshot, container)
         snapshot_data.update(current_data)
     return snapshot_data
 
 
-def populate_snapshots_from_file(snapshot_file):
+def populate_snapshots_from_file(snapshot_file, container):
     """
     Each snapshot file from the filesystem is loaded as a json datastructue
      and populate all the nodes in this json datastructure.
@@ -100,9 +107,15 @@ def populate_snapshots_from_file(snapshot_file):
     if not snapshot_json_data:
         logger.error("Snapshot file %s looks to be empty, next!...", snapshot_file)
         return {}
+
+    if "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data and snapshot_json_data["connector"] and snapshot_json_data["remoteFile"]:
+        pull_response = pull_json_data(snapshot_json_data)
+        if not pull_response:
+            return {}
+
     logger.debug(json.dumps(snapshot_json_data, indent=2))
-    snapshot_data = populate_snapshots_from_json(snapshot_json_data)
-    save_json_to_file(snapshot_json_data, snapshot_file)
+    snapshot_data = populate_snapshots_from_json(snapshot_json_data, container)
+    # save_json_to_file(snapshot_json_data, snapshot_file)
     return snapshot_data
 
 
@@ -142,7 +155,7 @@ def populate_container_snapshots_filesystem(container):
             # Take the snapshot and populate whether it was successful or not.
             # Then pass it back to the validation tests, so that tests for those
             # snapshots that have been susccessfully fetched shall be executed.
-            snapshot_file_data = populate_snapshots_from_file(snapshot_file)
+            snapshot_file_data = populate_snapshots_from_file(snapshot_file, container)
             populated.append(parts[-1])
             name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
             snapshots_status[name] = snapshot_file_data
@@ -160,22 +173,42 @@ def populate_container_snapshots_database(container):
     collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
     qry = {'container': container}
     sort = [sort_field('timestamp', False)]
-    docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
+    docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, _id=True)
     if docs and len(docs):
         logger.info('Number of Snapshot Documents: %s', len(docs))
         snapshots = container_snapshots_database(container)
+        if not snapshots:
+            raise Exception("No snapshots for this container: %s, add and run again!...", container)
         populated = []
         for doc in docs:
             if doc['json']:
                 snapshot = doc['name']
-                if snapshot in snapshots and snapshot not in populated:
-                    # Take the snapshot and populate whether it was successful or not.
-                    # Then pass it back to the validation tests, so that tests for those
-                    # snapshots that have been susccessfully fetched shall be executed.
-                    snapshot_file_data = populate_snapshots_from_json(doc['json'])
-                    update_one_document(doc, collection, dbname)
-                    populated.append(snapshot)
-                    snapshots_status[snapshot] = snapshot_file_data
+
+                git_connector_json = False
+                if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
+                    git_connector_json = True
+
+                if git_connector_json:
+                    pull_response = pull_json_data(doc['json'])
+                    if not pull_response:
+                        break
+                try:
+                    if snapshot in snapshots and snapshot not in populated:
+                        # Take the snapshot and populate whether it was successful or not.
+                        # Then pass it back to the validation tests, so that tests for those
+                        # snapshots that have been susccessfully fetched shall be executed.
+                        snapshot_file_data = populate_snapshots_from_json(doc['json'], container)
+
+                        if not git_connector_json:
+                            update_one_document(doc, collection, dbname)
+                            
+                        populated.append(snapshot)
+                        snapshots_status[snapshot] = snapshot_file_data
+                except Exception as e:
+                    dump_output_results([], container, "-", snapshot, False)
+                    raise e
+    if not snapshots_status:
+        raise Exception("No snapshots contained for this container: %s, add and run again!...", container)
     return snapshots_status
 
 
@@ -192,6 +225,7 @@ def container_snapshots_filesystem(container):
     reporting_path = config_value('REPORTING', 'reportOutputFolder')
     json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
     logger.info(json_dir)
+    singletest = get_from_currentdata(SINGLETEST)
     test_files = get_json_files(json_dir, JSONTEST)
     logger.info('\n'.join(test_files))
     for test_file in test_files:
@@ -200,7 +234,16 @@ def container_snapshots_filesystem(container):
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             if snapshot:
                 file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
-                snapshots.append(file_name)
+                if singletest:
+                    testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+                    for testset in testsets:
+                        for testcase in testset['cases']:
+                            if ('testId' in testcase and testcase['testId'] == singletest) or \
+                                    ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
+                                if file_name not in snapshots:
+                                    snapshots.append(file_name)
+                else:
+                    snapshots.append(file_name)
 
     test_files = get_json_files(json_dir, MASTERTEST)
     logger.info('\n'.join(test_files))
@@ -211,7 +254,17 @@ def container_snapshots_filesystem(container):
             if snapshot:
                 file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
                 parts = file_name.split('.')
-                snapshots.append('%s_gen.%s' % (parts[0], parts[-1]))
+                file_name = '%s_gen.%s' % (parts[0], parts[-1])
+                if singletest:
+                    testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+                    for testset in testsets:
+                        for testcase in testset['cases']:
+                            if ('testId' in testcase and testcase['testId'] == singletest) or \
+                                    ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
+                                if file_name not in snapshots:
+                                    snapshots.append(file_name)
+                else:
+                    snapshots.append(file_name)
     return list(set(snapshots))
 
 

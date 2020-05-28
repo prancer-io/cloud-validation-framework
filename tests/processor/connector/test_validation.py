@@ -154,7 +154,7 @@ def test_run_validation_test(monkeypatch):
     monkeypatch.setattr('processor.comparison.interpreter.get_documents',
                         mock_get_documents)
     from processor.connector.validation import run_validation_test
-    result = run_validation_test('0.1', 'validator', {}, {
+    result = run_validation_test('0.1', 'mycontainer', 'validator', {}, {
         "testId": "4",
         "snapshotId": "1",
         "attribute": "id",

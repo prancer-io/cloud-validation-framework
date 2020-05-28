@@ -7,6 +7,7 @@ TESTSDIR = os.getenv('SOLUTIONDIR', os.path.join(
     os.path.abspath(os.path.dirname(__file__)), '../'))
 data_dict = {'a': 'b', 'c': {'d': 'e'}, 'f': {'g': {'h': 1}}}
 os.environ['UNITTEST'] = "true"
+os.environ['LOCALAUTH'] = 'true'
 # os.environ['LOGLEVEL'] = 'INFO'
 
 
@@ -58,6 +59,17 @@ def create_terraform():
 
     return create_test_terraform
 
+@pytest.fixture
+def create_yaml():
+
+    def create_test_yaml(path, data, fname = 'y1.yaml'):
+        # fname = 'a1.tfvars'
+        fullname = '%s/%s' % (path, fname)
+        with open(fullname, 'w') as f:
+            f.write(data)
+        return fname
+
+    return create_test_yaml
 
 @pytest.fixture
 def load_json_file():
@@ -98,5 +110,12 @@ def load_test_json(filename):
         if data:
             jsondata = json.loads(data)
     return jsondata
+
+
+
+# @pytest.fixture(scope="module", autouse=True)
+# def initialize_logger():
+#     from processor.logging.log_handler import init_logger
+#     init_logger(0)
 
 

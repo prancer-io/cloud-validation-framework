@@ -42,7 +42,7 @@ def urlopen_request(urlreq, method):
         if isinstance(respdata, bytes):
             respdata = respdata.decode()
         data = json_from_string(respdata)
-        logger.info("%s status: %d", method, st_code)
+        logger.debug("%s status: %d", method, st_code)
     except HTTPError as ex:
         # st_code = ex.code if method == "POST" else None
         st_code = ex.code
@@ -79,12 +79,15 @@ def http_get_request(url, headers=None, name='GET'):
     return urlopen_request(urlreq, name)
 
 
-def http_put_request(url, mapdata, headers=None, name='PUT'):
+def http_put_request(url, mapdata, headers=None, name='PUT', json_type=False):
     """Put method sends and accepts JSON format."""
     logger.info("HTTP %s %s  .......", name, url)
     if not url:
         return None, None
-    putdata = parse.urlencode(mapdata).encode()
+    if not json_type:
+        putdata = parse.urlencode(mapdata).encode()
+    else:
+        putdata = json.dumps(mapdata, cls=json.JSONEncoder).encode('utf-8')
     logger.info('%s: data: %s', name, putdata)
     urlreq = request.Request(url, data=putdata, headers=get_request_headers(headers),
                              method='PUT')
@@ -96,11 +99,13 @@ def http_post_request(url, mapdata, headers=None, json_type=False, name='POST'):
     logger.info("HTTP %s %s  .......", name, url)
     if not url:
         return None, None
+    myhdrs = get_request_headers(headers)
     if json_type:
-        postdata = str.encode(json.dumps(mapdata))
+        myhdrs['Content-Type'] = 'application/x-www-form-urlencoded'
+        postdata = parse.urlencode(mapdata).encode()
     else:
         postdata = parse.urlencode(mapdata).encode()
     logger.debug('%s: data: %s', name, postdata)
-    urlreq = request.Request(url, data=postdata, headers=get_request_headers(headers),
+    urlreq = request.Request(url, data=postdata, headers=myhdrs,
                              method='POST')
     return urlopen_request(urlreq, name)

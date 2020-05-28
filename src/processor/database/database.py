@@ -1,9 +1,12 @@
 """Mongo db driver and utility functions."""
+import os
 import collections
 from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
 from pymongo.errors import ServerSelectionTimeoutError
 from bson.objectid import ObjectId
 from processor.helper.config.config_utils import config_value, DATABASE, DBNAME, DBURL
+from processor.logging.dburl_kv import get_dburl
+# import threading
 
 
 MONGO = None
@@ -14,12 +17,18 @@ TIMEOUT = 3000
 def mongoconnection(dbport=27017, to=TIMEOUT):
     """ Global connection handle for mongo """
     global MONGO
-    if not MONGO:
-        dburl = config_value(DATABASE, DBURL)
-        if dburl:
-            MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
-        else:
-            MONGO = MongoClient(port=dbport, serverSelectionTimeoutMS=to)
+    if MONGO:
+       return MONGO
+    dburl = os.getenv('DBURL', None)
+    #dburl = os.getenv(str(threading.currentThread().ident) + '_DBURL', None)
+    #print("DBURL THREAD: " + str(threading.currentThread().ident))
+    if not dburl:
+        dburl = get_dburl()
+    # print("Dburl: %s", dburl)
+    if dburl:
+        MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
+    else:
+        MONGO = MongoClient(port=dbport, serverSelectionTimeoutMS=to)
     return MONGO
 
 
@@ -27,6 +36,7 @@ def mongodb(dbname=None):
     """ Get the dbhandle for the database, if none then default database, 'test' """
     dbconnection = mongoconnection()
     if dbname:
+        # print("DB NAME: " + dbname)
         db = dbconnection[dbname]
     else:
         db = dbconnection['test']
@@ -105,6 +115,15 @@ def insert_documents(docs, collection, dbname):
         doc_ids = [str(inserted_id) for inserted_id in result.inserted_ids]
     return doc_ids
 
+def delete_documents(collection, query, dbname):
+    """ Delete the document based on the query """
+    db = mongodb(dbname)
+    collection = db[collection] if db and collection else None
+    if collection:
+        doc = collection.delete_many(query)
+        return True
+    return False
+
 
 def check_document(collection, docid, dbname=None):
     """ Find the document based on the docid """
@@ -117,7 +136,7 @@ def check_document(collection, docid, dbname=None):
     return doc
 
 
-def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip=0, proj=None):
+def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip=0, proj=None, _id=False):
     """ Find the documents based on the query """
     docs = None
     db = mongodb(dbname)
@@ -125,9 +144,13 @@ def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip
     if collection:
         query = {} if query is None else query
         proj = proj if proj else {}
-        proj['_id'] = 0
+        if not _id:
+            proj['_id'] = 0
         if sort:
-            results = collection.find(filter=query, projection=proj).sort(sort).limit(limit).skip(skip)
+            if proj:
+                results = collection.find(filter=query, projection=proj).sort(sort).limit(limit).skip(skip)
+            else:
+                results = collection.find(filter=query).sort(sort).limit(limit).skip(skip)
         else:
             results = collection.find(query).limit(limit).skip(skip)
         docs = [result for result in results]
@@ -164,6 +187,10 @@ def create_indexes(collection, dbname, fields):
         result = collection.create_index(fields, unique=True)
     return result
 
+def get_collection_size(collection_name):
+    db_name = config_value(DATABASE, DBNAME)
+    collection = get_collection(db_name, collection_name)
+    return collection.count()
 
 def index_information(collection, dbname):
     """ index information of the collection """

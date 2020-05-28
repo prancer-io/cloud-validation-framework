@@ -84,6 +84,9 @@ class MyMongoClient:
         return []
 
 
+def mock_get_dburl():
+    return ''
+
 def mock_config_value(key, default=None):
     return 'pytestdb'
 
@@ -93,6 +96,7 @@ def mock_create_indexes(sid, dbname, flds):
 
 def test_mongoconnection(monkeypatch):
     monkeypatch.setattr('processor.database.database.config_value', mock_config_value)
+    monkeypatch.setattr('processor.database.database.get_dburl', mock_get_dburl)
     monkeypatch.setattr('processor.database.database.MongoClient', MyMongoClient)
     from processor.database.database import mongoconnection, mongodb, init_db,\
         get_collection, collection_names, insert_one_document, insert_documents,\
@@ -176,5 +180,5 @@ def test_db_log_DBhandler(monkeypatch, create_temp_dir, create_terraform):
     fname = create_terraform(newpath, '\n'.join(log_config), 'a1.ini')
     log_ini = '%s/%s' % (newpath, fname)
     from processor.logging.log_handler import logging_fw
-    logger = logging_fw(log_ini)
+    logger = logging_fw(log_ini, 0)
     assert logger is not None

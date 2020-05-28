@@ -4,9 +4,10 @@ import json
 import time
 import glob
 from collections import OrderedDict
-from processor.helper.file.file_utils import exists_file
+from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor.helper.config.config_utils import get_test_json_dir
 from processor.logging.log_handler import getlogger
+from bson import json_util
 
 SNAPSHOT = 'snapshot'
 MASTERSNAPSHOT = 'masterSnapshot'
@@ -28,11 +29,26 @@ collectiontypes = {
 logger = getlogger()
 
 
+def store_snapshot(snapshot_dir, data):
+    if exists_dir(snapshot_dir):
+        snapshot_file = '%s/%s' % (snapshot_dir, data['snapshotId'])
+        save_json_to_file(data, snapshot_file)
+
+
+def make_snapshots_dir(container):
+    snapshot_dir = None
+    json_dir = '%s%s' % (get_test_json_dir(), container)
+    if exists_dir(json_dir):
+        snapshot_dir = '%s/snapshots' % json_dir
+        mkdir_path(snapshot_dir)
+    return snapshot_dir
+
+
 def save_json_to_file(indata, outfile):
     """Save json data to the file"""
     if indata is not None:
         try:
-            instr = json.dumps(indata, indent=2)
+            instr = json.dumps(indata, indent=2, default=json_util.default)
             with open(outfile, 'w') as jsonwrite:
                 jsonwrite.write(instr)
         except:
@@ -54,12 +70,18 @@ def json_from_file(jsonfile, escape_chars=None):
     jsondata = None
     try:
         if exists_file(jsonfile):
-            with open(jsonfile) as infile:
-                data = infile.read()
-                if escape_chars and isinstance(escape_chars, list):
-                    for escape_char in escape_chars:
-                        data = data.replace(escape_char, '\\\%s' % escape_char)
-                jsondata = json.loads(data, object_pairs_hook=OrderedDict)
+            file_data = None
+            try:
+                with open(jsonfile) as infile:
+                    file_data = infile.read()
+            except UnicodeDecodeError:
+                with open(jsonfile, 'r', encoding='utf-8') as infile:
+                    file_data = infile.read()
+
+            if escape_chars and isinstance(escape_chars, list):
+                for escape_char in escape_chars:
+                    file_data = file_data.replace(escape_char, '\\\%s' % escape_char)
+            jsondata = json.loads(file_data, object_pairs_hook=OrderedDict)
     except Exception as ex:
         logger.debug('Failed to load json from file: %s, exception: %s', jsonfile, ex)
     return jsondata

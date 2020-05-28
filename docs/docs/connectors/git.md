@@ -1,4 +1,4 @@
-The **Git** connector allows you to inspect files from a repository. It acts more as a prevention mechanism when opposed to service connectors such as **AWS** or **Azure**. While the **Git** connector will inspect a static file commited into your project, the service connectors validate actual infrastructure components. Therefore, you should use this connector to preemptively catch errors in your cloud management templates before applying changes to your infrastructure.
+The **Filesystem** connector allows you to inspect files from a local file system or git repository. It acts more as a prevention mechanism when opposed to service connectors such as **AWS** or **Azure**. This is the main connector we use for **Infrastructure as Code** validation. While the **Filesystem** connector will inspect a static file committed into your project, the service connectors validate actual infrastructure components. Therefore, you should use this connector to preemptively validate your cloud management templates before applying changes to your infrastructure.
 
 # SSH user configuration
 
@@ -17,16 +17,26 @@ To use HTTPS as a checkout source, you will need a repository on a hosted soluti
 
 # Connector configuration file
 
-To configure the **Git** connector, copy the following code to a file named `gitConnector.json` in your **Prancer** project folder.
+To configure the **Filesystem** connector, copy the following code to a file named `fsConnector.json` in your **Prancer** project folder.
 
 > <NoteTitle>Notes: Naming conventions</NoteTitle>
 >
-> This file can be named anything you want but we suggest `gitConnector.json`
+> This file can be named anything you want but we suggest `fsConnector.json`
+
+**local filesystem example**
+
+{
+    "fileType": "structure",
+    "type": "filesystem",
+    "companyName": "Organization name",
+    "folderPath": "<path-to-folder>"
+}
 
 **Public HTTPS or SSH example**
 
     {
         "fileType": "structure",
+        "type": "filesystem",
         "companyName": "Organization name",
         "gitProvider": "<url-to-repository>",
         "branchName": "<branch>",
@@ -37,6 +47,7 @@ To configure the **Git** connector, copy the following code to a file named `git
 
     {
         "fileType": "structure",
+        "type": "filesystem",
         "companyName": "Organization name",
         "gitProvider": "<url-to-repository>",
         "branchName": "<branch>",
@@ -50,6 +61,7 @@ To configure the **Git** connector, copy the following code to a file named `git
 
     {
         "fileType": "structure",
+        "type": "filesystem",
         "companyName": "Organization name",
         "gitProvider": "<url-to-repository>",
         "branchName": "<branch>",
@@ -68,11 +80,12 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | httpsPassword | Password used to connect to the repository when using a private HTTPS repository |
 | sshUser | Username used to execute operations on repository such as commits, merges, tags, etc |
 | sshHost | Host entry to put in temporary config file, this should be the same as what is in `url-to-repository` |
-| path-to-private-ssh-key-file | Path to the private key file when using a private SSH repository |
+| sshKeyfile | Path to the private key file when using a private SSH repository. this should be an absolute path. do not use `~` for home directory |
 | private | Boolean value stating if the repository is private or public |
+| folderPath | Absolute path to the folder  |
 
 * **Note**: Path expansions are not implemented yet, you need to provide full paths!
 
 # Users
 
-Other connectors such as **AWS** and **Azure** allow you to configure multiple users, the **Git** connector doesn't as it doesn't have permissions other than read. This means that you must always use the same username defined in the **Git** connector file in the snapshot configuration files.
+Other connectors such as **AWS** and **Azure** allow you to configure multiple users, the **filesystem** connector doesn't as it doesn't have permissions other than read. This means that you must always use the same username defined in the **filesystem** connector file in the snapshot configuration files.

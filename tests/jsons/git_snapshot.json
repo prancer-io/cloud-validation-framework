@@ -10,7 +10,7 @@
       "snapshots" : [
         {
           "source": "gitConnector",
-          "type": "git",
+          "type": "filesystem",
           "testUser": "git",
           "nodes": [
             {
@@ -38,7 +38,7 @@
       "snapshots" : [
         {
           "source": "gitConnector",
-          "type": "git",
+          "type": "filesystem",
           "testUser": "git",
           "nodes": [
             {

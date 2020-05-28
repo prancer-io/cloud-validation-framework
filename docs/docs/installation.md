@@ -1,6 +1,11 @@
+> Target Platform : Basic Edition
+
 **Prancer** uses the popular **Python 3** language interpreter. Read on to learn how to install the dependencies for **Prancer** but also the framework itself. You can install **Prancer** using the source code available on **GitHub** or using the **Pip** package manager.
 
-# Installing Python3 on your system
+# Installing Prerequisites
+
+    - Python 3.6
+    - pip3
 
 Installing **Python3** is fairly simple on most OS' as they will provide you with either a package manager or, for `Windows`, you will be able to find an installer on the official **Python3** [download page](https://www.python.org/downloads/).
 
@@ -22,19 +27,11 @@ To install **Prancer**, you just need to run a command using **Pip** (the **Pyth
 
 To test that everything works fine, run the following command:
 
-    prancer --help
+    prancer --version
 
 If you see something like:
 
-    (cli_validator: 170) - START: Argument parsing and Run Initialization.
-    usage: Prancer Basic Functionality [-h] [--db {DB,FS}] container
-
-    positional arguments:
-    container     Container tests directory.
-
-    optional arguments:
-    -h, --help    show this help message and exit
-    --db {DB,FS}  Mongo database or filesystem to be used for input/output data.
+    Prancer 1.0.4
 
 Then it means everything worked fine.
 
@@ -48,9 +45,20 @@ Go to a directory of your choice, but not in your web application's project dire
 
     git clone https://github.com/prancer-io/cloud-validation-framework.git
 
+Then change directory to the cloned directory:
+
+    cd cloud-validation-framework
+
 You will also need to install the requirements for the framework to ensure proper usage:
 
     pip3 install -r requirements.txt
+
+export the following variables:
+
+
+    export BASEDIR=`pwd`
+    export PYTHONPATH=$BASEDIR/src
+    export FRAMEWORKDIR=$BASEDIR
 
 From that point on, you can run the tool manually using:
 
@@ -59,20 +67,30 @@ From that point on, you can run the tool manually using:
 If you see something like:
 
     2019-04-12 09:47:18,556(cli_validator:  23) - Command: 'python3 /usr/local/bin/prancer --help'
-    usage: Prancer Basic Functionality [-h] [--db {DB,FS}] container
+    usage: Prancer Basic Functionality [-h] [-v] [--db {NONE,SNAPSHOT,FULL}]
+                                   [--crawler] [--test TEST]
+                                   [--customer CUSTOMER]
+                                   container
 
     positional arguments:
-    container     Container tests directory.
+        container             Container tests directory.
 
     optional arguments:
-    -h, --help    show this help message and exit
-    --db {DB,FS}  Mongo database or filesystem to be used for input/output data.
+        -h, --help            show this help message and exit
+        -v, --version         Show prancer version
+        --db {NONE,SNAPSHOT,FULL}
+                                NONE - Mongo database not used, SNAPSHOT - for storing
+                                snapshots, FULL - Tests, configurations, outputs and
+                                snapshots in database
+        --crawler             Crawl and generate snapshot files only
+        --test TEST           Run a single test in NODB mode
+        --customer CUSTOMER   customer name for config
 
 Then it means everything worked fine.
 
 # Installing MongoDB
 
-Another tool you have install is a **MongoDB** server. You need a **MongoDB** server to store snapshots of your resources but also, some of the configurations can be stored on it instead of in files. 
+**MongoDB** server is an optional installation to run prancer framework. It is possible to store all the output files on the filesystem. You need a **MongoDB** server to store snapshots of your resources but also, some of the configurations can be stored on it instead of in filesystem. 
 
 > <NoteTitle>Optional dependency</NoteTitle>
 >

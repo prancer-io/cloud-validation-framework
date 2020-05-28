@@ -1,6 +1,8 @@
 """Framework Configuration utilities"""
 import configparser
+import time
 import os
+import threading
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 FRAMEWORKDIR = None
@@ -12,24 +14,76 @@ DBTESTS = 'database'
 DBNAME = 'dbname'
 DBURL = 'dburl'
 CFGFILE = 'config.ini'
+NONE = 'NONE'
+SNAPSHOT = 'SNAPSHOT'
+FULL = 'FULL'
+SINGLETEST = 'singletest'
+CUSTOMER = "customer"
+DBVALUES = [NONE, SNAPSHOT, FULL]
+
+
+def parseint(value, default=0):
+    intvalue = default
+    try:
+        intvalue = int(value)
+    except:
+        pass
+    return intvalue
+
+
+def parsebool(val, defval=False):
+    "Parse boolean from the input value"
+    retval = defval
+    if val:
+        if isinstance(val, str) and val.lower() in ['false', 'true']:
+            retval = True if val.lower() == 'true' else False
+        else:
+            retval = bool(parseint(val))
+    return retval
+
+def get_framework_currentdata_for_customer(space_id):
+    """Return the framework currentdata file path for customer."""
+    global CURRENTDATA
+    if CURRENTDATA:
+        return CURRENTDATA
+    CURRENTDATA = '%s/config/%s/%d_rundata' % (framework_dir(), space_id, int(time.time() * 1000))
+    return CURRENTDATA
 
 
 def framework_currentdata():
     """Return the framework current data."""
-    global CURRENTDATA
-    if CURRENTDATA:
+    space_id = os.getenv(str(threading.currentThread().ident) + "_SPACE_ID", None)
+    if space_id:
+        return get_framework_currentdata_for_customer(space_id)
+    else:
+        global CURRENTDATA
+        if CURRENTDATA:
+            return CURRENTDATA
+        CURRENTDATA = '%s/rundata' % framework_dir()
         return CURRENTDATA
-    CURRENTDATA = '%s/rundata' % framework_dir()
-    return CURRENTDATA
 
 
 def framework_config():
     """Return the framework config file."""
-    global FRAMEWORKCONFIG
-    if FRAMEWORKCONFIG:
+    space_id = os.getenv(str(threading.currentThread().ident) + "_SPACE_ID", None)
+    if space_id:
+        return get_framework_config_for_customer(space_id)
+    else:
+        global FRAMEWORKCONFIG
+        if FRAMEWORKCONFIG:
+            return FRAMEWORKCONFIG
+        FRAMEWORKCONFIG = '%s/%s' % (framework_dir(), CFGFILE)
         return FRAMEWORKCONFIG
-    FRAMEWORKCONFIG = '%s/%s' % (framework_dir(), CFGFILE)
+
+def get_framework_config_for_customer(space_id):
+    """Return the framework config file path for customer."""
+    FRAMEWORKCONFIG = '%s/config/%s/%s' % (framework_dir(), space_id, CFGFILE)
     return FRAMEWORKCONFIG
+
+
+def get_base_log_dir():
+    logdir = os.getenv('LOGDIR', None)
+    return logdir
 
 
 def framework_dir():

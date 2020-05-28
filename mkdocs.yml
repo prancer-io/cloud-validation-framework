@@ -10,25 +10,33 @@ theme:
 nav:
   - Getting Started!: index.md
   - Terminology: terminology.md
-  - Workflow: workflow.md
   - Installation: installation.md
+  - Workflow: workflow.md
+  - How to Access: access.md
   - Configuration:
-    - Basics: configuration/basics.md
+    - Files and Folders structure: configuration/basics.md
+    - Configuration file: configuration/config.md
     - Logging: configuration/logging.md
     - Secrets: configuration/secrets.md
   - Connectors:
+    - Definition: connectors/connector-definition.md
+    - Filesystem connector: connectors/git.md
     - AWS connector: connectors/aws.md
     - Azure connector: connectors/azure.md
-    - Git connector: connectors/git.md
+  - Crawler:
+    - Definition: crawler/crawler-definition.md
   - Snapshots:
+    - Definition: snapshots/snapshot-definition.md
     - AWS snapshot: snapshots/aws.md
     - Azure snapshot: snapshots/azure.md
-    - Json snapshot: snapshots/json.md
-    - Terraform snapshot: snapshots/terraform.md
+    - Filesystem snapshot: snapshots/filesystem.md
   - Tests:
+    - Definition: tests/tests-definition.md
     - Test basics: tests/basics.md
+    - Master test file: tests/master-test.md
     - Looking for test data: tests/look-for-data.md
     - Rule syntax: tests/syntax.md
+    - OPA Integration: tests/opa.md
     - Test ouput files: tests/outputs.md
   - Limitations & workarounds:
     - AWS resources: limitations/aws-limitations.md

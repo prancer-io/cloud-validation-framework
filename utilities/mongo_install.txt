@@ -1,0 +1,21 @@
+# Reference:  https://www.linode.com/docs/databases/mongodb/install-mongodb-on-ubuntu-16-04/
+# These are instructions for installation of mongodb 4.0 on Ubuntu 16.04(xenial) 
+
+sudo apt-get update
+sudo apt-get upgrade
+# GPG signing key for mongodb 3.12
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+# GPG signing key for mongodb 4.0
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+# For Ubuntu 16.04
+echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+# For Ubuntu 18.04
+echo "deb http://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+sudo apt-get update
+
+sudo apt-get install -y mongodb-org
+
+sudo systemctl start mongodb
+sudo systemctl status mongodb
+sudo systemctl stop mongodb
+sudo systemctl restart mongodb

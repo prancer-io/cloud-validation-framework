@@ -1,8 +1,0 @@
-{
-    "fileType": "structure",
-    "companyName": "<Company Name>",
-    "gitProvider": "https://ebizframework.visualstudio.com/whitekite/_git/whitekite",
-    "repoCloneAddress":"/tmp/m",
-    "branchName":"<Branch Name>",
-    "username":"<Username a@b.com>"
-}
