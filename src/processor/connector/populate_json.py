@@ -267,6 +267,6 @@ def pull_json_data(document_json):
         
         return validate
     else:
-        logger.info('Require valid fields for populate JSON are not present!')
+        raise Exception('Require valid fields for populate JSON are not present!')
 
     return False

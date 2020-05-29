@@ -183,16 +183,16 @@ def populate_container_snapshots_database(container):
         for doc in docs:
             if doc['json']:
                 snapshot = doc['name']
-
-                git_connector_json = False
-                if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
-                    git_connector_json = True
-
-                if git_connector_json:
-                    pull_response = pull_json_data(doc['json'])
-                    if not pull_response:
-                        break
                 try:
+                    git_connector_json = False
+                    if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
+                        git_connector_json = True
+
+                    if git_connector_json:
+                        pull_response = pull_json_data(doc['json'])
+                        if not pull_response:
+                            break
+
                     if snapshot in snapshots and snapshot not in populated:
                         # Take the snapshot and populate whether it was successful or not.
                         # Then pass it back to the validation tests, so that tests for those

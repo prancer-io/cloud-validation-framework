@@ -291,9 +291,9 @@ def run_subprocess_cmd(cmd, ignoreerror=False, maskoutput=False, outputmask="Err
             errresult = errresult.decode()
         if not ignoreerror and errresult:
             if maskoutput:
-                logger.info("OUTPUT: %s, ERROR: %s", outputmask, outputmask)
+                logger.error("OUTPUT: %s, ERROR: %s", outputmask, outputmask)
             else:
-                logger.info("CMD: '%s', OUTPUT: %s, ERROR: %s", cmd, result, errresult)
+                logger.error("OUTPUT: %s, ERROR: %s", result, errresult)
     return errresult, result
 
 

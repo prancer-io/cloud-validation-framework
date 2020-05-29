@@ -96,7 +96,7 @@ def _get_vault_token():
                                          'Enter the client secret to access keyvault: ')
         # client_secret = config_value('VAULT', 'client_secret')
         tenant_id = config_value('VAULT', 'tenant_id')
-        logger.info('Id: %s, secret: %s, tenant: %s', client_id, client_secret, tenant_id)
+        # logger.info('Id: %s, secret: %s, tenant: %s', client_id, client_secret, tenant_id)
         vaulttoken = get_vault_access_token(tenant_id, client_id, client_secret)
     return vaulttoken
 
@@ -105,7 +105,7 @@ def get_azure_vault_data(secret_key=None):
     """Fetches the bearer token for Azure Vault API calls"""
     val = None
     vaulttoken = _get_vault_token()
-    logger.debug('Vault Token: %s', vaulttoken)
+    # logger.debug('Vault Token: %s', vaulttoken)
     if vaulttoken and secret_key:
         keyvault = config_value('VAULT', 'keyvault')
         # secret_key = config_value('VAULT', 'secret_key')

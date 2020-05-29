@@ -260,20 +260,24 @@ def run_container_validation_tests_database(container, snapshot_status=None):
         logger.info('Number of test Documents: %s', len(docs))
         for doc in docs:
             if doc['json']:
-                if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
-                    pull_response = pull_json_data(doc['json'])
-                    if not pull_response:
-                        return {}
-                resultset = run_json_validation_tests(doc['json'], container, False)
-                if resultset:
+                try:
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
-                    test_file = doc['name'] if 'name' in doc else ''
-                    dump_output_results(resultset, container, test_file, snapshot, False)
-                    for result in resultset:
-                        if 'result' in result:
-                            if not re.match(r'passed', result['result'], re.I):
-                                finalresult = False
-                                break
+                    if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
+                        pull_response = pull_json_data(doc['json'])
+                        if not pull_response:
+                            return {}
+                    resultset = run_json_validation_tests(doc['json'], container, False)
+                    if resultset:
+                        test_file = doc['name'] if 'name' in doc else ''
+                        dump_output_results(resultset, container, test_file, snapshot, False)
+                        for result in resultset:
+                            if 'result' in result:
+                                if not re.match(r'passed', result['result'], re.I):
+                                    finalresult = False
+                                    break
+                except Exception as e:
+                    dump_output_results([], container, "-", snapshot, False)
+                    raise e
     else:
         logger.info('No test Documents found!')
         test_files_found = False
