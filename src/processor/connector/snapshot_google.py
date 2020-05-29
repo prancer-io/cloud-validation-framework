@@ -500,9 +500,12 @@ def generate_gce(google_data, project, user):
         try:
             gce['private_key'] = open(private_key_path, 'r', encoding="utf-8").read().replace("\\n","\n")
             if gce['private_key']:
-                logger.info('Private ket from Private key path, Secret: %s', '*' * len(gce['private_key']))
+                logger.info('Private key from Private key path, Secret: %s', '*' * len(gce['private_key']))
         except Exception as e:
-            raise Exception("Failed to read the private key from private key path : %s " % str(e))
+            raise Exception("Private key does not exist at given private key path : %s " % str(e))
+        
+        if not gce['private_key']:
+            raise Exception("Private key does not exist at given private key path : %s " % private_key_path)
     
     # Read the private key from the vault
     if not gce['private_key']:
