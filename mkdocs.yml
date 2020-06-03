@@ -23,6 +23,7 @@ nav:
     - Filesystem connector: connectors/git.md
     - AWS connector: connectors/aws.md
     - Azure connector: connectors/azure.md
+    - Google connector: connectors/google.md
   - Crawler:
     - Definition: crawler/crawler-definition.md
   - Snapshots:
