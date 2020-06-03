@@ -113,3 +113,16 @@ To ensure **MongoDB** works fine, run:
 If you see the **Mongo shell** start, everything works fine, you can exit it.
 
 > Refer to the official [MongoDB Installation](https://docs.mongodb.com/manual/installation/) for more information.
+
+# Upgrading prancer validation framework
+
+You can use `pip3` to upgrade `prancer-basic` executables on your computer.
+First you need to know to which version you want to upgrade. You can browse different versions here and find the latest available one. [click here](https://github.com/prancer-io/cloud-validation-framework/releases)
+
+The command to upgrade is:
+    pip3 install -U prancer-basic==<latest-version>
+
+For example, if you want to upgrade to version `1.0.8`, you should run:
+    pip3 install -U prancer-basic==1.0.8
+
+    

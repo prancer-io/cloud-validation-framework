@@ -25,12 +25,22 @@ To configure the **Filesystem** connector, copy the following code to a file nam
 
 **local filesystem example**
 
-{
-    "fileType": "structure",
-    "type": "filesystem",
-    "companyName": "Organization name",
-    "folderPath": "<path-to-folder>"
-}
+```
+    {
+        "fileType": "structure",
+        "type": "filesystem",
+        "companyName": "Organization name",
+        "folderPath": "<path-to-folder>"
+    }
+```
+Remember to substitute all values in this file that looks like a `<tag>` such as:
+
+| tag | What to put there |
+|-----|-------------------|
+| path-to-folder | Absolute path to the folder  |
+
+* **Note**: Path expansions are not implemented yet, you need to provide full paths!
+
 
 **Public HTTPS or SSH example**
 
@@ -42,6 +52,17 @@ To configure the **Filesystem** connector, copy the following code to a file nam
         "branchName": "<branch>",
         "private": false
     }
+
+Remember to substitute all values in this file that looks like a `<tag>` such as:
+
+| tag | What to put there |
+|-----|-------------------|
+| url-to-repository | Enter the HTTPS or SSH url to the repository |
+| branch | Branch to checkout |
+| private | Boolean value stating if the repository is private or public |
+
+* **Note**: Path expansions are not implemented yet, you need to provide full paths!
+
 
 **Private SSH example**
 
@@ -56,6 +77,19 @@ To configure the **Filesystem** connector, copy the following code to a file nam
         "sshHost": "<hostname-of-repo>",
         "private": true
     }
+
+Remember to substitute all values in this file that looks like a `<tag>` such as:
+
+| tag | What to put there |
+|-----|-------------------|
+| url-to-repository | Enter the HTTPS or SSH url to the repository |
+| branch | Branch to checkout |
+| username-of-repo | Username used to execute operations on repository such as commits, merges, tags, etc |
+| hostname-of-repo | Host entry to put in temporary config file, this should be the same as what is in `url-to-repository` |
+| path-to-private-ssh-key-file | Path to the private key file when using a private SSH repository. this should be an absolute path. do not use `~` for home directory |
+| private | Boolean value stating if the repository is private or public |
+
+* **Note**: Path expansions are not implemented yet, you need to provide full paths!
 
 **Private HTTPS example**
 
@@ -76,15 +110,23 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 |-----|-------------------|
 | url-to-repository | Enter the HTTPS or SSH url to the repository |
 | branch | Branch to checkout |
-| httpsUser | Username used to connect to the repository when using a private HTTPS repository |
-| httpsPassword | Password used to connect to the repository when using a private HTTPS repository |
-| sshUser | Username used to execute operations on repository such as commits, merges, tags, etc |
-| sshHost | Host entry to put in temporary config file, this should be the same as what is in `url-to-repository` |
-| sshKeyfile | Path to the private key file when using a private SSH repository. this should be an absolute path. do not use `~` for home directory |
+| username | Username used to connect to the repository when using a private HTTPS repository |
+| password | Password used to connect to the repository when using a private HTTPS repository |
 | private | Boolean value stating if the repository is private or public |
-| folderPath | Absolute path to the folder  |
 
-* **Note**: Path expansions are not implemented yet, you need to provide full paths!
+
+> <NoteTitle>Notes</NoteTitle>
+> Putting the `httpsPassword` in the connector file is only good for testing purposes. We recommend moving the `httpsPassword` out of the connector file. 
+
+To move the `httpsPassword` out of the connector file, you have two options:
+ - set the environment variable to store the password
+ - using vault [vault configuration](../configuration/secrets.md)
+
+To set an environment variable, you should export the `username` and assign the `password` value to that. For example, if your username is `prancer-git` and your password is `password`:
+
+    export prancer-git=password
+
+When you run the prancer, it will automatically reading the value from environment variable.
 
 # Users
 

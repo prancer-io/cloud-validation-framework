@@ -1,6 +1,6 @@
 The **Azure** connector allows you to inspect your **Azure** infrastructure using their api. The connector is a wrapper around the **Azure** ReST api.
 
-# Azure principals
+# Azure Service Principals
 
 To use the **Azure** connector, you must create a service principal name (SPN) in the **Azure Active Directory** and configure its permissions properly. The SPN requires read permission on all services that you wish to inspect.
 
@@ -40,6 +40,8 @@ To configure the `Azure` connector, copy the following code to a file named `azu
 > This file can be named anything you want but we suggest `azureConnector.json`
 
     {
+        "filetype":"structure",
+        "type":"azure",
         "companyName": "Company Name",
         "tenant_id": "<tenant-id>",
         "accounts": [
@@ -72,6 +74,8 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | spn-client-id | Client id of the application you registered previously |
 | spn-client-secret | Secret key associated with client id previously created |
 
+> It is not recommended to put the secret key in the `connector` file. This is good just for testing purposes
+
 # Company and tenant
 
 You need an **Azure** tenant to work with **Prancer**. Each `azureConnector.json` can only feature 1 tenant but can feature many subscriptions and users.
@@ -83,3 +87,18 @@ You do not need to have a real account/department name for the accounts section,
 The subscriptions portion specify which subscription you want to inspect. You can configure as many subscriptions and users as you want per file. 
 
 If you want to link multiple subscriptions together in your tests or want different users to be used to inspect your configuration, you must specify all of them here. Later, in snapshot configuration files, you will specify which user to use to inspect the infrastructure, but it must be defined here beforehand.
+
+# Client Secret 
+
+There are three options available to store the client secret for an SPN account:
+ - In connector file
+ - In Environment variable
+ - In a vault
+
+ Keeping the client secret in the `connector` file is good only for testing purposes. 
+
+ You can keep the client secret as an environment variable. The name of the environment variable will be the name of the SPN account. For example, if the name of the SPN account is `prancer_spn` and the secret is `a1b2c3` :
+
+    export prancer_spn=a1b2c3
+
+Keeping the client secret in the vault is the most secure and recommended way of keeping the secret in prancer framework. To learn more visit [secrets section](../configuration/secrets.md)

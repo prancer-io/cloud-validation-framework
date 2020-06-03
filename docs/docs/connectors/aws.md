@@ -1,4 +1,4 @@
-The **AWS** (Amazon Web Services) connector allows you to inspect your **AWS** infrastructure using their api. The connector is a wrapper around the **AWS** ReST api and command line tool. It leverages inspection of the infrastructure using the `describe-xyz` operations available for each service provider.
+The **AWS** (Amazon Web Services) connector allows you to inspect your **AWS** infrastructure using their api. The connector is a wrapper around the **AWS** ReST api and command line tool. It leverages inspection of the infrastructure using various aws verbs like `describe-xyz` `get-xyz` `list-xyz` ... operations available for each service provider.
 
 # IAM user configuration
 
@@ -31,24 +31,21 @@ To configure the **AWS** connector, copy the following code to a file named `aws
 
     {
         "organization": "Organization name",
+        "type": "aws",
         "fileType": "structure",
-        "organization-unit": [
+        "name": "Unit/Department name",
+        "accounts": [
             {
-                "name": "Unit/Department name",
-                "accounts": [
+                "account-name": "Account name",
+                "account-description": "Description of account",
+                "account-id": "<account-id>",
+                "users": [
                     {
-                        "account-name": "Account name",
-                        "account-description": "Description of account",
-                        "account-id": "<account-id>",
-                        "users": [
-                            {
-                                "name": "<iam-user>",
-                                "access-key": "<iam-access-key>",
-                                "secret-access": "<secret-access-key>",
-                                "region":"<region>",
-                                "client": "EC2"
-                            }
-                        ]
+                        "name": "<iam-user>",
+                        "access-key": "<iam-access-key>",
+                        "secret-access": "<secret-access-key>",
+                        "region":"<region>",
+                        "client":"<client>"
                     }
                 ]
             }
@@ -59,10 +56,12 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 
 | tag | What to put there |
 |-----|-------------------|
-| account-id | Your **AWS** account id, find this in the **AWS console** account menu drop-down |
+| account-id | Your **AWS** account id, find this in the **AWS console** account menu drop-down. [AWS docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html) |
 | iam-user | Name of the **IAM** user, we suggest `prancer_ro` |
 | iam-access-key | The programmatic **access key** associated to that user |
 | secret-access-key | The programmatic **secret** associated to the access key |
+| region       |        default region where service instance is to be searched. Its optional|     us-west-1     |
+| client     |      default AWS service name. Its optional|    EC2, S3 etc    |
 
 If you do not have access to an **access key** or to the **secret** you will have to create a new access key and decommission the old one.
 
@@ -79,3 +78,19 @@ You can define as many organizations as you want in a connector file.
 The accounts portion specify which account you want to inspect. You can configure as many accounts and users as you want per file. 
 
 If you want to link multiple accounts together in your tests or want different users to be used to inspect your configuration, you must specify all of them here. Later, in snapshot configuration files, you will specify which user to use to inspect the infrastructure, but it must be defined here beforehand.
+
+# Secret Access
+
+There are three options available to store the secret access for an IAM account: 
+
+- In aws connector file 
+- In Environment variable 
+- In a vault
+
+Keeping the secret access in the connector file is good only for testing purposes.
+
+You can keep the secret access as an environment variable. The name of the environment variable will be the name of the IAM account. For example, if the name of the IAM account is prancer_iam and the secret is a1b2c3 :
+
+    export prancer_iam=a1b2c3
+
+Keeping the secret access in the vault is the most secure and recommended way of keeping the secret in prancer framework. To learn more visit [secrets section](../configuration/secrets.md)
