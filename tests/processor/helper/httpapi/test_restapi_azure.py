@@ -120,9 +120,9 @@ def test_web_client_data(monkeypatch):
     from processor.helper.httpapi.restapi_azure import get_client_secret, get_web_client_data
     assert 'clientSecret' == get_client_secret()
     client_id, client_secret, sub_name, sub_id, tenant_id = \
-        get_web_client_data('azure', 'azureConnector.json', '<User name abc@mno.com>')
+        get_web_client_data('azure', 'azureConnector.json', '<spn-name>')
     assert client_id is not None
-    assert client_secret == '<Service Principal Secret, if empty will prompt>'
+    assert client_secret == '<client_secret>'
     assert sub_id is not None
     assert sub_name is not None
     assert tenant_id is not None
