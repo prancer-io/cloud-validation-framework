@@ -1,0 +1,20 @@
+{
+    "organization": "Organization name",
+    "type": "aws",
+    "fileType": "structure",
+    "name": "Unit/Department name",
+    "accounts": [
+        {
+            "account-name": "Account name",
+            "account-description": "Description of account",
+            "account-id": "<account-id>",
+            "users": [
+                {
+                    "name": "<iam-user>",
+                    "access-key": "<access-key>",
+                    "secret-access": "<secret-access>"
+                }
+            ]
+        }
+    ]
+}

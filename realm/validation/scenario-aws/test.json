@@ -1,0 +1,19 @@
+{
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "fileType": "test",
+    "notification": [],
+    "snapshot": "snapshot",
+    "testSet": [
+        {
+            "TestName": "testAWS",
+            "version": "0.1",
+            "cases": [
+                {
+                    "testId": "AWS_EC2_01_TEST_1",
+                    "rule": "{AWS_EC2_01}.Reservations[*].Instances[*].SecurityGroups[*].GroupName='launch-wizard-1'"
+                }                                                       
+            ]
+        }
+    ]
+}

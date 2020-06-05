@@ -5,7 +5,6 @@
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
     "token_uri": "https://oauth2.googleapis.com/token",
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "<As in from google.json file>",
     "projects": [
         {
             "project-name": "<Project Name>",
@@ -17,7 +16,8 @@
                     "private_key_id": "<Private Key Id>",
                     "private_key": "<Actual Private Key>",
                     "client_email": "<acc>@<project>.iam.gserviceaccount.com",
-                    "client_id": "<client id>"
+                    "client_id": "<client id>",
+                    "client_x509_cert_url": "<As in from google.json file>"
                 }
             ]
         }

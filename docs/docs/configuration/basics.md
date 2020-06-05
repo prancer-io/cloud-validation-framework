@@ -37,6 +37,31 @@ Look at the next sections to understand what you can put in this file.
 ### Azure api version file
 **Prancer** requires a special configuration to support calling the **Azure** apis. Each **Azure** api needs a specific version that the software should support and instead of baking this into the application we went for a description file that everyone can contribute to. Usually the name of the file is `azureApiVersions.json`
 
+
+> <NoteTitle>Notes: Naming conventions</NoteTitle>
+>
+> This file can be named anything you want but we suggest `azureApiVersions.json`
+
+    {
+        "Microsoft.Compute/availabilitySets": {
+            "version": "2018-06-01"
+        },
+        "Microsoft.Network/virtualNetworks": {
+            "version": "2018-07-01"
+        },
+        "Microsoft.Storage/storageAccounts": {
+            "version": "2018-07-01"
+        },
+        "Microsoft.KeyVault/vaults": {
+            "version": "2015-06-01"
+        },
+        "Microsoft.Network/networkSecurityGroups": {
+            "version": "2018-11-01"
+        },
+        "fileType": "structure",
+        "type": "others"
+    }
+
 ### Google resource file
 **Prancer** requires a special configuration to support calling the **Google cloud** apis. **Prancer** stores these information in `googleParamsVersions.json`
 
