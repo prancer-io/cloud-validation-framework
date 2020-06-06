@@ -131,3 +131,5 @@ When you run the prancer, it will automatically reading the value from environme
 # Users
 
 Other connectors such as **AWS** and **Azure** allow you to configure multiple users, the **filesystem** connector doesn't as it doesn't have permissions other than read. This means that you must always use the same username defined in the **filesystem** connector file in the snapshot configuration files.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/UKeRdakxYao" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

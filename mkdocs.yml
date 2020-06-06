@@ -28,9 +28,10 @@ nav:
     - Definition: crawler/crawler-definition.md
   - Snapshots:
     - Definition: snapshots/snapshot-definition.md
+    - Filesystem snapshot: snapshots/filesystem.md
     - AWS snapshot: snapshots/aws.md
     - Azure snapshot: snapshots/azure.md
-    - Filesystem snapshot: snapshots/filesystem.md
+    - Google snapshot: snapshots/google.md
   - Tests:
     - Definition: tests/tests-definition.md
     - Test basics: tests/basics.md
@@ -38,7 +39,7 @@ nav:
     - Looking for test data: tests/look-for-data.md
     - Rule syntax: tests/syntax.md
     - OPA Integration: tests/opa.md
-    - Test ouput files: tests/outputs.md
+    - Test output files: tests/outputs.md
   - Limitations & workarounds:
     - AWS resources: limitations/aws-limitations.md
     - AWS CloudFormation templates: limitations/aws-cloudformation-template-limitations.md

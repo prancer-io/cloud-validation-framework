@@ -27,3 +27,5 @@ If we target Premium Edition
 The first few pages of the documentation is for the general workflow, installation and terminology and then, each section will focus on specific aspects of the framework and each variant that you can use/configure. 
 
 At the end of the sections, you can find a few tutorials on how to integrate **Prancer** into your workflow.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/9Fr-6UCOYas" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

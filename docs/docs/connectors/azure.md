@@ -102,3 +102,5 @@ There are three options available to store the client secret for an SPN account:
     export prancer_spn=a1b2c3
 
 Keeping the client secret in the vault is the most secure and recommended way of keeping the secret in prancer framework. To learn more visit [secrets section](../configuration/secrets.md)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/T1Y9k-B6muw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

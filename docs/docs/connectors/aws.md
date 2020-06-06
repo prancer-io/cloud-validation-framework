@@ -94,3 +94,5 @@ You can keep the secret access as an environment variable. The name of the envir
     export prancer_iam=a1b2c3
 
 Keeping the secret access in the vault is the most secure and recommended way of keeping the secret in prancer framework. To learn more visit [secrets section](../configuration/secrets.md)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/jYnqi9qbZhg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

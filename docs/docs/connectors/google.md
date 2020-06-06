@@ -92,3 +92,5 @@ There are three options available to store the private key for the service accou
  You can keep the path to the private key in your connector file.
 
 Keeping the private key in the vault is the most secure and recommended way of keeping the secret in prancer framework. To learn more visit [secrets section](../configuration/secrets.md)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/eRE-TZ74xt0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

@@ -8,3 +8,5 @@ Currently the following providers are supported in the connector configuration f
 - Azure
 - AWS
 - Google Cloud
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/HjzUTxfKQ0U" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

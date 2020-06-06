@@ -1,4 +1,4 @@
-This snapshot configuration file type is used along with the **filesystem** connector. It allows you to take snaphots of entire files as resources to test.
+The Filesystem snapshot configuration file type is used along with the **filesystem** connector. It allows you to take snapshots of an entire file as a resource to test.
 
 # Snapshot configuration file
 
@@ -13,9 +13,6 @@ To setup a **filesystem** snapshot configuration file, copy the following code t
         "snapshots": [
             {
                 "source": "<name-of-connector>",
-                "type": "filesystem",
-                "testUser": "<user-to-use-on-connector>",
-                "branchName": "<branch-to-use-on-connector>",
                 "nodes": [
                     {
                         "snapshotId": "<snapshot-name>",
@@ -33,9 +30,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | tag | What to put there |
 |-----|-------------------|
 | name-of-connector | name of the **filesystem** connector configuration file |
-| user-to-use-on-connector | Same username as defined in the **filesystem** connector configuration file |
-| branch-to-use-on-connector | Same branch as defined in the **filesystem** connector configuration file. This attribute is only used when we are connecting to a **git** repository |
-| snapshot-name | Name of the snapshot, you will use this in test files |
+| snapshot-name | Name of the snapshot, you will use this in test files. The snapshot name should be unique |
 | file-type | type of the file. it could be `json` or `yaml` |
 | collection-name | Name of the **NoSQL** database collection used to store snapshots of this file |
 | relative-path-to-file | Path to the file to read, relative to the root of the repository that the connector checks out |
@@ -51,7 +46,6 @@ We use master snapshot configuration file to read all the files in a directory w
         "snapshots": [
             {
                 "source": "<name-of-connector>",
-                "testUser": "<user-to-use-on-connector>",
                 "nodes": [
                     {
                         "masterSnapshotId": "<master-snapshot-name>",
@@ -69,8 +63,6 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | tag | What to put there |
 |-----|-------------------|
 | name-of-connector | name of the **filesystem** connector configuration file |
-| user-to-use-on-connector | Same username as defined in the **filesystem** connector configuration file |
-| branch-to-use-on-connector | Same branch as defined in the **filesystem** connector configuration file. This attribute is only used when we are connecting to a **git** repository |
 | master-snapshot-name | Name of the snapshot, you will use this in test files |
 | file-type | type of the file. it could be `json` or `yaml` |
 | collection-name | Name of the **NoSQL** database collection used to store snapshots of this file |
