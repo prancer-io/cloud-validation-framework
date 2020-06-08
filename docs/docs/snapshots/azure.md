@@ -1,3 +1,5 @@
+The Azure snapshot configuration file type is used along with the **Azure** connector. It allows you to take snapshots of ReST api calls to the **Azure** api.
+
 # Snapshot configuration file
 
 To setup an **Azure** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
@@ -18,7 +20,8 @@ To setup an **Azure** snapshot configuration file, copy the following code to a 
                         "snapshotId": "<snapshot-name>",
                         "type": "<resource-provider>",
                         "collection": "<collection-name>",
-                        "path": "<resource-id>"
+                        "path": "<resource-id>",
+                        "status": "<status>"
                     }
                 ]
             }
@@ -31,11 +34,12 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 |-----|-------------------|
 | azure-connector | Name of the **Azure Connector** file you want to use to connect to Azure backend |
 | spn-username | Name of the **SPN** user to connect to the Azure backend, must be present in the **Azure** connector file |
-| subscription-id | Id of the subscription to inspect, must be the same as the user described in the **Azure** connector file |
+| subscription-id | Id of the subscription to inspect, must be the same as it is described in the **Azure** connector file |
 | snapshot-name | Name of the snapshot, you will use this in test files. This name should be unique in the container |
 | resource-provider | Type of resource being queried for, see below for more information |
 | collection-name | Name of the **NoSQL** db collection used to store snapshots of this file |
 | resource-id | The id that corresponds to the resource you want to take snapshot, see Paths below |
+| status | It could be active or inactive. If it is inactive then the snapshot is not taken from the provider |
 
 ### Azure Resource Provider
 
@@ -49,7 +53,7 @@ The **Azure** connector is a wrapper around the **Azure** ReST api. **Prancer** 
 | Virtual machines | Microsoft.Compute/virtualMachines |
 | MySQL databases | Microsoft.DBforMySQL/servers/{replaceThisWithServerName}/databases |
 
-The important part to remember is that if you find an **Azure** api endpoint in the documentation, you usually just need to copy and paste everything after the `providers/` in the endpoint and paste it in the node type.
+The important part to remember is that if you find an **Azure** api endpoint in the documentation, you usually just need to copy and paste everything after the `providers/` in the endpoint and paste it in the node type. For more information, you can check the [Azure documentation](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-services-resource-providers)
 
 ### Resource id
 
@@ -64,7 +68,6 @@ Prancer validation framework is using the Master Snapshot Configuration File in 
 
 ```
 {
-    "contentVersion": "1.0.0.0",
     "fileType":"masterSnapshot",
     "snapshots": [
         {

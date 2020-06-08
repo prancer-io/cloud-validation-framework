@@ -1,6 +1,8 @@
+The Google snapshot configuration file type is used along with the **Google** connector. It allows you to take snapshots of ReST api calls to the **Google Cloud Platform**  api.
+
 # Snapshot configuration file
 
-To setup an **Azure** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
+To setup an **GCP** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
 
 > <NoteTitle>Notes: Naming conventions</NoteTitle>
 >
@@ -10,15 +12,17 @@ To setup an **Azure** snapshot configuration file, copy the following code to a 
         "fileType": "snapshot",
         "snapshots": [
             {
-                "source": "<azure-Connector>",
-                "testUser": "<spn-username>",
-                "subscriptionId": "<subscription-id>",
+                "source": "<GCP-Connector>",
+                "testUser": "<service-account>",
+                "project-id": "<project-id>",
                 "nodes": [
                     {
                         "snapshotId": "<snapshot-name>",
                         "type": "<resource-provider>",
                         "collection": "<collection-name>",
-                        "path": "<resource-id>"
+                        "path": "<selfLink>",
+                        "status": "active",
+                        "validate": true
                     }
                 ]
             }
@@ -29,34 +33,25 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 
 | tag | What to put there |
 |-----|-------------------|
-| azure-connector | Name of the **Azure Connector** file you want to use to connect to Azure backend |
-| spn-username | Name of the **SPN** user to connect to the Azure backend, must be present in the **Azure** connector file |
-| subscription-id | Id of the subscription to inspect, must be the same as the user described in the **Azure** connector file |
+| GCP-connector | Name of the **GCP Connector** file you want to use to connect to GCP backend |
+| service-account | Name of the **service account**  to connect to the GCP backend, must be present in the **GCP** connector file |
+| project-id | Id of the project to inspect, must be the same as the one described in the **GCP** connector file |
 | snapshot-name | Name of the snapshot, you will use this in test files. This name should be unique in the container |
 | resource-provider | Type of resource being queried for, see below for more information |
 | collection-name | Name of the **NoSQL** db collection used to store snapshots of this file |
-| resource-id | The id that corresponds to the resource you want to take snapshot, see Paths below |
+| selfLink | Server-defined URL for the resource, see selfLink below |
+| status | status of the resource. It can be active or inactive |
+| validate | Boolean. resource validation |
 
-### Azure Resource Provider
+### Google Resource Provider
 
-The **resource-provider** parameter refers to a very wide list. Let's see how the **Azure** connector works to know how to properly set it up!
 
-The **Azure** connector is a wrapper around the **Azure** ReST api. **Prancer** will call a **GET** operation on the api using the **type-of-node** and **path**. For example:
 
-| What you need | Type of node |
-|---------------|--------------|
-| Availability Sets | Microsoft.Compute/availabilitySets | 
-| Virtual machines | Microsoft.Compute/virtualMachines |
-| MySQL databases | Microsoft.DBforMySQL/servers/{replaceThisWithServerName}/databases |
+### selfLink
 
-The important part to remember is that if you find an **Azure** api endpoint in the documentation, you usually just need to copy and paste everything after the `providers/` in the endpoint and paste it in the node type.
+selfLink is a GCP Server-defined URL for each resource. For example:
 
-### Resource id
-
-the id of the resource in the Azure. Usually it is in the format of: 
-`/resourceGroups/<name-of-the-resource-group>/providers/<name-of-the-provider>/<resource-name/`
-
-You can get the resource id from the URL in the Azure portal, or from the Azure CLI.
+    "selfLink": "projects/learning-123/zones/us-central1-a/instances/instance-1"
 
 # Master Snapshot Configuration File
 Master Snapshot Configuration File is to define **resource types**. We do not have individual resources in the Master Snapshot Configuration File, instead we have the type of resources.
@@ -70,7 +65,7 @@ Prancer validation framework is using the Master Snapshot Configuration File in 
         {
             "source": "<connector-name>",
             "testUser" : "<spn-username>",
-            "subscriptionId" : ["<subscription-id>"],
+            "project-id": "<project-id>",
             "nodes": [
                 {
                     "masterSnapshotId": "<master-Snapshot-Id>",
@@ -84,11 +79,3 @@ Prancer validation framework is using the Master Snapshot Configuration File in 
 ```
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
-|-----|-------------------|
-| azure-connector | Name of the **Azure Connector** file you want to use to connect to Azure backend |
-| spn-username | Name of the **SPN** user to connect to the Azure backend, must be present in the **Azure** connector file |
-| subscription-id | Id of the subscription to inspect, must be the same as the user described in the **Azure** connector file |
-| master-Snapshot-Id | Name of the master snapshot id, you will use this in master test files. This name should be unique in the container |
-| resource-provider | the type of the resource we want to capture during the crawl process. In the `azure` connector, this should be the resource type supported by Azure. |
-| collection-name | in which collection in database we want to store this resource type. Usually it is a good practice to have a separate collection for each type. But based on the scale of implementation, you may want to put multiple resource types in a single collection |
