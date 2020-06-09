@@ -92,6 +92,7 @@ import shutil
 import hcl
 import re
 import os
+import stat
 import glob
 import copy
 import pymongo
@@ -255,6 +256,22 @@ def create_ssh_config(ssh_dir, ssh_key_file, ssh_user):
     return ssh_config
 
 
+def create_ssh_file_vault_data(ssh_dir, ssh_key_file_data, ssh_fname):
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL  # Refer to "man 2 open".
+    mode = stat.S_IRUSR | stat.S_IWUSR
+    umask = 0o777 ^ mode
+    umask_original = os.umask(umask)
+    ssh_key_file = '%s/%s' % (ssh_dir, ssh_fname)
+    try:
+        fdesc = os.open(ssh_key_file, flags, mode)
+        with os.fdopen(fdesc, 'w') as fout:
+            for l in  ssh_key_file_data.split('\\n'):
+                fout.write(l + '\n')
+    finally:
+        os.umask(umask_original)
+    return ssh_key_file
+
+
 def get_pwd_from_vault(password_key):
     """ Return the git password from vault """
     password = get_vault_data(password_key)
@@ -340,9 +357,17 @@ def git_clone_dir(connector):
                         giturl, repopath)
             if isprivate:
                 ssh_key_file = get_field_value(connector, 'sshKeyfile')
-                if not exists_file(ssh_key_file):
-                    logger.error("Git connector points to a non-existent ssh keyfile!")
-                    return repopath, clonedir
+                ssh_key_name = get_field_value(connector, 'sshKeyName')
+                ssh_key_file_data = None
+                if ssh_key_file:
+                    if not exists_file(ssh_key_file):
+                        logger.error("Git connector points to a non-existent ssh keyfile!")
+                        return repopath, clonedir
+                elif ssh_key_name:
+                    ssh_key_file_data = get_vault_data(ssh_key_name)
+                    if not ssh_key_file_data:
+                        logger.info('Git connector points to a non-existent ssh keyName in the vault!')
+                        return repopath, clonedir
                 ssh_host = get_field_value(connector, 'sshHost')
                 ssh_user = get_field_value_with_default(connector, 'sshUser', 'git')
                 if not ssh_host:
@@ -353,6 +378,11 @@ def git_clone_dir(connector):
                     logger.error("Git ssh dir: %s already exists, cannot recreate it!", ssh_dir)
                     return repopath, clonedir
                 os.mkdir('%s/.ssh' % repopath, 0o700)
+                if not ssh_key_file and ssh_key_name and ssh_key_file_data:
+                    ssh_key_file = create_ssh_file_vault_data(ssh_dir, ssh_key_file_data, ssh_key_name)
+                    if not ssh_key_file:
+                        logger.info('Git connector points to a non-existent ssh keyName in the vault!')
+                        return repopath, clonedir
                 ssh_cfg = create_ssh_config(ssh_dir, ssh_key_file, ssh_user)
                 if not ssh_cfg:
                     logger.error("Creation of Git ssh config in dir: %s failed!", ssh_dir)
@@ -550,6 +580,18 @@ def main():
             "private": False,
             "sshHost": "github.com",
             "sshUser": "git"
+        },
+        {
+            "fileType": "structure",
+            "type": "filesystem",
+            "companyName": "prancer-test",
+            "gitProvider": "git@github.com:prancer-io/prancer-hello-world.git",
+            "branchName": "master",
+            "sshKeyfile": None,
+            "sshKeyName": "<thenameofthekeyinthevault>",
+            "sshUser": "git",
+            "sshHost": "github.com",
+            "private": True
         }
     ]
     for conn in connectors:

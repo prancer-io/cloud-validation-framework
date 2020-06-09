@@ -59,7 +59,7 @@ def get_all_vault_secrets():
 def get_all_azure_secrets():
     val = None
     vaulttoken = _get_vault_token()
-    logger.debug('Vault Token: %s', vaulttoken)
+    # logger.debug('Vault Token: %s', vaulttoken)
     if vaulttoken:
         keyvault = config_value('VAULT', 'keyvault')
         logger.info('Keyvault: %s', keyvault)
@@ -81,7 +81,7 @@ def get_config_value(section, key, env_var, prompt_str=None):
             client_secret = input(prompt_str)
             if client_secret:
                 put_in_currentdata(key_str, client_secret)
-                logger.info('Key:%s, sec:%s', key_str, client_secret)
+                logger.info('Key:%s, sec:%s', key_str, '*' * len(client_secret))
                 add_to_exclude_list(key_str)
     return client_secret
 
@@ -109,7 +109,7 @@ def get_azure_vault_data(secret_key=None):
     if vaulttoken and secret_key:
         keyvault = config_value('VAULT', 'keyvault')
         # secret_key = config_value('VAULT', 'secret_key')
-        logger.info('Keyvault: %s, key:%s', keyvault, secret_key)
+        logger.info('Keyvault: %s, key:%s', keyvault, '*' * len(secret_key))
         secret_data = get_keyvault_secret(keyvault, secret_key, vaulttoken)
         if secret_data and 'value' in secret_data:
             val = secret_data['value']
@@ -124,7 +124,7 @@ def set_azure_vault_data(secret_key=None, value=None):
     if vaulttoken and secret_key and value:
         keyvault = config_value('VAULT', 'keyvault')
         # secret_key = config_value('VAULT', 'secret_key')
-        logger.info('Keyvault: %s, key:%s', keyvault, secret_key)
+        logger.info('Keyvault: %s, key:%s', keyvault, '*' * len(secret_key))
         sucess = set_keyvault_secret(keyvault, vaulttoken, secret_key, value)
         if sucess:
             return True
@@ -138,7 +138,7 @@ def delete_azure_vault_data(secret_key=None):
     logger.debug('Vault Token: %s', vaulttoken)
     if vaulttoken and secret_key:
         keyvault = config_value('VAULT', 'keyvault')
-        logger.info('Keyvault: %s, key:%s', keyvault, secret_key)
+        logger.info('Keyvault: %s, key:%s', keyvault, '*' * len(secret_key))
         success = delete_keyvault_secret(keyvault, secret_key, vaulttoken)
     logger.info('Secret Deleted: %s', success)
     return success
@@ -163,5 +163,5 @@ def get_cyberark_data(secret_key=None):
         if err_result:
             val = None
         else:
-            logger.info('Secret Value: %s', val)
+            logger.info('Secret Value: %s', '*' * len(val))
     return val
