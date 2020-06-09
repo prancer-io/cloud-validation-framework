@@ -321,6 +321,9 @@ class ComparatorV01:
 
     def rego_rule_filename(self, rego_file, container):
         rego_file_name = None
+        if 'dirpath' in self.testcase and self.testcase['dirpath']:
+            rego_file_name = '%s/%s' % (self.testcase['dirpath'], rego_file)
+            return  rego_file_name
         isdb_fetch = get_dbtests()
         #It give same value for DB and SNAPSHOT, So for SNAPSHOT, we'll check it in 
         #db first and if file isn't there, then we are fetching it from file path '''
@@ -345,6 +348,7 @@ class ComparatorV01:
                                 open(rego_file_name, 'w', encoding="utf-8").write(content)
                                 return rego_file_name
                 # print(doc)
+
         json_dir = get_test_json_dir()
         if exists_dir(json_dir):
             rego_file_name = '%s/%s/%s' % (json_dir, container, rego_file)
