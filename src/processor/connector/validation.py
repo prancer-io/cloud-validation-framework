@@ -41,7 +41,7 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
             snapshot_json_data = docs[0]['json']
             if "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data \
                 and snapshot_json_data["connector"] and snapshot_json_data["remoteFile"]:
-                pull_response = pull_json_data(snapshot_json_data)
+                _, pull_response = pull_json_data(snapshot_json_data)
                 if not pull_response:
                     return snapshot_data
 
@@ -74,12 +74,13 @@ def run_validation_test(version, container, dbname, collection_data, testcase):
 def run_file_validation_tests(test_file, container, filesystem=True, snapshot_status=None):
     logger.info("*" * 50)
     logger.info("validator tests: %s", test_file)
+    dirpath = None
     test_json_data = json_from_file(test_file)
     if not test_json_data:
         logger.info("Test file %s looks to be empty, next!...", test_file)
 
     if test_json_data and "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
-        pull_response = pull_json_data(test_json_data)
+        dirpath, pull_response = pull_json_data(test_json_data)
         if not pull_response:
             return {}
 
@@ -93,7 +94,7 @@ def run_file_validation_tests(test_file, container, filesystem=True, snapshot_st
                         ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
                     newtestcases.append(testcase)
             testset['cases'] = newtestcases
-    resultset = run_json_validation_tests(test_json_data, container, filesystem, snapshot_status)
+    resultset = run_json_validation_tests(test_json_data, container, filesystem, snapshot_status, dirpath=dirpath)
     finalresult = True
     if resultset:
         snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
@@ -113,7 +114,7 @@ def run_file_validation_tests(test_file, container, filesystem=True, snapshot_st
     return finalresult
 
 
-def run_json_validation_tests(test_json_data, container, filesystem=True, snapshot_status=None):
+def run_json_validation_tests(test_json_data, container, filesystem=True, snapshot_status=None, dirpath=None):
     resultset = []
     if not test_json_data:
         return resultset
@@ -139,6 +140,7 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
             logger.info("No testcases in testSet!...")
             continue
         for testcase in testset['cases']:
+            testcase['dirpath'] = dirpath
             result_val = run_validation_test(version, container, dbname, collection_data,
                                              testcase)
             resultset.append(result_val)
@@ -173,13 +175,14 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
     for test_file in test_files:
         logger.info("*" * 50)
         logger.info("validator tests: %s", test_file)
+        dirpath = None
         test_json_data = json_from_file(test_file)
         if not test_json_data:
             logger.info("Test file %s looks to be empty, next!...", test_file)
             continue
 
         if "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
-            pull_response = pull_json_data(test_json_data)
+            dirpath, pull_response = pull_json_data(test_json_data)
             if not pull_response:
                 return {}
 
@@ -207,7 +210,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
                             ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
                         newtestcases.append(testcase)
                 testset['cases'] = newtestcases
-        resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status)
+        resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
         if resultset:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             if singletest:
@@ -247,6 +250,7 @@ def _get_snapshot_type_map(container):
 
 def run_container_validation_tests_database(container, snapshot_status=None):
     """ Get the test files from the database"""
+    dirpath = None
     dbname = config_value(DATABASE, DBNAME)
     test_files_found = True
     mastertest_files_found = True
@@ -263,10 +267,10 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                 try:
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
                     if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
-                        pull_response = pull_json_data(doc['json'])
+                        dirpath, pull_response = pull_json_data(doc['json'])
                         if not pull_response:
                             return {}
-                    resultset = run_json_validation_tests(doc['json'], container, False)
+                    resultset = run_json_validation_tests(doc['json'], container, False, dirpath=dirpath)
                     if resultset:
                         test_file = doc['name'] if 'name' in doc else ''
                         dump_output_results(resultset, container, test_file, snapshot, False)
@@ -292,7 +296,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
             test_json_data = doc['json']
             if test_json_data:
                 if "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
-                    pull_response = pull_json_data(test_json_data)
+                    dirpath, pull_response = pull_json_data(test_json_data)
                     if not pull_response:
                         return {}
                 snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
@@ -310,7 +314,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                     testcases = get_field_value_with_default(testset, 'cases', [])
                     testset['cases'] = _get_new_testcases(testcases, mastersnapshots)
                 # print(json.dumps(test_json_data, indent=2))
-                resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status)
+                resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
                 if resultset:
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
                     test_file = doc['name'] if 'name' in doc else ''

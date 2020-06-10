@@ -108,7 +108,7 @@ def populate_snapshots_from_file(snapshot_file, container):
         return {}
 
     if "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data and snapshot_json_data["connector"] and snapshot_json_data["remoteFile"]:
-        pull_response = pull_json_data(snapshot_json_data)
+        _, pull_response = pull_json_data(snapshot_json_data)
         if not pull_response:
             return {}
 
@@ -188,7 +188,7 @@ def populate_container_snapshots_database(container):
                         git_connector_json = True
 
                     if git_connector_json:
-                        pull_response = pull_json_data(doc['json'])
+                        _, pull_response = pull_json_data(doc['json'])
                         if not pull_response:
                             break
 

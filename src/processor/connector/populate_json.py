@@ -227,27 +227,29 @@ def pull_json_data(document_json):
     """
     Pull the JSON data from the git based on filetype and it will update the document json.
     """
+    dirpath = None
     connector = get_field_value(document_json, "connector")
     file_location = get_field_value(document_json, "remoteFile")
     file_type = get_field_value(document_json, "fileType")
-    
+
     if not connector:
         logger.info("Invalid snapshot: 'connector' field does not exists or it is empty.")
-        return False
+        return dirpath, False
 
     if not file_location:
         logger.info("Invalid snapshot: 'remoteFile' field does not exists or it is empty.")
-        return False
+        return dirpath, False
 
     if not file_type:
         logger.info("Invalid snapshot: 'fileType' field does not exists or it is empty.")
-        return False
+        return dirpath, False
 
     connector_data = get_custom_data(connector)
     baserepo, repopath = git_clone_dir(connector_data)
     
     if repopath:
         json_path = '%s/%s' % (repopath, file_location)
+        dirpath = os.path.dirname(json_path)
         file_path = json_path.replace('//', '/')
         json_data = json_from_file(file_path, escape_chars=['$'])
 
@@ -265,8 +267,8 @@ def pull_json_data(document_json):
             if file_type == "mastertest":
                 validate = validate_master_test_data(json_data, document_json)
         
-        return validate
+        return dirpath, validate
     else:
         raise Exception('Require valid fields for populate JSON are not present!')
 
-    return False
+    return dirpath, False
