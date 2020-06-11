@@ -17,10 +17,12 @@ import hashlib
 import time
 import pymongo
 import os
+import re
 from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
+from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.rundata_utils import put_in_currentdata, get_dbtests, get_from_currentdata
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE, save_json_to_file, get_field_value_with_default,\
@@ -33,7 +35,32 @@ from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 
 logger = getlogger()
+google_parameters = None
 
+def get_google_parameters():
+    """
+    Return the google parameter object read from database or the filesystem
+    """
+    global google_parameters
+    if not google_parameters:
+        params_source = config_value('GOOGLE', 'params')
+        if json_source():
+            dbname = config_value(DATABASE, DBNAME)
+            collection = config_value(DATABASE, collectiontypes[STRUCTURE])
+            parts = params_source.rsplit('/')
+            name = parts[-1].split('.')
+            qry = {'name': name[0]}
+            sort = [sort_field('timestamp', False)]
+            docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
+            logger.info('Number of Google Params versions: %s', len(docs))
+            if docs and len(docs):
+                google_parameters = docs[0]['json']
+        else:
+            params_file = '%s/%s' % (framework_dir(), params_source)
+            logger.info(params_file)
+            if exists_file(params_file):
+                google_parameters = json_from_file(params_file)
+    return google_parameters
 
 def get_google_data(snapshot_source):
     """
@@ -64,110 +91,44 @@ def get_google_data(snapshot_source):
     return sub_data
 
 
-def get_call_kwargs_for_crawler(node, project_id):
-    """Get argument names and their values in kwargs for Crawler"""
-    kwargs = {}
-    logger.info("Get node's kwargs")
-    params_source = config_value('GOOGLE', 'params')
-    paramsversions = None
-    if json_source():
-        dbname = config_value(DATABASE, DBNAME)
-        collection = config_value(DATABASE, collectiontypes[STRUCTURE])
-        parts = params_source.rsplit('/')
-        name = parts[-1].split('.')
-        qry = {'name': name[0]}
-        sort = [sort_field('timestamp', False)]
-        docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
-        logger.info('Number of Google Params versions: %s', len(docs))
-        if docs and len(docs):
-            paramsversions = docs[0]['json']
-    else:
-        paramsversions_file = '%s/%s' % (framework_dir(), params_source)
-        logger.info(paramsversions_file)
-        if exists_file(paramsversions_file):
-            paramsversions = json_from_file(paramsversions_file)
-    if paramsversions:
-        if node and 'type' in node and "crawler_queryprameters" in paramsversions:
-            for prameter in paramsversions["crawler_queryprameters"]:
-                if node['type'] in prameter['services']:
-                    for param in prameter['params']:
-                        if param == "project":
-                            kwargs['project'] = project_id
-                        elif param == "projectId":
-                            kwargs['projectId'] = project_id
-                        elif param == "zone":
-                            kwargs['zone'] = "-"
-                
-    return kwargs
 
-def get_call_kwargs(node):
-    """Get argument names and their values in kwargs"""
-    kwargs = {
-        "params" : {}
-    }
-    logger.info("Get node's kwargs")
-    params_source = config_value('GOOGLE', 'params')
-    paramsversions = None
-    if json_source():
-        dbname = config_value(DATABASE, DBNAME)
-        collection = config_value(DATABASE, collectiontypes[STRUCTURE])
-        parts = params_source.rsplit('/')
-        name = parts[-1].split('.')
-        qry = {'name': name[0]}
-        sort = [sort_field('timestamp', False)]
-        docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
-        logger.info('Number of Google Params versions: %s', len(docs))
-        if docs and len(docs):
-            paramsversions = docs[0]['json']
-    else:
-        paramsversions_file = '%s/%s' % (framework_dir(), params_source)
-        logger.info(paramsversions_file)
-        if exists_file(paramsversions_file):
-            paramsversions = json_from_file(paramsversions_file)
+def generate_request_url(base_url, project_id):
+    """Generate request url from base url"""
+    try:
+        path_list = base_url.split("https://")
+        path_list = path_list[1].split('/')
 
-    path = node['path']
-    if paramsversions and "queryprameters" in paramsversions:
-        if node['type'] in paramsversions["queryprameters"]:
-            for param, parameter_type in paramsversions["queryprameters"][node['type']].items():
-                add_argument_parameter(path, kwargs, param, parameter_type)
+        request_url = "https:/"
+        for path in path_list:
+            field_expresion = re.compile("\{([^}]+)\}")
+            field = field_expresion.search(path)
+            if field:
+                field = path[1:len(path)-1]
+                if field in ["projectId", "project"]:
+                    path = project_id
+                elif field in ["zone"]:
+                    path = "-"
+            request_url = "%s/%s" % (request_url, path)
 
-    return kwargs
+        logger.info(request_url)
+        return request_url
+    except:
+        logger.error("Invalid api url")
+        return None
 
-def add_argument_parameter(path, kwargs, param, prameter_type):
-    """Add query parameter."""
-    path_list = path.split(prameter_type + "/")
-    arg = "-"
-    if len(path_list) > 1:
-        arg = path_list[1].split("/")[0]
-    kwargs['params'][param] = arg
+def get_api_path(node_type):
+    """
+    Get api path for populate snapshot
+    """
+    api_url = None
+    params = get_google_parameters()
+    if params and "GoogleApis" in params:
+        for method, request_url in params['GoogleApis'].items():
+            if method == node_type:
+                api_url = request_url
+    return api_url
 
-def get_google_call_function(node):
-    """Get the callable for the type of compute resource."""
-    fn_str_list = None
-    kwargs = {}
-    if node and 'type' in node and node['type']:
-        path = get_field_value(node, 'path')
-        path = path[:-1] if path and path.endswith('/') else path
-        path = path[1:] if path and path.startswith('/') else path
-        params = path.split('/')
-
-        if node and 'type' in node and node['type']:
-            fn_str = get_field_value(node, 'type')
-            if fn_str:
-                fn_str_list = fn_str.split(".")
-            kwargs = get_call_kwargs(node)
-    return fn_str_list, kwargs
-
-def get_google_call_function_for_crawler(node, project_id):
-    """Get the callable for the type of compute resource."""
-    fn_str_list = None
-    kwargs = None
-    if node and 'type' in node and node['type']:
-        fn_str_list = get_field_value(node, 'type').split(".")
-        kwargs = get_call_kwargs_for_crawler(node, project_id)
-    return fn_str_list, kwargs
-
-def get_node(compute_fn, node, snapshot_source, snapshot):
+def get_node(credentials, node, snapshot_source, snapshot):
     """
     Fetch node from google using connection. In this case using google client API's
     functions.
@@ -190,41 +151,44 @@ def get_node(compute_fn, node, snapshot_source, snapshot):
         "collection": collection.replace('.', '').lower(),
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
-    fn_str_list, kwargs = get_google_call_function(node)
 
-    if fn_str_list:
-        for i in range(0, len(fn_str_list)):
-            compute_fn = getattr(compute_fn, fn_str_list[i], None)
-            if compute_fn and i != len(fn_str_list)-1:
-                compute_fn = compute_fn()
+    try:
+        access_token = credentials.get_access_token().access_token
+        header = {
+            "Authorization" : ("Bearer %s" % access_token)
+        }
 
-        response_param = ""
-        if fn_str_list and len(fn_str_list) > 1:
-            response_param = fn_str_list[-2]
-        elif fn_str_list and len(fn_str_list) == 1:
-            response_param = fn_str_list[0]
-
-        if compute_fn and callable(compute_fn):
-            try:
-                data = compute_fn(**kwargs["params"]).execute()
-                if data:
-                    db_record['json'] = data
-                    checksum = get_checksum(data)
-                    if checksum:
-                        db_record['checksum'] = checksum
-            except Exception as ex:
-                logger.info('Compute function exception: %s', ex)
-                db_record['error'] = 'Compute function exception: %s' % ex
+        node_type = node['type'] if node and 'type' in node else ""
+        base_node_type_list = node_type.split("/")
+        if len(base_node_type_list) > 1:
+            base_node_type = base_node_type_list[0]
         else:
-            logger.info('Invalid Compute function exception: %s', str(fn_str_list))
-            db_record['error'] = 'Invalid Compute function exception: %s' % str(fn_str_list)
-    else:
-        logger.info('Missing Compute function')
-        db_record['error'] = 'Missing Compute function'
+            logger.error("Invalid node type %s", node_type)
+            return db_record
+        
+        base_url = "%s%s" % (base_node_type, ".googleapis.com")
+        request_url = "https://%s/%s" % (base_url, path)
+        logger.info("Invoke request for get snapshot: %s", request_url)
+        status, data = http_get_request(request_url, header)
+        logger.info('Get snapshot status: %s', status)
+        
+        if status and isinstance(status, int) and status == 200:
+            if data:
+                db_record['json'] = data
+                checksum = get_checksum(data)
+                if checksum:
+                    db_record['checksum'] = checksum
+        else:
+            logger.error("Get snapshot returned invalid status: %s", status)
+            db_record['error'] = ("Get snapshot returned invalid status: %s" % status)
+    except Exception as ex:
+        logger.error('Failed to populate the snapshot : %s', ex)
+        db_record['error'] = 'Failed to populate the snapshot: %s' % ex
+    
     return db_record
 
 
-def get_all_nodes(compute_fn, node, snapshot_source, snapshot, snapshot_data):
+def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
     """
     Fetch all nodes from google using connection using google client API's functions.
     """
@@ -251,60 +215,60 @@ def get_all_nodes(compute_fn, node, snapshot_source, snapshot, snapshot_data):
     }
 
     if node_type:
-        fn_str_list, kwargs = get_google_call_function_for_crawler(node, project_id)
-        
-        if fn_str_list and kwargs:
-            for i in range(0, len(fn_str_list)):
-                compute_fn = getattr(compute_fn, fn_str_list[i], None)
-                if compute_fn and i != len(fn_str_list)-1:
-                    compute_fn = compute_fn()
+        access_token = credentials.get_access_token().access_token
+        header = {
+            "Authorization" : ("Bearer %s" % access_token)
+        }
 
-            response_param = ""
-            if fn_str_list and len(fn_str_list) > 1:
-                response_param = fn_str_list[-2]
-            elif fn_str_list and len(fn_str_list) == 1:
-                response_param = fn_str_list[0]
-
-            if compute_fn and callable(compute_fn):
-                try:
-                    data = compute_fn(**kwargs).execute()
-                    if data:
-                        check_node_type = node_type 
-                        node_type_list = node_type.split(".")
-                        if len(node_type_list) > 1:
-                            del node_type_list[-1]
-                            check_node_type = ".".join(node_type_list)
-
-                        db_record['json'] = data
-                        if response_param in data:
-                            db_record['items'] = data[response_param]
-                        elif "items" in data:
-                            if isinstance(data['items'], dict):
-                                for name, scoped_dict in data['items'].items():
-                                    if response_param in scoped_dict:
-                                        db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
-
-                            if not db_record['items']:
-                                db_record['items'] = data['items']
-
-                        set_snapshot_data(node, db_record['items'], snapshot_data)
-
-                        checksum = get_checksum(data)
-                        if checksum:
-                            db_record['checksum'] = checksum
-                    else:
-                        put_in_currentdata('errors', data)
-                        logger.info("Compute function does not exist: %s", str(fn_str_list))
-                        db_record['error'] = "Compute function does not exist: %s" % str(fn_str_list)
-                except Exception as ex:
-                    logger.info('Compute function exception: %s', ex)
-                    db_record['error'] = 'Compute function exception: %s' % ex
-            else:
-                logger.info('Invalid Compute function exception: %s', str(fn_str_list))
-                db_record['error'] = 'Invalid Compute function exception: %s' % str(fn_str_list)
+        base_node_type_list = node_type.split("/")
+        if len(base_node_type_list) > 1:
+            base_node_type = base_node_type_list[1]
         else:
-            logger.info('Missing Compute function')
-            db_record['error'] = 'Missing Compute function'
+            logger.error("Invalid node type '%s'", node_type)
+            return db_record
+
+        request_url = get_api_path(base_node_type)
+        request_url = generate_request_url(request_url, project_id)
+        logger.info("Invoke request for get snapshot: %s", request_url)
+        
+        status, data = http_get_request(request_url, header)
+        logger.info('Get snapshot status: %s', status)
+
+        fn_str_list = ""
+        if node and 'type' in node and node['type']:
+            fn_str_list = get_field_value(node, 'type').split(".")
+        
+        response_param = ""
+        if fn_str_list and len(fn_str_list) > 1:
+            response_param = fn_str_list[-2]
+        elif fn_str_list and len(fn_str_list) == 1:
+            response_param = fn_str_list[0]
+        
+        if data:
+            check_node_type = node_type 
+            node_type_list = node_type.split(".")
+            if len(node_type_list) > 1:
+                del node_type_list[-1]
+                check_node_type = ".".join(node_type_list)
+
+            db_record['json'] = data
+            if response_param in data:
+                db_record['items'] = data[response_param]
+            elif "items" in data:
+                if isinstance(data['items'], dict):
+                    for name, scoped_dict in data['items'].items():
+                        if response_param in scoped_dict:
+                            db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
+
+                if not db_record['items']:
+                    db_record['items'] = data['items']
+
+            set_snapshot_data(node, db_record['items'], snapshot_data)
+
+            checksum = get_checksum(data)
+            if checksum:
+                db_record['checksum'] = checksum
+
     return db_record
 
 def set_snapshot_data(node, items, snapshot_data):
@@ -321,7 +285,15 @@ def set_snapshot_data(node, items, snapshot_data):
         resource_node_type = ".".join(node_type_list)
 
     count = 0
-    for item in items:
+    resource_items = []
+    if isinstance(items, dict):
+        for zone, resource in items.items():
+            if 'selfLink' in resource:
+                resource_items.append(resource)
+    else:
+        resource_items = items
+
+    for item in resource_items:
         count += 1
         path_list = item['selfLink'].split("https://")
         path_list = path_list[1].split('/')
@@ -388,13 +360,13 @@ def populate_google_snapshot(snapshot, container=None):
                 validate = node['validate'] if 'validate' in node else True
                 logger.info(node)
                 node_type = get_field_value_with_default(node, 'type',"")
-                compute = get_google_client_data(sub_data, snapshot_user, node_type, project_id)
-                if not compute:
+                credentials = get_google_client_data(sub_data, snapshot_user, node_type, project_id)
+                if not credentials:
                     logger.info("No  GCE connection in the snapshot to access Google resource!...")
                     return snapshot_data
                 if 'snapshotId' in node:
                     if validate:
-                        data = get_node(compute, node, snapshot_source, snapshot)
+                        data = get_node(credentials, node, snapshot_source, snapshot)
                         if data:
                             error_str = data.pop('error', None)
                             if get_dbtests():
@@ -430,7 +402,7 @@ def populate_google_snapshot(snapshot, container=None):
                         else:
                             node['status'] = 'inactive'
                 elif 'masterSnapshotId' in node:
-                        data = get_all_nodes(compute, node, snapshot_source, snapshot, snapshot_data)
+                        data = get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data)
                         logger.debug('Type: %s', type(data))
         except Exception as ex:
             logger.info('Unable to create Google client: %s', ex)
@@ -438,42 +410,6 @@ def populate_google_snapshot(snapshot, container=None):
     return snapshot_data
 
 
-def get_service_name(node_type):
-    """
-    Get service name for init compute function
-    """
-    service = None
-    params_source = config_value('GOOGLE', 'params')
-    paramsversions = None
-    if json_source():
-        dbname = config_value(DATABASE, DBNAME)
-        collection = config_value(DATABASE, collectiontypes[STRUCTURE])
-        parts = params_source.rsplit('/')
-        name = parts[-1].split('.')
-        qry = {'name': name[0]}
-        sort = [sort_field('timestamp', False)]
-        docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
-        logger.info('Number of Google Params versions: %s', len(docs))
-        if docs and len(docs):
-            paramsversions = docs[0]['json']
-    else:
-        paramsversions_file = '%s/%s' % (framework_dir(), params_source)
-        logger.info(paramsversions_file)
-        if exists_file(paramsversions_file):
-            paramsversions = json_from_file(paramsversions_file)
-
-    check_node_type = node_type 
-    node_type_list = node_type.split(".")
-    if len(node_type_list) > 1:
-        del node_type_list[-1]
-        check_node_type = ".".join(node_type_list)
-        
-    if paramsversions and "serviceName" in paramsversions:
-        for service_name, resource_list in paramsversions['serviceName'].items():
-            if check_node_type in resource_list:
-                service = service_name
-                
-    return service
 
 def generate_gce(google_data, project, user):
     """
@@ -528,9 +464,9 @@ def generate_gce(google_data, project, user):
 
 def get_google_client_data(google_data, snapshot_user, node_type, project_id):
     """
-    Generate Google compute object from the google structure file.
+    Generate Google Service Account credentials object from the google structure file.
     """
-    compute = None
+    credentials = None
     found = False
     if google_data and snapshot_user:
         projects = get_field_value(google_data, "projects")
@@ -546,11 +482,12 @@ def get_google_client_data(google_data, snapshot_user, node_type, project_id):
                             gce = generate_gce(google_data, project, user)
                             if gce:
                                 save_json_to_file(gce, '/tmp/gce.json')
+                                logger.info("Creating credential object")
                                 scopes = ['https://www.googleapis.com/auth/compute', "https://www.googleapis.com/auth/cloud-platform"]
                                 credentials = ServiceAccountCredentials.from_json_keyfile_name('/tmp/gce.json', scopes)
-                                service_name = get_service_name(node_type)
-                                compute = discovery.build(service_name, 'v1', credentials=credentials, cache_discovery=False)
+                                # service_name = get_service_name(node_type)
+                                # compute = discovery.build(service_name, 'v1', credentials=credentials, cache_discovery=False)
                             break 
             if found:
                 break
-    return compute
+    return credentials

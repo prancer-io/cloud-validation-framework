@@ -9,7 +9,7 @@ snapshot =  {
     "nodes": [
         {
             "snapshotId": "71",
-            "type": "instances.get",
+            "type": "compute/instances.get",
             "collection": "instances",
             "path":"/compute/v1/projects/liquproj/zones/us-west1-b/instances/proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55"
         }
@@ -24,7 +24,7 @@ master_snapshot = {
     "nodes": [
         {
             "masterSnapshotId": "1",
-            "type": "instances.aggregatedList",
+            "type": "compute/instances.aggregatedList",
             "collection": "instances"
         }
     ]
@@ -103,6 +103,16 @@ instanse_data = {
     "status": "RUNNING"
 }
 
+def mock_http_get_request(url, headers):
+    if headers == {'Authorization': 'Bearer crawler'}:
+        data = {"items" : [instanse_data]}
+        return 200, data
+    elif headers == {'Authorization': 'Bearer test'}:
+        data = {'hello': 'world'}
+        return 200, data
+    else:
+        return 400, None
+
 def mock_google_get_documents(collection, query=None, dbname=None, sort=None, limit=10):
     return [
       {
@@ -159,6 +169,24 @@ def mock_file_exist(path):
 
 def mock_get_collection_size(collection_name):
     return 100
+
+class MyMockCredential:
+    access_token = "test"
+
+    def get_access_token(self):
+        return MyMockCredential()
+
+class MyMockCredentialCrawler:
+    access_token = "crawler"
+
+    def get_access_token(self):
+        return MyMockCredentialCrawler()
+
+class MyMockCredentialNoData:
+    access_token = None
+
+    def get_access_token(self):
+        return MyMockCredentialNoData()
 
 class MyMockCompute:
   
@@ -222,8 +250,8 @@ def mock_get_node(compute, node, snapshot_source, connector):
     }
 
 
-def mock_get_google_call_function(node):
-    return ["mock_compute_method"], {"params" : {}}
+# def mock_get_google_call_function(node):
+#     return ["mock_compute_method"], {"params" : {}}
 
 def mock_get_google_call_function_for_crawler(node, project_id):
     return ["mock_compute_method"], {"param" : "project-id"}
@@ -366,32 +394,26 @@ def test_get_google_client_data(monkeypatch):
 
 
 def test_get_node(monkeypatch):
-    monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function', mock_get_google_call_function)
+    monkeypatch.setattr('processor.connector.snapshot_google.http_get_request', mock_http_get_request)
     from processor.connector.snapshot_google import get_node
     node = snapshot['nodes'][0]
-    val = get_node(MyMockCompute(), node, "file.file", snapshot)
+    val = get_node(MyMockCredential(), node, "file.file", snapshot)
     assert val['json'] == {'hello': 'world'}
-    val = get_node(MyMockComputeNoData(), node, "file.file", snapshot)
+    val = get_node(MyMockCredentialNoData(), node, "file.file", snapshot)
     assert val['json'] == {}
     monkeypatch.setattr('processor.connector.snapshot_google.get_checksum', mock_error_get_checksum)
-    val = get_node(MyMockCompute(), node, "file.file", snapshot)
+    val = get_node(MyMockCredential(), node, "file.file", snapshot)
     assert val['error'] != ''
     monkeypatch.delattr('processor.connector.snapshot_google.get_checksum')
 
-    monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function', mock_exception_get_google_call_function)
-    val = get_node(MyMockCompute(), node, "file.file", snapshot)
-    assert val['json'] == {}
-    monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function', mock_exception_get_google_call_function2)
-    val = get_node(MyMockCompute(), node, "file.file", snapshot)
-    assert val['json'] == {}
 
 def test_get_all_nodes(monkeypatch):
-    monkeypatch.setattr('processor.connector.snapshot_google.get_google_call_function_for_crawler', mock_get_google_call_function_for_crawler)
+    monkeypatch.setattr('processor.connector.snapshot_google.http_get_request', mock_http_get_request)
     from processor.connector.snapshot_google import get_all_nodes
     node = master_snapshot['nodes'][0]
-    val = get_all_nodes(MyMockCompute(), node, "file.file", snapshot, {})
-    assert val['json'] == {'hello': 'world'}
-    val = get_all_nodes(MyMockComputeNoData(), node, "file.file", snapshot, {})
+    val = get_all_nodes(MyMockCredentialCrawler(), node, "file.file", snapshot, {})
+    assert val['json'] == {"items" : [instanse_data]}
+    val = get_all_nodes(MyMockCredentialNoData(), node, "file.file", snapshot, {})
     assert val['json'] == {}
 
 def test_set_snapshot_data(monkeypatch):
@@ -404,45 +426,6 @@ def test_set_snapshot_data(monkeypatch):
     assert snapshot_data[node['masterSnapshotId']][0]["masterSnapshotId"] == [node['masterSnapshotId']]
 
     
-def test_get_call_kwargs(monkeypatch):
-    monkeypatch.setattr('processor.connector.snapshot_google.config_value', mock_config_value)
-    monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_fs_json_source)
-    monkeypatch.setattr('processor.connector.snapshot_google.json_from_file', mock_google_param_version)
-    monkeypatch.setattr('processor.connector.snapshot_google.exists_file', mock_file_exist)
-    from processor.connector.snapshot_google import get_call_kwargs
-    node = snapshot['nodes'][0]
-    val = get_call_kwargs(node)
-    assert val == {'params': {'zone': 'us-west1-b', 'project': 'liquproj', 'instance': 'proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55'}}
-
-    monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_db_json_source)
-    monkeypatch.setattr('processor.connector.snapshot_google.get_documents', mock_google_param_version)
-    monkeypatch.setattr('processor.connector.snapshot_google.get_documents', mock_google_param_version_document)
-    from processor.connector.snapshot_google import get_call_kwargs
-    node = snapshot['nodes'][0]
-    val = get_call_kwargs(node)
-    assert val == {'params': {'zone': 'us-west1-b', 'project': 'liquproj', 'instance': 'proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55'}}
-
-    from processor.connector.snapshot_google import get_google_call_function
-    fn_str_list, kwargs = get_google_call_function(node)
-    assert kwargs == {'params': {'zone': 'us-west1-b', 'project': 'liquproj', 'instance': 'proxy-6103b668-6761-494d-b6ac-fbc2bca4fe55'}}
-    assert fn_str_list == ["instances", "get"]
-
-def test_get_call_kwargs_for_crawler(monkeypatch):
-    monkeypatch.setattr('processor.connector.snapshot_google.config_value', mock_config_value)
-    monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_fs_json_source)
-    monkeypatch.setattr('processor.connector.snapshot_google.json_from_file', mock_google_param_version)
-    monkeypatch.setattr('processor.connector.snapshot_google.exists_file', mock_file_exist)
-    from processor.connector.snapshot_google import get_call_kwargs_for_crawler
-    node = master_snapshot['nodes'][0]
-    projectId = master_snapshot['project-id']
-    val = get_call_kwargs_for_crawler(node, projectId)
-    assert val == {'project': 'project-id'}
-
-    from processor.connector.snapshot_google import get_google_call_function_for_crawler
-    fn_str_list, kwargs = get_google_call_function_for_crawler(node, projectId)
-    assert fn_str_list ==  ["instances", "aggregatedList"]
-    assert kwargs ==  {'project': 'project-id'}
-
 def test_get_google_data(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.json_source', mock_fs_json_source)
     monkeypatch.setattr('processor.connector.snapshot_google.get_test_json_dir', mock_get_test_json_dir)
