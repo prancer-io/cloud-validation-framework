@@ -109,7 +109,7 @@ def test_interpreter(monkeypatch):
         "comparison": "gt 10"
     })
     val = comparator.validate()
-    assert 'passed' == val['result']
+    assert 'passed' == val[0]['result']
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "4",
         "snapshotId1": "1",

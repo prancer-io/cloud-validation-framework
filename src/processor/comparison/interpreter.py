@@ -207,15 +207,17 @@ class ComparatorV01:
             self.format = None
 
     def process_rego_test_case(self):
+        results = []
         inputjson = {}
         result = False
+        rule_expr = get_field_value(self.testcase, 'evals')
+        if not rule_expr:
+            rule_expr = 'data.rule.rulepass'
         opa_exe = opa_binary()
         if not opa_exe:
             # print('*' * 50)
-            return result
-        rule_expr = get_field_value(self.testcase, 'eval')
-        if not rule_expr:
-            rule_expr = 'data.rule.rulepass'
+            results.append({'eval': 'data.rule.rulepass', 'result': "passed" if result else "failed", 'message': ''})
+            return results
         if len(self.testcase['snapshotId'])==1:
             sid = self.testcase['snapshotId'][0]
             inputjson = self.get_snaphotid_doc(sid)
@@ -223,6 +225,7 @@ class ComparatorV01:
             ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
             for sid in self.testcase['snapshotId']:
                 inputjson.update({ms_id[sid]: self.get_snaphotid_doc(sid)})
+        results = []
         if inputjson:
             save_json_to_file(inputjson, '/tmp/input.json')
             rego_rule = self.rule
@@ -248,15 +251,32 @@ class ComparatorV01:
                 rego_file = '/tmp/input.rego'
                 open(rego_file, 'w').write('\n'.join(rego_txt))
             if rego_file:
-                os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
+                if isinstance(rule_expr, list):
+                    os.system('%s eval -i /tmp/input.json -d %s "data.rule" > /tmp/a.json' % (opa_exe, rego_file))
+                else:
+                    os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
                 resultval = json_from_file('/tmp/a.json')
                 if resultval:
-                    resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
-                    if resultbool:
+                    if isinstance(rule_expr, list):
+                        resultdict = resultval['result'][0]['expressions'][0]['value']
+                        for val in rule_expr:
+                            evalfield = val['eval'].rsplit('.', 1)[-1]
+                            evalmessage = val['message'].rsplit('.', 1)[-1]
+                            if evalfield in resultdict:
+                                result = parsebool(resultdict[evalfield])
+                            else:
+                                result = False
+                            msg = resultdict[evalmessage] if not result and evalmessage in resultdict else ""
+                            results.append({'eval': val[eval], 'result': "passed" if result else "failed", 'message': msg})
+                    else:
+                        resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
                         result = parsebool(resultbool)
+                        results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
             else:
-                result = False
-        return result
+                results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+        else:
+            results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+        return results
 
 
 
@@ -360,7 +380,7 @@ class ComparatorV01:
 
 
     def validate(self):
-        result_val = {"result": "failed"}
+        result_val = [{"result": "failed"}]
         if self.format == TESTCASEV1:
             if self.snapshot_id:
                 docs = get_documents(self.collection, dbname=self.dbname,
@@ -373,8 +393,8 @@ class ComparatorV01:
                     if self.op in OPERATORS and OPERATORS[self.op]:
                         result = OPERATORS[self.op](self.data, self.loperand, self.roperand,
                                                     self.is_not, self.extras)
-                        result_val["result"] = "passed" if result else "failed"
-                        result_val["snapshots"] = [{
+                        result_val[0]["result"] = "passed" if result else "failed"
+                        result_val[0]["snapshots"] = [{
                             'id': docs[0]['snapshotId'],
                             'path': docs[0]['path'],
                             'structure': docs[0]['structure'],
@@ -382,20 +402,22 @@ class ComparatorV01:
                             'source': docs[0]['source']
                         }]
                 else:
-                    result_val.update({
+                    result_val[0].update({
                         "result": "skipped",
-                        "reason": "Missing documents for the snapshot"
+                        "message": "Missing documents for the snapshot"
                     })
             else:
-                result_val.update({
+                result_val[0].update({
                     "result": "skipped",
-                    "reason": "Missing snapshotId for testcase"
+                    "message": "Missing snapshotId for testcase"
                 })
         elif self.format == TESTCASEV2:
             if self.type == 'rego':
-                result = self.process_rego_test_case()
-                result_val["result"] = "passed" if result else "failed"
-                result_val['snapshots'] = self.snapshots
+                results = self.process_rego_test_case()
+                result_val = []
+                for result in results:
+                    result['snapshots'] = self.snapshots
+                    result_val.append(result)
             else:
                 logger.info('#' * 75)
                 logger.info('Actual Rule: %s', self.rule)
@@ -412,10 +434,10 @@ class ComparatorV01:
                 otherdata = {'dbname': self.dbname, 'snapshots': self.collection_data, 'container': self.container}
                 r_i = RuleInterpreter(children, **otherdata)
                 result = r_i.compare()
-                result_val["result"] = "passed" if result else "failed"
-                result_val['snapshots'] = r_i.get_snapshots()
+                result_val[0]["result"] = "passed" if result else "failed"
+                result_val[0]['snapshots'] = r_i.get_snapshots()
         else:
-            result_val.update({
+            result_val[0].update({
                 "result": "skipped",
                 "reason": "Unsupported testcase format"
             })

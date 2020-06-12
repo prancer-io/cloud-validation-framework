@@ -66,9 +66,14 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
 
 def run_validation_test(version, container, dbname, collection_data, testcase):
     comparator = Comparator(version, container, dbname, collection_data, testcase)
-    result_val = comparator.validate()
-    result_val.update(testcase)
-    return result_val
+    results = comparator.validate()
+    if isinstance(results, list):
+        for result in results:
+            result.update(testcase)
+        return results
+    else:
+        results.update(testcase)
+        return[results]
 
 
 def run_file_validation_tests(test_file, container, filesystem=True, snapshot_status=None):
@@ -141,9 +146,9 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
             continue
         for testcase in testset['cases']:
             testcase['dirpath'] = dirpath
-            result_val = run_validation_test(version, container, dbname, collection_data,
+            results = run_validation_test(version, container, dbname, collection_data,
                                              testcase)
-            resultset.append(result_val)
+            resultset.extend(results)
     return resultset
 
 
