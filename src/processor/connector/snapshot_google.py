@@ -88,6 +88,9 @@ def get_google_data(snapshot_source):
         logger.info('Google source: %s', google_source)
         if exists_file(google_source):
             sub_data = json_from_file(google_source)
+
+    if not sub_data:
+        logger.error("Google connector file %s does not exist, or it does not contains the valid JSON.", snapshot_source)
     return sub_data
 
 
@@ -290,6 +293,11 @@ def set_snapshot_data(node, items, snapshot_data):
         for zone, resource in items.items():
             if 'selfLink' in resource:
                 resource_items.append(resource)
+            else:
+                resource_type = node_type.split("/")[1].split(".")[-2]
+                if resource_type in resource and isinstance(resource[resource_type], list):
+                    if len(resource[resource_type]) > 0 and 'selfLink' in resource[resource_type][0]:
+                        resource_items += resource[resource_type]
     else:
         resource_items = items
 

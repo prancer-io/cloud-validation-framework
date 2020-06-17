@@ -1,5 +1,6 @@
 {
     "GoogleApis": {
+        "projects.zones.clusters.list": "https://container.googleapis.com/v1/projects/{projectId}/zones/{zone}/clusters",
         "acceleratorTypes.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/acceleratorTypes",
         "addresses.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/addresses",
         "autoscalers.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/autoscalers",
@@ -7,7 +8,7 @@
         "diskTypes.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/diskTypes",
         "disks.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/disks",
         "forwardingRules.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/forwardingRules",
-        "operations.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/operations",
+        "globalOperations.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/operations",
         "healthChecks.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/healthChecks",
         "instanceGroupManagers.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/instanceGroupManagers",
         "instanceGroups.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/instanceGroups",
@@ -18,7 +19,7 @@
         "nodeGroups.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/nodeGroups",
         "nodeTemplates.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/nodeTemplates",
         "nodeTypes.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/nodeTypes",
-        "commitments.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/commitments",
+        "regionCommitments.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/commitments",
         "reservations.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/reservations",
         "resourcePolicies.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/resourcePolicies",
         "routers.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/routers",
@@ -48,7 +49,6 @@
         "snapshots.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/snapshots",
         "sslPolicies.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/sslPolicies",
         "targetSslProxies.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/targetSslProxies",
-        "targetTcpProxies.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/targetTcpProxies",
-        "projects.zones.clusters.list": "https://container.googleapis.com/v1/projects/{projectId}/zones/{zone}/clusters"
+        "targetTcpProxies.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/targetTcpProxies"
     }
 }
