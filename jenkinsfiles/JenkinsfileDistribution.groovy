@@ -29,7 +29,9 @@ pipeline {
                 script {
                     git url: "https://github.com/${GITHUB_ORG}/${GITHUB_REPO}.git", branch: branch;
                     setupPyText = readFile file: "setup.py";
-                    currentVersion = setupPyText.split("\n").find{ element -> element.contains("version=") }.split("=")[1].replace("'", "").replace(",", "").trim();
+                    currentVersionLine = setupPyText.split("\n").find{ element -> element.contains("version=") };
+                    currentVersion = currentVersionLine.split("=")[1].replace("'", "").replace("\"", "").replace(",", "").trim();
+                    currentVersion = currentVersion.trim().split(" ")[0];
                     currentDirectory = pwd();
                     echo "*** Current version ${currentVersion} from setup.py. ";
                     try {
@@ -171,8 +173,11 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry(DOCKERHUB_PUBLIC_REPOSITORY, DOCKERHUB_CREDENTIAL_ID) {
-                        def customImage = docker.build("${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}", "-f dockerfiles/Dockerfile .");
+                        def customImage = docker.build("${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}", 
+                                                       "--build-arg APP_VERSION=${currentVersion} " +
+                                                       "-f dockerfiles/Dockerfile .");
                         customImage.push();
+                        customImage.push("latest");
                         // Clean image pushed from local registry
                         try {
                             sh "docker image rm ${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}";

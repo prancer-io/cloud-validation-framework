@@ -343,6 +343,10 @@ class ComparatorV01:
         rego_file_name = None
         if 'dirpath' in self.testcase and self.testcase['dirpath']:
             rego_file_name = '%s/%s' % (self.testcase['dirpath'], rego_file)
+            if exists_file(rego_file_name):
+                pass
+            else:
+                rego_file_name = None
             return  rego_file_name
         isdb_fetch = get_dbtests()
         #It give same value for DB and SNAPSHOT, So for SNAPSHOT, we'll check it in 
