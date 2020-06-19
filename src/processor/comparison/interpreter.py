@@ -210,7 +210,11 @@ class ComparatorV01:
         results = []
         inputjson = {}
         result = False
-        rule_expr = get_field_value(self.testcase, 'evals')
+        rule_expr = get_field_value(self.testcase, 'eval')
+        if not rule_expr:
+            rule_expr = get_field_value(self.testcase, 'evals')
+            if rule_expr:
+                del self.testcase['evals']
         if not rule_expr:
             rule_expr = 'data.rule.rulepass'
         opa_exe = opa_binary()
@@ -231,15 +235,11 @@ class ComparatorV01:
             rego_rule = self.rule
             rego_match=re.match(r'^file\((.*)\)$', rego_rule, re.I)
             if rego_match:
-                # rego_file = get_rego_rule_filename(rego_match.groups()[0], self.container)
                 rego_file = self.rego_rule_filename(rego_match.groups()[0], self.container)
                 if rego_file:
                     pass
                 else:
                     rego_file = None
-                # rego_file1 = self.rego_rule_filename(rego_match.groups()[0], "google_crawler_container")
-                # rego_file1 = self.rego_rule_filename('google_crawler.rego', "google_crawler_container")
-                # print(rego_file1)
             else:
                 rego_txt = [
                     "package rule",
@@ -256,18 +256,27 @@ class ComparatorV01:
                 else:
                     os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
                 resultval = json_from_file('/tmp/a.json')
-                if resultval:
+                if resultval and "errors" in resultval and resultval["errors"]:
+                    logger.error(str(resultval["errors"]))
+                    results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                elif resultval:
                     if isinstance(rule_expr, list):
                         resultdict = resultval['result'][0]['expressions'][0]['value']
                         for val in rule_expr:
-                            evalfield = val['eval'].rsplit('.', 1)[-1]
-                            evalmessage = val['message'].rsplit('.', 1)[-1]
-                            if evalfield in resultdict:
-                                result = parsebool(resultdict[evalfield])
-                            else:
-                                result = False
-                            msg = resultdict[evalmessage] if not result and evalmessage in resultdict else ""
-                            results.append({'eval': val[eval], 'result': "passed" if result else "failed", 'message': msg})
+                            if 'eval' in val: 
+                                evalfield = val['eval'].rsplit('.', 1)[-1]
+                                evalmessage = val['message'].rsplit('.', 1)[-1] if "message" in val else ""
+                                if evalfield in resultdict:
+                                    if isinstance(resultdict[evalfield], bool):
+                                        result = parsebool(resultdict[evalfield])
+                                    else:
+                                        continue
+                                elif evalmessage in resultdict:
+                                    result = False
+                                else:
+                                    continue
+                                msg = resultdict[evalmessage] if not result and evalmessage in resultdict else ""
+                                results.append({'eval': val["eval"], 'result': "passed" if result else "failed", 'message': msg})
                     else:
                         resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
                         result = parsebool(resultbool)
