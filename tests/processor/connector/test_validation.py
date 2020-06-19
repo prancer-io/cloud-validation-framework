@@ -161,8 +161,8 @@ def test_run_validation_test(monkeypatch):
         "comparison": "gt 10"
     })
     assert result is not None
-    assert type(result) is dict
-    assert result['result'] == 'passed'
+    assert type(result) is list
+    assert result[0]['result'] == 'passed'
 
 
 def test_run_file_validation_tests(create_temp_dir, create_temp_json, monkeypatch):
