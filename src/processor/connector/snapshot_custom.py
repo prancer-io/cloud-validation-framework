@@ -306,11 +306,6 @@ def run_subprocess_cmd(cmd, ignoreerror=False, maskoutput=False, outputmask="Err
             result = result.decode()
         if errresult and isinstance(errresult, bytes):
             errresult = errresult.decode()
-        if not ignoreerror and errresult:
-            if maskoutput:
-                logger.error("OUTPUT: %s, ERROR: %s", outputmask, outputmask)
-            else:
-                logger.error("OUTPUT: %s, ERROR: %s", result, errresult)
     return errresult, result
 
 
@@ -347,6 +342,9 @@ def git_clone_dir(connector):
                 if pwd:
                     git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username),
                                                         urllib.parse.quote_plus(pwd), other_part, repopath)
+                elif isprivate:
+                    logger.error("Please provide password for connect to git repository.")
+                    return repopath, clonedir
                 else:
                     git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username), "",
                                                      other_part, repopath)
@@ -394,13 +392,13 @@ def git_clone_dir(connector):
                 git_ssh_cmd = 'ssh -o "StrictHostKeyChecking=no"'
                 git_cmd = 'git clone %s %s' % (giturl, repopath)
             os.environ['GIT_SSH_COMMAND'] = git_ssh_cmd
-            logger.info("GIT_SSH_COMMAND=%s", git_ssh_cmd)
         git_cmd = '%s --branch %s' % (git_cmd, brnch)
-        logger.info("os.system(%s)", git_cmd)
         if git_cmd:
-            run_subprocess_cmd(git_cmd)
+            error_result, result = run_subprocess_cmd(git_cmd)
             checkdir = '%s/tmpclone' % repopath if subdir else repopath
             clonedir = checkdir if exists_dir('%s/.git' % checkdir) else None
+            if not exists_dir(clonedir):
+                logger.error("No valid data provided for connect to git : %s", error_result)
         if 'GIT_SSH_COMMAND' in os.environ:
             os.environ.pop('GIT_SSH_COMMAND')
     return repopath, clonedir
