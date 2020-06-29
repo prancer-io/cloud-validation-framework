@@ -139,13 +139,14 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
                         "Invalid json : $schema does not contains the correct value")
 
         if template_file_path and deployment_file_path:
-            azure_cli_flag = config_value("azure", "azure-cli")
-            # response = invoke_az_cli("deployment validate --location " + location +
-            #     " --template-file " + template_file_path
-            #     + " --parameters @" + deployment_file_path)
-            config_value("azure", "azure-cli")
-            paths = [deployment_file_path]
-            response = main(template_file_path, False, *paths)
+            azure_cli_flag = config_value("AZURE", "azureCli")
+            if azure_cli_flag and azure_cli_flag == "true":
+                response = invoke_az_cli("deployment validate --location " + location +
+                                         " --template-file " + template_file_path
+                                         + " --parameters @" + deployment_file_path)
+            else:
+                paths = [deployment_file_path]
+                response = main(template_file_path, False, *paths)
 
             data_record = create_database_record(node, snapshot_source, response, sub_data)
             
@@ -249,15 +250,19 @@ def populate_sub_directory_snapshot(base_dir_path, sub_dir_path, snapshot, dbnam
 
             location = get_field_value(node, 'location')
             new_deployment_file_path_list = []
+            azure_cli_flag = config_value("AZURE", "azureCli")
 
             template_file_json_path = str('%s/%s' % (base_dir_path, template_file_path)).replace('//', '/')
             for deployment_file_path in deployment_file_path_list:
                 deployment_file_json_path = str('%s/%s' % (base_dir_path, deployment_file_path)).replace('//', '/')
+                if azure_cli_flag and azure_cli_flag == "true":
+                    response = invoke_az_cli("deployment validate --location " + location +
+                                             " --template-file " + template_file_json_path
+                                             + " --parameters @" + deployment_file_json_path)
+                else:
+                    paths = [deployment_file_json_path]
+                    response = main(template_file_json_path, False, *paths)
 
-                response = invoke_az_cli("deployment validate --location " + location +
-                    " --template-file " + template_file_json_path
-                    + " --parameters @" + deployment_file_json_path)
-                
                 if not response['error']:
                     new_deployment_file_path_list.append({
                         "path" : deployment_file_path,
