@@ -10,6 +10,7 @@ import time
 import hashlib
 import os
 import pymongo
+from processor.templates.azure.azure_parser import main
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import get_dbtests
 from processor.helper.json.json_utils import get_container_dir, get_field_value, json_from_file, \
@@ -138,9 +139,13 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
                         "Invalid json : $schema does not contains the correct value")
 
         if template_file_path and deployment_file_path:
-            response = invoke_az_cli("deployment validate --location " + location +
-                " --template-file " + template_file_path
-                + " --parameters @" + deployment_file_path)
+            azure_cli_flag = config_value("azure", "azure-cli")
+            # response = invoke_az_cli("deployment validate --location " + location +
+            #     " --template-file " + template_file_path
+            #     + " --parameters @" + deployment_file_path)
+            config_value("azure", "azure-cli")
+            paths = [deployment_file_path]
+            response = main(template_file_path, False, *paths)
 
             data_record = create_database_record(node, snapshot_source, response, sub_data)
             
