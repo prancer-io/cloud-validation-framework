@@ -12,7 +12,8 @@ from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
     delete_from_currentdata, get_from_currentdata, get_dbtests
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    collectiontypes, STRUCTURE, make_snapshots_dir, store_snapshot
+    collectiontypes, STRUCTURE, TEST, MASTERTEST, make_snapshots_dir,\
+    store_snapshot, get_field_value_with_default, get_json_files
 from processor.helper.httpapi.restapi_azure import get_access_token,\
     get_web_client_data, get_client_secret, json_source
 from processor.connector.vault import get_vault_data
@@ -33,12 +34,16 @@ class SnapshotsException(Exception):
         super().__init__(self.message)
 
 
+
 class Snapshot:
+    """ Base class for snapshot processing"""
+
+    LOGPREFIX = 'Snapshots:'
+
     def __init__(self, container):
         self.container = container
         self.appObject = {}
-        self.db = False
-        self.singleTest = False
+        self.singleTest = None
 
     def store_value(self, key, value):
         if key and value:
@@ -49,19 +54,61 @@ class Snapshot:
             return self.appObject.get(key)
         return None
 
+    def get_snapshots(self):
+        """ Iterator based implementation"""
+        return []
+
+    def get_snapshot_nodes(self, snapshot):
+        """ Iterate over the nodes of the snapshot object"""
+        return []
+
 
 class FSSnapshot(Snapshot):
     """
     Filesystem snapshot utilities.
     """
-    def __init__(self, container, singleTest=False):
+    def __init__(self, container, singleTest=None):
         super().__init__(container)
         self.singleTest = singleTest
-        self.db = False
+        reporting_path = config_value('REPORTING', 'reportOutputFolder')
+        self.container_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
 
     def get_snapshots(self):
         """ Iterator based implementation"""
-        pass
+        snapshots = []
+        logger.info("%s Fetching files for %s from container dir: %s", Snapshot.LOGPREFIX,
+                    self.container, self.container_dir)
+        for testType, snapshotType, replace in (
+                (TEST, 'snapshot', False),
+                (MASTERTEST, 'masterSnapshot', True)):
+            test_files = get_json_files(self.container_dir, testType)
+            logger.info('%s fetched %s number of files: %s', Snapshot.LOGPREFIX, self.container, len(test_files))
+            snapshots.extend(self.process_files(test_files, snapshotType, replace))
+        return list(set(snapshots))
+
+
+    def process_files(self, test_files, doctype, replace=False):
+        """ Process Test or masterTest json files."""
+        snapshots = []
+        for test_file in test_files:
+            test_json_data = json_from_file(test_file)
+            if test_json_data:
+                snapshot = test_json_data[doctype] if doctype in test_json_data else ''
+                if snapshot:
+                    file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
+                    if replace:
+                        file_name = file_name.replace('.json', '_gen.json')
+                    if self.singletest:
+                        testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+                        for testset in testsets:
+                            for testcase in testset['cases']:
+                                if ('testId' in testcase and testcase['testId'] == self.singletest) or \
+                                        ('masterTestId' in testcase and testcase['masterTestId'] == self.singletest):
+                                    if file_name not in snapshots:
+                                        snapshots.append(file_name)
+                    else:
+                        snapshots.append(file_name)
+        return snapshots
 
     def get_snapshot_nodes(self, snapshot):
         """ Iterate over the nodes of the snapshot object"""
@@ -74,11 +121,35 @@ class DBSnapshot(Snapshot):
     """
     def __init__(self, container):
         super().__init__(container)
-        self.db = True
+        self.dbname = config_value(DATABASE, DBNAME)
+        self.qry = {'container': container}
+        self.sort = [sort_field('timestamp', False)]
+
+    def collection(self, name=TEST):
+        return config_value(DATABASE, collectiontypes[name])
 
     def get_snapshots(self):
         """ Iterator based implementation"""
-        pass
+        snapshots = []
+        logger.info("%s Fetching documents for %s", Snapshot.LOGPREFIX, self.container)
+        for collection, snapshotType, suffix in (
+                (TEST, 'snapshot', ''),
+                (MASTERTEST, 'masterSnapshot', '_gen')):
+            docs = get_documents(self.collection(collection), dbname=self.dbname, sort=self.sort, query=self.qry)
+            logger.info('%s fetched %s number of documents: %s', Snapshot.LOGPREFIX, collection, len(docs))
+            snapshots.extend(self.process_docs(docs, snapshotType, suffix))
+        return list(set(snapshots))
+
+    def process_docs(self, docs, doctype, suffix=''):
+        """ Process Test or masterTest documents"""
+        snapshots = []
+        if docs and len(docs):
+            for doc in docs:
+                if doc['json']:
+                    snapshot = doc['json'][doctype] if doctype in doc['json'] else ''
+                    if snapshot:
+                        snapshots.append((snapshot.split('.')[0] if snapshot.endswith('.json') else snapshot) + suffix)
+        return snapshots
 
     def get_snapshot_nodes(self, snapshot):
         """ Iterate over the nodes of the snapshot object"""
