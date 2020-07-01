@@ -25,6 +25,66 @@ from processor.connector.snapshot_utils import validate_snapshot_nodes
 
 logger = getlogger()
 
+class SnapshotsException(Exception):
+    """Exception raised for snapshots"""
+
+    def __init__(self, message="Error in snapshots for container"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class Snapshot:
+    def __init__(self, container):
+        self.container = container
+        self.appObject = {}
+        self.db = False
+        self.singleTest = False
+
+    def store_value(self, key, value):
+        if key and value:
+            self.appObject[key] = value
+
+    def get_value(self, key):
+        if key and key in self.appObject:
+            return self.appObject.get(key)
+        return None
+
+
+class FSSnapshot(Snapshot):
+    """
+    Filesystem snapshot utilities.
+    """
+    def __init__(self, container, singleTest=False):
+        super().__init__(container)
+        self.singleTest = singleTest
+        self.db = False
+
+    def get_snapshots(self):
+        """ Iterator based implementation"""
+        pass
+
+    def get_snapshot_nodes(self, snapshot):
+        """ Iterate over the nodes of the snapshot object"""
+        pass
+
+
+class DBSnapshot(Snapshot):
+    """
+    Database snapshot utilities.
+    """
+    def __init__(self, container):
+        super().__init__(container)
+        self.db = True
+
+    def get_snapshots(self):
+        """ Iterator based implementation"""
+        pass
+
+    def get_snapshot_nodes(self, snapshot):
+        """ Iterate over the nodes of the snapshot object"""
+        pass
+
+
 
 def get_version_for_type(node):
     """Url version of the resource."""
