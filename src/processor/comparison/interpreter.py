@@ -298,13 +298,18 @@ class ComparatorV01:
                 json_data = json_from_file(fname)
                 if json_data and 'json' in json_data:
                     doc = json_data['json']
-                    self.snapshots.append({
+                    snapshot = {
                         'id': json_data['snapshotId'],
-                        'path': json_data['path'],
                         'structure': json_data['structure'],
                         'reference': json_data['reference'],
                         'source': json_data['source']
-                    })
+                    }
+                    if 'paths' in json_data:
+                        snapshot['paths'] = json_data['paths']
+                    else:
+                        snapshot['path'] = json_data['path']
+
+                    self.snapshots.append(snapshot)
         return doc
 
 
@@ -319,13 +324,17 @@ class ComparatorV01:
             logger.debug('Number of Snapshot Documents: %s', len(docs))
             if docs and len(docs):
                 doc = docs[0]['json']
-                self.snapshots.append({
+                snapshot = {
                     'id': docs[0]['snapshotId'],
-                    'path': docs[0]['path'],
                     'structure': docs[0]['structure'],
                     'reference': docs[0]['reference'],
                     'source': docs[0]['source']
-                })
+                }
+                if 'paths' in docs[0]:
+                    snapshot['paths'] = docs[0]['paths']
+                else:
+                    snapshot['path'] = docs[0]['path']
+                self.snapshots.append(snapshot)
         else:
             json_dir = '%s%s' % (get_test_json_dir(), self.container)
             if exists_dir(json_dir):
@@ -336,11 +345,15 @@ class ComparatorV01:
                         doc = json_data['json']
                         snapshot_val = {
                             'id': json_data['snapshotId'],
-                            'path': json_data['path'],
                             'structure': json_data['structure'],
                             'reference': json_data['reference'],
                             'source': json_data['source']
                         }
+                        if 'paths' in json_data:
+                            snapshot_val['paths'] = json_data['paths']
+                        else:
+                            snapshot_val['path'] = json_data['path']
+
                         singletest = get_from_currentdata(SINGLETEST)
                         if singletest:
                             snapshot_val['json'] = doc
@@ -409,11 +422,14 @@ class ComparatorV01:
                         result_val[0]["result"] = "passed" if result else "failed"
                         result_val[0]["snapshots"] = [{
                             'id': docs[0]['snapshotId'],
-                            'path': docs[0]['path'],
                             'structure': docs[0]['structure'],
                             'reference': docs[0]['reference'],
                             'source': docs[0]['source']
                         }]
+                        if "paths" in docs[0]:
+                            result_val[0]["snapshots"][0]["paths"] = docs[0]["paths"]
+                        else:
+                            result_val[0]["snapshots"][0]["path"] = docs[0]["path"]
                 else:
                     result_val[0].update({
                         "result": "skipped",

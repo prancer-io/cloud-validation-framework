@@ -75,7 +75,7 @@ def handle_concat(concat_expr):
             else:
                 updated_values.append(value.strip().replace("'", ""))
         # print(updated_values)
-        return(success, ''.join(updated_values) if success else concat_expr)
+        return(success, ''.join(str(value) for value in updated_values) if success else concat_expr)
     return False, concat_expr
 
 def handle_equals(equals_expr):
@@ -146,13 +146,25 @@ def func_details(value):
             return match.groups()[0], params[1:-1]
     return None, None
 
+def replace_spacial_characters(gen_template_json):
+    if gen_template_json.get('$schema', None):
+        gen_template_json["\\uFF04schema"] = gen_template_json["$schema"]
+        del gen_template_json["$schema"]
+
+    for key, value in gen_template_json.items():
+        if isinstance(value, dict):
+            replace_spacial_characters(value)
+        elif isinstance(value, list):
+            for val in value:
+                if isinstance(val, dict):
+                    replace_spacial_characters(val)
+
 def main(template, tosave, *params):
     global gparams
     global gvariables
     stars = '*' * 25
-    logger.info("Template: %s", template)
-    logger.info("Params: %s", params)
     template_json = json_from_file(template)
+    replace_spacial_characters(template_json)
     gen_template_json = None
     if template_json:
         gen_template_json = copy.deepcopy(template_json)
@@ -163,8 +175,11 @@ def main(template, tosave, *params):
             param_json = json_from_file(param)
             if 'parameters' in  param_json and param_json['parameters']:
                 for key, value in param_json['parameters'].items():
-                   if key in template_json['parameters']:
-                       template_json['parameters'][key]['value'] = value['value']
+                    if key in template_json['parameters']:
+                        if "value" in value:
+                            template_json['parameters'][key]['value'] = value['value']
+                        else:
+                            logger.error("From parameter %s was not replaced.", key)
             gen_template_json['parameters'] = gparams
         # print('%s Updated Parameters %s' % (stars, stars))
         # print(json.dumps(template_json['parameters'], indent=2))
