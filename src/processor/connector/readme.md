@@ -30,6 +30,12 @@ Helpers from the framework:
 
 
 
+Documentation ( This should be in toplevel document):
+  1) Steps to connector.
+  2) Files to be implmeneted.
+  3) Integrate into the system.
+
+Detailed
 Snapshot implementation:
 
 1) Snapshots could be stored in a filesystem as json files or db records in mongo database. In a db record there is metadata stored in the top level fields

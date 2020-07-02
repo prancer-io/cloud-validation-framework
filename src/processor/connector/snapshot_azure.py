@@ -12,148 +12,23 @@ from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
     delete_from_currentdata, get_from_currentdata, get_dbtests
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    collectiontypes, STRUCTURE, TEST, MASTERTEST, make_snapshots_dir,\
-    store_snapshot, get_field_value_with_default, get_json_files
+    collectiontypes, STRUCTURE, TEST, MASTERTEST, SNAPSHOT, make_snapshots_dir,\
+    store_snapshot, get_field_value_with_default, get_json_files, get_container_snapshot_json_files
 from processor.helper.httpapi.restapi_azure import get_access_token,\
     get_web_client_data, get_client_secret, json_source
 from processor.connector.vault import get_vault_data
 from processor.helper.httpapi.http_utils import http_get_request
-from processor.helper.config.config_utils import config_value, framework_dir, CUSTOMER
+from processor.helper.config.config_utils import config_value, framework_dir, CUSTOMER, get_test_json_dir
 from processor.database.database import insert_one_document, COLLECTION, get_collection_size, create_indexes, \
-     DATABASE, DBNAME, sort_field, get_documents
+     DATABASE, DBNAME, sort_field, get_documents, update_one_document
 from processor.connector.snapshot_utils import validate_snapshot_nodes
+from processor.connector.populate_json import pull_json_data
+from processor.reporting.json_output import dump_output_results
+
+
 
 
 logger = getlogger()
-
-class SnapshotsException(Exception):
-    """Exception raised for snapshots"""
-
-    def __init__(self, message="Error in snapshots for container"):
-        self.message = message
-        super().__init__(self.message)
-
-
-
-class Snapshot:
-    """ Base class for snapshot processing"""
-
-    LOGPREFIX = 'Snapshots:'
-
-    def __init__(self, container):
-        self.container = container
-        self.appObject = {}
-        self.singleTest = None
-
-    def store_value(self, key, value):
-        if key and value:
-            self.appObject[key] = value
-
-    def get_value(self, key):
-        if key and key in self.appObject:
-            return self.appObject.get(key)
-        return None
-
-    def get_snapshots(self):
-        """ Iterator based implementation"""
-        return []
-
-    def get_snapshot_nodes(self, snapshot):
-        """ Iterate over the nodes of the snapshot object"""
-        return []
-
-
-class FSSnapshot(Snapshot):
-    """
-    Filesystem snapshot utilities.
-    """
-    def __init__(self, container, singleTest=None):
-        super().__init__(container)
-        self.singleTest = singleTest
-        reporting_path = config_value('REPORTING', 'reportOutputFolder')
-        self.container_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
-
-    def get_snapshots(self):
-        """ Iterator based implementation"""
-        snapshots = []
-        logger.info("%s Fetching files for %s from container dir: %s", Snapshot.LOGPREFIX,
-                    self.container, self.container_dir)
-        for testType, snapshotType, replace in (
-                (TEST, 'snapshot', False),
-                (MASTERTEST, 'masterSnapshot', True)):
-            test_files = get_json_files(self.container_dir, testType)
-            logger.info('%s fetched %s number of files: %s', Snapshot.LOGPREFIX, self.container, len(test_files))
-            snapshots.extend(self.process_files(test_files, snapshotType, replace))
-        return list(set(snapshots))
-
-
-    def process_files(self, test_files, doctype, replace=False):
-        """ Process Test or masterTest json files."""
-        snapshots = []
-        for test_file in test_files:
-            test_json_data = json_from_file(test_file)
-            if test_json_data:
-                snapshot = test_json_data[doctype] if doctype in test_json_data else ''
-                if snapshot:
-                    file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
-                    if replace:
-                        file_name = file_name.replace('.json', '_gen.json')
-                    if self.singletest:
-                        testsets = get_field_value_with_default(test_json_data, 'testSet', [])
-                        for testset in testsets:
-                            for testcase in testset['cases']:
-                                if ('testId' in testcase and testcase['testId'] == self.singletest) or \
-                                        ('masterTestId' in testcase and testcase['masterTestId'] == self.singletest):
-                                    if file_name not in snapshots:
-                                        snapshots.append(file_name)
-                    else:
-                        snapshots.append(file_name)
-        return snapshots
-
-    def get_snapshot_nodes(self, snapshot):
-        """ Iterate over the nodes of the snapshot object"""
-        pass
-
-
-class DBSnapshot(Snapshot):
-    """
-    Database snapshot utilities.
-    """
-    def __init__(self, container):
-        super().__init__(container)
-        self.dbname = config_value(DATABASE, DBNAME)
-        self.qry = {'container': container}
-        self.sort = [sort_field('timestamp', False)]
-
-    def collection(self, name=TEST):
-        return config_value(DATABASE, collectiontypes[name])
-
-    def get_snapshots(self):
-        """ Iterator based implementation"""
-        snapshots = []
-        logger.info("%s Fetching documents for %s", Snapshot.LOGPREFIX, self.container)
-        for collection, snapshotType, suffix in (
-                (TEST, 'snapshot', ''),
-                (MASTERTEST, 'masterSnapshot', '_gen')):
-            docs = get_documents(self.collection(collection), dbname=self.dbname, sort=self.sort, query=self.qry)
-            logger.info('%s fetched %s number of documents: %s', Snapshot.LOGPREFIX, collection, len(docs))
-            snapshots.extend(self.process_docs(docs, snapshotType, suffix))
-        return list(set(snapshots))
-
-    def process_docs(self, docs, doctype, suffix=''):
-        """ Process Test or masterTest documents"""
-        snapshots = []
-        if docs and len(docs):
-            for doc in docs:
-                if doc['json']:
-                    snapshot = doc['json'][doctype] if doctype in doc['json'] else ''
-                    if snapshot:
-                        snapshots.append((snapshot.split('.')[0] if snapshot.endswith('.json') else snapshot) + suffix)
-        return snapshots
-
-    def get_snapshot_nodes(self, snapshot):
-        """ Iterate over the nodes of the snapshot object"""
-        pass
 
 
 
@@ -419,3 +294,271 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
         delete_from_currentdata('tenant_id')
         delete_from_currentdata('token')
     return snapshot_data
+
+
+class SnapshotsException(Exception):
+    """Exception raised for snapshots"""
+
+    def __init__(self, message="Error in snapshots for container"):
+        self.message = message
+        super().__init__(self.message)
+
+
+
+class Snapshot:
+    """ Base class for snapshot processing"""
+
+    LOGPREFIX = 'Snapshots:'
+    snapshot_fns = {
+        'azure': populate_azure_snapshot
+    }
+
+    def __init__(self, container):
+        self.container = container
+        self.appObject = {}
+        self.singleTest = None
+
+    def store_value(self, key, value):
+        if key and value:
+            self.appObject[key] = value
+
+    def get_value(self, key):
+        if key and key in self.appObject:
+            return self.appObject.get(key)
+        return None
+
+    def get_snapshots(self):
+        """ Iterator based implementation"""
+        return []
+
+    def get_snapshot_nodes(self, snapshot):
+        """ Iterate over the nodes of the snapshot object"""
+        return []
+
+    def check_and_fetch_remote_snapshots(self, json_data):
+        git_connector_json = False
+        pull_response = False
+        if "connector" in json_data and "remoteFile" in json_data and \
+                json_data["connector"] and json_data["remoteFile"]:
+            git_connector_json = True
+            _, pull_response = pull_json_data(json_data['json'])
+        return pull_response, git_connector_json
+
+    def get_structure_data(self, snapshot_object):
+        structure_data = {}
+        return structure_data
+
+    def populate_snapshots(self, snapshot_json_data):
+        """
+        Every snapshot should have collection of nodes which are to be populated.
+        Each node in the nodes list of the snapshot shall have a unique id in this
+        container so as not to clash with other node of a snapshots.
+        """
+        snapshot_data = {}
+        snapshots = get_field_value(snapshot_json_data, 'snapshots')
+        if not snapshots:
+            logger.error("Json Snapshot does not contain snapshots, next!...")
+            return snapshot_data
+        for snapshot in snapshots:
+            connector_data = self.get_structure_data(snapshot)
+            snapshot_type = get_field_value(connector_data, "type")
+            if snapshot_type and snapshot_type in self.snapshot_fns:
+                if 'nodes' not in snapshot or not snapshot['nodes']:
+                    logger.error("No nodes in snapshot to be backed up!...")
+                    return snapshot_data
+                current_data = self.snapshot_fns[snapshot_type](snapshot, self.container)
+                logger.info('Snapshot: %s', current_data)
+                snapshot_data.update(current_data)
+        return snapshot_data
+
+
+class FSSnapshot(Snapshot):
+    """
+    Filesystem snapshot utilities.
+    """
+    def __init__(self, container, singleTest=None):
+        super().__init__(container)
+        self.singleTest = singleTest
+        reporting_path = config_value('REPORTING', 'reportOutputFolder')
+        self.container_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
+
+    def get_structure_data(self, snapshot_object):
+        structure_data = {}
+        json_test_dir = get_test_json_dir()
+        snapshot_source = get_field_value(snapshot_object, "source")
+        file_name = '%s.json' % snapshot_source if snapshot_source and not \
+            snapshot_source.endswith('.json') else snapshot_source
+        custom_source = '%s/../%s' % (json_test_dir, file_name)
+        logger.info('%s structure file: %s', Snapshot.LOGPREFIX, custom_source)
+        if exists_file(custom_source):
+            structure_data = json_from_file(custom_source)
+        return structure_data
+
+    def get_used_snapshots_in_tests(self):
+        """ Iterator based implementation"""
+        snapshots = []
+        logger.info("%s Fetching files for %s from container dir: %s", Snapshot.LOGPREFIX,
+                    self.container, self.container_dir)
+        for testType, snapshotType, replace in (
+                (TEST, 'snapshot', False),
+                (MASTERTEST, 'masterSnapshot', True)):
+            test_files = get_json_files(self.container_dir, testType)
+            logger.info('%s fetched %s number of files: %s', Snapshot.LOGPREFIX, self.container, len(test_files))
+            snapshots.extend(self.process_files(test_files, snapshotType, replace))
+        return list(set(snapshots))
+
+
+    def process_files(self, test_files, doctype, replace=False):
+        """ Process Test or masterTest json files."""
+        snapshots = []
+        for test_file in test_files:
+            test_json_data = json_from_file(test_file)
+            if test_json_data:
+                snapshot = test_json_data[doctype] if doctype in test_json_data else ''
+                if snapshot:
+                    file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
+                    if replace:
+                        file_name = file_name.replace('.json', '_gen.json')
+                    if self.singletest:
+                        testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+                        for testset in testsets:
+                            for testcase in testset['cases']:
+                                if ('testId' in testcase and testcase['testId'] == self.singletest) or \
+                                        ('masterTestId' in testcase and testcase['masterTestId'] == self.singletest):
+                                    if file_name not in snapshots:
+                                        snapshots.append(file_name)
+                    else:
+                        snapshots.append(file_name)
+        return snapshots
+
+    def get_snapshots(self):
+        """
+        Get the snapshot files from the container with storage system as filesystem.
+        The path for looking into the container is configured in the config.ini, for the
+        default location configuration is $SOLUTIONDIR/relam/validation/<container>
+        """
+        snapshots_status = {}
+        snapshot_dir, snapshot_files = get_container_snapshot_json_files(self.container)
+        if not snapshot_files:
+            logger.error("%s No Snapshot for this container: %s, in %s, add and run again!...", Snapshot.LOGPREFIX, self.container, snapshot_dir)
+            raise SnapshotsException("No snapshots for this container: %s, add and run again!..." % self.container)
+            return snapshots_status
+        used_snapshots = self.get_used_snapshots_in_tests()
+        populated = []
+        for snapshot_file in snapshot_files:
+            parts = snapshot_file.rsplit('/', 1)
+            if parts[-1] in used_snapshots and parts[-1] not in populated:
+                # Take the snapshot and populate whether it was successful or not.
+                # Then pass it back to the validation tests, so that tests for those
+                # snapshots that have been susccessfully fetched shall be executed.
+                file_name = '%s.json' % snapshot_file if snapshot_file and not snapshot_file.endswith('.json') else snapshot_file
+                snapshot_json_data = json_from_file(file_name)
+                if not snapshot_json_data:
+                    logger.info("%s snapshot file %s looks to be empty, next!...",  Snapshot.LOGPREFIX, snapshot_file)
+                    continue
+
+                pull_response, git_connector_json = self.check_and_fetch_remote_snapshots(snapshot_json_data)
+                if git_connector_json and not pull_response:
+                    logger.info('%s Fetching remote snapshots failed.', Snapshot.LOGPREFIX)
+                    break
+
+                logger.debug(json.dumps(snapshot_json_data, indent=2))
+                snapshot_data = self.populate_snapshots(snapshot_json_data)
+                populated.append(parts[-1])
+                name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
+                snapshots_status[name] = snapshot_data
+        return snapshots_status
+
+    def get_snapshot_nodes(self, snapshot):
+        """ Iterate over the nodes of the snapshot object"""
+        pass
+
+
+class DBSnapshot(Snapshot):
+    """
+    Database snapshot utilities.
+    """
+    def __init__(self, container):
+        super().__init__(container)
+        self.dbname = config_value(DATABASE, DBNAME)
+        self.qry = {'container': container}
+        self.sort = [sort_field('timestamp', False)]
+
+    def collection(self, name=TEST):
+        return config_value(DATABASE, collectiontypes[name])
+
+    def get_structure_data(self, snapshot_object):
+        structure_data = {}
+        snapshot_source = get_field_value(snapshot_object, "source")
+        snapshot_source = snapshot_source.replace('.json', '') if snapshot_source else ''
+        qry = {'name': snapshot_source}
+        structure_docs = get_documents(self.collection(STRUCTURE), dbname=self.dbname, sort=self.sort, query=qry, limit=1)
+        logger.info('%s fetched %s number of documents: %s', Snapshot.LOGPREFIX, STRUCTURE, len(structure_docs))
+        if structure_docs and len(structure_docs):
+            structure_data = structure_docs[0]['json']
+        return structure_data
+
+    def get_used_snapshots_in_tests(self):
+        """ Get the snapshots used in test and mastertest of the container."""
+        snapshots = []
+        logger.info("%s Fetching documents for %s", Snapshot.LOGPREFIX, self.container)
+        for collection, snapshotType, suffix in (
+                (TEST, 'snapshot', ''),
+                (MASTERTEST, 'masterSnapshot', '_gen')):
+            docs = get_documents(self.collection(collection), dbname=self.dbname, sort=self.sort, query=self.qry)
+            logger.info('%s fetched %s number of documents: %s', Snapshot.LOGPREFIX, collection, len(docs))
+            snapshots.extend(self.process_docs(docs, snapshotType, suffix))
+        return list(set(snapshots))
+
+    def get_snapshots(self):
+        """Populate the used snapshots in test and mastertest for this container."""
+        snapshots_status = {}
+        docs = get_documents(self.collection(SNAPSHOT), dbname=self.dbname, sort=self.sort, query=self.qry, _id=True)
+        if docs and len(docs):
+            logger.info('%s fetched %s number of documents: %s', Snapshot.LOGPREFIX, SNAPSHOT, len(docs))
+            used_snapshots = self.get_used_snapshots_in_tests()
+            if not used_snapshots:
+                raise SnapshotsException("No snapshots for this container: %s, add and run again!..." % self.container)
+            populated = []
+            for doc in docs:
+                if doc['json']:
+                    snapshot = doc['name']
+                    try:
+                        pull_response, git_connector_json = self.check_and_fetch_remote_snapshots(doc['json'])
+                        if git_connector_json and not pull_response:
+                            logger.info('%s Fetching remote snapshots failed.', Snapshot.LOGPREFIX)
+                            break
+
+                        if snapshot in used_snapshots and snapshot not in populated:
+                            # Take the snapshot and populate whether it was successful or not.
+                            # Then pass it back to the validation tests, so that tests for those
+                            # snapshots that have been susccessfully fetched shall be executed.
+                            snapshot_file_data = self.populate_snapshots(doc['json'])
+
+                            if not git_connector_json:
+                                update_one_document(doc, self.collection(SNAPSHOT), self.dbname)
+
+                            populated.append(snapshot)
+                            snapshots_status[snapshot] = snapshot_file_data
+                    except Exception as e:
+                        dump_output_results([], self.container, "-", snapshot, False)
+                        raise e
+        if not snapshots_status:
+            raise SnapshotsException("No snapshots for this container: %s, add and run again!..." % self.container)
+        return snapshots_status
+
+    def process_docs(self, docs, doctype, suffix=''):
+        """ Process Test or masterTest documents"""
+        snapshots = []
+        if docs and len(docs):
+            for doc in docs:
+                if doc['json']:
+                    snapshot = doc['json'][doctype] if doctype in doc['json'] else ''
+                    if snapshot:
+                        snapshots.append((snapshot.split('.')[0] if snapshot.endswith('.json') else snapshot) + suffix)
+        return snapshots
+
+    def get_snapshot_nodes(self, snapshot):
+        """ Iterate over the nodes of the snapshot object"""
+        pass
+
