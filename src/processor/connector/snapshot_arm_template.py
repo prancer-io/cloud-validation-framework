@@ -180,7 +180,7 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
                             ('snapshotId', pymongo.ASCENDING)
                         ]
                     )
-                insert_one_document(data_record, node['collection'], dbname)
+                insert_one_document(data_record, node['collection'], dbname, check_keys=False)
             else:
                 snapshot_dir = make_snapshots_dir(container)
                 if snapshot_dir:
