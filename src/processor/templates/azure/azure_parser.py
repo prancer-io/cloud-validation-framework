@@ -148,7 +148,7 @@ def func_details(value):
 
 def replace_spacial_characters(gen_template_json):
     if gen_template_json.get('$schema', None):
-        gen_template_json["\\uFF04schema"] = gen_template_json["$schema"]
+        gen_template_json["\uFF04schema"] = gen_template_json["$schema"]
         del gen_template_json["$schema"]
 
     for key, value in gen_template_json.items():
