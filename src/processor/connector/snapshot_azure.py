@@ -12,7 +12,7 @@ from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
     delete_from_currentdata, get_from_currentdata, get_dbtests
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    collectiontypes, STRUCTURE, TEST, MASTERTEST, SNAPSHOT, make_snapshots_dir,\
+    collectiontypes, STRUCTURE, TEST, MASTERTEST, SNAPSHOT, MASTERSNAPSHOT, make_snapshots_dir,\
     store_snapshot, get_field_value_with_default, get_json_files, get_container_snapshot_json_files
 from processor.helper.httpapi.restapi_azure import get_access_token,\
     get_web_client_data, get_client_secret, json_source
@@ -302,6 +302,7 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
 
 # def get_data_record(node, sub_name, snapshot_source):
 def get_data_record(sub_name, node, user, snapshot_source):
+    """ The data node record, common function across connectors."""
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
     return {
@@ -416,6 +417,7 @@ def get_snapshot_nodes(snapshot, token, sub_name, sub_id, node, user, snapshot_s
 
 
 def get_web_client_data(snapshot_json, snapshot):
+    """ Get the client id and secret, specific to azure"""
     client_id = None
     client_secret = None
     sub_id = None
@@ -449,7 +451,6 @@ def get_web_client_data(snapshot_json, snapshot):
                 break
     return client_id, client_secret, sub_name, sub_id, tenant_id
 
-# def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
 
 def populate_snapshot_azure(snapshot_json, fssnapshot):
     """ Populates the resources from azure."""
@@ -548,16 +549,19 @@ class Snapshot:
     }
 
     def __init__(self, container):
+        """ Base class, where all attributes are false."""
         self.container = container
         self.appObject = {}
         self.singleTest = None
         self.isDb = False
 
     def store_value(self, key, value):
+        """ Store key value used down the p[rocessing stream."""
         if key and value:
             self.appObject[key] = value
 
     def get_value(self, key):
+        """ Use the app storage and will be garbage collected after the completion of the snapshot fetch process."""
         if key and key in self.appObject:
             return self.appObject.get(key)
         return None
@@ -572,6 +576,7 @@ class Snapshot:
         return snapshot_nodes if snapshot_nodes else []
 
     def validate_snapshot_ids_in_nodes(self, snapshot):
+        """ The snapshotsIds should be strings and also quoted."""
         snapshot_data = {}
         valid_snapshotids = True
         for node in self.get_snapshot_nodes(snapshot):
@@ -593,6 +598,7 @@ class Snapshot:
         return snapshot_data, valid_snapshotids
 
     def check_and_fetch_remote_snapshots(self, json_data):
+        """Could be snapshot that snapshots are fetched from remote repository."""
         git_connector_json = False
         pull_response = False
         if "connector" in json_data and "remoteFile" in json_data and \
@@ -602,6 +608,7 @@ class Snapshot:
         return pull_response, git_connector_json
 
     def get_structure_data(self, snapshot_object):
+        """ Return a empty dict in base class."""
         structure_data = {}
         return structure_data
 
@@ -627,6 +634,8 @@ class Snapshot:
                 if 'nodes' not in snapshot or not snapshot['nodes']:
                     logger.error("No nodes in snapshot to be backed up!...")
                     return snapshot_data
+                if snapshot_type == 'filesystem':
+                    current_data = self.snapshot_fns[snapshot_type](snapshot, self.container)
                 current_data = self.snapshot_fns[snapshot_type](snapshot, self)
                 logger.info('Snapshot: %s', current_data)
                 snapshot_data.update(current_data)
@@ -638,12 +647,14 @@ class FSSnapshot(Snapshot):
     Filesystem snapshot utilities.
     """
     def __init__(self, container, singleTest=None):
+        """ Default isDb is false, singletest shall be set to the test that needs to be run."""
         super().__init__(container)
         self.singleTest = singleTest
         reporting_path = config_value('REPORTING', 'reportOutputFolder')
         self.container_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
 
     def get_structure_data(self, snapshot_object):
+        """ Get the structure from the filesystem."""
         structure_data = {}
         json_test_dir = get_test_json_dir()
         snapshot_source = get_field_value(snapshot_object, "source")
@@ -656,15 +667,16 @@ class FSSnapshot(Snapshot):
         return structure_data
 
     def get_used_snapshots_in_tests(self):
-        """ Iterator based implementation"""
+        """ Iterate through all snapshot and mastersnapshot and list the used snapshots in tests or mastertest."""
         snapshots = []
-        logger.info("%s Fetching files for %s from container dir: %s", Snapshot.LOGPREFIX,
-                    self.container, self.container_dir)
+        logger.info("%s Fetching files for %s from container dir: %s", Snapshot.LOGPREFIX, self.container,
+                    self.container_dir)
         for testType, snapshotType, replace in (
-                (TEST, 'snapshot', False),
-                (MASTERTEST, 'masterSnapshot', True)):
+                (TEST, SNAPSHOT, False),
+                (MASTERTEST, MASTERSNAPSHOT, True)):
             test_files = get_json_files(self.container_dir, testType)
-            logger.info('%s fetched %s number of files from %s container: %s', Snapshot.LOGPREFIX, snapshotType, self.container, len(test_files))
+            logger.info('%s fetched %s number of files from %s container: %s', Snapshot.LOGPREFIX, snapshotType,
+                        self.container, len(test_files))
             snapshots.extend(self.process_files(test_files, snapshotType, replace))
         return list(set(snapshots))
 
@@ -694,6 +706,7 @@ class FSSnapshot(Snapshot):
 
     def store_data_node(self, data):
         """Store the data in the filesystem"""
+        # Make a snapshots directory if DB is NONW
         snapshot_dir = make_snapshots_dir(self.container)
         if snapshot_dir:
             store_snapshot(snapshot_dir, data)
@@ -741,6 +754,7 @@ class DBSnapshot(Snapshot):
     Database snapshot utilities.
     """
     def __init__(self, container):
+        """"DB is true, will be usefule to make checks."""
         super().__init__(container)
         self.dbname = config_value(DATABASE, DBNAME)
         self.qry = {'container': container}
@@ -748,9 +762,11 @@ class DBSnapshot(Snapshot):
         self.isDb = True
 
     def collection(self, name=TEST):
+        """ Get the collection name for the json object"""
         return config_value(DATABASE, collectiontypes[name])
 
     def get_structure_data(self, snapshot_object):
+        """ Return the structure from the database"""
         structure_data = {}
         snapshot_source = get_field_value(snapshot_object, "source")
         snapshot_source = snapshot_source.replace('.json', '') if snapshot_source else ''
@@ -766,8 +782,8 @@ class DBSnapshot(Snapshot):
         snapshots = []
         logger.info("%s Fetching documents for %s", Snapshot.LOGPREFIX, self.container)
         for collection, snapshotType, suffix in (
-                (TEST, 'snapshot', ''),
-                (MASTERTEST, 'masterSnapshot', '_gen')):
+                (TEST, SNAPSHOT, ''),
+                (MASTERTEST, MASTERSNAPSHOT, '_gen')):
             docs = get_documents(self.collection(collection), dbname=self.dbname, sort=self.sort, query=self.qry)
             logger.info('%s fetched %s number of documents: %s', Snapshot.LOGPREFIX, collection, len(docs))
             snapshots.extend(self.process_docs(docs, snapshotType, suffix))

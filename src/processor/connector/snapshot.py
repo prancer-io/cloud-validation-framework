@@ -128,13 +128,20 @@ def populate_container_snapshots(container, dbsystem=True):
     """
     logger.critical("SNAPSHOTS: Populate snapshots for '%s' container from %s",
                     container, "the database." if dbsystem  else "file system.")
+    refactor_flag = config_value("GENERAL", "refactor_code")
+
     if dbsystem:
-        return populate_container_snapshots_database(container)
+        if refactor_flag and refactor_flag == 'true':
+            from processor.connector.snapshot_azure import DBSnapshot
+            dbsnapshot = DBSnapshot(container)
+            return dbsnapshot.get_snapshots()
+        else:
+            return populate_container_snapshots_database(container)
     else:
-        refactor_flag = config_value("GENERAL", "refactor_code")
         if refactor_flag and refactor_flag == 'true':
             from processor.connector.snapshot_azure import FSSnapshot
-            fssnapshot = FSSnapshot(container)
+            singletest = get_from_currentdata(SINGLETEST)
+            fssnapshot = FSSnapshot(container, singletest)
             return fssnapshot.get_snapshots()
         else:
             return populate_container_snapshots_filesystem(container)
