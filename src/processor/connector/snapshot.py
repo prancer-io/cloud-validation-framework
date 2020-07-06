@@ -131,7 +131,13 @@ def populate_container_snapshots(container, dbsystem=True):
     if dbsystem:
         return populate_container_snapshots_database(container)
     else:
-        return populate_container_snapshots_filesystem(container)
+        refactor_flag = config_value("GENERAL", "refactor_code")
+        if refactor_flag and refactor_flag == 'true':
+            from processor.connector.snapshot_azure import FSSnapshot
+            fssnapshot = FSSnapshot(container)
+            return fssnapshot.get_snapshots()
+        else:
+            return populate_container_snapshots_filesystem(container)
 
 
 def populate_container_snapshots_filesystem(container):
