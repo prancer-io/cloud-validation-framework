@@ -147,7 +147,7 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
             continue
         for testcase in testset['cases']:
             if dirpath:
-                testcase['dirpath']
+                testcase['dirpath'] = dirpath
             results = run_validation_test(version, container, dbname, collection_data,
                                              testcase)
             resultset.extend(results)
