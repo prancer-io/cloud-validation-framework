@@ -10,6 +10,7 @@ import time
 import hashlib
 import os
 import pymongo
+from processor.templates.azure.azure_parser import main
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import get_dbtests
 from processor.helper.json.json_utils import get_container_dir, get_field_value, json_from_file, \
@@ -78,12 +79,19 @@ def create_database_record(node, snapshot_source, snapshot_data, source_data):
     """
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
+
+    ref = ""
+    if "branchName" in source_data:
+        ref = source_data["branchName"]
+    elif "folderPath" in source_data:
+        ref = source_data["folderPath"]
+
     db_record = {
-        "structure": "azure",
+        "structure": source_data["type"],
         "error": snapshot_data['error'] if 'error' in snapshot_data else None,
-        "reference": "",
+        "reference": ref,
         "source": parts[0],
-        "path": "",
+        "paths": node["paths"],
         "timestamp": int(time.time() * 1000),
         "queryuser": source_data['username'] if 'username' in source_data else None,
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
@@ -105,18 +113,21 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
 
     location = get_field_value(node, 'location')
     paths = get_field_value(node, 'paths')
+    azure_cli_flag = config_value("AZURE", "azureCli")
     
     template_file_path = ""
     deployment_file_path = ""
 
     if paths and isinstance(paths, list):
-        if not location:
+        if azure_cli_flag and azure_cli_flag == "true" and not location:
             logger.error("Invalid json : 'location' field is required in node")
             node['status'] = 'inactive'
             return snapshot_data
         for json_file in paths:
-            json_file_path = '%s/%s.json' % (
-                dir_path, json_file)
+            json_file = '%s.json' % json_file if json_file and not \
+                json_file.endswith('.json') else json_file
+            json_file_path = '%s/%s' % (dir_path, json_file)
+            logger.info("Fetching data : %s ", json_file)
             json_data = json_from_file(json_file_path)
             if not json_data:
                 logger.error("Invalid path or json")
@@ -134,17 +145,21 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
                 elif "deploymentParameters.json" in json_data['$schema'].split("/")[-1]:
                     deployment_file_path = json_file_path
                 else:
-                    logger.error(
-                        "Invalid json : $schema does not contains the correct value")
+                    logger.error("Invalid json : $schema does not contains the correct value")
 
         if template_file_path and deployment_file_path:
-            response = invoke_az_cli("deployment validate --location " + location +
-                " --template-file " + template_file_path
-                + " --parameters @" + deployment_file_path)
+            if azure_cli_flag and azure_cli_flag == "true":
+                response = invoke_az_cli("deployment validate --location " + location +
+                                         " --template-file " + template_file_path
+                                         + " --parameters @" + deployment_file_path)
+            else:
+                paths = [deployment_file_path]
+                response = main(template_file_path, False, *paths)
 
             data_record = create_database_record(node, snapshot_source, response, sub_data)
             
             if get_dbtests():
+                logger.info(get_collection_size(node['collection']))
                 if get_collection_size(node['collection']) == 0:
                     #Creating indexes for collection
                     create_indexes(
@@ -165,12 +180,16 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
                             ('snapshotId', pymongo.ASCENDING)
                         ]
                     )
-                insert_one_document(data_record, node['collection'], dbname)
+                insert_one_document(data_record, node['collection'], dbname, check_keys=False)
             else:
                 snapshot_dir = make_snapshots_dir(container)
                 if snapshot_dir:
                     store_snapshot(snapshot_dir, data_record)
-            snapshot_data[node['snapshotId']] = False if data_record['error'] else True
+                
+            if 'masterSnapshotId' in node:
+                snapshot_data[node['snapshotId']] = node['masterSnapshotId']
+            else:
+                snapshot_data[node['snapshotId']] = False if ('error' in data_record and data_record['error']) else True
             node['status'] = 'active'
         else:
             node['status'] = 'inactive'
@@ -181,7 +200,7 @@ def populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot
     return snapshot_data
 
 
-def create_snapshot_record(snapshot, sub_dir_path, node, template_file_path, deployment_file_path_list):
+def create_snapshot_record(snapshot, sub_dir_path, node, deployment_file_path_list, count):
     nodes = []
     collection = get_field_value(node, 'collection')
     location = get_field_value(node, 'location')
@@ -189,20 +208,22 @@ def create_snapshot_record(snapshot, sub_dir_path, node, template_file_path, dep
     source = get_field_value(snapshot, 'source')
     master_snapshot_id = get_field_value(node, 'masterSnapshotId')
 
-    count = 0
     for deployment_file_path in deployment_file_path_list:
-        count += 1
-        nodes.append({
+        count = count + 1
+        node_dict = {
             "snapshotId": '%s%s' % (master_snapshot_id, str(count)),
             "type": "arm",
             "collection": collection,
-            "location": location,
             "paths": [
-                template_file_path,
+                deployment_file_path['template_file_path'],
                 deployment_file_path['path']
             ],
-            "status": deployment_file_path['status']
-        })
+            "status": deployment_file_path['status'],
+            "validate": deployment_file_path['validate']
+        }
+        if location:
+            node_dict["location"] = location
+        nodes.append(node_dict)
 
     db_record = {
         "fileType": "snapshot",
@@ -215,65 +236,74 @@ def create_snapshot_record(snapshot, sub_dir_path, node, template_file_path, dep
         ]
     }
 
-    return db_record
+    return db_record, count
 
 
 
-def populate_sub_directory_snapshot(base_dir_path, sub_dir_path, snapshot, dbname, node, snapshot_data):
+def populate_sub_directory_snapshot(file_path, base_dir_path, sub_dir_path, snapshot, dbname, node, snapshot_data, count):
+    logger.info("Finding template and deployment files in : %s" % sub_dir_path)
     dir_path = str('%s/%s' % (base_dir_path, sub_dir_path)).replace('//', '/')
     if exists_dir(dir_path):
         list_of_file = os.listdir(dir_path)
-        template_file_path = ""
+        template_file_path_list = []
         deployment_file_path_list = []
 
         for entry in list_of_file:
             new_dir_path = ('%s/%s' % (dir_path, entry)).replace('//', '/')
             new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
             if exists_dir(new_dir_path):
-                populate_sub_directory_snapshot(base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data)
+                count = populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
             elif exists_file(new_dir_path):
                 if len(entry.split(".")) > 0 and "json" in entry.split(".")[-1]:
                     json_data = json_from_file(new_dir_path)
                     if json_data and "$schema" in json_data:
                         if "deploymentTemplate.json" in json_data['$schema'].split("/")[-1]:
-                            template_file_path = new_sub_directory_path
+                            template_file_path_list.append(new_sub_directory_path)
                         elif "deploymentParameters.json" in json_data['$schema'].split("/")[-1]:
                             deployment_file_path_list.append(new_sub_directory_path)
         
-        if template_file_path and deployment_file_path_list:
+        location = get_field_value(node, 'location')
+        new_deployment_file_path_list = []
+        azure_cli_flag = config_value("AZURE", "azureCli")
 
-            location = get_field_value(node, 'location')
-            new_deployment_file_path_list = []
+        if template_file_path_list and deployment_file_path_list:
+            for template_file_path in template_file_path_list:
+                template_file_json_path = str('%s/%s' % (base_dir_path, template_file_path)).replace('//', '/')
 
-            template_file_json_path = str('%s/%s' % (base_dir_path, template_file_path)).replace('//', '/')
-            for deployment_file_path in deployment_file_path_list:
-                deployment_file_json_path = str('%s/%s' % (base_dir_path, deployment_file_path)).replace('//', '/')
+                template_file_path = ("%s/%s" % (file_path, template_file_path)).replace("//", "/")
+                for deployment_file_path in deployment_file_path_list:
+                    deployment_file_json_path = str('%s/%s' % (base_dir_path, deployment_file_path)).replace('//', '/')
+                    if azure_cli_flag and azure_cli_flag == "true":
+                        response = invoke_az_cli("deployment validate --location " + location +
+                                                " --template-file " + template_file_json_path
+                                                + " --parameters @" + deployment_file_json_path)
+                    else:
+                        paths = [deployment_file_json_path]
+                        response = main(template_file_json_path, False, *paths)
 
-                response = invoke_az_cli("deployment validate --location " + location +
-                    " --template-file " + template_file_json_path
-                    + " --parameters @" + deployment_file_json_path)
-                
-                if not response['error']:
-                    new_deployment_file_path_list.append({
-                        "path" : deployment_file_path,
-                        "status" : "active"
-                    })
-                else:
-                    new_deployment_file_path_list.append({
-                        "path" : deployment_file_path,
-                        "status" : "inactive"
-                    })
+                    if "error" in response and response['error']:
+                        logger.info("error in template_file_path : %s" , str(response['error']))
+                        new_deployment_file_path_list.append({
+                            "template_file_path" : template_file_path,
+                            "path" : ("%s/%s" % (file_path, deployment_file_path)).replace("//", "/"),
+                            "status" : "inactive",
+                            "validate" : node['validate'] if 'validate' in node else True
+                        })
+                    else:
+                        new_deployment_file_path_list.append({
+                            "template_file_path" : template_file_path,
+                            "path" : ("%s/%s" % (file_path, deployment_file_path)).replace("//", "/"),
+                            "status" : "active",
+                            "validate" : node['validate'] if 'validate' in node else True
+                        })
 
-            data_record = create_snapshot_record(snapshot, new_sub_directory_path, node, template_file_path, new_deployment_file_path_list)
+            data_record, count = create_snapshot_record(snapshot, new_sub_directory_path, node, new_deployment_file_path_list, count)
             if node['masterSnapshotId'] not in snapshot_data or not isinstance(snapshot_data[node['masterSnapshotId']], list):
                 snapshot_data[node['masterSnapshotId']] = []
 
             snapshot_data[node['masterSnapshotId']] = snapshot_data[node['masterSnapshotId']] + data_record['snapshots'][0]['nodes']
-            if get_dbtests():
-                insert_one_document(data_record, node['collection'], dbname)
-            else:
-                snapshot_file = '%s/%s' % (dir_path, "snapshot.json")
-                save_json_to_file(data_record, snapshot_file)
+            logger.info(data_record)
+    return count
 
 def populate_all_arm_snapshot(snapshot, dbname, sub_data, node, repopath, snapshot_data):
     """
@@ -283,17 +313,15 @@ def populate_all_arm_snapshot(snapshot, dbname, sub_data, node, repopath, snapsh
     if not root_dir_path:
         root_dir_path = repopath 
 
-    location = get_field_value(node, 'location')
     paths = get_field_value(node, 'paths')
     if paths and isinstance(paths, list):
         count = 0
         for path in paths:
-            count += 1
             dir_path = str('%s/%s' % (root_dir_path, path)).replace('//', '/')
             if exists_dir(dir_path):
                 list_of_file = os.listdir(dir_path)
                 for entry in list_of_file:
-                    populate_sub_directory_snapshot(dir_path, entry, snapshot, dbname, node, snapshot_data)
+                    count = populate_sub_directory_snapshot(path, dir_path, entry, snapshot, dbname, node, snapshot_data, count)
             else:
                 logger.error("Invalid json : directory does not exist : " + dir_path)
     else:

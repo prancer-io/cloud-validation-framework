@@ -125,6 +125,7 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
         return resultset
     if not snapshot_status:
         snapshot_status = {}
+    logger.info("Valid Test JSON data")
     logger.debug(json.dumps(test_json_data, indent=2))
     testsets = get_field_value(test_json_data, 'testSet')
     if not testsets or not isinstance(testsets, list):
@@ -145,7 +146,8 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
             logger.info("No testcases in testSet!...")
             continue
         for testcase in testset['cases']:
-            testcase['dirpath'] = dirpath
+            if dirpath:
+                testcase['dirpath'] = dirpath
             results = run_validation_test(version, container, dbname, collection_data,
                                              testcase)
             resultset.extend(results)
@@ -215,7 +217,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
                             ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
                         newtestcases.append(testcase)
                 testset['cases'] = newtestcases
-        resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
+        resultset = run_json_validation_tests(test_json_data, container, True, snapshot_status, dirpath=dirpath)
         if resultset:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             if singletest:
