@@ -173,6 +173,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry(DOCKERHUB_PUBLIC_REPOSITORY, DOCKERHUB_CREDENTIAL_ID) {
+                        // This sleep is intended to allow pypi.org some time in order to properly resolve pip install for recent binaries
+                        sleep 60;
                         def customImage = docker.build("${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}", 
                                                        "--build-arg APP_VERSION=${currentVersion} " +
                                                        "-f dockerfiles/Dockerfile .");
