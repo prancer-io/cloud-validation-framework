@@ -146,6 +146,10 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
             logger.info("No testcases in testSet!...")
             continue
         for testcase in testset['cases']:
+            if "status" in testcase and testcase["status"] == "disable":
+                continue
+            else:
+                testcase["status"] = "enable"
             if dirpath:
                 testcase['dirpath'] = dirpath
             results = run_validation_test(version, container, dbname, collection_data,
