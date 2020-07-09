@@ -48,7 +48,6 @@ pipeline {
                 script {
                     docker.withRegistry(DOCKERHUB_PUBLIC_REPOSITORY, DOCKERHUB_CREDENTIAL_ID) {
                         // This sleep is intended to allow pypi.org some time in order to properly resolve pip install for recent binaries
-                        sleep 60;
                         def customImage = docker.build("${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${app_version}", 
                                                        "--build-arg APP_VERSION=${app_version} " +
                                                        "-f dockerfiles/Dockerfile .");
@@ -70,13 +69,13 @@ pipeline {
         success {
             script {
                 echo "*** Sending success notification";
-                slackSend color: 'good', message: "cloud-validation-framework [SUCCESS] ${BUILD_URL}";
+                slackSend color: 'good', message: "[Docker] cloud-validation-framework [SUCCESS] ${BUILD_URL}";
             }
         }
         failure {
             script {
                 echo "*** Sending failure notification"
-                slackSend color: 'danger', message: "cloud-validation-framework [FAILURE] ${BUILD_URL}";
+                slackSend color: 'danger', message: "[Docker] cloud-validation-framework [FAILURE] ${BUILD_URL}";
             }
         }
     }
