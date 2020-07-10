@@ -113,10 +113,12 @@ from processor.database.database import insert_one_document, sort_field, get_doc
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.connector.snapshot_arm_template import populate_arm_snapshot, populate_all_arm_snapshot
+from processor.connector.snapshot_template_processor import populate_template_snapshot, populate_all_arm_snapshot
 from processor.connector.vault import get_vault_data
 
 
 logger = getlogger()
+TEMPLATE_NODE_TYPES = ["arm", "cloudformation"]
 
 def convert_to_json(file_path, node_type):
     json_data = {}
@@ -449,6 +451,11 @@ def populate_custom_snapshot(snapshot, container=None):
                 if node_type == 'arm':
                     if 'snapshotId' in node:
                         populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot_data, node, repopath)
+                    elif 'masterSnapshotId' in node:
+                        populate_all_arm_snapshot(snapshot, dbname, sub_data, node, repopath, snapshot_data)
+                elif node_type in TEMPLATE_NODE_TYPES:
+                    if 'snapshotId' in node:
+                        populate_template_snapshot(container, dbname, snapshot_source, sub_data, snapshot_data, node, repopath)
                     elif 'masterSnapshotId' in node:
                         populate_all_arm_snapshot(snapshot, dbname, sub_data, node, repopath, snapshot_data)
                 else:

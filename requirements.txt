@@ -1,5 +1,6 @@
 antlr4-python3-runtime==4.7.1
 boto3==1.10.23
+cfn-flip==1.2.3
 gitdb2==2.0.5
 GitPython==2.1.11
 pymongo==3.10.0
