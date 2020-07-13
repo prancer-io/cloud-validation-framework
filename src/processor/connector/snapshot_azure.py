@@ -416,7 +416,7 @@ def get_snapshot_nodes(snapshot, token, sub_name, sub_id, node, user, snapshot_s
     return db_records
 
 
-def get_web_client_data(snapshot_json, snapshot):
+def get_web_client_data1(snapshot_json, snapshot):
     """ Get the client id and secret, specific to azure"""
     client_id = None
     client_secret = None
@@ -544,7 +544,8 @@ class Snapshot:
 
     LOGPREFIX = 'Snapshots:'
     snapshot_fns = {
-        'azure': populate_snapshot_azure,
+        'azure1': populate_snapshot_azure,
+        'azure': populate_azure_snapshot,
         'filesystem': populate_custom_snapshot
     }
 
@@ -634,9 +635,10 @@ class Snapshot:
                 if 'nodes' not in snapshot or not snapshot['nodes']:
                     logger.error("No nodes in snapshot to be backed up!...")
                     return snapshot_data
-                if snapshot_type == 'filesystem':
+                if snapshot_type == 'azure' or snapshot_type == 'filesystem':
                     current_data = self.snapshot_fns[snapshot_type](snapshot, self.container)
-                current_data = self.snapshot_fns[snapshot_type](snapshot, self)
+                else:
+                    current_data = self.snapshot_fns[snapshot_type](snapshot, self)
                 logger.info('Snapshot: %s', current_data)
                 snapshot_data.update(current_data)
         return snapshot_data
