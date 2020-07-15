@@ -44,13 +44,23 @@ def handle_params(params_expr):
     # print(json.dumps(gparams, indent=2))
     # print('@' * 50)
     # print(params_expr)
-    val = params_expr.strip().replace("'", "")
+    ex_params = None
+    exmatch = re.match(r'^(\(.*\))(.*)', params_expr, re.I)
+    if exmatch:
+        field, ex_params = exmatch.groups()
+        val = field[1:-1].strip().replace("'", "")
+    else:
+        val = params_expr.strip().replace("'", "")
     # print(val)
     if val in gparams:
        # print(json.dumps(gparams[val], indent=2))
        if 'value' in gparams[val]:
+           if ex_params:
+               return True, get_field_value(gparams[val]['value'], ex_params)
            return True, gparams[val]['value']
        elif 'defaultValue' in gparams[val]:
+           if ex_params:
+               return True, get_field_value(gparams[val]['defaultValue'], ex_params)
            return True, gparams[val]['defaultValue']
     else:
        print("%s does not exist" % val)
@@ -104,7 +114,8 @@ function_handlers = {
     "parameters": handle_params,
     "variables": handle_variables,
     "concat": handle_concat,
-    "equals": handle_equals
+    "equals": handle_equals,
+    "length": lambda x: (True, len(x))
 }
 
 def version_str(version):
@@ -142,8 +153,13 @@ def func_details(value):
         # Support only plain braces, no indexing
         params = match.groups()[1]
         parammatch = re.match(r'^\(.*\)$', params, re.I)
-        if parammatch and ('[' not in params or ']' not in params):
-            return match.groups()[0], params[1:-1]
+        exmatch = re.match(r'^(\(.*\))(.*)', params, re.I)
+        if parammatch:
+            if ('[' not in params or ']' not in params):
+                return match.groups()[0], params[1:-1]
+        elif exmatch:
+            #if ('[' not in params or ']' not in params):
+            return match.groups()[0], params
     return None, None
 
 def replace_spacial_characters(gen_template_json):
@@ -158,6 +174,32 @@ def replace_spacial_characters(gen_template_json):
             for val in value:
                 if isinstance(val, dict):
                     replace_spacial_characters(val)
+
+def handle_copy(resource):
+    is_copy =  None
+    value = None
+    if 'copy' in resource:
+        eval_expr = eval_expression(resource['copy']['count'])
+        if eval_expr:
+            func_name, func_params = func_details(eval_expr)
+            if func_name in function_handlers:
+                ifunc_name, ifunc_params = func_details(func_params)
+                if ifunc_name in function_handlers:
+                    _, ivalue = function_handlers[ifunc_name](ifunc_params)
+                    if ivalue:
+                        _, value = function_handlers[func_name](ivalue)
+                        is_copy = resource['copy']['name']
+        if is_copy and isinstance(value, int):
+            resources = []
+            for i in range(value):
+                resource_str = json.dumps(resource)
+                match_str = "copyIndex('%s')" % is_copy
+                resource_str = resource_str.replace(match_str, '%d' % i)
+                new_resource = json.loads(resource_str)
+                del new_resource['copy']
+                resources.append(new_resource)
+            return True, resources
+    return False, resource
 
 def main(template, tosave, *params):
     global gparams
@@ -175,11 +217,14 @@ def main(template, tosave, *params):
             param_json = json_from_file(param)
             if 'parameters' in  param_json and param_json['parameters']:
                 for key, value in param_json['parameters'].items():
-                    if key in template_json['parameters']:
-                        if "value" in value:
-                            template_json['parameters'][key]['value'] = value['value']
+                    # if key in template_json['parameters']:
+                    if "value" in value:
+                        if key not in template_json['parameters']:
+                            template_json['parameters'][key] = {'value': value['value']}
                         else:
-                            logger.error("From parameter %s was not replaced.", key)
+                            template_json['parameters'][key]['value'] = value['value']
+                    else:
+                        logger.error("From parameter %s was not replaced.", key)
             gen_template_json['parameters'] = gparams
         # print('%s Updated Parameters %s' % (stars, stars))
         # print(json.dumps(template_json['parameters'], indent=2))
@@ -196,8 +241,14 @@ def main(template, tosave, *params):
         if 'resources' in template_json:
             new_resources = []
             for resource in template_json['resources']:
-               new_resource = process_resource(resource)
-               new_resources.append(new_resource)
+               is_copy, copy_resources = handle_copy(resource)
+               if is_copy:
+                   for resourc in copy_resources:
+                       new_resource = process_resource(resourc)
+                       new_resources.append(new_resource)
+               else:
+                   new_resource = process_resource(resource)
+                   new_resources.append(new_resource)
                # print('%s Original Resource %s' % (stars, stars))
                # print(json.dumps(resource, indent=2))
                # print('%s Updated Resource %s' % (stars, stars))
@@ -213,7 +264,7 @@ def process_resource(resource):
     if isinstance(resource ,dict):
         new_resource = {}
         for key, value in resource.items():
-            if value == "[concat(variables('diagStorageAccName'),'-resource')]":
+            if key == "accessPolicies":
                 print("Here")
             # if key == 'dnsNameForPublicIP':
             #     print("Here")
