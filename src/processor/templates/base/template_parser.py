@@ -1,4 +1,7 @@
+import os
 from processor.logging.log_handler import getlogger
+from processor.helper.yaml.yaml_utils import yaml_from_file
+from processor.helper.json.json_utils import save_json_to_file
 
 logger = getlogger()
 
@@ -9,6 +12,11 @@ class TemplateParser:
 
     def __init__(self, template_file, tosave=False, **kwargs):
         """
+        parameters:
+            template_file: path to the template file
+            tosave: defines to save generated json file or not
+            parameter_file: files to parameter file
+            gparams: stores the parameters object require for process the template
         """
         self.template_file = template_file
         self.tosave = tosave
@@ -23,21 +31,32 @@ class TemplateParser:
 
     def get_parameter(self):
         """
-        return the template file path
+        return the parameter file path
         """
         return self.parameter_file
+    
+    def generate_template_json(self):
+        """
+        generate the template json from template and parameter file
+        """
+        return None
 
     def parse(self):
         """
         parse the template and return the generated template JSON.
         """
-        return {}
+        gen_template_json = self.generate_template_json()
+        if self.tosave:
+            file_name = os.path.splitext(self.get_template())[0] + '_gen.json'
+            save_json_to_file(gen_template_json, file_name)
+        return gen_template_json
 
     def yaml_to_json(self, yaml_file):
         """
         takes the yaml file path and converts the returns the converted JSON object
         """
-        return {}
+        json_data = yaml_from_file(yaml_file)
+        return json_data
     
     def process_resource(self, resource):
         """

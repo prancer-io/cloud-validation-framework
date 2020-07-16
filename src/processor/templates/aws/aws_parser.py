@@ -40,7 +40,10 @@ class AWSTemplateParser(TemplateParser):
                 logger.error("Failed to load yaml file, please check yaml file contains correct content: %s", file_name)
         return template_json
     
-    def parse(self):
+    def generate_template_json(self):
+        """
+        generate the template json from template and parameter files
+        """
         gen_template_json = None
         template_json = None
         if self.get_template().endswith(".yaml") and exists_file(self.get_template()):
@@ -76,8 +79,6 @@ class AWSTemplateParser(TemplateParser):
                     new_resource = self.process_resource(resource)
                     new_resources.append(new_resource)
                     gen_template_json['Resources'] = new_resources
-            if self.tosave:
-                save_json_to_file(gen_template_json, self.get_template().replace('.json', '_gen.json'))
         return gen_template_json
 
     def process_function(self, resource):

@@ -44,7 +44,7 @@ class TemplateProcessor:
 
     def create_database_record(self):
         """
-        Create database record object for store in database
+        returns a generated snapshot object from processed template for store it in database or file system
         """
         collection = self.node['collection'] if 'collection' in self.node else COLLECTION
         parts = self.snapshot_source.split('.')
@@ -73,7 +73,8 @@ class TemplateProcessor:
     
     def store_data_record(self):
         """
-        Store data record in database
+        creates the indexes on collection and stores the data record in database or creates
+        the generated snapshot at file system
         """
         data_record = self.create_database_record()
         if get_dbtests():
@@ -110,27 +111,30 @@ class TemplateProcessor:
         
         self.node['status'] = 'active'
 
-    def process_template(self):
+    def process_template(self, paths):
         """
-        process the files stored at specified paths and returns the template
+        process the files stored at specified paths and returns the processed template. 
+        It should be override by child class for process the template files.
         """
         return {}
     
     def is_template_file(self, file_path):
         """
-        check that file located at given path is template file or not
+        checks that file located at given path is template file or not and return boolean value.
+        It should be override by child class.
         """
         return False
     
     def is_parameter_file(self, file_path):
         """
-        check that file located at given path is parameter file or not
+        check that file located at given path is parameter file or not and return boolean value. 
+        It should be override by child class.
         """
         return False
 
     def populate_template_snapshot(self):
         """
-        process the template file and returns the updated `snapshot_data`
+        process the snapshot and returns the updated `snapshot_data` which is require for run the test
         """
         self.dir_path = get_field_value(self.connector_data, 'folderPath')
         if not self.dir_path:
@@ -140,6 +144,7 @@ class TemplateProcessor:
         if not self.paths or not isinstance(self.paths, list):
             self.node['status'] = 'inactive'
             logger.error("Invalid json : `paths` field is missing in node or it is not a list")
+            return self.snapshot_data
 
         self.processed_template = self.process_template(self.paths)
         if self.processed_template:
@@ -151,7 +156,7 @@ class TemplateProcessor:
     
     def create_node_record(self, generated_template_file_list, count):
         """
-        create a node record
+        It is used in crawler. It creates a list of node objects for each generated snapshots.
         """
         nodes = []
         collection = get_field_value(self.node, 'collection')
@@ -163,7 +168,7 @@ class TemplateProcessor:
             count = count + 1
             node_dict = {
                 "snapshotId": '%s%s' % (master_snapshot_id, str(count)),
-                "type": "cloudformation",
+                "type": self.node["type"],
                 "collection": collection,
                 "paths": template_node["paths"],
                 "status": template_node['status'],
@@ -174,7 +179,7 @@ class TemplateProcessor:
 
     def populate_sub_directory_snapshot(self, file_path, base_dir_path, sub_dir_path, snapshot, dbname, node, snapshot_data, count):
         """
-        populate sub directory snapshot
+        Iterate the subdirectories for process each files inside the directory.
         """
         logger.info("Finding files in : %s" % sub_dir_path)
         dir_path = str('%s/%s' % (base_dir_path, sub_dir_path)).replace('//', '/')
@@ -203,8 +208,8 @@ class TemplateProcessor:
                         for parameter_file in parameter_file_list:
                             parameter_file_json_path = str('%s/%s' % (base_dir_path, parameter_file)).replace('//', '/')
                             paths = [
-                                template_file_path,
-                                parameter_file_json_path
+                                ("%s/%s" % (file_path, template_file)).replace("//", "/"),
+                                ("%s/%s" % (file_path, parameter_file)).replace("//", "/")
                             ]
                             template_json = self.process_template(paths)
                             if template_json:
@@ -227,7 +232,7 @@ class TemplateProcessor:
                                 })
                     else:
                         paths = [
-                            template_file_path
+                            ("%s/%s" % (file_path, template_file)).replace("//", "/")
                         ]
                         template_json = self.process_template(paths)
                         if template_json:
@@ -255,7 +260,7 @@ class TemplateProcessor:
 
     def populate_all_template_snapshot(self):
         """
-        populate all the files from the cloud and generate the snapshots
+        crawler function for populate all the files located at given paths and generate returns the updated `snapshot_data`
         """
         root_dir_path = get_field_value(self.connector_data, 'folderPath')
         if not root_dir_path:
@@ -271,7 +276,7 @@ class TemplateProcessor:
                     for entry in list_of_file:
                         count = self.populate_sub_directory_snapshot(path, self.dir_path, entry, self.snapshot, self.dbname, self.node, self.snapshot_data, count)
                 else:
-                    logger.error("Invalid path : directory does not exist : " + dir_path)
+                    logger.error("Invalid path : directory does not exist : " + self.dir_path)
         else:
             logger.error("Invalid json : `paths` field is missing for 'arm' node type or it is not a list")    
         

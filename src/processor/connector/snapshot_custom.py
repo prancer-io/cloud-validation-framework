@@ -112,8 +112,6 @@ from processor.database.database import insert_one_document, sort_field, get_doc
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
-from processor.connector.snapshot_arm_template import populate_arm_snapshot, populate_all_arm_snapshot
-from processor.connector.snapshot_template_processor import populate_template_snapshot, populate_all_template_snapshot
 from processor.connector.vault import get_vault_data
 from processor.template_processor.base.base_template_constatns import TEMPLATE_NODE_TYPES
 
@@ -137,10 +135,11 @@ def convert_to_json(file_path, node_type):
 def get_custom_data(snapshot_source):
     sub_data = {}
     if json_source():
+        container = get_from_currentdata('container')
         dbname = config_value(DATABASE, DBNAME)
         collection = config_value(DATABASE, collectiontypes[STRUCTURE])
         parts = snapshot_source.split('.')
-        qry = {'name': parts[0]}
+        qry = {'name': parts[0], 'container' : container }
         sort = [sort_field('timestamp', False)]
         docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
         logger.info('Number of Custom Documents: %d', len(docs))
@@ -448,12 +447,7 @@ def populate_custom_snapshot(snapshot, container=None):
             brnch = get_field_value_with_default(sub_data, 'branchName', 'master')
             for node in snapshot_nodes:
                 node_type = node['type'] if 'type' in node and node['type'] else 'json'
-                if node_type == 'arm':
-                    if 'snapshotId' in node:
-                        populate_arm_snapshot(container, dbname, snapshot_source, sub_data, snapshot_data, node, repopath)
-                    elif 'masterSnapshotId' in node:
-                        populate_all_arm_snapshot(snapshot, dbname, sub_data, node, repopath, snapshot_data)
-                elif node_type in TEMPLATE_NODE_TYPES:
+                if node_type in TEMPLATE_NODE_TYPES:
                     template_data = {
                         "container" : container,
                         "dbname" : dbname,

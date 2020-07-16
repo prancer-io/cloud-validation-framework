@@ -244,6 +244,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
         #         pid.close()
         if args.customer:
             put_in_currentdata(CUSTOMER, args.customer)
+            put_in_currentdata('container', args.container)
         if args.test:
             put_in_currentdata(SINGLETEST, args.test)
             put_in_currentdata('container', args.container)
