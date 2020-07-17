@@ -8,7 +8,6 @@ from processor.templates.azure.azure_parser import AzureTemplateParser
 from processor.helper.file.file_utils import exists_file
 from processor.helper.config.config_utils import config_value, get_test_json_dir, framework_dir
 from cfn_flip import flip, to_yaml, to_json
-from azure.cli.core import get_default_cli
 
 logger = getlogger()
 
@@ -24,6 +23,12 @@ class AzureTemplateProcessor(TemplateProcessor):
         """ 
         Invoke azure cli command
         """
+        try:
+            from azure.cli.core import get_default_cli
+        except:
+            logger.error("dependancy `azure-cli` is not installed! Install the dependancy and try it again.")
+            return {"error" : "dependancy `azure-cli` is not installed! Install the dependancy and try it again."}
+
         login_user = os.environ.get('AD_LOGIN_USER', None)
         login_password = os.environ.get('AD_LOGIN_PASSWORD', None)
 
