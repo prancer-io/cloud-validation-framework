@@ -513,6 +513,53 @@ def populate_custom_snapshot(snapshot, container=None):
     return snapshot_data
 
 
+
+def populate_snapshot_custom(snapshot_json, fssnapshot):
+    """ Populates the resources from git, filesystem."""
+    snapshot_data, valid_snapshotids = fssnapshot.validate_snapshot_ids_in_nodes(snapshot_json)
+    sub_data = fssnapshot.get_structure_data(snapshot_json)
+    if valid_snapshotids and sub_data:
+        baserepo, repopath = _get_repo_path(sub_data, snapshot_json)
+        if repopath:
+            brnch = get_field_value_with_default(sub_data, 'branchName', 'master')
+            snapshot_source = get_field_value(snapshot_json, 'source')
+            for node in fssnapshot.get_snapshot_nodes(snapshot_json):
+                node_type = node['type'] if 'type' in node and node['type'] else 'json'
+                if node_type == 'arm':
+                    if 'snapshotId' in node:
+                        populate_arm_snapshot(fssnapshot.container, fssnapshot.dbname, snapshot_source,
+                                              sub_data, snapshot_data, node, repopath)
+                    elif 'masterSnapshotId' in node:
+                        populate_all_arm_snapshot(fssnapshot.snapshot, fssnapshot.dbname, sub_data, node,
+                                                  repopath, snapshot_data)
+                else:
+                    validate = node['validate'] if 'validate' in node else True
+                    if 'snapshotId' in node:
+                        logger.debug(node)
+                        data = get_node(repopath, node, snapshot_json, brnch, sub_data)
+                        if data and validate:
+                            fssnapshot.store_data_node(data)
+                            snapshot_data[node['snapshotId']] = node['masterSnapshotId'] if 'masterSnapshotId' in node else True
+                            node['status'] = 'active'
+                        else:
+                            # TODO alert if notification enabled or summary for inactive.
+                            node['status'] = 'inactive'
+                        logger.debug('Type: %s', type(data))
+                    elif 'masterSnapshotId' in node:
+                        alldata = get_all_nodes(repopath, node, snapshot_json, brnch, sub_data)
+                        if alldata:
+                            snapshot_data[node['masterSnapshotId']] = []
+                            for data in alldata:
+                                snapshot_data[node['masterSnapshotId']].append(
+                                    {
+                                        'snapshotId': data['snapshotId'],
+                                        'path': data['path'],
+                                        'validate': validate
+                                    })
+                        logger.debug('Type: %s', type(alldata))
+
+
+
 def main():
     connectors = [
         {
