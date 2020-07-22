@@ -301,22 +301,22 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
 ###############  Refactored Code ######################
 
 # def get_data_record(node, sub_name, snapshot_source):
-def get_data_record(sub_name, node, user, snapshot_source):
+def get_data_record(ref_name, node, user, snapshot_source, connector_type):
     """ The data node record, common function across connectors."""
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
     return {
-        "structure": "azure",
-        "reference": sub_name,
+        "structure": connector_type,
+        "reference": ref_name,
         "source": parts[0],
         "path": '',
         "timestamp": int(time.time() * 1000),
         "queryuser": user,
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,
-        "snapshotId": node['snapshotId'],
+        "snapshotId": node['snapshotId'] if 'snapshotId' in node else '',
         "mastersnapshot": False,
-        "masterSnapshotId": None,
+        "masterSnapshotId": node['masterSnapshotId'] if 'masterSnapshotId' in node else '',
         "collection": collection.replace('.', '').lower(),
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
@@ -346,11 +346,11 @@ def get_node_version(node, snapshot):
             version = apiversions[node['type']]['version']
     return version
 
-def get_snapshot_node(snapshot, token, sub_name, sub_id, node, user, snapshot_source):
+def get_snapshot_node(snapshot, token, sub_name, sub_id, node, user, snapshot_source, connector_type):
     """ Fetch node from azure portal using rest API."""
     version = get_node_version(node, snapshot)
     if sub_id and token and node and node['path'] and version:
-        db_record = get_data_record(sub_name, node, user, snapshot_source)
+        db_record = get_data_record(sub_name, node, user, snapshot_source, connector_type)
         hdrs = {
             'Authorization': 'Bearer %s' % token
         }
@@ -377,13 +377,11 @@ def get_snapshot_node(snapshot, token, sub_name, sub_id, node, user, snapshot_so
     return db_record
 
 
-def get_snapshot_nodes(snapshot, token, sub_name, sub_id, node, user, snapshot_source):
+def get_snapshot_nodes(snapshot, token, sub_name, sub_id, node, user, snapshot_source, connector_type):
     """ Fetch all nodes from azure portal using rest API."""
     db_records = []
-    d_record = get_data_record(sub_name, node, user, snapshot_source)
-    nodetype = None
-    if node and 'type' in node and node['type']:
-        nodetype = node['type']
+    d_record = get_data_record(sub_name, node, user, snapshot_source, connector_type)
+    nodetype = node['type'] if node and 'type' in node and node['type'] else None
     if sub_id and token and nodetype:
         hdrs = {
             'Authorization': 'Bearer %s' % token
@@ -424,9 +422,11 @@ def get_web_client_data1(snapshot_json, snapshot):
     sub_name = None
     tenant_id = None
     found = False
+    connector_type = None
     snapshot_user = get_field_value(snapshot_json, 'testUser')
     sub_data = snapshot.get_structure_data(snapshot_json)
     if sub_data and snapshot_user:
+        connector_type = get_field_value(sub_data, "type")
         accounts = get_field_value(sub_data, 'accounts')
         for account in accounts:
             subscriptions = get_field_value(account, 'subscription')
@@ -449,13 +449,13 @@ def get_web_client_data1(snapshot_json, snapshot):
                     break
             if found:
                 break
-    return client_id, client_secret, sub_name, sub_id, tenant_id
+    return client_id, client_secret, sub_name, sub_id, tenant_id, connector_type
 
 
 def populate_snapshot_azure(snapshot_json, fssnapshot):
     """ Populates the resources from azure."""
     snapshot_data, valid_snapshotids = fssnapshot.validate_snapshot_ids_in_nodes(snapshot_json)
-    client_id, client_secret, sub_name, sub_id, tenant_id = get_web_client_data(snapshot_json, fssnapshot)
+    client_id, client_secret, sub_name, sub_id, tenant_id, connector_type = get_web_client_data(snapshot_json, fssnapshot)
 
     if not client_id:
         logger.info("No client_id in the snapshot to access azure resource!...")
@@ -490,7 +490,7 @@ def populate_snapshot_azure(snapshot_json, fssnapshot):
     for node in fssnapshot.get_snapshot_nodes(snapshot_json):
         validate = node['validate'] if 'validate' in node else True
         if 'path' in node:
-            data = get_snapshot_node(fssnapshot, token, sub_name, sub_id, node, snapshot_user, snapshot_source)
+            data = get_snapshot_node(fssnapshot, token, sub_name, sub_id, node, snapshot_user, snapshot_source, connector_type)
             if data and validate:
                 fssnapshot.store_data_node(data)
                 snapshot_data[node['snapshotId']] = node['masterSnapshotId'] if 'masterSnapshotId' in node else True
@@ -501,7 +501,7 @@ def populate_snapshot_azure(snapshot_json, fssnapshot):
             logger.debug('Type: %s', type(data))
         else:
             # Crawler Operation
-            alldata = get_snapshot_nodes(fssnapshot, token, sub_name, sub_id, node, snapshot_user, snapshot_source)
+            alldata = get_snapshot_nodes(fssnapshot, token, sub_name, sub_id, node, snapshot_user, snapshot_source, connector_type)
             if alldata:
                 snapshot_data[node['masterSnapshotId']] = []
                 for data in alldata:
