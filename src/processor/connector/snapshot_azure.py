@@ -12,27 +12,18 @@ from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
     delete_from_currentdata, get_from_currentdata, get_dbtests
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    collectiontypes, STRUCTURE, TEST, MASTERTEST, SNAPSHOT, MASTERSNAPSHOT, make_snapshots_dir,\
-    store_snapshot, get_field_value_with_default, get_json_files, get_container_snapshot_json_files
+    collectiontypes, STRUCTURE, make_snapshots_dir, store_snapshot
 from processor.helper.httpapi.restapi_azure import get_access_token,\
     get_web_client_data, get_client_secret, json_source
 from processor.connector.vault import get_vault_data
 from processor.helper.httpapi.http_utils import http_get_request
-from processor.helper.config.config_utils import config_value, framework_dir, CUSTOMER, get_test_json_dir
+from processor.helper.config.config_utils import config_value, framework_dir, CUSTOMER
 from processor.database.database import insert_one_document, COLLECTION, get_collection_size, create_indexes, \
-     DATABASE, DBNAME, sort_field, get_documents, update_one_document
+     DATABASE, DBNAME, sort_field, get_documents
 from processor.connector.snapshot_utils import validate_snapshot_nodes
-from processor.connector.populate_json import pull_json_data
-from processor.reporting.json_output import dump_output_results
-
-from processor.connector.snapshot_custom import populate_custom_snapshot, get_custom_data
-
-
-
 
 
 logger = getlogger()
-
 
 
 def get_version_for_type(node):
@@ -299,6 +290,14 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     return snapshot_data
 
 ###############  Refactored Code ######################
+from processor.helper.json.json_utils import TEST, MASTERTEST, SNAPSHOT, MASTERSNAPSHOT, make_snapshots_dir,\
+    store_snapshot, get_field_value_with_default, get_json_files, get_container_snapshot_json_files
+from processor.helper.config.config_utils import get_test_json_dir
+from processor.database.database import update_one_document
+from processor.connector.populate_json import pull_json_data
+from processor.reporting.json_output import dump_output_results
+
+from processor.connector.snapshot_custom import populate_custom_snapshot, get_custom_data
 
 # def get_data_record(node, sub_name, snapshot_source):
 def get_data_record(ref_name, node, user, snapshot_source, connector_type):
