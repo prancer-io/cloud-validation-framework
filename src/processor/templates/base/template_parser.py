@@ -1,4 +1,5 @@
 import os
+from yaml.loader import FullLoader
 from processor.logging.log_handler import getlogger
 from processor.helper.yaml.yaml_utils import yaml_from_file
 from processor.helper.json.json_utils import save_json_to_file
@@ -55,7 +56,7 @@ class TemplateParser:
         """
         takes the yaml file path and converts the returns the converted JSON object
         """
-        json_data = yaml_from_file(yaml_file)
+        json_data = yaml_from_file(yaml_file, loader=FullLoader)
         return json_data
     
     def process_resource(self, resource):

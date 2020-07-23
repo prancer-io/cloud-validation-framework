@@ -88,7 +88,6 @@ class AzureTemplateProcessor(TemplateProcessor):
                 logger.error("Invalid json : 'location' field is required in node")
                 return template_json
                 
-            # for json_file in paths:
             for json_file in paths:
                 json_file = '%s.json' % json_file if json_file and not \
                     json_file.endswith('.json') else json_file
@@ -116,6 +115,9 @@ class AzureTemplateProcessor(TemplateProcessor):
                                             " --template-file " + template_file_path
                                             + " --parameters @" + deployment_file_path)
                 else:
-                    azure_template_parser = AzureTemplateParser(template_file_path, parameter_file=[deployment_file_path])
-                    template_json = azure_template_parser.parse()
+                    try:
+                        azure_template_parser = AzureTemplateParser(template_file_path, parameter_file=[deployment_file_path])
+                        template_json = azure_template_parser.parse()
+                    except:
+                        template_json = None
         return template_json
