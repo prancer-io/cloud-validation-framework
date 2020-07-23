@@ -1,9 +1,4 @@
 
-container_snapshots_database  and container_snapshots_filesystem to be merged and provide hooks to get jsons from the source.
-
-populate_container_snapshots_database and populate_container_snapshots_filesystem to be merged and provide hooks to 
-
-
 Helpers from the framework:
 
 1) fs_snapshot:
@@ -22,7 +17,7 @@ Helpers from the framework:
   1) Get all list of snapshot files for a container( used_in_test = True) parameter will give used in a test
   2) Get all list of mastersnapshot files for a container( used_in_test = True) parameter will give used used in a mastertest
   3) Check a snapshot/mastersnapshot is valid and of the type(azure)
-  4) Iterate all the snapshots in a in the 'snapshots' field of a configuration file.
+  4) Iterate all the snapshots in the 'snapshots' field of a configuration file.
 
 3) application cache:
   1) Store and retrieve any key-value pairs during the run. eg: Bearer token
@@ -40,20 +35,19 @@ Snapshot implementation:
 
 1) Snapshots could be stored in a filesystem as json files or db records in mongo database. In a db record there is metadata stored in the top level fields
    and the snapshot data is stored in 'json' field. The important fields are 'name' and 'container' of the snapshot. For a filesystem the container name is the
-    durectory and the snapshot name is the filename. 
+    directory and the snapshot name is the filename. 
 
-   populate_snapshot(container, fs_snapshot, db_snapshot)
+   populate_snapshot_<name>(snapshot_object, <fs/db>_snapshot)
 
    Input:
-    container: name of the container.
-    fs_snapshot: This object shall be initialized for filesystem container operations.
-    db_snapshot: This object shall be initialized for db container operations.
+    snapshot_object: The structure of snapshot as per prancer framework.
+    <fs/db>_snapshot: This object shall be initialized for filesystem or container container operations.
 
    Flow:
     Get list of snapshot configurations
     Iterate thru each snapshot configuration
         Check valid and is of type being implemented(eg azure)
-        Iterate thru each snapshot configuration
+        Iterate through each snapshot configuration
            Specific logic for getting the connector and the user to be used from the connector.
            Crawl or fetch operation decision.
            Fetch individual node(s) using the connector and call save on fs_snapshot or db_snapshot to insert.
