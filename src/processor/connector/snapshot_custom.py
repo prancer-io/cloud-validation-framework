@@ -156,37 +156,26 @@ def get_custom_data(snapshot_source):
     return sub_data
 
 
-
-def get_data_record(ref_name, node, user, snapshot_source, connector_type):
-    """ The data node record, common function across connectors."""
-    collection = node['collection'] if 'collection' in node else COLLECTION
-    parts = snapshot_source.split('.')
-    return {
-        "structure": connector_type,
-        "reference": ref_name,
-        "source": parts[0],
-        "path": '',
-        "timestamp": int(time.time() * 1000),
-        "queryuser": user,
-        "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
-        "node": node,
-        "snapshotId": node['snapshotId'] if 'snapshotId' in node else '',
-        "mastersnapshot": False,
-        "masterSnapshotId": node['masterSnapshotId'] if 'masterSnapshotId' in node else '',
-        "collection": collection.replace('.', '').lower(),
-        "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
-    }
-
-
 def get_node(repopath, node, snapshot, ref, connector):
     """ Fetch node from the cloned git repository."""
+    collection = node['collection'] if 'collection' in node else COLLECTION
+    given_type = get_field_value(connector, "type")
     base_path = get_field_value_with_default(connector, "folderPath", "")
     snapshot_source = get_field_value(snapshot, 'source')
-    ref_name = ref if not base_path else ""
-    ref_type = get_field_value(connector, "type")
-    db_record = get_data_record(ref_name, node, "", snapshot_source, ref_type)
-    # Modify path to point to  the actual path
-    db_record["path"] = base_path + node['path']
+    parts = snapshot_source.split('.')
+    db_record = {
+        "structure": given_type,
+        "reference": ref if not base_path else "",
+        "source": parts[0],
+        "path": base_path + node['path'],
+        "timestamp": int(time.time() * 1000),
+        "queryuser": "",
+        "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
+        "node": node,
+        "snapshotId": node['snapshotId'],
+        "collection": collection.replace('.', '').lower(),
+        "json": {}
+    }
     json_path = '%s/%s' % (repopath, node['path'])
     file_path = json_path.replace('//', '/')
     logger.info('File: %s', file_path)
@@ -194,6 +183,7 @@ def get_node(repopath, node, snapshot, ref, connector):
         node_type = node['type'] if 'type' in node and node['type'] else 'json'
         json_data = convert_to_json(file_path, node_type)
         logger.info('type: %s, json:%s', node_type, json_data)
+        # json_data = json_from_file(file_path)
         if json_data:
             db_record['json'] = json_data
             data_str = json.dumps(json_data)
@@ -206,13 +196,25 @@ def get_node(repopath, node, snapshot, ref, connector):
 def get_all_nodes(repopath, node, snapshot, ref, connector):
     """ Fetch all the nodes from the cloned git repository in the given path."""
     db_records = []
+    collection = node['collection'] if 'collection' in node else COLLECTION
+    given_type = get_field_value(connector, "type")
     base_path = get_field_value_with_default(connector, "folderPath", "")
     snapshot_source = get_field_value(snapshot, 'source')
-    ref_name = ref if not base_path else ""
-    ref_type = get_field_value(connector, "type")
-    d_record = get_data_record(ref_name, node, "", snapshot_source, ref_type)
-    d_record["masterSnapshotId"] = node['masterSnapshotId']
-    d_record["mastersnapshot"] = False
+    parts = snapshot_source.split('.')
+    d_record = {
+        "structure": given_type,
+        "reference": ref if not base_path else "",
+        "source": parts[0],
+        "path": '',
+        "timestamp": int(time.time() * 1000),
+        "queryuser": "",
+        "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
+        "node": node,
+        "snapshotId": None,
+        "masterSnapshotId": node['masterSnapshotId'],
+        "collection": collection.replace('.', '').lower(),
+        "json": {}
+    }
     node_type = node['type'] if 'type' in node and node['type'] else 'json'
     json_path = '%s/%s' % (repopath, node['path'])
     file_path = json_path.replace('//', '/')
@@ -520,53 +522,6 @@ def populate_custom_snapshot(snapshot, container=None):
             logger.info('Repo path: %s', baserepo)
             shutil.rmtree(baserepo)
     return snapshot_data
-
-
-
-def populate_snapshot_custom(snapshot_json, fssnapshot):
-    """ Populates the resources from git, filesystem."""
-    snapshot_data, valid_snapshotids = fssnapshot.validate_snapshot_ids_in_nodes(snapshot_json)
-    sub_data = fssnapshot.get_structure_data(snapshot_json)
-    if valid_snapshotids and sub_data:
-        baserepo, repopath = _get_repo_path(sub_data, snapshot_json)
-        if repopath:
-            brnch = get_field_value_with_default(sub_data, 'branchName', 'master')
-            snapshot_source = get_field_value(snapshot_json, 'source')
-            for node in fssnapshot.get_snapshot_nodes(snapshot_json):
-                node_type = node['type'] if 'type' in node and node['type'] else 'json'
-                if node_type == 'arm':
-                    if 'snapshotId' in node:
-                        populate_arm_snapshot(fssnapshot.container, fssnapshot.dbname, snapshot_source,
-                                              sub_data, snapshot_data, node, repopath)
-                    elif 'masterSnapshotId' in node:
-                        populate_all_arm_snapshot(fssnapshot.snapshot, fssnapshot.dbname, sub_data, node,
-                                                  repopath, snapshot_data)
-                else:
-                    validate = node['validate'] if 'validate' in node else True
-                    if 'snapshotId' in node:
-                        logger.debug(node)
-                        data = get_node(repopath, node, snapshot_json, brnch, sub_data)
-                        if data and validate:
-                            fssnapshot.store_data_node(data)
-                            snapshot_data[node['snapshotId']] = node['masterSnapshotId'] if 'masterSnapshotId' in node else True
-                            node['status'] = 'active'
-                        else:
-                            # TODO alert if notification enabled or summary for inactive.
-                            node['status'] = 'inactive'
-                        logger.debug('Type: %s', type(data))
-                    elif 'masterSnapshotId' in node:
-                        alldata = get_all_nodes(repopath, node, snapshot_json, brnch, sub_data)
-                        if alldata:
-                            snapshot_data[node['masterSnapshotId']] = []
-                            for data in alldata:
-                                snapshot_data[node['masterSnapshotId']].append(
-                                    {
-                                        'snapshotId': data['snapshotId'],
-                                        'path': data['path'],
-                                        'validate': validate
-                                    })
-                        logger.debug('Type: %s', type(alldata))
-
 
 
 def main():
