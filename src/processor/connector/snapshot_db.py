@@ -20,7 +20,7 @@ class DBSnapshot(Snapshot):
     """
     Database snapshot utilities.
     """
-    def __init__(self, container):
+    def __init__(self, container, snapshot_refactored_fns):
         """"DB is true, will be usefule to make checks."""
         super().__init__(container)
         self.dbname = config_value(DATABASE, DBNAME)

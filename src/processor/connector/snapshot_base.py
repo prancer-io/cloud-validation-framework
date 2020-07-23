@@ -18,9 +18,10 @@ class Snapshot:
     #     'filesystem': populate_custom_snapshot
     # }
 
-    def __init__(self, container):
+    def __init__(self, container, snapshot_refactored_fns):
         """ Base class, where all attributes are false."""
         self.container = container
+        self.snapshot_fns = snapshot_refactored_fns
         self.appObject = {}
         self.singleTest = None
         self.isDb = False

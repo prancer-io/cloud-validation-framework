@@ -18,9 +18,9 @@ class FSSnapshot(Snapshot):
     """
     Filesystem snapshot utilities.
     """
-    def __init__(self, container, singleTest=None):
+    def __init__(self, container, snapshot_refactored_fns, singleTest=None):
         """ Default isDb is false, singletest shall be set to the test that needs to be run."""
-        super().__init__(container)
+        super().__init__(container, snapshot_refactored_fns)
         self.singleTest = singleTest
         reporting_path = config_value('REPORTING', 'reportOutputFolder')
         self.container_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)

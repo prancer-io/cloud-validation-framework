@@ -47,6 +47,8 @@ from processor.connector.snapshot_google import populate_google_snapshot
 from processor.helper.config.rundata_utils import get_from_currentdata
 from processor.reporting.json_output import dump_output_results
 from processor.connector.populate_json import pull_json_data
+from processor.connector.snapshot_azure_refactor import populate_snapshot_azure
+from processor.connector.snapshot_custom_refactor import populate_snapshot_custom
 
 logger = getlogger()
 # Different types of snapshots supported by the validation framework.
@@ -55,6 +57,11 @@ snapshot_fns = {
     'aws': populate_aws_snapshot,
     'google': populate_google_snapshot,
     'filesystem': populate_custom_snapshot
+}
+
+snapshot_refactored_fns = {
+    'azure': populate_snapshot_azure,
+    'filesystem': populate_snapshot_custom
 }
 
 
@@ -132,16 +139,16 @@ def populate_container_snapshots(container, dbsystem=True):
 
     if dbsystem:
         if refactor_flag and refactor_flag == 'true':
-            from processor.connector.snapshot_azure import DBSnapshot
-            dbsnapshot = DBSnapshot(container)
+            from processor.connector.snapshot_db import DBSnapshot
+            dbsnapshot = DBSnapshot(container, snapshot_refactored_fns)
             return dbsnapshot.get_snapshots()
         else:
             return populate_container_snapshots_database(container)
     else:
         if refactor_flag and refactor_flag == 'true':
-            from processor.connector.snapshot_azure import FSSnapshot
+            from processor.connector.snapshot_fs import FSSnapshot
             singletest = get_from_currentdata(SINGLETEST)
-            fssnapshot = FSSnapshot(container, singletest)
+            fssnapshot = FSSnapshot(container, snapshot_refactored_fns, singletest)
             return fssnapshot.get_snapshots()
         else:
             return populate_container_snapshots_filesystem(container)
