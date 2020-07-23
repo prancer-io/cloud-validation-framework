@@ -1,5 +1,6 @@
 """ Utility functions for json."""
 
+import re
 import json
 import time
 import glob
@@ -130,8 +131,14 @@ def get_field_value(data, parameter):
     if data and fields:
         retval = data
         for field in fields:
-            retval = retval[field] if retval and field in retval and isinstance(retval, dict) \
-                else None
+            match = re.match(r'(.*)\[(\d+)\]', field, re.I)
+            if match:
+                field, index = match.groups()
+                retval = retval[field] if retval and field in retval and isinstance(retval, dict) else None
+                i = int(index)
+                retval = retval[i] if retval and isinstance(retval, list) and i < len(retval) else None
+            else:
+                retval = retval[field] if retval and field in retval and isinstance(retval, dict) else None
     return retval
 
 

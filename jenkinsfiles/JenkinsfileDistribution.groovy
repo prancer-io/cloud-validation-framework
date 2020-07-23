@@ -169,21 +169,15 @@ pipeline {
             }
         }
 
-        stage("Push to dockerhub") {
+        stage("Build Push to dockerhub") {
             steps {
                 script {
                     docker.withRegistry(DOCKERHUB_PUBLIC_REPOSITORY, DOCKERHUB_CREDENTIAL_ID) {
-                        def customImage = docker.build("${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}", 
-                                                       "--build-arg APP_VERSION=${currentVersion} " +
-                                                       "-f dockerfiles/Dockerfile .");
-                        customImage.push();
-                        customImage.push("latest");
-                        // Clean image pushed from local registry
-                        try {
-                            sh "docker image rm ${DOCKERHUB_ORG}/${DOCKERHUB_IMAGE_NAME}:${currentVersion}";
-                        } catch(e) {
-                            echo "Exception with 'docker image rm' ${e}";
-                        }
+                        // This sleep is intended to allow pypi.org some time in order to properly resolve pip install for recent binaries
+                        sleep 60;
+                        build job: 'prancer-docker-release', 
+                              parameters: [string(name: 'branch', value: branch), 
+                                           string(name: 'app_version', value: currentVersion)]
                     }
                 }
             }
