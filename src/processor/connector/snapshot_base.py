@@ -1,9 +1,13 @@
 """
    Base snapshot for filesystem, db etc.
 """
+import hcl
+
 from processor.logging.log_handler import getlogger
-from processor.helper.json.json_utils import get_field_value
+from processor.helper.json.json_utils import get_field_value, json_from_file
 from processor.connector.populate_json import pull_json_data
+from processor.helper.yaml.yaml_utils import yaml_from_file
+
 
 logger = getlogger()
 
@@ -112,3 +116,17 @@ class Snapshot:
                 logger.info('Snapshot: %s', current_data)
                 snapshot_data.update(current_data)
         return snapshot_data
+
+    @classmethod
+    def convert_to_json(cls, file_path, file_type):
+        json_data = {}
+        if file_type == 'json':
+            json_data = json_from_file(file_path, escape_chars=['$'])
+        elif file_type == 'terraform':
+            with open(file_path, 'r') as fp:
+                json_data = hcl.load(fp)
+        elif file_type == 'yaml' or file_type == 'yml':
+            json_data = yaml_from_file(file_path)
+        else:
+            logger.error("Fileconversion error type:%s and file: %s", file_type, file_path)
+        return json_data

@@ -230,4 +230,5 @@ def populate_snapshot_azure(snapshot_json, fssnapshot):
                                 'status': 'active'
                             })
             logger.debug('Type: %s', type(alldata))
+    return snapshot_data
 

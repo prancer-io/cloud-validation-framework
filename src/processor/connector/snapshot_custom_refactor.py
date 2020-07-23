@@ -3,7 +3,7 @@
 import json
 import hashlib
 import tempfile
-import hcl
+import shutil
 import re
 import os
 from subprocess import Popen, PIPE
@@ -13,30 +13,15 @@ import copy
 import urllib.parse
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor.logging.log_handler import getlogger
-from processor.helper.json.json_utils import get_field_value, json_from_file, get_field_value_with_default
-from processor.helper.yaml.yaml_utils import yaml_from_file
+from processor.helper.json.json_utils import get_field_value, get_field_value_with_default
 from processor.helper.config.rundata_utils import get_from_currentdata
-# from processor.connector.snapshot_arm_template import populate_arm_snapshot, populate_all_arm_snapshot
 from processor.connector.vault import get_vault_data
 from processor.connector.snapshot_utils import get_data_record
 from processor.template_processor.base.base_template_constatns import TEMPLATE_NODE_TYPES
-
+from processor.connector.snapshot_base import Snapshot
 
 
 logger = getlogger()
-
-def convert_to_json(file_path, node_type):
-    json_data = {}
-    if node_type == 'json':
-        json_data = json_from_file(file_path, escape_chars=['$'])
-    elif node_type == 'terraform':
-        with open(file_path, 'r') as fp:
-            json_data = hcl.load(fp)
-    elif node_type == 'yaml' or node_type == 'yml':
-        json_data = yaml_from_file(file_path)
-    else:
-        logger.error("Snapshot error type:%s and file: %s", node_type, file_path)
-    return json_data
 
 
 def get_node(repopath, node, snapshot, ref, connector):
@@ -53,7 +38,7 @@ def get_node(repopath, node, snapshot, ref, connector):
     logger.info('File: %s', file_path)
     if exists_file(file_path):
         node_type = node['type'] if 'type' in node and node['type'] else 'json'
-        json_data = convert_to_json(file_path, node_type)
+        json_data = Snapshot.convert_to_json(file_path, node_type)
         logger.info('type: %s, json:%s', node_type, json_data)
         if json_data:
             db_record['json'] = json_data
@@ -63,6 +48,7 @@ def get_node(repopath, node, snapshot, ref, connector):
         logger.info('Get requires valid file for snapshot not present!')
     logger.debug('DB: %s', db_record)
     return db_record
+
 
 def get_all_nodes(repopath, node, snapshot, ref, connector):
     """ Fetch all the nodes from the cloned git repository in the given path."""
@@ -83,7 +69,7 @@ def get_all_nodes(repopath, node, snapshot, ref, connector):
         for filename in glob.glob('%s/*.json' % file_path.replace('//', '/')):
             parts = filename.rsplit('/', 1)
             path = '%s/%s' % (node['path'], parts[-1])
-            json_data = convert_to_json(filename, node_type)
+            json_data = Snapshot.convert_to_json(filename, node_type)
             logger.info('type: %s, json:%s', node_type, json_data)
             if json_data:
                 db_record = copy.deepcopy(d_record)
@@ -106,11 +92,8 @@ def create_ssh_config(ssh_dir, ssh_key_file, ssh_user):
         return None
     with open(ssh_config, 'w') as f:
         f.write('Host *\n')
-        # f.write('Host %s\n' % ssh_host)
-        # f.write('   HostName %s\n' % ssh_host)
         f.write('   User %s\n' % ssh_user)
         f.write('   IdentityFile %s\n\n' % ssh_key_file)
-        # f.write('Host *\n')
         f.write('   IdentitiesOnly yes\n')
         f.write('   ServerAliveInterval 100\n')
     return ssh_config
@@ -139,13 +122,14 @@ def get_pwd_from_vault(password_key):
         logger.info("Password does not set in the vault")
     return password
 
+
 def get_git_pwd(key='GIT_PWD'):
     """ Return the git password for https connection"""
     git_pwd = get_from_currentdata('GIT_PWD')
     if not git_pwd:
         git_pwd = os.getenv(key, None)
         if git_pwd:
-            logger.info("Git password from envirnment: %s", '*' * len(git_pwd))
+            logger.debug("Git password from envirnment: %s", '*' * len(git_pwd))
     return git_pwd
 
 
@@ -344,3 +328,8 @@ def populate_snapshot_custom(snapshot_json, fssnapshot):
                                         'validate': validate
                                     })
                         logger.debug('Type: %s', type(alldata))
+        if baserepo and os.path.exists(baserepo):
+            logger.info('Repo path: %s', baserepo)
+            shutil.rmtree(baserepo)
+    return snapshot_data
+
