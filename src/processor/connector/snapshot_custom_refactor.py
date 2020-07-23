@@ -16,9 +16,11 @@ from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_field_value, json_from_file, get_field_value_with_default
 from processor.helper.yaml.yaml_utils import yaml_from_file
 from processor.helper.config.rundata_utils import get_from_currentdata
-from processor.connector.snapshot_arm_template import populate_arm_snapshot, populate_all_arm_snapshot
+# from processor.connector.snapshot_arm_template import populate_arm_snapshot, populate_all_arm_snapshot
 from processor.connector.vault import get_vault_data
 from processor.connector.snapshot_utils import get_data_record
+from processor.template_processor.base.base_template_constatns import TEMPLATE_NODE_TYPES
+
 
 
 logger = getlogger()
@@ -302,13 +304,21 @@ def populate_snapshot_custom(snapshot_json, fssnapshot):
             snapshot_source = get_field_value(snapshot_json, 'source')
             for node in fssnapshot.get_snapshot_nodes(snapshot_json):
                 node_type = node['type'] if 'type' in node and node['type'] else 'json'
-                if node_type == 'arm':
+                if node_type in TEMPLATE_NODE_TYPES:
+                    template_data = {
+                        "container": fssnapshot.container,
+                        "dbname": fssnapshot.dbname,
+                        "snapshot_source": snapshot_source,
+                        "connector_data": sub_data,
+                        "snapshot_data": snapshot_data,
+                        "repopath": repopath,
+                        "snapshot": snapshot_json
+                    }
+                    template_processor = TEMPLATE_NODE_TYPES[node_type](node, **template_data)
                     if 'snapshotId' in node:
-                        populate_arm_snapshot(fssnapshot.container, fssnapshot.dbname, snapshot_source,
-                                              sub_data, snapshot_data, node, repopath)
+                        snapshot_data = template_processor.populate_template_snapshot()
                     elif 'masterSnapshotId' in node:
-                        populate_all_arm_snapshot(fssnapshot.snapshot, fssnapshot.dbname, sub_data, node,
-                                                  repopath, snapshot_data)
+                        snapshot_data = template_processor.populate_all_template_snapshot()
                 else:
                     validate = node['validate'] if 'validate' in node else True
                     if 'snapshotId' in node:
