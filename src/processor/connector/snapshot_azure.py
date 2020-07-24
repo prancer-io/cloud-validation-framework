@@ -288,3 +288,4 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
         delete_from_currentdata('tenant_id')
         delete_from_currentdata('token')
     return snapshot_data
+
