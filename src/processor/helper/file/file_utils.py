@@ -1,7 +1,9 @@
 """Utility functions for file and  directory"""
 
 import os
+from processor.logging.log_handler import getlogger
 
+logger = getlogger()
 
 def exists_dir(dirname):
     """Check if this path exists and is a directory"""
@@ -33,3 +35,15 @@ def mkdir_path(dirpath):
         return exists_dir(dirpath)
     except:
         return False
+
+def save_file(file_path, content):
+    "write content in file and save file to specified path"
+    try:
+        f = open(file_path, "w")
+        f.write(content)
+        f.close()
+        return True
+    except Exception as e:
+        logger.error(e)    
+        return False
+    
