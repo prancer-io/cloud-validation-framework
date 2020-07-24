@@ -1,5 +1,17 @@
 
-Helpers from the framework:
+1) Introduction:
+Snapshot connector takes snapshot configuration as its input and fetches snapshots in the snapshot configuration. These snapshots are then put under test to evaluate test
+expectations for a favorable outputs. The snapshots are fetched using connector configuration. The connector configuration is different for each provider viz. azure, aws, git,
+google oracle, terraform etc. This implementation for each connector is responsible to fetch using the specifics of the connector mechanism provided.
+
+2) Description:
+  1) Steps to connector.
+  2) Files to be implmeneted.
+  3) Integrate into the system.
+
+3) Details:
+
+3A) Helpers from the framework:
 
 1) fs_snapshot:
     
@@ -14,7 +26,7 @@ Helpers from the framework:
 
   Constructed by the framework for a container  and all utility functions for DB operations.
 
-  1) Get all list of snapshot files for a container( used_in_test = True) parameter will give used in a test
+  1) Get all list of snapshot documents for a container( used_in_test = True) parameter will give used in a test
   2) Get all list of mastersnapshot files for a container( used_in_test = True) parameter will give used used in a mastertest
   3) Check a snapshot/mastersnapshot is valid and of the type(azure)
   4) Iterate all the snapshots in the 'snapshots' field of a configuration file.
@@ -24,20 +36,13 @@ Helpers from the framework:
   2) This object shall be destroyed and its content shall be destroyed post the populate_snapshot operation
 
 
-
-Documentation ( This should be in toplevel document):
-  1) Steps to connector.
-  2) Files to be implmeneted.
-  3) Integrate into the system.
-
-Detailed
-Snapshot implementation:
+3B) Snapshot implementation:
 
 1) Snapshots could be stored in a filesystem as json files or db records in mongo database. In a db record there is metadata stored in the top level fields
    and the snapshot data is stored in 'json' field. The important fields are 'name' and 'container' of the snapshot. For a filesystem the container name is the
     directory and the snapshot name is the filename. 
 
-   populate_snapshot_<name>(snapshot_object, <fs/db>_snapshot)
+   populate_snapshot_<name>(snapshot_object, <fs/db>_snapshot) eg: populate_snapshot_azure, populate_snapshot_custom
 
    Input:
     snapshot_object: The structure of snapshot as per prancer framework.
@@ -50,7 +55,7 @@ Snapshot implementation:
         Iterate through each snapshot configuration
            Specific logic for getting the connector and the user to be used from the connector.
            Crawl or fetch operation decision.
-           Fetch individual node(s) using the connector and call save on fs_snapshot or db_snapshot to insert.
+           Fetch individual node(s) using the connector and call store_data_node on fs_snapshot or db_snapshot to insert.
            Update successful or failure for snapshot fetching.
 
    Exception:
