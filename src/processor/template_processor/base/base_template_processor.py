@@ -208,8 +208,8 @@ class TemplateProcessor:
                         for parameter_file in parameter_file_list:
                             parameter_file_json_path = str('%s/%s' % (base_dir_path, parameter_file)).replace('//', '/')
                             paths = [
-                                ("%s/%s" % (file_path, template_file)).replace("//", "/"),
-                                ("%s/%s" % (file_path, parameter_file)).replace("//", "/")
+                                template_file,
+                                parameter_file
                             ]
                             template_json = self.process_template(paths)
                             if template_json:
@@ -232,7 +232,7 @@ class TemplateProcessor:
                                 })
                     else:
                         paths = [
-                            ("%s/%s" % (file_path, template_file)).replace("//", "/")
+                            template_file
                         ]
                         template_json = self.process_template(paths)
                         if template_json:

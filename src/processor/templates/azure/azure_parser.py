@@ -329,7 +329,7 @@ class AzureTemplateParser(TemplateParser):
             if eval_expr:
                 func_name, func_params = self.func_details(eval_expr)
                 if func_name in self.function_handlers:
-                    ifunc_name, ifunc_params = func_details(func_params)
+                    ifunc_name, ifunc_params = self.func_details(func_params)
                     if ifunc_name in self.function_handlers:
                         _, ivalue = self.function_handlers[ifunc_name](ifunc_params)
                         if ivalue:

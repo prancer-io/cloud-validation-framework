@@ -28,13 +28,16 @@ def yaml_from_string(yaml_str):
     return None
 
 
-def yaml_from_file(yamlfile):
+def yaml_from_file(yamlfile, loader=None):
     """ Get yaml data from the file in a dict."""
     yamldata = None
     try:
         if exists_file(yamlfile):
             with open(yamlfile) as infile:
-                yamldata = yaml.load(infile)
+                if loader:
+                    yamldata = yaml.load(infile, Loader=loader)
+                else:
+                    yamldata = yaml.load(infile)
     except Exception as ex:
         print('Failed to load yaml from file: %s, exception: %s', yamlfile, ex)
     return yamldata
