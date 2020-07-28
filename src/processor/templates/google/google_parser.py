@@ -29,6 +29,7 @@ class GoogleTemplateParser(TemplateParser):
             "integer" : int,
             "boolean" : bool
         }
+        self.python_import = False
     
     def update_properties_from_schema_file(self, jinja_file_path):
         """
@@ -80,7 +81,11 @@ class GoogleTemplateParser(TemplateParser):
             
                     processed_resources = self.process_resource(resource)
                     new_resources = new_resources + processed_resources
-                gen_template_json['resources'] = new_resources
+                
+                if not self.python_import:
+                    gen_template_json['resources'] = new_resources
+                else:
+                    gen_template_json = None     
         return gen_template_json
 
     def process_resource(self, resource):
@@ -88,7 +93,8 @@ class GoogleTemplateParser(TemplateParser):
         process the resource json and return the resource with updated values
         """
         new_resources = [resource]
-        if "type" in resource and (".jinja" in resource["type"] or ".py" in resource["type"]):
+        if "type" in resource and (".jinja" in resource["type"] or ".py" in resource["type"]) and not self.python_import:
+
             import_file_path = resource["type"]
             for import_file in self.imports:
                 if "name" in import_file and import_file["name"] == resource["type"]:
@@ -137,6 +143,10 @@ class GoogleTemplateParser(TemplateParser):
                             new_resources = new_resource_list
 
                 elif ".py" in import_file_path and exists_file(resource_file_path):
+                    # skip the template if any of the resource require to process python file
+                    self.python_import = True
+                    return new_resources
+
                     pathname, filename = os.path.split(resource_file_path)
                     sys.path.append(os.path.abspath(pathname))
                     modname = os.path.splitext(filename)[0]

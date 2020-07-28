@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "[parameters('keyVaultSettings').settings[copyIndex('kvcopy')].name]",
+      "condition": "[equals(resourceGroup().name, parameters('keyVaultSettings').settings[copyIndex('kvcopy')].resourceGroup)]",
+      "copy": {
+        "name": "kvcopy",
+        "count": "[length(parameters('keyVaultSettings').settings)]"
+      },
+      "tags": {},
+      "apiVersion": "2016-10-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "enabledForDeployment": true,
+        "enabledForDiskEncryption": true,
+        "enabledForTemplateDeployment": true,
+        "enableSoftDelete": true,
+        "enablePurgeProtection": true,
+        "tenantId": "[subscription().tenantId]",
+        "accessPolicies": "[parameters('keyVaultSettings').settings[copyIndex('kvcopy')].accessPolicies]",
+        "sku": {
+          "name": "[parameters('keyVaultSettings').settings[copyIndex('kvcopy')].sku]",
+          "family": "A"
+        }
+      }
+    }
+  ]
+}
