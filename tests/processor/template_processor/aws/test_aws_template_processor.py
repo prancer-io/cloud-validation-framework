@@ -23,7 +23,7 @@ template_processor_kwargs = {
 				'type': 'cloudformation',
 				'collection': 'cloudformation',
 				'paths' : [
-					'sample/S3_Website_With_CloudFront_Distribution.yaml',
+					'sample/EC2InstanceWithSecurityGroupSample.yaml',
 					'sample/parameters.json'
 				],
 				'status': 'active'
@@ -94,6 +94,10 @@ def test_populate_template_snapshot_true(monkeypatch):
 	assert snapshot_data == {
 		'SNAPSHOT_1': True
 	}
+
+	assert template_processor.processed_template != None
+	assert template_processor.processed_template["Resources"][0]["Properties"]["KeyName"] == "testkey"
+	assert template_processor.processed_template["Resources"][0]["Properties"]["ImageId"] == "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
 
 def test_populate_all_template_snapshot(monkeypatch):
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.get_collection_size', mock_get_collection_size)

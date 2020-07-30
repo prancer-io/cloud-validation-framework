@@ -95,6 +95,9 @@ def test_populate_template_snapshot_true(monkeypatch):
 		'SNAPSHOT_1': True
 	}
 
+	assert template_processor.processed_template != None
+	assert template_processor.processed_template["resources"][0]["name"] == "cetsharednpdeus2akv02"
+
 def test_populate_all_template_snapshot(monkeypatch):
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.get_collection_size', mock_get_collection_size)
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.create_indexes', mock_create_indexes)
