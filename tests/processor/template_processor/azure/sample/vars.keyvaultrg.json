@@ -1,0 +1,175 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "parameterSettings":{
+      "value":{
+        "adminPassword":"secureString"
+      }
+    },
+    "configurationSettings": {
+      "value": {
+        "name": {
+          "subscriptionName": "TX-CET-SHARED-CET",
+          "subscriptionId": "b2c8c164-9b2f-4cd0-a7d5-665a6ed8e1e8",
+          "defaultLocation": "eastus2",
+          "tier": "",
+          "object": ""
+        }
+      }
+    },
+    "namingSettings": {
+      "value": {
+        "name": {
+          "org": "cet",
+          "accountEnv": "nonprod",
+          "sdlcEnv": "shared-cet",
+          "region": "eastus2",
+          "tier": "",
+          "object": "rg",
+          "rgname": "keyvaultrg"
+        }
+      }
+    },
+    "taggingSettings": {
+      "value": {
+        "tags": {
+          "TX_PRODUCT_LINE": "I&O",
+          "TX_PRODUCT_NAME": "Cloud-Infrastructure",
+          "TX_COST_CENTER": 7277,
+          "TX_BUSINESS_OWNER": "I&O-Cloud-Team",
+          "TX_ASSET_OWNER": "I&O-Cloud-Team",
+          "TX_DATA_CLASSIFICATION": "Not-Appliable",
+          "TX_ENVIRONMENT": "P",
+          "TX_DR_RECOVERY_PRIORITY": "P0",
+          "TX_RESOURCE_TIER": "Not-Applicable",
+          "TX_MAINTENANCE_WINDOW": "Not-Applicable",
+          "TX_RESOURCE_REQUESTED_BY": "I&O-Cloud-Team",
+          "TX_RESOURCE_UPTIME": "24X7",
+          "TX_RESOURCE_CREATED_DATE": "20180809",
+          "TX_RESOURCE_EXPIRATION_DATE": "Never"
+        }
+      }
+    },
+    "rbacSettings": {
+      "value": {
+        "subscriptions": [],
+        "resourceGroups": [],
+        "resources": [
+          {}
+        ]
+      }
+    },
+    "keyVaultSettings": {
+      "value": {
+        "settings": [
+          {
+            "omsrg": {
+              "value": "it-nonprod-shared-eastus2-audit"
+            },
+            "omsWorkspaceName": {
+              "value": "it-nonprod-shared-eastus2-oms01"
+            },
+            "enableVaultForDeployment": {
+              "value": true
+            },
+            "enableVaultForTemplateDeployment": {
+              "value": true
+            },
+            "resourceGroup": "cet-nonprod-shared-cet-eastus2-keyvaultrg",
+            "name": "cetsharednpdeus2akv02",
+            "sku": "Standard",
+            "accessPolicies": [
+              {
+                "tenantId": "2242945a-4ab9-4132-840e-cce1c66e31bb",
+                "objectId": "a5d453f9-3d46-4748-a982-1a8e5e0aa226",
+                "permissions": {
+                  "keys": [
+                    "Get",
+                    "List",
+                    "Update",
+                    "Create",
+                    "Import",
+                    "Delete",
+                    "Recover",
+                    "Backup",
+                    "Restore"
+                  ],
+                  "secrets": [
+                    "Get",
+                    "List",
+                    "Set",
+                    "Delete",
+                    "Recover",
+                    "Backup",
+                    "Restore"
+                  ],
+                  "certificates": [
+                    "Get",
+                    "List",
+                    "Update",
+                    "Create",
+                    "Import",
+                    "Delete",
+                    "Recover",
+                    "Backup",
+                    "Restore",
+                    "ManageContacts",
+                    "ManageIssuers",
+                    "GetIssuers",
+                    "ListIssuers",
+                    "SetIssuers",
+                    "DeleteIssuers"
+                  ]
+                }
+              },
+              {
+                "tenantId": "2242945a-4ab9-4132-840e-cce1c66e31bb",
+                "objectId": "9d47f11b-d8e5-4515-a7a0-0bb1e12104de",
+                "permissions": {
+                  "keys": [
+                    "Get",
+                    "List",
+                    "Update",
+                    "Create",
+                    "Import",
+                    "Delete",
+                    "Recover",
+                    "Backup",
+                    "Restore"
+                  ],
+                  "secrets": [
+                    "Get",
+                    "List",
+                    "Set",
+                    "Delete",
+                    "Recover",
+                    "Backup",
+                    "Restore"
+                  ],
+                  "certificates": [
+                    "Get",
+                    "List",
+                    "Update",
+                    "Create",
+                    "Import",
+                    "Delete",
+                    "Recover",
+                    "Backup",
+                    "Restore",
+                    "ManageContacts",
+                    "ManageIssuers",
+                    "GetIssuers",
+                    "ListIssuers",
+                    "SetIssuers",
+                    "DeleteIssuers"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

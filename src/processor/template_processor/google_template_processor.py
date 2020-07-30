@@ -7,7 +7,7 @@ from processor.helper.json.json_utils import json_from_file, get_field_value
 from processor.template_processor.base.base_template_processor import TemplateProcessor
 from processor.templates.google.google_parser import GoogleTemplateParser
 from processor.helper.file.file_utils import exists_file
-from processor.helper.config.config_utils import config_value, get_test_json_dir, framework_dir
+from processor.helper.config.config_utils import get_test_json_dir, framework_dir
 from processor.helper.yaml.yaml_utils import yaml_from_file
 from cfn_flip import flip, to_yaml, to_json
 

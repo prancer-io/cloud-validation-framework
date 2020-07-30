@@ -1,0 +1,6 @@
+[
+    {
+        "ParameterKey": "AWS::Region",
+        "ParameterValue": "us-east-1"
+    }
+]
