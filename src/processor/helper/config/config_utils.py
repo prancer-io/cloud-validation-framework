@@ -20,6 +20,7 @@ FULL = 'FULL'
 SINGLETEST = 'singletest'
 CUSTOMER = "customer"
 DBVALUES = [NONE, SNAPSHOT, FULL]
+CACHEDATA = None
 
 
 def parseint(value, default=0):
@@ -49,6 +50,16 @@ def get_framework_currentdata_for_customer(space_id):
     CURRENTDATA = '%s/config/%s/%d_rundata' % (framework_dir(), space_id, int(time.time() * 1000))
     return CURRENTDATA
 
+def get_cache_data():
+    global CACHEDATA
+    if CACHEDATA:
+        return CACHEDATA
+    space_id = os.getenv(str(threading.currentThread().ident) + "_SPACE_ID", None)
+    if space_id:
+        CACHEDATA = '%s/config/%s/cachedata' % (framework_dir(), space_id)
+    else:
+        CACHEDATA = '%s/config/%s/cachedata' % (framework_dir(), "default")
+    return CACHEDATA
 
 def framework_currentdata():
     """Return the framework current data."""
