@@ -54,12 +54,12 @@ def get_cache_data():
     global CACHEDATA
     if CACHEDATA:
         return CACHEDATA
-    space_id = os.getenv(str(threading.currentThread().ident) + "_SPACE_ID", None)
-    if space_id:
-        CACHEDATA = '%s/config/%s/cachedata' % (framework_dir(), space_id)
     else:
-        CACHEDATA = '%s/config/%s/cachedata' % (framework_dir(), "default")
-    return CACHEDATA
+        CACHEDATA = {}
+        return CACHEDATA
+    
+def set_cache_data(ctxdata):
+    CACHEDATA = ctxdata
 
 def framework_currentdata():
     """Return the framework current data."""
