@@ -1,5 +1,5 @@
 """
-   Run time data storage and retrieval.
+Run time data storage and retrieval.
 """
 import time
 import datetime
@@ -7,7 +7,7 @@ import json
 import socket
 import os.path
 import shutil
-from processor.helper.config.config_utils import config_value, framework_currentdata, TESTS, DBTESTS, DBVALUES, SNAPSHOT, SINGLETEST
+from processor.helper.config.config_utils import config_value, framework_currentdata, get_cache_data, set_cache_data, TESTS, DBTESTS, DBVALUES, SNAPSHOT, SINGLETEST
 from processor.helper.json.json_utils import json_from_file, save_json_to_file,get_container_dir
 from processor.logging.log_handler import getlogger, FWLOGFILENAME
 from processor.helper.file.file_utils import remove_file, exists_dir, mkdir_path
@@ -65,7 +65,6 @@ def put_in_currentdata(key, value):
             curr_data[key] = value
         save_currentdata(curr_data)
 
-
 def delete_from_currentdata(key):
     """Remove a key from the current run data"""
     if key:
@@ -91,6 +90,28 @@ def get_currentdata():
     if not curr_data:
         curr_data = {}
     return curr_data
+
+def put_in_cachedata(key, value):
+    """Adds a value in the cache data"""
+    if key:
+        curr_data = get_cache_data()
+        if key in curr_data:
+            val = curr_data[key]
+            if isinstance(val, list):
+                val.append(value)
+            else:
+                curr_data[key] = value
+        else:
+            curr_data[key] = value
+        set_cache_data(curr_data)
+
+def get_from_cachedata(key):
+    """ Get the data for this key from the cachedata"""
+    data = None
+    currdata = get_cache_data()
+    if key and key in currdata:
+        data = currdata[key]
+    return data
 
 
 def save_currentdata(curr_data):

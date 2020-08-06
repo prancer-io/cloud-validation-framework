@@ -1,10 +1,12 @@
 """Mongo db driver and utility functions."""
 import os
 import collections
+from datetime import datetime, timedelta
 from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
 from pymongo.errors import ServerSelectionTimeoutError
 from bson.objectid import ObjectId
 from processor.helper.config.config_utils import config_value, DATABASE, DBNAME, DBURL
+from processor.helper.config.rundata_utils import put_in_cachedata, get_from_cachedata
 from processor.logging.dburl_kv import get_dburl
 # import threading
 
@@ -12,7 +14,9 @@ from processor.logging.dburl_kv import get_dburl
 MONGO = None
 COLLECTION = 'resources'
 TIMEOUT = 3000
-
+EXPIRE_TIME = 14400 # 4 hours
+DBURL = "dburl"
+DBURL_EXPIREATION = "dburl_expiration"
 
 def mongoconnection(dbport=27017, to=TIMEOUT):
     """ Global connection handle for mongo """
@@ -20,10 +24,30 @@ def mongoconnection(dbport=27017, to=TIMEOUT):
     if MONGO:
        return MONGO
     dburl = os.getenv('DBURL', None)
+    
     #dburl = os.getenv(str(threading.currentThread().ident) + '_DBURL', None)
     #print("DBURL THREAD: " + str(threading.currentThread().ident))
     if not dburl:
-        dburl = get_dburl()
+        memory_dburl = get_from_cachedata(DBURL)
+        memory_dburl_expiration = get_from_cachedata(DBURL_EXPIREATION)
+
+        now = datetime.now()
+        current_timestamp = datetime.timestamp(now)
+
+        if memory_dburl and memory_dburl_expiration:
+            if current_timestamp > memory_dburl_expiration:
+                dburl = get_dburl()
+                expired_time = datetime.timestamp(now + timedelta(seconds=EXPIRE_TIME))
+                put_in_cachedata(DBURL, dburl)
+                put_in_cachedata(DBURL_EXPIREATION, expired_time)
+            else:
+                dburl = memory_dburl
+        else:
+            dburl = get_dburl()
+            expired_time = datetime.timestamp(now + timedelta(seconds=EXPIRE_TIME))
+            put_in_cachedata(DBURL, dburl)
+            put_in_cachedata(DBURL_EXPIREATION, expired_time)
+
     # print("Dburl: %s", dburl)
     if dburl:
         MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
