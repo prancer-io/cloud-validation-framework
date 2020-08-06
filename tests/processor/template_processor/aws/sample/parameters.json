@@ -1,6 +1,6 @@
 [
     {
-        "ParameterKey": "AWS::Region",
-        "ParameterValue": "us-east-1"
+        "ParameterKey": "KeyName",
+        "ParameterValue": "testkey"
     }
 ]
