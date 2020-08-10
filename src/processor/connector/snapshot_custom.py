@@ -319,7 +319,11 @@ def git_clone_dir(connector):
         if not giturl:
             logger.error("Git connector does not have valid git provider URL")
             return repopath, clonedir
-        brnch = get_field_value_with_default(connector, 'branchName', 'master')
+        
+        branch = get_from_currentdata('branch')
+        if not branch:
+            branch = get_field_value_with_default(connector, 'branchName', 'master')
+
         isprivate = get_field_value(connector, 'private')
         isprivate = True if isprivate is None or not isinstance(isprivate, bool) else isprivate
         logger.info("Repopath: %s", repopath)
@@ -393,7 +397,7 @@ def git_clone_dir(connector):
                 git_ssh_cmd = 'ssh -o "StrictHostKeyChecking=no"'
                 git_cmd = 'git clone %s %s' % (giturl, repopath)
             os.environ['GIT_SSH_COMMAND'] = git_ssh_cmd
-        git_cmd = '%s --branch %s' % (git_cmd, brnch)
+        git_cmd = '%s --branch %s' % (git_cmd, branch)
         if git_cmd:
             error_result, result = run_subprocess_cmd(git_cmd)
             checkdir = '%s/tmpclone' % repopath if subdir else repopath
@@ -438,7 +442,13 @@ def populate_custom_snapshot(snapshot, container=None):
     """ Populates the resources from git."""
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
-    sub_data = get_custom_data(snapshot_source)
+    connector_data = get_from_currentdata('connector')
+    if connector_data:
+        sub_data = get_custom_data(connector_data)
+        if not sub_data:
+            logger.error("No connector data found in '%s'", connector_data)
+    else:
+        sub_data = get_custom_data(snapshot_source)
     snapshot_nodes = get_field_value(snapshot, 'nodes')
     snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and sub_data and snapshot_nodes:
