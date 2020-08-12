@@ -158,6 +158,8 @@ def validator_main(arg_vals=None, delete_rundata=True):
                             help='Crawl and generate snapshot files only')
     cmd_parser.add_argument('--test', action='store', default=None, help='Run a single test in NODB mode')
     cmd_parser.add_argument('--customer', action='store', default=None, help='customer name for config')
+    cmd_parser.add_argument('--connector', action='store', default=None, help='specify the name of the connector which you want to run from the container')
+    cmd_parser.add_argument('--branch', action='store', default=None, help='specify the name of the branch to populate snapshots, for git connector')
     args = cmd_parser.parse_args(arg_vals)
 
     retval = 2
@@ -250,6 +252,10 @@ def validator_main(arg_vals=None, delete_rundata=True):
             put_in_currentdata('container', args.container)
         else:
             put_in_currentdata(SINGLETEST, False)
+        if args.connector:
+            put_in_currentdata("connector", args.connector)
+        if args.branch:
+            put_in_currentdata("branch", args.branch)
         if not args.db:
             retval = 0 if container_exists(args.container) else 2
             if retval:
