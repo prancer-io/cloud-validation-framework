@@ -2,6 +2,7 @@ import time
 import os
 import hashlib
 import pymongo
+import hcl
 from processor.helper.config.config_utils import config_value
 from processor.helper.config.rundata_utils import get_dbtests
 from processor.logging.log_handler import getlogger
@@ -41,6 +42,21 @@ class TemplateProcessor:
         self.processed_template = {}
         self.paths = []
         self.dir_path = ""
+    
+    def terraform_to_json(self, file_path):
+        "Converts the hcl file to json file"
+        json_data = {}
+        try:
+            with open(file_path, 'r') as fp:
+                json_data = hcl.load(fp)
+        except Exception as e:
+            logger.error("Failed to convert terraform to json data, file: %s , error: %s", file_path, str(e))
+        return json_data
+    
+    def json_data_from_file(self, file_path):
+        "Read the json data from give file path and returns the json data"
+        json_data = json_from_file(file_path, escape_chars=['$'])
+        return json_data
 
     def create_database_record(self):
         """
@@ -176,6 +192,36 @@ class TemplateProcessor:
             }
             nodes.append(node_dict)
         return nodes, count
+    
+    def generate_template_and_parameter_file_list(self, file_path, template_file, parameter_file_list, generated_template_file_list):
+        """
+        process template and parameter files and returns the generated template file list
+        """
+        for parameter_file in parameter_file_list:
+            paths = [
+                template_file,
+                parameter_file
+            ]
+            template_json = self.process_template(paths)
+            if template_json:
+                generated_template_file_list.append({
+                    "paths" : [
+                        ("%s/%s" % (file_path, template_file)).replace("//", "/"),
+                        ("%s/%s" % (file_path, parameter_file)).replace("//", "/")
+                    ],
+                    "status" : "active",
+                    "validate" : self.node['validate'] if 'validate' in self.node else True
+                })
+            else:
+                generated_template_file_list.append({
+                    "paths" : [
+                        ("%s/%s" % (file_path, template_file)).replace("//", "/"),
+                        ("%s/%s" % (file_path, parameter_file)).replace("//", "/")
+                    ],
+                    "status" : "inactive",
+                    "validate" : self.node['validate'] if 'validate' in self.node else True
+                })
+
 
     def populate_sub_directory_snapshot(self, file_path, base_dir_path, sub_dir_path, snapshot, dbname, node, snapshot_data, count):
         """
@@ -183,6 +229,7 @@ class TemplateProcessor:
         """
         logger.info("Finding files in : %s" % sub_dir_path)
         dir_path = str('%s/%s' % (base_dir_path, sub_dir_path)).replace('//', '/')
+        logger.info("dir_path   %s   : ",dir_path)
 
         template_file_list = []
         parameter_file_list = []
@@ -195,41 +242,19 @@ class TemplateProcessor:
                 if exists_dir(new_dir_path):
                     count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
                 elif exists_file(new_dir_path):
-                    if self.is_parameter_file(new_dir_path):
-                        parameter_file_list.append(new_sub_directory_path)
-                    elif self.is_template_file(new_dir_path):
+                    if self.is_template_file(new_dir_path):
                         template_file_list.append(new_sub_directory_path)
-            
+                    elif self.is_parameter_file(new_dir_path):
+                        parameter_file_list.append(new_sub_directory_path)
+
+            logger.info("parameter_file_list   %s   : ", str(parameter_file_list))
+            logger.info("template_file_list   %s   : ", str(template_file_list))
             generated_template_file_list = []
             if template_file_list:
                 for template_file in template_file_list:
                     template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
                     if parameter_file_list:
-                        for parameter_file in parameter_file_list:
-                            parameter_file_json_path = str('%s/%s' % (base_dir_path, parameter_file)).replace('//', '/')
-                            paths = [
-                                template_file,
-                                parameter_file
-                            ]
-                            template_json = self.process_template(paths)
-                            if template_json:
-                                generated_template_file_list.append({
-                                    "paths" : [
-                                        ("%s/%s" % (file_path, template_file)).replace("//", "/"),
-                                        ("%s/%s" % (file_path, parameter_file)).replace("//", "/")
-                                    ],
-                                    "status" : "active",
-                                    "validate" : self.node['validate'] if 'validate' in self.node else True
-                                })
-                            else:
-                                generated_template_file_list.append({
-                                    "paths" : [
-                                        ("%s/%s" % (file_path, template_file)).replace("//", "/"),
-                                        ("%s/%s" % (file_path, parameter_file)).replace("//", "/")
-                                    ],
-                                    "status" : "inactive",
-                                    "validate" : self.node['validate'] if 'validate' in self.node else True
-                                })
+                        self.generate_template_and_parameter_file_list(file_path, template_file, parameter_file_list, generated_template_file_list)
                     else:
                         paths = [
                             template_file
