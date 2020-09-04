@@ -19,10 +19,21 @@ class TerraformTemplateParser(TemplateParser):
         super().__init__(template_file, tosave=False, **kwargs)
         self.imports = []
         self.schema_filter = {
-            "var" : self.process_variable
+            "var" : self.process_variable,
+            "data" : self.process_data,
+            "other" : self.process_other,
+        }
+        self.function_filter = {
+            "length" : self.process_length,
         }
         self.default_gparams = kwargs.get("default_gparams", {})
-    
+        self.gdata = {}
+        self.resource = {}
+        self.functions = [{
+            "key" : "length",
+            "value" : "^(length[(](.*?)[)])*$"
+        }]
+
     def is_template_file(self, file_path):
         """
         check for valid template file for parse terraform template
@@ -42,18 +53,53 @@ class TerraformTemplateParser(TemplateParser):
             json_data = self.json_data_from_file(file_path)
             return True if (json_data and not "resource" in json_data) else False
         return False
-    
+
+    def process_other(self, resource):
+        """
+        return default value of the variable if variable is set in terraform files
+        """
+        return self.parse_field_value(resource, self.resource)
+
     def process_variable(self, resource):
         """
-        return default value of the variable if it contains in `self.gparams`
+        return default value of the variable if variable is set in terraform files
         """
+        status, value = self.parse_field_value(resource, self.default_gparams)
+        if not value:
+            status, value = self.parse_field_value(resource, self.gparams)
+        if not value:
+            status, value = self.parse_field_value(resource, self.resource)
+        return status, value
+    
+    def process_data(self, resource):
+        """
+        return value of the data if the given data is contains in terraform template file
+        """
+        return self.parse_field_value(resource, self.gdata)
+    
+    def parse_field_value(self, resource, from_data):
         resource_list = resource.split(".")
-        if len(resource_list) == 1:
-            if resource in self.default_gparams:
-                return True, self.default_gparams[resource]
-            elif resource in self.gparams:
-                return True, self.gparams[resource]
-        return False, resource
+        value = copy.deepcopy(from_data)
+        for resource in resource_list:
+            # process variables like this: var.network_http["cidr"]
+            pattern = re.compile(r'\[["|\'](.*?)["|\']\]')
+            map_keys = re.findall(pattern, resource)
+            if map_keys and len(resource.split("[")) > 1:
+                value = value.get(resource.split("[")[0])
+                for key in map_keys:
+                    if not value or not isinstance(value, dict):
+                        break
+                    value = value.get(key)
+                if not value:
+                    break
+                continue
+            value = value.get(resource)
+            if not value:
+                break        
+        if value:
+            return True, value
+        else:
+            return False, value
     
     def get_template(self):
         """
@@ -141,11 +187,12 @@ class TerraformTemplateParser(TemplateParser):
                                     parameter_file=parameter_file_list,
                                     **{"default_gparams" : default_gparams})
                                 new_template_json = terraform_template_parser.parse()
-                                for resource, resource_item in new_template_json.items():
-                                    if resource not in new_resources:
-                                        new_resources[resource] = resource_item
-                                    else:
-                                        new_resources[resource].update(resource_item)
+                                if new_template_json:
+                                    for resource, resource_item in new_template_json.items():
+                                        if resource not in new_resources:
+                                            new_resources[resource] = resource_item
+                                        else:
+                                            new_resources[resource].update(resource_item)
                         else:
                             logger.error("module does not exist : %s ", value["source"])
                             
@@ -157,12 +204,25 @@ class TerraformTemplateParser(TemplateParser):
                         elif key not in template_json:
                             template_json[key] = value
 
+            if 'data' in template_json:
+                data_resource = {}
+                logger.info("Before Process data")
+                logger.info(template_json['data'])
+                for data_key, data_value in template_json['data'].items():
+                    processed_data = self.process_resource(data_value)
+                    self.gdata[data_key] = processed_data
+                    data_resource[data_key] = processed_data
+                gen_template_json['data'] = data_resource
+                logger.info("Processed data")
+                logger.info(gen_template_json['data'])
+            
             if 'resource' in template_json:
-                resource = {}
+                self.resource = {}
                 for resource_name, properties in template_json['resource'].items():
                     processed_resource = self.process_resource(properties)
-                    resource[resource_name] = processed_resource
-                gen_template_json['resource'] = resource
+                    self.resource[resource_name] = processed_resource
+                gen_template_json['resource'] = self.resource
+            
         return gen_template_json
 
     def process_resource(self, resource):
@@ -186,20 +246,22 @@ class TerraformTemplateParser(TemplateParser):
             # match the substrings for replace the value
             # pattern = re.compile(r'(var\..\w*)')
             # exmatch = re.findall(pattern, resource)
+            logger.info(self.gparams)
 
+            new_resource = resource
             exmatch = re.search(r'\${([^}]*)}', resource, re.I)
             if exmatch:
                 matched_str = exmatch.group(0)[2:-1]
                 splited_list = matched_str.split(".") 
                 if len(splited_list) > 1:
-                    if splited_list[0] in self.schema_filter: 
+                    if splited_list[0] in self.schema_filter:
                         result, new_value = self.schema_filter[splited_list[0]](".".join(splited_list[1:]))
                         if result:
                             new_resource = new_value
-                        else:
-                            new_resource = resource
-            else:
-                new_resource = resource
+                    else:
+                        result, new_value = self.schema_filter["other"](".".join(splited_list))
+                        if result:
+                            new_resource = new_value
         else:
             new_resource = resource
         
