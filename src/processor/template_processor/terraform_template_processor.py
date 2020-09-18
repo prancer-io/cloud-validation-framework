@@ -17,8 +17,12 @@ class TerraformTemplateProcessor(TemplateProcessor):
         """
         check for valid template file for parse terraform template
         """
-        if len(file_path.split("/")) > 0 and file_path.split("/")[-1]=="main.tf":
-            return True
+        if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "tf":
+            json_data = self.terraform_to_json(file_path)
+            return True if (json_data and ("resource" in json_data or "module" in json_data)) else False
+        elif len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "json":
+            json_data = self.json_data_from_file(file_path)
+            return True if (json_data and ("resource" in json_data or "module" in json_data)) else False
         return False
     
     def is_parameter_file(self, file_path):
