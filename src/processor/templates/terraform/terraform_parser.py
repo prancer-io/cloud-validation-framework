@@ -11,6 +11,8 @@ from processor.templates.base.template_parser import TemplateParser
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor.templates.terraform.helper.function.terraform_functions import default_functions
 from processor.templates.terraform.helper.expression.terraform_expressions import expression_list
+from processor.helper.json.json_utils import json_from_file
+from processor.helper.hcl.hcl_utils import hcl_to_json
 
 logger = getlogger()
 
@@ -40,10 +42,10 @@ class TerraformTemplateParser(TemplateParser):
         check for valid template file for parse terraform template
         """
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "tf":
-            json_data = self.terraform_to_json(file_path)
+            json_data = hcl_to_json(file_path)
             return True if (json_data and ("resource" in json_data or "module" in json_data)) else False
         elif len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "json":
-            json_data = self.json_data_from_file(file_path)
+            json_data = json_from_file(file_path, escape_chars=['$'])
             return True if (json_data and ("resource" in json_data or "module" in json_data)) else False
         return False
     
@@ -52,10 +54,10 @@ class TerraformTemplateParser(TemplateParser):
         check for valid variable file for parse terraform template
         """
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] in ["tf", "tfvars"]:
-            json_data = self.terraform_to_json(file_path)
+            json_data = hcl_to_json(file_path)
             return True if (json_data and not "resource" in json_data) else False
         elif len(file_path.split(".")) > 1 and [ele for ele in [".tfvars.json", ".tf.json"] if(ele in file_path)]:
-            json_data = self.json_data_from_file(file_path)
+            json_data = json_from_file(file_path, escape_chars=['$'])
             return True if (json_data and not "resource" in json_data) else False
         return False
 
@@ -119,9 +121,9 @@ class TerraformTemplateParser(TemplateParser):
         """
         json_data = None
         if len(self.template_file.split(".")) > 0 and self.template_file.split(".")[-1]=="tf":
-            json_data = self.terraform_to_json(self.template_file)
+            json_data = hcl_to_json(self.template_file)
         elif len(self.template_file.split(".")) > 1 and ".tf.json" in self.template_file:
-            json_data = self.json_data_from_file(self.template_file)
+            json_data = json_from_file(self.template_file, escape_chars=['$'])
         return json_data
     
     def get_paramter_json_list(self):
@@ -131,11 +133,11 @@ class TerraformTemplateParser(TemplateParser):
         parameter_json_list = []
         for parameter in self.parameter_file:
             if len(parameter.split(".")) > 0 and parameter.split(".")[-1] in ["tf", "tfvars"]:
-                json_data = self.terraform_to_json(parameter)
+                json_data = hcl_to_json(parameter)
                 if json_data:
                     parameter_json_list.append({parameter.split(".")[-1] : json_data})
             elif len(parameter.split(".")) > 1 and [ele for ele in [".tfvars.json", ".tf.json"] if(ele in parameter)]:
-                json_data = self.json_data_from_file(parameter)
+                json_data = json_from_file(parameter, escape_chars=['$'])
                 if json_data:
                     splited_list = parameter.split(".")
                     parameter_json_list.append({'.'.join(splited_list[len(splited_list)-2:]) : json_data})
@@ -327,7 +329,7 @@ class TerraformTemplateParser(TemplateParser):
                 parameters = []
                 process = True
 
-                found_parameters = re.findall(r'(?:[^,[""|()|\[\]]|[\"|\(|\[](?:[^[""|()|\[\]]|[\"|\(|\[][^[""|()|\[\]]*[\"|\)|\]])*[\"|\)|\]])+', parameter_str.strip())
+                found_parameters = re.findall(r'(?:[^,[\"|()|\[\]]|[\"|\(|\[](?:[^[\"\"|()|\[\]]|[|\(|\[][^[\"\"|()|\[\]]*[\"|\)|\]])*[\"|\)|\]])+', parameter_str.strip())
                 for param in found_parameters:
                 # for param in re.findall("(?:[^,()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))+", parameter_str.strip()):
                 # for param in parameter_str.strip().split(","):

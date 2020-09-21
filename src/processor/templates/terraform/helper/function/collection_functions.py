@@ -2,6 +2,8 @@
 Performs all in built collection functions which are supported by terraform processor
 """
 from processor.logging.log_handler import getlogger
+import decimal
+import itertools
 
 logger = getlogger()
 
@@ -9,10 +11,7 @@ def element(ele, index):
     "return the element at given index from the list"
     if not ele:
         return
-    # if index is more then the length of element then search the element wrap around
-    while len(ele) <= index:
-        index = index - len(ele)
-    return ele[index]
+    return ele[index % len(ele)]
 
 def length(ele):
     "return length of given element"
@@ -95,3 +94,32 @@ def setintersection(*args):
     for s in sets:
         result = result.intersection(s)
     return result
+
+def to_range(start, limit=None, step=None):
+    """ returns the list of numbers based on given start, limit and step values """
+    def float_range(start, limit, step):
+        while start < limit:
+            yield float(start)
+            start += decimal.Decimal(step)
+
+    if isinstance(step, float):
+        return [r for r in float_range(start, limit, step)]
+    elif limit and limit < start and not step:
+        return [r for r in range(start, limit, -1)]
+    else:
+        range_params = list(filter(None, [start, limit, step]))
+        return [r for r in range(*range_params)]
+
+def setintersection(*args):
+    """ returns the list of common elements from given sets """
+    intersection_list = []
+    if args:
+        intersection_list = list(set(args[0]).intersection(*args))
+    return intersection_list
+        
+def setproduct(*args):
+    """ creates a list with all possible combinations of elements of given sets """
+    product_list= []
+    if args:
+        product_list = [list(ele) for ele in list(itertools.product(*args))]
+    return product_list

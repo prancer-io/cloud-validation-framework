@@ -8,7 +8,7 @@ from processor.helper.config.rundata_utils import get_dbtests
 from processor.logging.log_handler import getlogger
 from processor.database.database import insert_one_document, COLLECTION, DATABASE, DBNAME, \
     get_collection_size, create_indexes
-from processor.helper.json.json_utils import get_field_value, json_from_file, store_snapshot, make_snapshots_dir
+from processor.helper.json.json_utils import get_field_value, store_snapshot, make_snapshots_dir
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 logger = getlogger()
@@ -42,21 +42,6 @@ class TemplateProcessor:
         self.processed_template = {}
         self.paths = []
         self.dir_path = ""
-    
-    def terraform_to_json(self, file_path):
-        "Converts the hcl file to json file"
-        json_data = {}
-        try:
-            with open(file_path, 'r') as fp:
-                json_data = hcl.load(fp)
-        except Exception as e:
-            logger.error("Failed to convert terraform to json data, file: %s , error: %s", file_path, str(e))
-        return json_data
-    
-    def json_data_from_file(self, file_path):
-        "Read the json data from give file path and returns the json data"
-        json_data = json_from_file(file_path, escape_chars=['$'])
-        return json_data
 
     def create_database_record(self):
         """

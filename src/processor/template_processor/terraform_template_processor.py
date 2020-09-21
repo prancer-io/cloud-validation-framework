@@ -1,6 +1,8 @@
 from processor.logging.log_handler import getlogger
 from processor.template_processor.base.base_template_processor import TemplateProcessor
 from processor.templates.terraform.terraform_parser import TerraformTemplateParser
+from processor.helper.json.json_utils import json_from_file
+from processor.helper.hcl.hcl_utils import hcl_to_json
 
 logger = getlogger()
 
@@ -18,10 +20,10 @@ class TerraformTemplateProcessor(TemplateProcessor):
         check for valid template file for parse terraform template
         """
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "tf":
-            json_data = self.terraform_to_json(file_path)
+            json_data = hcl_to_json(file_path)
             return True if (json_data and ("resource" in json_data or "module" in json_data)) else False
         elif len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "json":
-            json_data = self.json_data_from_file(file_path)
+            json_data = json_from_file(file_path, escape_chars=['$'])
             return True if (json_data and ("resource" in json_data or "module" in json_data)) else False
         return False
     
@@ -30,10 +32,10 @@ class TerraformTemplateProcessor(TemplateProcessor):
         check for valid variable file for parse terraform template
         """
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] in ["tf", "tfvars"]:
-            json_data = self.terraform_to_json(file_path)
+            json_data = hcl_to_json(file_path)
             return True if (json_data and not "resource" in json_data) else False
         elif len(file_path.split(".")) > 1 and [ele for ele in [".tfvars.json", ".tf.json"] if(ele in file_path)]:
-            json_data = self.json_data_from_file(file_path)
+            json_data = json_from_file(file_path, escape_chars=['$'])
             return True if (json_data and not "resource" in json_data) else False
         return False
     
