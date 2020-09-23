@@ -1,4 +1,5 @@
 import os
+import hcl
 from yaml.loader import FullLoader
 from processor.logging.log_handler import getlogger
 from processor.helper.yaml.yaml_utils import yaml_from_file
