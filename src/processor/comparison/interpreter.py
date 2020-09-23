@@ -302,7 +302,8 @@ class ComparatorV01:
                         'id': json_data['snapshotId'],
                         'structure': json_data['structure'],
                         'reference': json_data['reference'],
-                        'source': json_data['source']
+                        'source': json_data['source'],
+                        'collection': json_data['collection']
                     }
                     if 'paths' in json_data:
                         snapshot['paths'] = json_data['paths']
@@ -328,7 +329,8 @@ class ComparatorV01:
                     'id': docs[0]['snapshotId'],
                     'structure': docs[0]['structure'],
                     'reference': docs[0]['reference'],
-                    'source': docs[0]['source']
+                    'source': docs[0]['source'],
+                    'collection': docs[0]['collection']
                 }
                 if 'paths' in docs[0]:
                     snapshot['paths'] = docs[0]['paths']
@@ -347,7 +349,8 @@ class ComparatorV01:
                             'id': json_data['snapshotId'],
                             'structure': json_data['structure'],
                             'reference': json_data['reference'],
-                            'source': json_data['source']
+                            'source': json_data['source'],
+                            'collection': json_data['collection']
                         }
                         if 'paths' in json_data:
                             snapshot_val['paths'] = json_data['paths']
@@ -424,7 +427,8 @@ class ComparatorV01:
                             'id': docs[0]['snapshotId'],
                             'structure': docs[0]['structure'],
                             'reference': docs[0]['reference'],
-                            'source': docs[0]['source']
+                            'source': docs[0]['source'],
+                            'collection': docs[0]['collection']
                         }]
                         if "paths" in docs[0]:
                             result_val[0]["snapshots"][0]["paths"] = docs[0]["paths"]
