@@ -57,8 +57,8 @@ jobs:
         run: |
           TAG=V${{ steps.read_version.outputs.VERSION }}
           PAYLOAD="{ \"tag_name\": \"${TAG}\", \"target_commitish\": \"${{ github.event.inputs.branch }}\", \"name\": \"${TAG}\", \"body\": \"Release: ${TAG}\", \"draft\": false, \"prerelease\": false }"
-          echo "https://api.github.com/repos/danielalejandrohc/cloud-validation-framework/releases/tags/${TAG}"
-          RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/danielalejandrohc/cloud-validation-framework/releases/tags/${TAG})
+          echo "https://api.github.com/repos/prancer-io/cloud-validation-framework/releases/tags/${TAG}"
+          RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/prancer-io/cloud-validation-framework/releases/tags/${TAG})
           echo "Reponse code ${RESPONSE_CODE} for TAG: ${TAG}"
           #if [[ $RESPONSE_CODE == "404" ]]; then
           echo "Tag not found. Creating it"            
@@ -67,7 +67,7 @@ jobs:
           curl -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
                -H "User-Agent: token Github-actions" \
                -X POST \
-               https://api.github.com/repos/danielalejandrohc/cloud-validation-framework/releases \
+               https://api.github.com/repos/prancer-io/cloud-validation-framework/releases \
                -d @payload.json > response.json
           UPLOAD_URL=$(cat response.json | jq -r .upload_url)
           echo $UPLOAD_URL > output            
