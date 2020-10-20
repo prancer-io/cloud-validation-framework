@@ -104,9 +104,6 @@ jobs:
         run: |
           pip install twine
           twine --version
-          pwd
-          ls -l
-          ls -l dist/
           twine upload dist/* -u ${{ secrets.PIP_USER }} -p {{ secrets.PIP_PASSWORD }}
 
       - name: Docker build
