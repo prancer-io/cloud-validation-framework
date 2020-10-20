@@ -1,11 +1,15 @@
 name: build and publish PRANCER BASIC
-on: 
-  workflow_dispatch:
-    inputs:
-      branch:
-        required: true
-        description: 'Branch' 
-        default: 'master'
+on:
+  push:
+    branches:
+      - master
+  # For manual build
+  #workflow_dispatch:
+  #  inputs:
+  #    branch:
+  #      required: true
+  #      description: 'Branch' 
+  #      default: 'master'
 jobs:
   build:
     name: build and publish
@@ -27,7 +31,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: prancer-io/cloud-validation-framework 
-          ref: ${{ github.event.inputs.branch }}
+          ref: master
           token: ${{ secrets.GIT_TOKEN }}
 
       - name: install SO dependencies
@@ -57,8 +61,8 @@ jobs:
         run: |
           TAG=V${{ steps.read_version.outputs.VERSION }}
           PAYLOAD="{ \"tag_name\": \"${TAG}\", \"target_commitish\": \"${{ github.event.inputs.branch }}\", \"name\": \"${TAG}\", \"body\": \"Release: ${TAG}\", \"draft\": false, \"prerelease\": false }"
-          echo "https://api.github.com/repos/danielalejandrohc/cloud-validation-framework/releases/tags/${TAG}"
-          RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/danielalejandrohc/cloud-validation-framework/releases/tags/${TAG})
+          echo "https://api.github.com/repos/prancer-io/cloud-validation-framework/releases/tags/${TAG}"
+          RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/prancer-io/cloud-validation-framework/releases/tags/${TAG})
           echo "Reponse code ${RESPONSE_CODE} for TAG: ${TAG}"
           #if [[ $RESPONSE_CODE == "404" ]]; then
           echo "Tag not found. Creating it"            
@@ -67,7 +71,7 @@ jobs:
           curl -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
                -H "User-Agent: token Github-actions" \
                -X POST \
-               https://api.github.com/repos/danielalejandrohc/cloud-validation-framework/releases \
+               https://api.github.com/repos/prancer-io/cloud-validation-framework/releases \
                -d @payload.json > response.json
           UPLOAD_URL=$(cat response.json | jq -r .upload_url)
           echo $UPLOAD_URL > output            
@@ -98,13 +102,13 @@ jobs:
           EOF`
           python -c "$c"
           #fi
-
+          rm output
       - name: upload to pypi.org
         id: twine
         run: |
           pip install twine
           twine --version
-          twine upload dist/* -u ${{ secrets.PIP_USER }} -p {{ secrets.PIP_PASSWORD }}
+          twine upload dist/* -u ${{ secrets.PIP_USER }} -p ${{ secrets.PIP_PASSWORD }}
 
       - name: Docker build
         id: docker_build
