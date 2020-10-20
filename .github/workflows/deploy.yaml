@@ -107,7 +107,7 @@ jobs:
           pwd
           ls -l
           ls -l dist/
-          twine upload dist/* -u '${{ secrets.PIP_USER }}' -p '{{ secrets.PIP_PASSWORD }}'
+          twine upload dist/* -u ${{ secrets.PIP_USER }} -p {{ secrets.PIP_PASSWORD }}
 
       - name: Docker build
         id: docker_build
