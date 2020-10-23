@@ -32,6 +32,7 @@ class TerraformTemplateParser(TemplateParser):
         self.gdata = {}
         self.resource = {}
         self.count = None
+        self.process_module = kwargs.get("process_module", False)
         self.replace_values = {
             "true" : True,
             "false" : False
@@ -203,7 +204,7 @@ class TerraformTemplateParser(TemplateParser):
                                 terraform_template_parser = TerraformTemplateParser(
                                     template_file_path,
                                     parameter_file=parameter_file_list,
-                                    **{"default_gparams" : default_gparams})
+                                    **{"default_gparams" : default_gparams, "process_module" : True })
                                 new_template_json = terraform_template_parser.parse()
                                 if new_template_json:
                                     for resource, resource_item in new_template_json.items():
@@ -232,10 +233,27 @@ class TerraformTemplateParser(TemplateParser):
             
             if 'resource' in template_json:
                 self.resource = {}
+                resources = []
                 for resource_name, properties in template_json['resource'].items():
                     processed_resource = self.process_resource(properties)
                     self.resource[resource_name] = processed_resource
-                gen_template_json['resource'] = self.resource
+                    self.resource[resource_name] = processed_resource
+
+                if not self.process_module:
+                    for resource_name, processed_resource in self.resource.items():
+                        if isinstance(processed_resource, dict):
+                            for name, properties in processed_resource.items():
+                                resources.append({
+                                    "type" : resource_name,
+                                    "name" : name,
+                                    "properties" : properties
+                                })
+                    gen_template_json['resources'] = resources
+
+                    if 'resource' in gen_template_json:
+                        del gen_template_json['resource']
+                else:
+                    gen_template_json['resource'] = self.resource
             
         return gen_template_json
     
@@ -296,8 +314,38 @@ class TerraformTemplateParser(TemplateParser):
                         new_resource[key] = processed_resource
             else:
                 for key, value in resource.items():
-                    processed_resource = self.process_resource(value)
-                    new_resource[key] = processed_resource
+                    if key == "dynamic" and isinstance(value, dict):
+                        loop_values = []
+                        for var, loop_content in value.items():
+                            resource_properties = []
+                            if isinstance(loop_content, dict):
+                                for loop_content_key, loop_content_value in loop_content.items():
+                                    if loop_content_key == "for_each":
+                                        loop_values = self.process_resource(loop_content_value)
+                                    if loop_content_key == "content" and isinstance(loop_content_value, dict):
+                                        if isinstance(loop_values, list):
+                                            for loop_value in loop_values:
+                                                resource_property = {}
+                                                for content_key, content_value in loop_content_value.items():
+                                                    if isinstance(content_value, str):
+                                                        content_value = content_value.replace(var+".value",str(loop_value))
+                                                    content_value = self.process_resource(content_value)
+                                                    resource_property[content_key] = content_value
+                                                resource_properties.append(resource_property)
+                                        elif isinstance(loop_values, dict):
+                                            for loop_key, loop_value in loop_values.items():
+                                                resource_property = {}
+                                                for content_key, content_value in loop_content_value.items():
+                                                    if isinstance(content_value, str):
+                                                        content_value = content_value.replace(var+".value",str(loop_value))
+                                                        content_value = content_value.replace(var+".key",str(loop_key))
+                                                    content_value = self.process_resource(content_value)
+                                                    resource_property[content_key] = content_value
+                                                resource_properties.append(resource_property)
+                            new_resource[var] = resource_properties
+                    else:
+                        processed_resource = self.process_resource(value)
+                        new_resource[key] = processed_resource
         
         elif isinstance(resource, str):
             # match the substrings for replace the value
@@ -371,6 +419,8 @@ class TerraformTemplateParser(TemplateParser):
                             processed_param = self.process_resource("${" + param.strip() + "}")
                             if isinstance(processed_param, str) and re.findall(r"[a-zA-Z]", processed_param):
                                 new_parameter_list.append("\"" + processed_param + "\"")
+                            elif isinstance(processed_param, str) and len(processed_param) == 0:
+                                new_parameter_list.append('""')
                             else:
                                 new_parameter_list.append(str(processed_param))
 
