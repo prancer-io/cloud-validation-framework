@@ -15,7 +15,7 @@ def element(ele, index):
 
 def length(ele):
     "return length of given element"
-    return len(ele) if ele else None
+    return len(ele) if ele is not None else None
 
 def chunklist(ele_list, n):
     "splits a single list into fixed-size chunks, returning a list of lists."

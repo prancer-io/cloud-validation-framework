@@ -14,6 +14,7 @@ class TerraformTemplateProcessor(TemplateProcessor):
 
     def __init__(self, node, **kwargs):
         super().__init__(node, tosave=False, **kwargs)
+        self.exclude_directories = ["modules"]
     
     def is_template_file(self, file_path):
         """

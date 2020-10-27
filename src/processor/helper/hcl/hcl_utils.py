@@ -7,9 +7,18 @@ logger = getlogger()
 def remove_list_from_values(data):
     if isinstance(data, dict):
         new_data = {}
-        for key, value in data.items():
-            if isinstance(value, list) and value:
-                value = value[0]
+        for key, values in data.items():
+            value = {}
+            if isinstance(values, list) and values:
+                if len(values) == 1:
+                    value = values[0]
+                else:
+                    for val in values:
+                        if isinstance(val, dict):
+                            for k, v in val.items():
+                                value[k] = v
+            else:
+                value = values
             value = remove_list_from_values(value)
             new_data[key] = value
         data = new_data
