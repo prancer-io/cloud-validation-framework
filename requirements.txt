@@ -12,7 +12,7 @@ python-dateutil==2.7.5
 requests==2.22
 ply==3.10
 pyhcl==0.4.4
-python-hcl2==1.0.0
+python-hcl2==0.3.2
 google-api-python-client==1.7.8
 google-auth==1.6.3
 google-auth-httplib2==0.0.3
