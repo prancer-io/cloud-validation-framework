@@ -40,6 +40,7 @@ class TemplateProcessor:
         self.repopath = kwargs.get("repopath")
         self.snapshot = kwargs.get("snapshot")
         self.processed_template = {}
+        self.exclude_directories = []
         self.paths = []
         self.dir_path = ""
 
@@ -215,6 +216,10 @@ class TemplateProcessor:
         logger.info("Finding files in : %s" % sub_dir_path)
         dir_path = str('%s/%s' % (base_dir_path, sub_dir_path)).replace('//', '/')
         logger.info("dir_path   %s   : ",dir_path)
+
+        if sub_dir_path in self.exclude_directories:
+            logger.info("Excluded directory : %s", sub_dir_path)
+            return count
 
         template_file_list = []
         parameter_file_list = []
