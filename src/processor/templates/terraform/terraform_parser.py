@@ -35,11 +35,17 @@ class TerraformTemplateParser(TemplateParser):
         self.module_params = {
             "module" : {}
         }
+        self.temp_params = {}
         self.count = None
         self.process_module = kwargs.get("process_module", False)
         self.replace_values = {
             "true" : True,
-            "false" : False
+            "false" : False,
+            "True" : True,
+            "False" : False,
+            "&&" : "and",
+            "||" : "or",
+            "None" : None
         }
 
     def is_template_file(self, file_path):
@@ -70,21 +76,32 @@ class TerraformTemplateParser(TemplateParser):
         """
         return default value of the variable if variable is set in terraform files
         """
+        main_status = False
+
         status, value = self.parse_field_value(resource, self.resource)
+        main_status = True if status else main_status
         if value is None:
             status, value = self.parse_field_value(resource, self.module_params)
-        return status, value
+            main_status = True if status else main_status
+        if value is None:
+            status, value = self.parse_field_value(resource, self.temp_params)
+            main_status = True if status else main_status
+        return main_status, value
 
     def process_variable(self, resource):
         """
         return default value of the variable if variable is set in terraform files
         """
+        main_status = False
         status, value = self.parse_field_value(resource, self.default_gparams)
+        main_status = True if status else main_status
         if value is None:
             status, value = self.parse_field_value(resource, self.gparams)
+            main_status = True if status else main_status
         if value is None:
             status, value = self.parse_field_value(resource, self.resource)
-        return status, value
+            main_status = True if status else main_status
+        return main_status, value
     
     def process_data(self, resource):
         """
@@ -95,6 +112,7 @@ class TerraformTemplateParser(TemplateParser):
     def parse_field_value(self, resource, from_data):
         resource_list = re.compile("\.(?![^[]*\])").split(resource)
         value = copy.deepcopy(from_data)
+        is_valid = True
         for resource in resource_list:
             # process variables like this: var.network_http["cidr"]
             pattern = re.compile(r'\[["|\'](.*?)["|\']\]')
@@ -103,22 +121,32 @@ class TerraformTemplateParser(TemplateParser):
                 value = value.get(resource.split("[")[0])
                 for key in map_keys:
                     if value is None or not isinstance(value, dict):
+                        is_valid = False
                         break
-                    value = value.get(key)
+
+                    if key in value:
+                        value = value.get(key)
+                    else:
+                        value = None
+                        is_valid = False
                 if value is None:
                     break
                 continue
             if isinstance(value, list) and resource == "*" and self.count is not None and self.count < len(value):
                 value = value[self.count]
             elif isinstance(value, dict):            
-                value = value.get(resource)
+                if resource in value:
+                    value = value.get(resource)
+                else:
+                    value = None
+                    is_valid = False
                 if value is None:
                     break
             else:
                 value = None
                 break
         
-        if value is not None:
+        if is_valid:
             return True, value
         else:
             return False, value
@@ -217,14 +245,19 @@ class TerraformTemplateParser(TemplateParser):
                                 new_template_json = terraform_template_parser.parse()
                                 if new_template_json:
                                     for resource, resource_item in new_template_json.items():
+                                        # set parameters from modules files to main resource file
                                         if resource == "resource":
                                             for resource_key, resource_value in resource_item.items():
                                                 for resource_name, resource_properties in resource_value.items():
                                                     if isinstance(resource_properties, dict):
-                                                        resource_properties.update(default_gparams)
+                                                        for default_key, default_value in default_gparams.items():
+                                                            if default_key not in resource_properties:
+                                                                resource_properties[default_key] = default_value
                                                     if isinstance(resource_properties, list):
                                                         for resource_property in resource_properties:
-                                                            resource_property.update(default_gparams)
+                                                            for default_key, default_value in default_gparams.items():
+                                                                if default_key not in resource_property:
+                                                                    resource_property[default_key] = default_value
                                         if resource not in new_resources:
                                             new_resources[resource] = [resource_item]
                                         else:
@@ -313,15 +346,16 @@ class TerraformTemplateParser(TemplateParser):
     
     def check_json_or_list_value(self, resource):
         """ check that string resource is json or list type or not and return the list or json value """
-        json_data = json_from_string(resource)
+        json_data = json_from_string(resource.replace("\'","\""))
         if json_data:
             resource = self.process_resource(json_data)
             return True, resource
         
         try:
-            list_data = ast.literal_eval(resource) 
-            resource = self.process_resource(list_data)
-            return True, resource
+            if resource.startswith('[') and resource.endswith(']'):
+                list_data = ast.literal_eval(resource)
+                resource = self.process_resource(list_data)
+                return True, resource
         except:
             pass
 
@@ -370,33 +404,45 @@ class TerraformTemplateParser(TemplateParser):
                 for key, value in resource.items():
                     if key == "dynamic" and isinstance(value, dict):
                         loop_values = []
-                        for var, loop_content in value.items():
+                        for main_key, loop_content in value.items():
+                            var = main_key
                             resource_properties = []
                             if isinstance(loop_content, dict):
                                 for loop_content_key, loop_content_value in loop_content.items():
                                     if loop_content_key == "for_each":
                                         loop_values = self.process_resource(loop_content_value)
+                                    if loop_content_key == "iterator":
+                                        var = self.process_resource(loop_content_value)
                                     if loop_content_key == "content" and isinstance(loop_content_value, dict):
                                         if isinstance(loop_values, list):
                                             for loop_value in loop_values:
                                                 resource_property = {}
                                                 for content_key, content_value in loop_content_value.items():
                                                     if isinstance(content_value, str):
-                                                        content_value = content_value.replace(var+".value",str(loop_value))
+                                                        self.temp_params[var] = {
+                                                            "value" : loop_value
+                                                        }
+                                                        # content_value = content_value.replace(var+".value",str(loop_value))
                                                     content_value = self.process_resource(content_value)
                                                     resource_property[content_key] = content_value
+                                                    self.temp_params = {}
                                                 resource_properties.append(resource_property)
                                         elif isinstance(loop_values, dict):
                                             for loop_key, loop_value in loop_values.items():
                                                 resource_property = {}
                                                 for content_key, content_value in loop_content_value.items():
                                                     if isinstance(content_value, str):
-                                                        content_value = content_value.replace(var+".value",str(loop_value))
-                                                        content_value = content_value.replace(var+".key",str(loop_key))
+                                                        self.temp_params[var] = {
+                                                            "value" : loop_value,
+                                                            "key" : loop_key
+                                                        }
+                                                        # content_value = content_value.replace(var+".value",str(loop_value))
+                                                        # content_value = content_value.replace(var+".key",str(loop_key))
                                                     content_value = self.process_resource(content_value)
                                                     resource_property[content_key] = content_value
+                                                    self.temp_params = {}
                                                 resource_properties.append(resource_property)
-                            new_resource[var] = resource_properties
+                            new_resource[main_key] = resource_properties
                     else:
                         processed_resource = self.process_resource(value)
                         new_resource[key] = processed_resource
@@ -410,7 +456,11 @@ class TerraformTemplateParser(TemplateParser):
             new_resource = copy.deepcopy(parsed_string)
             exmatch = re.search(r'\${([^}]*)}', new_resource, re.I)
             if exmatch:
-                matched_str = exmatch.group(0)[2:-1]
+                match_values = re.search(r'(?<=\{).*(?=\})', new_resource, re.I)
+                if match_values:
+                    matched_str = match_values.group(0)
+                else:
+                    matched_str = exmatch.group(0)[2:-1]
             else:
                 matched_str = parsed_string
 
@@ -436,7 +486,8 @@ class TerraformTemplateParser(TemplateParser):
                 parameters = []
                 process = True
 
-                found_parameters = re.findall(r'(?:[^,[\"|()|\[\]]|[\"|\(|\[](?:[^[\"\"|()|\[\]]|[|\(|\[][^[\"\"|()|\[\]]*[\"|\)|\]])*[\"|\)|\]])+', parameter_str.strip())
+                found_parameters = re.findall(r'(?:[^,[\"|()|\{\}|\[\]]|[\{|\"|\(|\[](?:[^[\{\}|\"\"|()|\[\]]|[\{|\(|\[][^[\{\}|\"\"|()|\[\]]*[\}|\"|\)|\]])*[\}|\"|\)|\]])+', parameter_str.strip())
+
                 for param in found_parameters:
                 # for param in re.findall("(?:[^,()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))+", parameter_str.strip()):
                 # for param in parameter_str.strip().split(","):
@@ -470,7 +521,8 @@ class TerraformTemplateParser(TemplateParser):
                         continue
 
                     parameter_str = m.group(0)
-                    params = re.findall(r"[a-zA-Z0-9.()\[\]_*\"]+|(?:(?![a-zA-Z0-9.()\[\]_*\"]).)+", parameter_str)
+                    # params = re.findall(r"[a-zA-Z0-9.()\[\]_*\"]+|(?:(?![a-zA-Z0-9.()\[\]_*\"]).)+", parameter_str)
+                    params = re.findall(r"[a-zA-Z0-9.()\[\]_*\"\'\{\$\}]+|(?:(?![a-zA-Z0-9.()\[\]_*\"\'\{\$\}]).)+", parameter_str)
 
                     if params and len(params) > 1:
                         new_parameter_list = []
