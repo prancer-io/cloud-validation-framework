@@ -109,7 +109,7 @@ def get_aws_describe_function(node):
     return describe_fn_str
 
 
-def get_node(awsclient, node, snapshot_source):
+def get_node(awsclient, node, snapshot_source, snapshot):
     """
     Fetch node from aws using connection. In this case using boto API's
     describe functions.
@@ -125,7 +125,7 @@ def get_node(awsclient, node, snapshot_source):
         "source": parts[0],
         "path": '',
         "timestamp": int(time.time() * 1000),
-        "queryuser": "",
+        "queryuser": get_field_value(snapshot, 'testUser'),
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,
         "snapshotId": node['snapshotId'],
@@ -274,7 +274,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
         "source": parts[0],
         "path": '',
         "timestamp": int(time.time() * 1000),
-        "queryuser": "",
+        "queryuser": get_field_value(snapshot, 'testUser'),
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,
         "snapshotId": None,
@@ -648,7 +648,7 @@ def populate_aws_snapshot(snapshot, container=None):
                         awsclient = None
                     logger.info(awsclient)
                     if awsclient:
-                        data = get_node(awsclient, node, snapshot_source)
+                        data = get_node(awsclient, node, snapshot_source, snapshot)
                         if data:
                             error_str = data.pop('error', None)
                             if get_dbtests():
