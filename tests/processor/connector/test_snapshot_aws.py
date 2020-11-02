@@ -227,42 +227,42 @@ def test_get_node():
             "type": "security_groups",
             "collection": "security_groups",
             "id": {"GroupNames": ["launch-wizard-1"]}
-        }, 'awsStructure')
+        }, 'awsStructure', {"testUser" : snapshot["testUser"] })
     assert val is not None
     val = get_node(awsclient, {
             "snapshotId": "8",
             "type": "security_groups",
             "collection": "security_groups",
             "id1": {"GroupNames": ["launch-wizard-1"]}
-        }, 'awsStructure')
+        }, 'awsStructure', {"testUser" : snapshot["testUser"] })
     assert val is not None
     val = get_node(awsclient, {
         "snapshotId": "8",
         "type": "security_groups1",
         "collection": "security_groups",
         "id": {"GroupNames": ["launch-wizard-1"]}
-    }, 'awsStructure')
+    }, 'awsStructure', {"testUser" : snapshot["testUser"] })
     assert val is not None
     val = get_node(awsclient, {
         "snapshotId": "8",
         "type1": "security_groups1",
         "collection": "security_groups",
         "id": {"GroupNames": ["launch-wizard-1"]}
-    }, 'awsStructure')
+    }, 'awsStructure', {"testUser" : snapshot["testUser"] })
     assert val is not None
     val = get_node(awsclient, {
         "snapshotId": "9",
         "type": "regions",
         "collection": "regions",
         "id": {"RegionNames": ["us-west-2"]}
-    }, 'awsStructure')
+    }, 'awsStructure', {"testUser" : snapshot["testUser"] })
     assert val is not None
     val = get_node(awsclient, {
         "snapshotId": "10",
         "type": "get_bucket_acl",
         "collection": "regions",
         "id": {"Bucket": "a-test-bucket-name"}
-    }, 'awsStructure')
+    }, 'awsStructure', {"testUser" : snapshot["testUser"] })
     assert val is not None
 
 
@@ -279,7 +279,7 @@ def test_get_node_from_snapshot_configuration():
         "masterSnapshotId" : "1", 
         "collection" : "s3", 
         "arn" : "arn:aws:s3:us-east-1::liqtest01"
-    }, 'awsStructure')
+    }, 'awsStructure', {"testUser" : snapshot["testUser"] })
     assert val is not None
 
 def test_get_all_nodes(monkeypatch):
