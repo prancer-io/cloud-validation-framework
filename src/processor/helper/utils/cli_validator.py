@@ -212,15 +212,11 @@ def validator_main(arg_vals=None, delete_rundata=True):
 
     from processor.connector.snapshot import populate_container_snapshots
     from processor.connector.validation import run_container_validation_tests
+    from processor.crawler.master_snapshot import generate_container_mastersnapshots
     try:
         from processor_enterprise.notifications.notification import check_send_notification
     except:
         check_send_notification = lambda container, db: None
-
-    try:
-        from processor_enterprise.crawler.master_snapshot import generate_container_mastersnapshots
-    except:
-        generate_container_snapshots = lambda container, db: None
 
     logger.info("Command: '%s %s'", sys.executable.rsplit('/', 1)[-1], ' '.join(sys.argv))
     try:
