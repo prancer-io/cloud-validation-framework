@@ -182,7 +182,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
     # mastertest files
     test_files = get_json_files(json_dir, MASTERTEST)
     logger.info('\n'.join(test_files))
-    finalresult = True
+    finalresult = result
     for test_file in test_files:
         logger.info("*" * 50)
         logger.info("validator tests: %s", test_file)
