@@ -182,7 +182,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
     # mastertest files
     test_files = get_json_files(json_dir, MASTERTEST)
     logger.info('\n'.join(test_files))
-    finalresult = True
+    finalresult = result
     for test_file in test_files:
         logger.info("*" * 50)
         logger.info("validator tests: %s", test_file)
@@ -360,7 +360,13 @@ def _get_new_testcases(testcases, mastersnapshots):
                     # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
                     # if not detail_method or detail_method == snapshots_details_map[s_id]:
                     new_rule_str = rule_str.replace('{%s}' % ms_id, '{%s}' % s_id)
-                    new_testcase = {'title': testcase.get('title') if testcase.get('title') else "", 'description': testcase.get('description') if testcase.get('description') else "", 'rule': new_rule_str, 'testId': testcase['masterTestId']}
+                    new_testcase = {
+                        'title': testcase.get('title') if testcase.get('title') else "", 
+                        'description': testcase.get('description') if testcase.get('description') else "", 
+                        'rule': new_rule_str, 
+                        'testId': testcase['masterTestId'],
+                        'status' : get_field_value_with_default(testcase, 'status', "enable")
+                    }
                     newcases.append(new_testcase)
     return newcases
 
