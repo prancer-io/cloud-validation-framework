@@ -149,17 +149,24 @@ def validator_main(arg_vals=None, delete_rundata=True):
        2 - Exception, missing config.ini, Mongo connection failure or http connection exception,
            the tests execution could not be started or completed.
     """
-    cmd_parser = argparse.ArgumentParser("Prancer Basic Functionality")
+    cmd_parser = argparse.ArgumentParser("prancer", formatter_class=argparse.RawDescriptionHelpFormatter,
+                                         epilog='''\
+Example: prancer collection1
+Runs the prancer framework based on the configuration files available in collection1 folder
+                                         ''')
     cmd_parser.add_argument('-v','--version', action='version', version=("Prancer %s" % __version__) , help='Show prancer version')
-    cmd_parser.add_argument('container', action='store', help='Container tests directory.')
+    cmd_parser.add_argument('container', metavar='collection', action='store',
+                            help='The name of the folder which contains the collection of files related to one scenario')
     cmd_parser.add_argument('--db', action='store', default=None, choices=['NONE', 'SNAPSHOT', 'FULL'],
-                            help='NONE - Mongo database not used, SNAPSHOT - for storing snapshots, FULL - Tests, configurations, outputs and snapshots in database')
+                            help='''NONE - Database will not be used, all the files reside on file system,
+                            SNAPSHOT - Resource snapshots will be stored in db, everything else will be on file system,
+                            FULL - tests, configurations, outputs and snapshots will be stored in the database''')
     cmd_parser.add_argument('--crawler', action='store_true', default=False,
-                            help='Crawl and generate snapshot files only')
+                            help='Crawls and generates snapshot files only')
     cmd_parser.add_argument('--test', action='store', default=None, help='Run a single test in NODB mode')
     cmd_parser.add_argument('--customer', action='store', default=None, help='customer name for config')
-    cmd_parser.add_argument('--connector', action='store', default=None, help='specify the name of the connector which you want to run from the container')
-    cmd_parser.add_argument('--branch', action='store', default=None, help='specify the name of the branch to populate snapshots, for git connector')
+    cmd_parser.add_argument('--connector', action='store', default=None, help='specify the name of the connector which you want to run from the collection')
+    cmd_parser.add_argument('--branch', action='store', default=None, help='specify the name of the branch to populate snapshots, for the filesystem connector')
     args = cmd_parser.parse_args(arg_vals)
 
     retval = 2
