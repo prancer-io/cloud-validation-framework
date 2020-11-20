@@ -8,12 +8,12 @@ from processor.logging.log_handler import getlogger
 logger = getlogger()
 
 
-def save_yaml_to_file(indata, outfile):
+def save_yaml_to_file(indata, outfile, indent=None):
     """Save dict data to the file in yaml format"""
     if indata is not None:
         try:
             with open(outfile, 'w') as yamlfile:
-                yaml.dump(indata, yamlfile)
+                yaml.dump(indata, yamlfile, indent=indent)
         except:
             pass
 

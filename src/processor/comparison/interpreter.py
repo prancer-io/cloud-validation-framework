@@ -276,7 +276,14 @@ class ComparatorV01:
                                 else:
                                     continue
                                 msg = resultdict[evalmessage] if not result and evalmessage in resultdict else ""
-                                results.append({'eval': val["eval"], 'result': "passed" if result else "failed", 'message': msg})
+                                results.append({
+                                    'eval': val["eval"], 
+                                    'result': "passed" if result else "failed", 
+                                    'message': msg,
+                                    'id' : val.get("id"),
+                                    'remediation_description' : val.get("remediationDescription"),
+                                    'function' : val.get("function"),
+                                })
                     else:
                         resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
                         result = parsebool(resultbool)
@@ -303,7 +310,8 @@ class ComparatorV01:
                         'structure': json_data['structure'],
                         'reference': json_data['reference'],
                         'source': json_data['source'],
-                        'collection': json_data['collection']
+                        'collection': json_data['collection'],
+                        'type': json_data.get("node", {}).get('type')
                     }
                     if 'paths' in json_data:
                         snapshot['paths'] = json_data['paths']
@@ -330,7 +338,8 @@ class ComparatorV01:
                     'structure': docs[0]['structure'],
                     'reference': docs[0]['reference'],
                     'source': docs[0]['source'],
-                    'collection': docs[0]['collection']
+                    'collection': docs[0]['collection'],
+                    'type': docs[0].get("node", {}).get('type')
                 }
                 if 'paths' in docs[0]:
                     snapshot['paths'] = docs[0]['paths']
@@ -350,7 +359,8 @@ class ComparatorV01:
                             'structure': json_data['structure'],
                             'reference': json_data['reference'],
                             'source': json_data['source'],
-                            'collection': json_data['collection']
+                            'collection': json_data['collection'],
+                            'type': json_data.get("node", {}).get('type')
                         }
                         if 'paths' in json_data:
                             snapshot_val['paths'] = json_data['paths']
