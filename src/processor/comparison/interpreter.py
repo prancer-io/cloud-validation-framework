@@ -282,7 +282,7 @@ class ComparatorV01:
                                     'message': msg,
                                     'id' : val.get("id"),
                                     'remediation_description' : val.get("remediationDescription"),
-                                    'function' : val.get("function"),
+                                    'remediation_function' : val.get("remediationFunction"),
                                 })
                     else:
                         resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
