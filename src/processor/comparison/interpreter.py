@@ -417,6 +417,33 @@ class ComparatorV01:
                 rego_file_name = None
         return rego_file_name
 
+    def get_connector_data(self):
+        """ get connector data from snapshot """
+        connector_data = {}
+        if self.snapshots:
+            isdb_fetch = get_dbtests()
+            if isdb_fetch:
+                connectors = get_documents(
+                    "structures",
+                    query={
+                        "name" : self.snapshots[0].get("source"),
+                        "type" : "structure"
+                    },
+                    dbname=self.dbname,
+                    limit=1
+                )
+                connector_data = connectors[0].get("json", {}) if connectors else {}
+            else:
+                json_test_dir = get_test_json_dir()
+                snapshot_source = self.snapshots[0].get("source")
+                file_name = '%s.json' % snapshot_source if snapshot_source and not \
+                    snapshot_source.endswith('.json') else snapshot_source
+                connector_path = '%s/../%s' % (json_test_dir, file_name)
+                logger.info('connector path: %s', connector_path)
+                if exists_file(connector_path):
+                    connector_data = json_from_file(connector_path)
+
+        return connector_data
 
     def validate(self):
         result_val = [{"result": "failed"}]
@@ -458,8 +485,10 @@ class ComparatorV01:
             if self.type == 'rego':
                 results = self.process_rego_test_case()
                 result_val = []
+                connector_data = self.get_connector_data()
                 for result in results:
                     result['snapshots'] = self.snapshots
+                    result['autoRemediate'] = connector_data.get("autoRemediate", False)
                     result_val.append(result)
             else:
                 logger.info('#' * 75)
@@ -479,6 +508,8 @@ class ComparatorV01:
                 result = r_i.compare()
                 result_val[0]["result"] = "passed" if result else "failed"
                 result_val[0]['snapshots'] = r_i.get_snapshots()
+                connector_data = self.get_connector_data()
+                result_val[0]['autoRemediate'] = connector_data.get("autoRemediate", False)
         else:
             result_val[0].update({
                 "result": "skipped",
