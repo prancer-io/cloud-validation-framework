@@ -427,7 +427,8 @@ class ComparatorV01:
                     "structures",
                     query={
                         "name" : self.snapshots[0].get("source"),
-                        "type" : "structure"
+                        "type" : "structure",
+                        "container": self.container
                     },
                     dbname=self.dbname,
                     limit=1

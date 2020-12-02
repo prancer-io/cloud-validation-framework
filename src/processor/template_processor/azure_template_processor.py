@@ -116,6 +116,9 @@ class AzureTemplateProcessor(TemplateProcessor):
                                             + " --parameters @" + deployment_file_path)
                 else:
                     try:
+                        self.template_file = template_file_path
+                        self.parameter_files = [deployment_file_path]
+                        
                         azure_template_parser = AzureTemplateParser(template_file_path, parameter_file=[deployment_file_path])
                         template_json = azure_template_parser.parse()
                     except:
