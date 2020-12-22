@@ -311,7 +311,8 @@ class ComparatorV01:
                         'reference': json_data['reference'],
                         'source': json_data['source'],
                         'collection': json_data['collection'],
-                        'type': json_data.get("node", {}).get('type')
+                        'type': json_data.get("node", {}).get('type'),
+                        'region' : json_data.get('region', "")
                     }
                     if 'paths' in json_data:
                         snapshot['paths'] = json_data['paths']
@@ -339,7 +340,8 @@ class ComparatorV01:
                     'reference': docs[0]['reference'],
                     'source': docs[0]['source'],
                     'collection': docs[0]['collection'],
-                    'type': docs[0].get("node", {}).get('type')
+                    'type': docs[0].get("node", {}).get('type'),
+                    'region' : docs[0].get('region', "")
                 }
                 if 'paths' in docs[0]:
                     snapshot['paths'] = docs[0]['paths']
@@ -360,7 +362,8 @@ class ComparatorV01:
                             'reference': json_data['reference'],
                             'source': json_data['source'],
                             'collection': json_data['collection'],
-                            'type': json_data.get("node", {}).get('type')
+                            'type': json_data.get("node", {}).get('type'),
+                            'region' : json_data.get('region', "")
                         }
                         if 'paths' in json_data:
                             snapshot_val['paths'] = json_data['paths']

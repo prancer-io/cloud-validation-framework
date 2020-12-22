@@ -130,6 +130,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         "mastersnapshot": False,
         "masterSnapshotId": None,
         "collection": collection.replace('.', '').lower(),
+        "region" : "",
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
     version = get_version_for_type(node)
@@ -149,6 +150,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         logger.info('Get Id status: %s', status)
         if status and isinstance(status, int) and status == 200:
             db_record['json'] = data
+            db_record['region'] = db_record['json'].get("location")
             data_str = json.dumps(data)
             db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
         else:

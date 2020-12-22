@@ -14,6 +14,7 @@ identify the resource object.
 """
 import json
 import hashlib
+import re
 import time
 import copy
 import pymongo
@@ -128,6 +129,7 @@ def get_node(awsclient, node, snapshot_source, snapshot):
         "queryuser": get_field_value(snapshot, 'testUser'),
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,
+        "region" : "",
         "snapshotId": node['snapshotId'],
         "collection": collection.replace('.', '').lower(),
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
@@ -158,6 +160,11 @@ def get_node(awsclient, node, snapshot_source, snapshot):
         json_to_put = {}
         arn_str = get_field_value(node, "arn")
         db_record["path"] = arn_str if arn_str else ""
+
+        if arn_str:
+            zone = re.findall(r"arn:aws:[A-Za-z0-9\-]*:([a-zA-Z0-9\-]*):.*", arn_str)
+            if zone:
+                db_record["region"] = zone[0]
         
         arn_obj = arnparse(arn_str)
         client_str = arn_obj.service

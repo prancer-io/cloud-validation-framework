@@ -2,6 +2,7 @@ import traceback
 from ruamel.yaml import YAML
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
+import re
 
 logger = getlogger()
 
@@ -14,17 +15,27 @@ class JinjaConverter:
         self.property_end = '>>>#'
         self.comment_start = "#>"
         self.comment_end = "<#"
+        self.block_comment_start = "#{#"
         self.quote = "<quotes>"
         self.double_quote = "<dquotes>"
 
+    def replace_newline_character(self, replace_string, revert=False):
+        if revert:
+            return replace_string.replace("\n#", "\n")
+        else:
+            return "\n#".join(replace_string.splitlines())
+
     def comment_jinja_syntax(self, s):
         """ comment the jinja syntax and return the string with replaced values """
+
+        s = re.sub("({#[\S\s]*?#})", lambda m: self.replace_newline_character(m.group(0)), s, flags=re.DOTALL)
         updated_string = s.replace('{{ ', self.property_start) \
             .replace(' }}', self.property_end) \
             .replace('{%', self.comment_start) \
             .replace('%}', self.comment_end) \
             .replace('"', self.double_quote) \
-            .replace("'", self.quote)
+            .replace("'", self.quote) \
+            .replace("{#", self.block_comment_start)
         return updated_string
 
     def revert(self, s):
@@ -35,8 +46,10 @@ class JinjaConverter:
                 .replace(self.property_start, '{{ ') \
                 .replace(self.property_end, ' }}') \
                 .replace(self.comment_start, '{%') \
-                .replace(self.comment_end, '%}')
-                
+                .replace(self.comment_end, '%}') \
+                .replace(self.block_comment_start, "{#")
+            
+            new_string = re.sub("({#[\S\s]*?#})", lambda m: self.replace_newline_character(m.group(0), revert=True), new_string, flags=re.DOTALL)    
             return new_string
         return s
         
