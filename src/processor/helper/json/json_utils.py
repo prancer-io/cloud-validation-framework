@@ -66,7 +66,7 @@ def json_from_string(json_str):
     return None
 
 
-def json_from_file(jsonfile, escape_chars=None):
+def json_from_file(jsonfile, escape_chars=None, object_pairs_hook=OrderedDict):
     """ Get json data from the file."""
     jsondata = None
     try:
@@ -82,7 +82,7 @@ def json_from_file(jsonfile, escape_chars=None):
             if escape_chars and isinstance(escape_chars, list):
                 for escape_char in escape_chars:
                     file_data = file_data.replace(escape_char, '\\\%s' % escape_char)
-            jsondata = json.loads(file_data, object_pairs_hook=OrderedDict)
+            jsondata = json.loads(file_data, object_pairs_hook=object_pairs_hook)
     except Exception as ex:
         logger.debug('Failed to load json from file: %s, exception: %s', jsonfile, ex)
     return jsondata

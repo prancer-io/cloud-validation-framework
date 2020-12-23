@@ -153,7 +153,9 @@ class RuleInterpreter:
                     'structure': docs[0]['structure'],
                     'reference': docs[0]['reference'],
                     'source': docs[0]['source'],
-                    'collection': docs[0]['collection']
+                    'collection': docs[0]['collection'],
+                    'type': docs[0].get("node", {}).get('type'),
+                    'region' : docs[0].get('region', "")
                 }
                 if 'paths' in docs[0]:
                     snapshot['paths'] = docs[0]['paths']
@@ -173,7 +175,9 @@ class RuleInterpreter:
                             'structure': json_data['structure'],
                             'reference': json_data['reference'],
                             'source': json_data['source'],
-                            'collection': json_data['collection']
+                            'collection': json_data['collection'],
+                            'type': json_data.get("node", {}).get('type'),
+                            'region' : json_data.get('region', "")
                         }
                         if 'paths' in json_data:
                             snapshot_val['paths'] = json_data['paths']

@@ -140,6 +140,7 @@ def get_node(credentials, node, snapshot_source, snapshot):
     parts = snapshot_source.split('.')
     project_id = get_field_value_with_default(snapshot, 'project-id',"")
     path = get_field_value_with_default(node, 'path',"")
+    zone = re.findall(r"(?<=zones\/)[a-zA-Z0-9\-]*(?=\/)", path)
     db_record = {
         "structure": "google",
         "error": None,
@@ -152,6 +153,7 @@ def get_node(credentials, node, snapshot_source, snapshot):
         "node": node,
         "snapshotId": node['snapshotId'],
         "collection": collection.replace('.', '').lower(),
+        "region" : zone[0] if zone else "",
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
 

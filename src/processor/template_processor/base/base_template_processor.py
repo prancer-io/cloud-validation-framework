@@ -43,6 +43,8 @@ class TemplateProcessor:
         self.exclude_directories = []
         self.paths = []
         self.dir_path = ""
+        self.template_file = ""
+        self.parameter_files = []
 
     def create_database_record(self):
         """
@@ -80,10 +82,10 @@ class TemplateProcessor:
         """
         data_record = self.create_database_record()
         if get_dbtests():
-            if get_collection_size(self.node['collection']) == 0:
+            if get_collection_size(data_record['collection']) == 0:
                 #Creating indexes for collection
                 create_indexes(
-                    self.node['collection'], 
+                    data_record['collection'], 
                     config_value(DATABASE, DBNAME), 
                     [
                         ('snapshotId', pymongo.ASCENDING),
@@ -92,7 +94,7 @@ class TemplateProcessor:
                 )
 
                 create_indexes(
-                    self.node['collection'], 
+                    data_record['collection'], 
                     config_value(DATABASE, DBNAME), 
                     [
                         ('_id', pymongo.DESCENDING),
@@ -100,7 +102,7 @@ class TemplateProcessor:
                         ('snapshotId', pymongo.ASCENDING)
                     ]
                 )
-            insert_one_document(data_record, self.node['collection'], self.dbname, check_keys=False)
+            insert_one_document(data_record, data_record['collection'], self.dbname, check_keys=False)
         else:
             snapshot_dir = make_snapshots_dir(self.container)
             if snapshot_dir:

@@ -276,7 +276,14 @@ class ComparatorV01:
                                 else:
                                     continue
                                 msg = resultdict[evalmessage] if not result and evalmessage in resultdict else ""
-                                results.append({'eval': val["eval"], 'result': "passed" if result else "failed", 'message': msg})
+                                results.append({
+                                    'eval': val["eval"], 
+                                    'result': "passed" if result else "failed", 
+                                    'message': msg,
+                                    'id' : val.get("id"),
+                                    'remediation_description' : val.get("remediationDescription"),
+                                    'remediation_function' : val.get("remediationFunction"),
+                                })
                     else:
                         resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
                         result = parsebool(resultbool)
@@ -303,7 +310,9 @@ class ComparatorV01:
                         'structure': json_data['structure'],
                         'reference': json_data['reference'],
                         'source': json_data['source'],
-                        'collection': json_data['collection']
+                        'collection': json_data['collection'],
+                        'type': json_data.get("node", {}).get('type'),
+                        'region' : json_data.get('region', "")
                     }
                     if 'paths' in json_data:
                         snapshot['paths'] = json_data['paths']
@@ -330,7 +339,9 @@ class ComparatorV01:
                     'structure': docs[0]['structure'],
                     'reference': docs[0]['reference'],
                     'source': docs[0]['source'],
-                    'collection': docs[0]['collection']
+                    'collection': docs[0]['collection'],
+                    'type': docs[0].get("node", {}).get('type'),
+                    'region' : docs[0].get('region', "")
                 }
                 if 'paths' in docs[0]:
                     snapshot['paths'] = docs[0]['paths']
@@ -350,7 +361,9 @@ class ComparatorV01:
                             'structure': json_data['structure'],
                             'reference': json_data['reference'],
                             'source': json_data['source'],
-                            'collection': json_data['collection']
+                            'collection': json_data['collection'],
+                            'type': json_data.get("node", {}).get('type'),
+                            'region' : json_data.get('region', "")
                         }
                         if 'paths' in json_data:
                             snapshot_val['paths'] = json_data['paths']
@@ -407,6 +420,34 @@ class ComparatorV01:
                 rego_file_name = None
         return rego_file_name
 
+    def get_connector_data(self):
+        """ get connector data from snapshot """
+        connector_data = {}
+        if self.snapshots:
+            isdb_fetch = get_dbtests()
+            if isdb_fetch:
+                connectors = get_documents(
+                    "structures",
+                    query={
+                        "name" : self.snapshots[0].get("source"),
+                        "type" : "structure",
+                        "container": self.container
+                    },
+                    dbname=self.dbname,
+                    limit=1
+                )
+                connector_data = connectors[0].get("json", {}) if connectors else {}
+            else:
+                json_test_dir = get_test_json_dir()
+                snapshot_source = self.snapshots[0].get("source")
+                file_name = '%s.json' % snapshot_source if snapshot_source and not \
+                    snapshot_source.endswith('.json') else snapshot_source
+                connector_path = '%s/../%s' % (json_test_dir, file_name)
+                logger.info('connector path: %s', connector_path)
+                if exists_file(connector_path):
+                    connector_data = json_from_file(connector_path)
+
+        return connector_data
 
     def validate(self):
         result_val = [{"result": "failed"}]
@@ -448,8 +489,10 @@ class ComparatorV01:
             if self.type == 'rego':
                 results = self.process_rego_test_case()
                 result_val = []
+                connector_data = self.get_connector_data()
                 for result in results:
                     result['snapshots'] = self.snapshots
+                    result['autoRemediate'] = connector_data.get("autoRemediate", False)
                     result_val.append(result)
             else:
                 logger.info('#' * 75)
@@ -469,6 +512,8 @@ class ComparatorV01:
                 result = r_i.compare()
                 result_val[0]["result"] = "passed" if result else "failed"
                 result_val[0]['snapshots'] = r_i.get_snapshots()
+                connector_data = self.get_connector_data()
+                result_val[0]['autoRemediate'] = connector_data.get("autoRemediate", False)
         else:
             result_val[0].update({
                 "result": "skipped",

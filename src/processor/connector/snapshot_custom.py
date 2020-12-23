@@ -345,16 +345,16 @@ def git_clone_dir(connector):
                     if pwd:
                         logger.info("Git password from vault: %s", '*' * len(pwd))
                 if pwd:
-                    git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username),
+                    git_cmd = 'git clone --depth 1 %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username),
                                                         urllib.parse.quote_plus(pwd), other_part, repopath)
                 elif isprivate:
                     logger.error("Please provide password for connect to git repository.")
                     return repopath, clonedir
                 else:
-                    git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username), "",
+                    git_cmd = 'git clone --depth 1 %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username), "",
                                                      other_part, repopath)
             else:
-                git_cmd = 'git clone %s %s' % (giturl, repopath)
+                git_cmd = 'git clone --depth 1 %s %s' % (giturl, repopath)
         else:
             logger.info("SSH (private:%s) giturl: %s, Repopath: %s", "YES" if isprivate else "NO",
                         giturl, repopath)
