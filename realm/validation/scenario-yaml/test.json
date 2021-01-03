@@ -1,0 +1,38 @@
+{
+    "fileType": "mastertest",
+    "masterSnapshot": "snapshot",
+    "testSet": [
+        {
+            "testName": "Ensure configuration uses name = eastus",
+            "version": "0.1",
+            "cases": [
+                {
+                    "testId": "1",
+                    "masterSnapshotId": [
+                        "YAML_TEMPLATE_"
+                    ],
+                    "type": "rego",
+                    "rule": "file(samp.rego)",
+                    "evals": [
+                        {
+                            "id":"PR-AZR-0006-TRF",
+                            "eval": "data.rule.check_name",
+                            "message": "data.rule.check_name",
+                            "remediationDescription":"",
+                            "remediationFunction":""
+                        }
+                    ],
+                    "title": "Check resources are available or not in deployment manager templates",
+                    "description": "Check resources are available or not in deployment manager templates",
+                    "tags": [
+                        {
+                            "cloud": "filesystem",
+                            "compliance": [],
+                            "service": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

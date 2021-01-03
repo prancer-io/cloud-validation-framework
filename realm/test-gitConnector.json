@@ -1,0 +1,8 @@
+{
+    "fileType": "structure",
+    "type":"filesystem",
+    "companyName": "prancer-test",
+    "gitProvider": "https://github.com/mehros/kube-test2.git",
+    "branchName":"main",
+    "private": false
+}
