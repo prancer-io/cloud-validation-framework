@@ -16,8 +16,8 @@
                     "evals": [
                         {
                             "id":"PR-AZR-0006-TRF",
-                            "eval": "data.opa.result.check_name",
-                            "message": "data.opa.result.check_name",
+                            "eval": "data.rule.check_name",
+                            "message": "data.rule.check_name",
                             "remediationDescription":"",
                             "remediationFunction":""
                         }

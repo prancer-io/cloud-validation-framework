@@ -2,9 +2,9 @@
   "$schema": "",
   "contentVersion": "1.0.0.0",
   "fileType": "output",
-  "timestamp": 1609764618263,
+  "timestamp": 1609700006168,
   "snapshot": "snapshot_gen",
-  "container": "scenario-yaml",
+  "container": "scenario-json",
   "log": "",
   "test": "test.json",
   "results": [
@@ -31,32 +31,6 @@
       ],
       "snapshotId": [
         "YAML_TEMPLATE_1"
-      ],
-      "status": "enable"
-    },
-    {
-      "eval": "data.rule.rulepass",
-      "result": "failed",
-      "message": "",
-      "snapshots": [],
-      "autoRemediate": false,
-      "testId": "1",
-      "masterSnapshotId": [
-        "YAML_TEMPLATE_"
-      ],
-      "type": "rego",
-      "rule": "file(samp.rego)",
-      "title": "Check resources are available or not in deployment manager templates",
-      "description": "Check resources are available or not in deployment manager templates",
-      "tags": [
-        {
-          "cloud": "filesystem",
-          "compliance": [],
-          "service": []
-        }
-      ],
-      "snapshotId": [
-        "YAML_TEMPLATE_2"
       ],
       "status": "enable"
     }

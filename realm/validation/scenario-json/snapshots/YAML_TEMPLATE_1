@@ -4,31 +4,31 @@
   "reference": "main",
   "source": "test-gitConnector",
   "paths": [
-    "/yaml-files/pods/pod-creation2.yaml"
+    "/yaml-files/pods/pod-test.json"
   ],
-  "timestamp": 1609764618149,
+  "timestamp": 1609700006097,
   "queryuser": null,
   "checksum": "99914b932bd37a50b983c5e7c90ae93b",
   "node": {
     "masterSnapshotId": "YAML_TEMPLATE_",
-    "type": "yaml",
+    "type": "json",
     "collection": "yaml_connector",
     "paths": [
-      "/yaml-files/pods/pod-creation2.yaml"
+      "/yaml-files/pods/pod-test.json"
     ],
     "status": "active",
     "validate": true,
-    "snapshotId": "YAML_TEMPLATE_2"
+    "snapshotId": "YAML_TEMPLATE_1"
   },
-  "snapshotId": "YAML_TEMPLATE_2",
+  "snapshotId": "YAML_TEMPLATE_1",
   "collection": "yaml_connector",
   "json": {
     "apiVersion": "v1",
     "kind": "Pod",
     "metadata": {
-      "name": "myapp-pod2",
+      "name": "myapp-pod",
       "labels": {
-        "app": "myapp2",
+        "app": "myapp",
         "type": "front-end"
       }
     },
