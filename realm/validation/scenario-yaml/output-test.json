@@ -2,17 +2,33 @@
   "$schema": "",
   "contentVersion": "1.0.0.0",
   "fileType": "output",
-  "timestamp": 1609791029313,
+  "timestamp": 1609837229843,
   "snapshot": "snapshot_gen",
   "container": "scenario-yaml",
   "log": "",
   "test": "test.json",
   "results": [
     {
-      "eval": "data.rule.rulepass",
-      "result": "failed",
+      "eval": "data.rule.check_name",
+      "result": "passed",
       "message": "",
-      "snapshots": [],
+      "id": "PR-AZR-0006-TRF",
+      "remediation_description": "",
+      "remediation_function": "",
+      "snapshots": [
+        {
+          "id": "YAML_TEMPLATE_1",
+          "structure": "filesystem",
+          "reference": "main",
+          "source": "test-gitConnector",
+          "collection": "yaml_connector",
+          "type": "yaml",
+          "region": "",
+          "paths": [
+            "/yaml-files/pods/pod-creation.yaml"
+          ]
+        }
+      ],
       "autoRemediate": false,
       "testId": "1",
       "masterSnapshotId": [
@@ -35,10 +51,26 @@
       "status": "enable"
     },
     {
-      "eval": "data.rule.rulepass",
+      "eval": "data.rule.check_name",
       "result": "failed",
-      "message": "",
-      "snapshots": [],
+      "message": false,
+      "id": "PR-AZR-0006-TRF",
+      "remediation_description": "",
+      "remediation_function": "",
+      "snapshots": [
+        {
+          "id": "YAML_TEMPLATE_2",
+          "structure": "filesystem",
+          "reference": "main",
+          "source": "test-gitConnector",
+          "collection": "yaml_connector",
+          "type": "yaml",
+          "region": "",
+          "paths": [
+            "/yaml-files/pods/pod-creation2.yaml"
+          ]
+        }
+      ],
       "autoRemediate": false,
       "testId": "1",
       "masterSnapshotId": [

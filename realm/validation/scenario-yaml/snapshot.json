@@ -11,9 +11,7 @@
                     "masterSnapshotId": "YAML_TEMPLATE_",
                     "type": "yaml",
                     "collection": "yaml_connector",
-                    "paths": [
-                        "/yaml-files/"
-                    ],
+                    "paths":[ "/yaml-files/"],
                     "status": "active",
                     "validate": true
                 }
