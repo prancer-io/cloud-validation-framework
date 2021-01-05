@@ -5,6 +5,7 @@ instantiation to subclasses.
 """
 import os
 import re
+import sys
 import pymongo
 from processor.helper.json.json_utils import get_field_value, json_from_file, save_json_to_file
 from processor.helper.config.config_utils import get_test_json_dir, parsebool, config_value, SINGLETEST
@@ -130,6 +131,8 @@ def opa_binary():
                 pass
             else:
                 opa_exe = None
+                raise Exception("Can not find opa binary")
+
     return opa_exe
 
 
@@ -252,9 +255,13 @@ class ComparatorV01:
                 open(rego_file, 'w').write('\n'.join(rego_txt))
             if rego_file:
                 if isinstance(rule_expr, list):
-                    os.system('%s eval -i /tmp/input.json -d %s "data.rule" > /tmp/a.json' % (opa_exe, rego_file))
+                    result = os.system('%s eval -i /tmp/input.json -d %s "data.rule" > /tmp/a.json' % (opa_exe, rego_file))
+                    if result != 0 :
+                        raise Exception("Error accured when want run opa binary please check opahome in config.ini")
                 else:
-                    os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
+                    result = os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
+                    if result != 0 :
+                        raise Exception("Error accured when want run opa binary please check opahome in config.ini")
                 resultval = json_from_file('/tmp/a.json')
                 if resultval and "errors" in resultval and resultval["errors"]:
                     logger.error(str(resultval["errors"]))
