@@ -257,11 +257,11 @@ class ComparatorV01:
                 if isinstance(rule_expr, list):
                     result = os.system('%s eval -i /tmp/input.json -d %s "data.rule" > /tmp/a.json' % (opa_exe, rego_file))
                     if result != 0 :
-                        raise Exception("Error accured when want run opa binary please check opahome in config.ini")
+                        raise Exception("Error accured when running opa binary")
                 else:
                     result = os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
                     if result != 0 :
-                        raise Exception("Error accured when want run opa binary please check opahome in config.ini")
+                        raise Exception("Error accured when running opa binary")
                 resultval = json_from_file('/tmp/a.json')
                 if resultval and "errors" in resultval and resultval["errors"]:
                     logger.error(str(resultval["errors"]))
