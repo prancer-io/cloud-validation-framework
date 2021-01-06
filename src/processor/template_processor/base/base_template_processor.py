@@ -284,6 +284,9 @@ class TemplateProcessor:
             root_dir_path = self.repopath 
 
         self.paths = get_field_value(self.node, 'paths')
+        self.type = get_field_value(self.node, 'type')
+        if self.type in ["yaml","json"] and not self.paths :
+            raise Exception("Invalid json : `paths` does not exist in master snapshot")
         if self.paths and isinstance(self.paths, list):
             count = 0
             for path in self.paths:
