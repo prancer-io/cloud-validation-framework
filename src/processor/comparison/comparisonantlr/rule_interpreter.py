@@ -195,13 +195,15 @@ class RuleInterpreter:
         # print('LHS value: ', lhs_value)
         rhs_value = self.get_value(self.rhs_operand)
         # print('RHS value: ', rhs_value)
-        logger.info('LHS: %s, OP: %s, RHS: %s', lhs_value, self.op, rhs_value)
+        # logger.info('LHS: %s, OP: %s, RHS: %s', lhs_value, self.op, rhs_value)
         retval = False
         if self.op == IN:
-            return compare_in(lhs_value, rhs_value, IN)
+            # return compare_in(lhs_value, rhs_value, IN)
+            return lhs_value, rhs_value, compare_in(lhs_value, rhs_value, IN)
         elif type(lhs_value) == type(rhs_value):
             if type(lhs_value) in comparefuncs:
-                return comparefuncs[type(lhs_value)](lhs_value, rhs_value, self.op)
+                # return comparefuncs[type(lhs_value)](lhs_value, rhs_value, self.op)
+                return lhs_value, rhs_value, comparefuncs[type(lhs_value)](lhs_value, rhs_value, self.op)
         elif isinstance(lhs_value, list):
             intermediate_result = True
             for each_lhs_value in lhs_value:
@@ -216,7 +218,8 @@ class RuleInterpreter:
                     break
             if intermediate_result:
                 retval = True
-        return retval
+        # return retval
+        return lhs_value, rhs_value, retval
 
 
     def get_value(self, value):
