@@ -297,12 +297,12 @@ def test_compare(monkeypatch):
     otherdata = {'dbname': 'validator', 'snapshots': {}, 'container': 'mycontainer1'}
     children = ["{1}[1].location", "=", "'eastus'"]
     r_i = RuleInterpreter(children, **otherdata)
-    val = r_i.compare()
+    _, _, val = r_i.compare()
     assert type(val) is bool
     assert val == False   # TODO Check again
     children = ["{1}['name' = 'mno-nonprod-shared-cet-eastus2-tab-as04'].location", "=", "False"]
     r_i = RuleInterpreter(children, **otherdata)
-    val = r_i.compare()
+    _, _, val = r_i.compare()
     assert type(val) is bool
     assert val == False
 

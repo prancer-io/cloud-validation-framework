@@ -47,7 +47,7 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
 
     snapshots = get_field_value(snapshot_json_data, 'snapshots')
     if not snapshots:
-        logger.info("Snapshot does not contain snapshots...")
+        logger.info("\tERROR: Snapshot does not contain snapshots, continuing...")
         return snapshot_data
     for snapshot in snapshots:
         nodes = get_field_value(snapshot, 'nodes')
@@ -77,12 +77,12 @@ def run_validation_test(version, container, dbname, collection_data, testcase):
 
 
 def run_file_validation_tests(test_file, container, filesystem=True, snapshot_status=None):
-    logger.info("*" * 50)
-    logger.info("validator tests: %s", test_file)
+    # logger.info("*" * 50)
+    logger.info("\tTEST: %s", test_file)
     dirpath = None
     test_json_data = json_from_file(test_file)
     if not test_json_data:
-        logger.info("Test file %s looks to be empty, next!...", test_file)
+        logger.info("\t\tTest file %s looks to be empty, next!...", test_file)
 
     if test_json_data and "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
         dirpath, pull_response = pull_json_data(test_json_data)
@@ -125,7 +125,7 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
         return resultset
     if not snapshot_status:
         snapshot_status = {}
-    logger.info("Valid Test JSON data")
+    # logger.info("Valid Test JSON data")
     logger.debug(json.dumps(test_json_data, indent=2))
     testsets = get_field_value(test_json_data, 'testSet')
     if not testsets or not isinstance(testsets, list):
@@ -169,23 +169,27 @@ def run_container_validation_tests(container, dbsystem=True, snapshot_status=Non
 
 def run_container_validation_tests_filesystem(container, snapshot_status=None):
     """Get test files from the filesystem."""
-    logger.info("Starting validation tests")
+    # logger.info("Starting validation tests")
+    logger.info("VALIDATION:")
+    logger.info("\tCollection: %s,  Type: FILESYSTEM", container)
     reporting_path = config_value('REPORTING', 'reportOutputFolder')
     json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
-    logger.info(json_dir)
+    logger.info('\tLOCATION: %s', json_dir)
     test_files = get_json_files(json_dir, JSONTEST)
-    logger.info('\n'.join(test_files))
+    # logger.info('\n'.join(test_files))
     result = True
     for test_file in test_files:
+        logger.info('\tCOLLECTION: %s', test_file)
         val = run_file_validation_tests(test_file, container, True, snapshot_status)
         result = result and val
     # mastertest files
     test_files = get_json_files(json_dir, MASTERTEST)
-    logger.info('\n'.join(test_files))
+    # logger.info('\n'.join(test_files))
     finalresult = result
     for test_file in test_files:
-        logger.info("*" * 50)
-        logger.info("validator tests: %s", test_file)
+        logger.info('\tCOLLECTION: %s', test_file)
+        # logger.info("*" * 50)
+        # logger.info("validator tests: %s", test_file)
         dirpath = None
         test_json_data = json_from_file(test_file)
         if not test_json_data:
@@ -234,8 +238,9 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
                         finalresult = False
                         break
         else:
-            logger.info('No mastertest Documents found!')
+            logger.info('\tERROR: No mastertest Documents found!')
             finalresult = False
+    logger.info("VALIDATION COMPLETE:")
     return finalresult
 
 

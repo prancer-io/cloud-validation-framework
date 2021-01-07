@@ -30,7 +30,7 @@ def get_version_for_type(node):
     """Url version of the resource."""
     version = None
     apiversions = None
-    logger.info("Get type's version")
+    # logger.info("Get type's version")
     api_source = config_value('AZURE', 'api')
     if json_source():
         dbname = config_value(DATABASE, DBNAME)
@@ -45,7 +45,7 @@ def get_version_for_type(node):
             apiversions = docs[0]['json']
     else:
         apiversions_file = '%s/%s' % (framework_dir(), api_source)
-        logger.info(apiversions_file)
+        # logger.info(apiversions_file)
         if exists_file(apiversions_file):
             apiversions = json_from_file(apiversions_file)
     if apiversions:
@@ -89,9 +89,9 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         if not resources:
             urlstr = 'https://management.azure.com/subscriptions/%s/resources?api-version=2017-05-10'
             url = urlstr % sub_id
-            logger.info('Get Id REST API invoked!')
-            status, data = http_get_request(url, hdrs)
-            logger.info('Get Id status: %s', status)
+            # logger.info('Get Id REST API invoked!')
+            status, data = http_get_request(url, hdrs, name='\tRESOURCE LIST')
+            # logger.info('Get Id status: %s', status)
             if status and isinstance(status, int) and status == 200:
                 resources = data['value']
                 put_in_currentdata('resources', resources)
@@ -145,9 +145,9 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
             urlstr = 'https://management.azure.com/subscriptions/%s%s?api-version=%s'
             url = urlstr % (sub_id, node['path'], version)
         db_record['path'] = node['path']
-        logger.info('Get Id REST API invoked!')
-        status, data = http_get_request(url, hdrs)
-        logger.info('Get Id status: %s', status)
+        # logger.info('Get Id REST API invoked!')
+        status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
+        # logger.info('Get Id status: %s', status)
         if status and isinstance(status, int) and status == 200:
             db_record['json'] = data
             db_record['region'] = db_record['json'].get("location")
@@ -193,7 +193,9 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     if not client_secret:
         raise Exception("No `client_secret` key in the connector file to access azure resource!...")
 
-    logger.info('Sub:%s, tenant:%s, client: %s', sub_id, tenant_id, client_id)
+    logger.info('\t\tSubscription: %s', sub_id)
+    logger.info('\t\tTenant: %s', tenant_id)
+    logger.info('\t\tclient: %s', client_id)
     put_in_currentdata('clientId', client_id)
     put_in_currentdata('clientSecret', client_secret)
     put_in_currentdata('subscriptionId', sub_id)
