@@ -3,6 +3,7 @@ Define an interface for creating an object, but let subclasses decide
 which class to instantiate. Factory Method lets a class defer
 instantiation to subclasses.
 """
+import json
 import os
 import re
 import sys
@@ -220,14 +221,26 @@ class ComparatorV01:
                 del self.testcase['evals']
         if not rule_expr:
             rule_expr = 'data.rule.rulepass'
+        testId = 'MISSING ID'
+        if 'testId' in self.testcase:
+            testId = self.testcase['testId']
+        elif 'masterTestId' in self.testcase:
+            testId = self.testcase['masterTestId']
+        logger.info('\tTESTID: %s', testId)
+        logger.info('\t\tRULE: %s', self.testcase['rule'])
+        logger.info('\t\tEVAL: %s', rule_expr)
         opa_exe = opa_binary()
         if not opa_exe:
             # print('*' * 50)
+            logger.info('\t\tERROR: OPA binary not found!')
+            logger.info('\t\tRESULT: FAILED')
             results.append({'eval': 'data.rule.rulepass', 'result': "passed" if result else "failed", 'message': ''})
             return results
         if len(self.testcase['snapshotId'])==1:
             sid = self.testcase['snapshotId'][0]
             inputjson = self.get_snaphotid_doc(sid)
+            if inputjson is None:
+                logger.info('\t\tERROR: Missing snapshot')
         else:
             ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
             for sid in self.testcase['snapshotId']:
@@ -242,6 +255,7 @@ class ComparatorV01:
                 if rego_file:
                     pass
                 else:
+                    logger.info('\t\tERROR: %s missing', rego_match.groups()[0])
                     rego_file = None
             else:
                 rego_txt = [
@@ -264,8 +278,10 @@ class ComparatorV01:
                         raise Exception("Error accured when running opa binary")
                 resultval = json_from_file('/tmp/a.json')
                 if resultval and "errors" in resultval and resultval["errors"]:
-                    logger.error(str(resultval["errors"]))
                     results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                    logger.info('\t\tERROR: %s', str(resultval["errors"]))
+                    logger.info('\t\tRESULT: FAILED')
+                    # logger.error(str(resultval["errors"]))
                 elif resultval:
                     if isinstance(rule_expr, list):
                         resultdict = resultval['result'][0]['expressions'][0]['value']
@@ -291,14 +307,23 @@ class ComparatorV01:
                                     'remediation_description' : val.get("remediationDescription"),
                                     'remediation_function' : val.get("remediationFunction"),
                                 })
+                                # logger.info('\t\tERROR: %s', resultval)
+                                logger.info('\t\tRESULT: %s', results[-1]['result'])
                     else:
                         resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
                         result = parsebool(resultbool)
                         results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                        # logger.info('\t\tERROR: %s', resultval)
+                        logger.info('\t\tRESULT: %s', results[-1]['result'])
+                        if results[-1]['result'] == 'failed':
+                            logger.info('\t\tERROR: %s', json.dumps(dict(resultval)))
+
             else:
                 results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                logger.info('\t\tRESULT: %s', results[-1]['result'])
         else:
             results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+            logger.info('\t\tRESULT: %s', results[-1]['result'])
         return results
 
 
@@ -502,8 +527,9 @@ class ComparatorV01:
                     result['autoRemediate'] = connector_data.get("autoRemediate", False)
                     result_val.append(result)
             else:
-                logger.info('#' * 75)
-                logger.info('Actual Rule: %s', self.rule)
+                # logger.info('#' * 75)
+                logger.info('\tTESTID: %s', self.testcase['testId'])
+                logger.info('\t\tEVAL: %s', self.rule)
                 input_stream = InputStream(self.rule)
                 lexer = comparatorLexer(input_stream)
                 stream = CommonTokenStream(lexer)
@@ -512,15 +538,20 @@ class ComparatorV01:
                 children = []
                 for child in tree.getChildren():
                     children.append((child.getText()))
-                logger.info('*' * 50)
+                # logger.info('*' * 50)
                 logger.debug("All the parsed tokens: %s", children)
                 otherdata = {'dbname': self.dbname, 'snapshots': self.collection_data, 'container': self.container}
                 r_i = RuleInterpreter(children, **otherdata)
-                result = r_i.compare()
+                # result = r_i.compare()
+                l_val, r_val, result = r_i.compare()
                 result_val[0]["result"] = "passed" if result else "failed"
                 result_val[0]['snapshots'] = r_i.get_snapshots()
                 connector_data = self.get_connector_data()
                 result_val[0]['autoRemediate'] = connector_data.get("autoRemediate", False)
+                if not result:
+                    logger.info('\t\tLHS: %s', l_val)
+                    logger.info('\t\tRHS: %s', r_val)
+                logger.info('\t\tRESULT: %s', result_val[0]['result'])
         else:
             result_val[0].update({
                 "result": "skipped",

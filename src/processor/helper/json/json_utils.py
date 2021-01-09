@@ -170,13 +170,13 @@ def set_timestamp(json_data, fieldname='timestamp'):
     return True
 
 
-def get_container_dir(container):
+def get_container_dir(container, tabs=1):
     """Translate container name to container directory"""
     json_test_dir = get_test_json_dir()
-    logger.info('json_test_dir: %s', json_test_dir)
+    logger.info('%s LOCATION: %s', '\t' * tabs, json_test_dir)
     container_dir = '%s/%s' % (json_test_dir, container)
     container_dir = container_dir.replace('//', '/')
-    logger.info(container_dir)
+    logger.info('%s COLLECTION: %s', '\t' * tabs, container_dir)
     return container_dir
 
 
@@ -195,7 +195,7 @@ def get_container_snapshot_json_files(container, mastersnapshot=False):
 def get_json_files(json_dir, file_type):
     """Return list of json files based on the file type."""
     file_list = []
-    logger.info('JSON dir:%s, filetype: %s', json_dir, file_type)
+    # logger.info('JSON dir:%s, filetype: %s', json_dir, file_type)
     if json_dir and file_type:
         for filename in glob.glob('%s/*.json' % json_dir.replace('//', '/')):
             json_data = json_from_file(filename)
