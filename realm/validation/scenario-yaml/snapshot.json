@@ -9,9 +9,11 @@
             "nodes": [
                 {
                     "masterSnapshotId": "YAML_TEMPLATE_",
-                    "type": "cloudformation",
+                    "type": "yaml",
                     "collection": "yaml_connector",
-                    
+                    "paths":[
+                        "/yaml-files/"
+                    ],
                     "status": "active",
                     "validate": true
                 }
