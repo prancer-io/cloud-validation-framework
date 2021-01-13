@@ -132,7 +132,6 @@ def opa_binary():
                 pass
             else:
                 opa_exe = None
-                raise Exception("Can not find opa binary")
 
     return opa_exe
 
@@ -271,11 +270,12 @@ class ComparatorV01:
                 if isinstance(rule_expr, list):
                     result = os.system('%s eval -i /tmp/input.json -d %s "data.rule" > /tmp/a.json' % (opa_exe, rego_file))
                     if result != 0 :
-                        raise Exception("Error accured when running opa binary")
+                         logger.info("\t\tERROR: have problem in running opa binary")
                 else:
                     result = os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
                     if result != 0 :
-                        raise Exception("Error accured when running opa binary")
+                        logger.info("\t\tERROR: have problem in running opa binary")
+
                 resultval = json_from_file('/tmp/a.json')
                 if resultval and "errors" in resultval and resultval["errors"]:
                     results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
