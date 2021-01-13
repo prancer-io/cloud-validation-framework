@@ -1,7 +1,7 @@
-package opa.result
+package oparule
 
 default check_name = false
 check_name  {
-    resource := data.metadata.name
+    resource := input.metadata.name
     resource == "myapp-pod"
 }
