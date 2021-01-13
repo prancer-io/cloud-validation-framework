@@ -286,7 +286,7 @@ class TemplateProcessor:
         self.paths = get_field_value(self.node, 'paths')
         self.type = get_field_value(self.node, 'type')
         print(self)
-        if self.type in ["yaml","json"] and not self.paths :
+        if self.type in ["yaml","json"] and self.paths  is None:
             raise Exception("Invalid json : `paths` does not exist in master snapshot")
         if self.paths and isinstance(self.paths, list):
             count = 0

@@ -457,7 +457,7 @@ def populate_custom_snapshot(snapshot, container=None):
         if repopath:
             brnch = get_field_value_with_default(sub_data, 'branchName', 'master')
             for node in snapshot_nodes:
-                node_type = node['type'] if 'type' in node and node['type'] else 'json'
+                node_type = node['type'] if 'type' in node and node['type'] else ''
                 if node_type in TEMPLATE_NODE_TYPES:
                     template_data = {
                         "container" : container,

@@ -1,4 +1,4 @@
-package oparule
+package rule
 
 default check_name = false
 check_name  {
