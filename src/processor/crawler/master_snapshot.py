@@ -39,6 +39,7 @@ from processor.connector.snapshot_custom import populate_custom_snapshot, get_cu
 from processor.connector.snapshot_aws import populate_aws_snapshot
 from processor.connector.snapshot_google import populate_google_snapshot
 from processor.connector.populate_json import pull_json_data
+from processor.helper.file.file_utils import exists_file,remove_file
 
 
 logger = getlogger()
@@ -148,6 +149,9 @@ def generate_snapshots_from_mastersnapshot_file(mastersnapshot_file):
         snapshot_json_data = {}
     snapshot_data = generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_data)
     # save_json_to_file(mastersnapshot_json_data, mastersnapshot_file)
+    if exists_file(snapshot_file_name) : 
+        remove_file(snapshot_file_name)        
+
     save_json_to_file(snapshot_json_data, snapshot_file_name)
     return snapshot_data, mastersnapshot_json_data
 
