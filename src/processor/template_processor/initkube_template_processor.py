@@ -1,0 +1,56 @@
+import json
+import re
+import os
+from yaml.loader import FullLoader
+from processor.logging.log_handler import getlogger
+from processor.helper.json.json_utils import json_from_file, get_field_value
+from processor.template_processor.base.base_template_processor import TemplateProcessor
+from processor.templates.kubernetes.kubernetes_parser import KubernetesTemplateParser
+from processor.helper.file.file_utils import exists_file
+from processor.helper.config.config_utils import get_test_json_dir, framework_dir
+from processor.helper.yaml.yaml_utils import yaml_from_file
+from cfn_flip import flip, to_yaml, to_json
+
+logger = getlogger()
+
+class KubernetesTemplateProcessor(TemplateProcessor):
+    """
+    Base Template Processor for process template 
+    """
+
+    def __init__(self, node, **kwargs):
+        super().__init__(node, tosave=False, **kwargs)
+    
+    def is_template_file(self, file_path):
+        """
+        check for valid template file for parse arm template
+        """
+        if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "yaml":
+            json_data = yaml_from_file(file_path, loader=FullLoader)
+            kube_policy = ["apiVersion","kind","metadata","spec"]
+            return True if all(elem in json_data for elem in kube_policy) else False
+        return False
+
+    def process_template(self, paths):
+        """
+        process the files stored at specified paths and returns the template
+        """
+        template_json = None
+        
+        if paths and isinstance(paths, list):
+            template_file_path = ""
+
+            for path in paths:
+                file_path = '%s/%s' % (self.dir_path, path)
+                logger.info("Fetching data : %s ", path)
+                if self.is_template_file(file_path):
+                    template_file_path = file_path
+                else :
+                    logger.info("\t\t WARN: %s contains inavlid Kubernetes yaml")
+
+            self.template_file = template_file_path
+            kubernetes_template_parser = KubernetesTemplateParser(template_file_path) 
+            if template_file_path and kubernetes_template_parser.validator():
+                template_json = kubernetes_template_parser.parse(template_file_path)
+            
+        return template_json

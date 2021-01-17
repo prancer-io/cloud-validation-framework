@@ -1,0 +1,35 @@
+{
+  "$schema": "",
+  "contentVersion": "1.0.0.0",
+  "fileType": "snapshot",
+  "snapshots": [
+    {
+      "source": "test-gitConnector",
+      "testUser": "",
+      "nodes": [
+        {
+          "masterSnapshotId": "KUBE_TEMPLATE_",
+          "type": "initkube",
+          "collection": "kubernetes_connector",
+          "paths": [
+            "/yaml-files/pods/pod-creation2.yaml"
+          ],
+          "status": "active",
+          "validate": true,
+          "snapshotId": "KUBE_TEMPLATE_1"
+        },
+        {
+          "masterSnapshotId": "KUBE_TEMPLATE_",
+          "type": "initkube",
+          "collection": "kubernetes_connector",
+          "paths": [
+            "/yaml-files/pods/pod-creation.yaml"
+          ],
+          "status": "active",
+          "validate": true,
+          "snapshotId": "KUBE_TEMPLATE_2"
+        }
+      ]
+    }
+  ]
+}
