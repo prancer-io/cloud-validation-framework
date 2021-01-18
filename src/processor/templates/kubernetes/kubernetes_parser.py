@@ -27,7 +27,6 @@ class KubernetesTemplateParser(TemplateParser):
         docstring
         """
         print(file_path.rsplit("/",1))
-        conftest_validation(file_path)
         return True
     
     def parse(self,file_path):
