@@ -134,6 +134,33 @@ def opa_binary():
     return opa_exe
 
 
+def conftest_binary():
+    conftest_bin = None
+    conftest_enabled = parsebool(config_value("CONFTEST", "enable"), False)
+    if conftest_enabled:
+        conftest_bin = config_value("CONFTEST","conftestBin")
+        # conftest_bin = os.getenv('CONFTEST', None)
+
+        if conftest_bin and exists_file(conftest_bin):
+            logger.info("conftest binary fined successfully")
+        else:
+            logger.info("\t\t ERROR: can not find conftest binary")
+            return None
+
+    return conftest_bin
+
+def conftest_validation(file_path):
+    conftest_bin = conftest_binary()
+    rego_folder = "~/devland/kubernetes/yaml/conf-test/policy/"
+    os.system('%s test --policy policy %s %s> /tmp/conftest.json' % (conftest_bin, rego_folder,file_path))
+    resultval = json_from_file('/tmp/conftest.json')
+    print("****************************************************")
+    print(resultval)
+
+
+    return True
+
+
 def get_rego_rule_filename(rego_file, container):
     rego_file_name = None
     json_dir = get_test_json_dir()

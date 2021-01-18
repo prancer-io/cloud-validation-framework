@@ -50,7 +50,7 @@ class KubernetesTemplateProcessor(TemplateProcessor):
 
             self.template_file = template_file_path
             kubernetes_template_parser = KubernetesTemplateParser(template_file_path) 
-            if template_file_path and kubernetes_template_parser.validator():
-                template_json = kubernetes_template_parser.parse(template_file_path)
+            # if template_file_path and kubernetes_template_parser.validator(template_file_path):
+            template_json = kubernetes_template_parser.parse(template_file_path)
             
         return template_json
