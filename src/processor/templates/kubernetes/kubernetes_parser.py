@@ -5,9 +5,8 @@ from yaml.loader import FullLoader
 from cfn_flip import flip, to_yaml, to_json
 from processor.logging.log_handler import getlogger
 from processor.helper.yaml.yaml_utils import yaml_from_file
-from processor.helper.json.json_utils import save_json_to_file
+from processor.helper.json.json_utils import save_json_to_file,json_from_file
 from processor.templates.base.template_parser import TemplateParser
-from processor.comparison.interpreter import conftest_validation
 
 logger = getlogger()
 
@@ -22,12 +21,6 @@ class KubernetesTemplateParser(TemplateParser):
        super().__init__(template_file, tosave=False, **kwargs)
        self.type = {}
 
-    def validator(self,file_path):
-        """
-        docstring
-        """
-        print(file_path.rsplit("/",1))
-        return True
     
     def parse(self,file_path):
         """
