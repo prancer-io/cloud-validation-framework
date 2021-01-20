@@ -284,10 +284,7 @@ class TemplateProcessor:
             root_dir_path = self.repopath 
 
         self.paths = get_field_value(self.node, 'paths')
-        self.type = get_field_value(self.node, 'type')
-        
-        if self.type in ["yaml","json"] and self.paths  is None:
-            logger.info("ERROR: Invalid json : `paths` does not exist in master snapshot")
+
         if self.paths and isinstance(self.paths, list):
             count = 0
             for path in self.paths:
@@ -299,6 +296,6 @@ class TemplateProcessor:
                 else:
                     logger.error("Invalid path : directory does not exist : " + self.dir_path)
         else:
-            logger.error("Invalid json : `paths` field is missing for 'arm' node type or it is not a list")    
+            logger.error("\t\tERROR: Invalid json : `paths` is not a list or is not exist in master snapshot")    
         
         return self.snapshot_data

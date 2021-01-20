@@ -6,7 +6,6 @@ instantiation to subclasses.
 import json
 import os
 import re
-import sys
 import pymongo
 from processor.helper.json.json_utils import get_field_value, json_from_file, save_json_to_file
 from processor.helper.config.config_utils import get_test_json_dir, parsebool, config_value, SINGLETEST
