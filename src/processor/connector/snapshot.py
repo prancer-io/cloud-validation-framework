@@ -168,10 +168,14 @@ def populate_container_snapshots_filesystem(container):
     snapshots_status = {}
     snapshot_dir, snapshot_files = get_container_snapshot_json_files(container)
     if not snapshot_files:
-        logger.error("No Snapshot files in %s, exiting!...", snapshot_dir)
+        logger.error("ERROR: No Snapshot files in %s, exiting!...", snapshot_dir)
         return snapshots_status
     # logger.info('\n'.join(snapshot_files))
     snapshots = container_snapshots_filesystem(container)
+    if not snapshots:
+        logger.error("ERROR: No test file is available or test file does not contains the valid testcases, exiting!...")
+        return snapshots_status
+    
     populated = []
     for snapshot_file in snapshot_files:
         logger.info('\tSNAPSHOT:%s', snapshot_file)
