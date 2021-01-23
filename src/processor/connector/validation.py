@@ -182,9 +182,17 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
         logger.info('\tCOLLECTION: %s', test_file)
         val = run_file_validation_tests(test_file, container, True, snapshot_status)
         result = result and val
+    if test_files:
+        # return the result value if "test" file is processed collection
+        return result
+
     # mastertest files
     test_files = get_json_files(json_dir, MASTERTEST)
     # logger.info('\n'.join(test_files))
+    if not test_files:
+        logger.error("ERROR: No `test` or `mastertest` file found. collection should contain either `test` or `mastertest` file")
+        return False
+
     finalresult = result
     for test_file in test_files:
         logger.info('\tCOLLECTION: %s', test_file)

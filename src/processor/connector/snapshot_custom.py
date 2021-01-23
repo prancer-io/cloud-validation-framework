@@ -473,6 +473,8 @@ def populate_custom_snapshot(snapshot, container=None):
                         snapshot_data = template_processor.populate_template_snapshot()
                     elif 'masterSnapshotId' in node:
                         snapshot_data = template_processor.populate_all_template_snapshot()
+                elif 'paths' in node:
+                    logger.error("ERROR: Invalid json : `%s` is not a valid node type." % (node_type))
                 else:
                     # logger.debug(node)
                     # data = get_node(repopath, node, snapshot_source, brnch)
