@@ -28,7 +28,7 @@ class KubernetesTemplateProcessor(TemplateProcessor):
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "yaml":
             json_data = yaml_from_file(file_path, loader=FullLoader)
             kube_policy = ["apiVersion","kind","metadata","spec"]
-            return True if all(elem in json_data for elem in kube_policy) else False
+            return True if any(elem in json_data for elem in kube_policy) else False
         return False
 
     def process_template(self, paths):
@@ -46,7 +46,7 @@ class KubernetesTemplateProcessor(TemplateProcessor):
                 if self.is_template_file(file_path):
                     template_file_path = file_path
                 else :
-                    logger.info("\t\t WARN: %s contains inavlid Kubernetes yaml")
+                    logger.info("\t\t WARN: %s contains invalid Kubernetes yaml")
 
             self.template_file = template_file_path
             if template_file_path :
