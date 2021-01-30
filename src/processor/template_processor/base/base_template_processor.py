@@ -225,19 +225,29 @@ class TemplateProcessor:
 
         template_file_list = []
         parameter_file_list = []
-
+        path_is_file,path_is_dir = False,False
+        
+        if exists_file(dir_path):
+            path_is_file = True
         if exists_dir(dir_path):
-            list_of_file = os.listdir(dir_path)
-            for entry in list_of_file:
-                new_dir_path = ('%s/%s' % (dir_path, entry)).replace('//', '/')
-                new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
-                if exists_dir(new_dir_path):
-                    count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
-                elif exists_file(new_dir_path):
-                    if self.is_template_file(new_dir_path):
-                        template_file_list.append(new_sub_directory_path)
-                    elif self.is_parameter_file(new_dir_path):
-                        parameter_file_list.append(new_sub_directory_path)
+            path_is_dir = True
+
+        if any([path_is_dir,path_is_file]):
+            if path_is_dir :
+                list_of_file = os.listdir(dir_path)
+                for entry in list_of_file:
+                    new_dir_path = ('%s/%s' % (dir_path, entry)).replace('//', '/')
+                    new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
+                    if exists_dir(new_dir_path):
+                        count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
+                    elif exists_file(new_dir_path):
+                        if self.is_template_file(new_dir_path):
+                            template_file_list.append(new_sub_directory_path)
+                        elif self.is_parameter_file(new_dir_path):
+                            parameter_file_list.append(new_sub_directory_path)
+
+            if path_is_file:
+               template_file_list.append('%s' % (sub_dir_path).replace('//', '/'))
 
             logger.info("parameter_file_list   %s   : ", str(parameter_file_list))
             logger.info("template_file_list   %s   : ", str(template_file_list))
