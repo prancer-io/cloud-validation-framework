@@ -1,15 +1,9 @@
-import json
-import re
-import os
 from yaml.loader import FullLoader
 from processor.logging.log_handler import getlogger
-from processor.helper.json.json_utils import json_from_file, get_field_value
 from processor.template_processor.base.base_template_processor import TemplateProcessor
 from processor.templates.kubernetes.kubernetes_parser import KubernetesTemplateParser
 from processor.helper.file.file_utils import exists_file
-from processor.helper.config.config_utils import get_test_json_dir, framework_dir
 from processor.helper.yaml.yaml_utils import yaml_from_file
-from cfn_flip import flip, to_yaml, to_json
 
 logger = getlogger()
 
@@ -49,7 +43,7 @@ class KubernetesTemplateProcessor(TemplateProcessor):
                     logger.info("\t\t WARN: %s contains invalid Kubernetes yaml")
 
             self.template_file = template_file_path
-            if template_file_path :
+            if template_file_path and exists_file(template_file_path):
                 kubernetes_template_parser = KubernetesTemplateParser(template_file_path) 
                 template_json = kubernetes_template_parser.parse(template_file_path)
                 
