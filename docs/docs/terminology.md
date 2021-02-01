@@ -7,7 +7,9 @@ A **provider** is a system which provides data to **Prancer**. For example:
 - Azure
 - Amazon Web Services
 - Google Cloud
+- Terraform
 - Filesystem
+- Kubernetes
 
 A **connector** file is used to connect to those providers and extract data from them that will be used to take the snapshot and in testing scenarios. Each connector has its own configuration file that details the credentials (if applicable) and location of the provider to represent.
 
@@ -19,7 +21,7 @@ A **snapshot configuration** file is used to define what you want to observe. It
 
 A **master snapshot configuration** file is used to define the type of resources you want to observe. The **crawler** processor uses the **master snapshot configuration** file to find new resources in the target environment based on the **connector** file.
 
-When you gather data about your **monitored resources** you are creating **snapshots**. **snapshots** are actual represantation of **monitored resources** in json format. These **snapshots** are kept in a file system or database over time so you can track the changes if anything happens. You then run tests on those **snapshots** to validate that your infrastructure (but also files) are still healthy.
+When you gather data about your **monitored resources** you are creating **snapshots**. **snapshots** are actual represantation of **monitored resources** in json format. These **snapshots** are kept in a file system or database over time so you can track the changes if anything happens. Then you run tests on those **snapshots** to validate that your infrastructure (but also files) are still healthy.
 
 # Tests, rules & reports
 
