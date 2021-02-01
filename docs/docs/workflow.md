@@ -21,9 +21,10 @@ Working with **Prancer** itself is a straightforward activity and needs only a f
 ## Prancer Basic Workflow
 1. Create a **Prancer** project directory in your application's project directory
 2. Configure the connectors for each required providers
-3. Create containers with snapshot configuration files in them
-4. Create test files
-5. Run the tests
+3. Create containers
+4. Use existing `snapshot configuration` files
+5. Use existing `test` files based on available compliance
+6. Run the tests
 
 ## Prancer Enterprise Workflow
 1. Create a **Prancer** project directory in your application's project directory
