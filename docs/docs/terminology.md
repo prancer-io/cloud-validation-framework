@@ -1,4 +1,4 @@
-**Prancer** has its own set of terms that need to be understood before you dwelve deeper into it. Take time to understand each concept properly before going on.
+**Prancer** has its own set of terms that need to be understood before you delve deeper into it. Take time to understand each concept properly before going on.
 
 # Providers & connectors
 
