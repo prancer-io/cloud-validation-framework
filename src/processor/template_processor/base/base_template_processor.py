@@ -254,7 +254,7 @@ class TemplateProcessor:
             generated_template_file_list = []
             if template_file_list:
                 for template_file in template_file_list:
-                    template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
+                    # template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
                     if parameter_file_list:
                         self.generate_template_and_parameter_file_list(file_path, template_file, parameter_file_list, generated_template_file_list)
                     else:
