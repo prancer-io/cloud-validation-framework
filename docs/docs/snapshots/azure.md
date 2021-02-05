@@ -92,3 +92,26 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | master-Snapshot-Id | Name of the master snapshot id, you will use this in master test files. This name should be unique in the container |
 | resource-provider | the type of the resource we want to capture during the crawl process. In the `azure` connector, this should be the resource type supported by Azure. |
 | collection-name | in which collection in database we want to store this resource type. Usually it is a good practice to have a separate collection for each type. But based on the scale of implementation, you may want to put multiple resource types in a single collection |
+
+# Master Snapshot Configuration File in remote git
+It is possible to centrally manage your master snapshot configuration files from a git repository. When you are doing that, you can make sure one version of truth is circulating in your different collections and you can manage it centrally. Here USER_1 is the user associated in the connector. A connector could have different users to connect to different resources in the cloud.
+
+The format for the remote git master snapshot configuration file is like this:
+
+```
+    {
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "fileType": "masterSnapshot",
+    "connector": "prancer_compliance_structure",
+    "remoteFile": "azure/iac/master-config.json",
+    "connectorUsers": [
+        {
+        "id": "USER_1",
+        "testUser": "farchide",
+        "source": "quickstart_structure"
+        }
+    ]
+    }
+```
+
