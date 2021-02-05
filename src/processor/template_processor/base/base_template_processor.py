@@ -43,7 +43,7 @@ class TemplateProcessor:
         self.exclude_directories = []
         self.paths = []
         self.dir_path = ""
-        self.template_file = ""
+        self.template_files = []
         self.parameter_files = []
 
     def create_database_record(self):

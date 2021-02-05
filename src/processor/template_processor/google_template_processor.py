@@ -46,7 +46,7 @@ class GoogleTemplateProcessor(TemplateProcessor):
                 if self.is_template_file(file_path):
                     template_file_path = file_path
 
-            self.template_file = template_file_path
+            self.template_files = [template_file_path]
             if template_file_path:
                 google_template_parser = GoogleTemplateParser(template_file_path)
                 template_json = google_template_parser.parse()
