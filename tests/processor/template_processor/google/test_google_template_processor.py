@@ -108,7 +108,23 @@ def test_populate_all_template_snapshot(monkeypatch):
 
 	template_processor = GoogleTemplateProcessor(node_data, **master_template_processor_kwargs)
 	snapshot_data = template_processor.populate_all_template_snapshot()
-	
+
 	assert snapshot_data == {
-		"MASTER_SNAPSHOT_": "MASTER_SNAPSHOT_1"
+		'MASTER_SNAPSHOT_': 
+		[
+			{
+				'snapshotId': 'MASTER_SNAPSHOT_1',
+				'type': 'deploymentmanager',
+				'collection': 'deploymentmanager', 
+				'paths': ['/sample/cloudbuild.yaml'], 
+				'status': 'active', 'validate': True
+			},
+			{'snapshotId':'MASTER_SNAPSHOT_2',
+			'type': 'deploymentmanager',
+			'collection': 'deploymentmanager',
+			'paths': ['/sample/cloudbuild.jinja'],
+			'status': 'inactive',
+			'validate': True
+			}
+		]
 	}
