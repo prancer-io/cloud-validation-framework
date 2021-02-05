@@ -47,6 +47,8 @@ class TerraformTemplateParser(TemplateParser):
             "||" : "or",
             "None" : None
         }
+        self.template_file_list = [self.template_file]
+        self.parameter_file_list = self.parameter_file if self.parameter_file else []
 
     def is_template_file(self, file_path):
         """
@@ -243,6 +245,10 @@ class TerraformTemplateParser(TemplateParser):
                                     parameter_file=parameter_file_list,
                                     **{"default_gparams" : default_gparams, "process_module" : True })
                                 new_template_json = terraform_template_parser.parse()
+
+                                self.template_file_list = self.template_file_list + terraform_template_parser.template_file_list
+                                self.parameter_file_list = self.parameter_file_list + terraform_template_parser.parameter_file_list
+
                                 if new_template_json:
                                     for resource, resource_item in new_template_json.items():
                                         # set parameters from modules files to main resource file

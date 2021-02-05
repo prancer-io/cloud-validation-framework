@@ -39,6 +39,7 @@ from processor.connector.snapshot_custom import populate_custom_snapshot, get_cu
 from processor.connector.snapshot_aws import populate_aws_snapshot
 from processor.connector.snapshot_google import populate_google_snapshot
 from processor.connector.populate_json import pull_json_data
+from processor.helper.file.file_utils import exists_file,remove_file
 
 
 logger = getlogger()
@@ -99,7 +100,11 @@ def generate_mastersnapshot(mastersnapshot):
             logger.error("No nodes in snapshot to be backed up!...")
             return snapshot_data
         snapshot_data = mastersnapshot_fns[snapshot_type](mastersnapshot)
-    logger.info('Snapshot: %s', snapshot_data)
+    # logger.info('Snapshot: %s', snapshot_data)
+    logger.info('\tSnapshot:')
+    for key,value in snapshot_data.items():
+        logger.info('\t%s:%s', key, json.dumps(value))
+    
     return snapshot_data
 
 
@@ -144,6 +149,9 @@ def generate_snapshots_from_mastersnapshot_file(mastersnapshot_file):
         snapshot_json_data = {}
     snapshot_data = generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_data)
     # save_json_to_file(mastersnapshot_json_data, mastersnapshot_file)
+    if exists_file(snapshot_file_name) : 
+        remove_file(snapshot_file_name)        
+
     save_json_to_file(snapshot_json_data, snapshot_file_name)
     return snapshot_data, mastersnapshot_json_data
 
@@ -157,14 +165,15 @@ def mastersnapshots_used_in_mastertests_filesystem(container):
     The configuration of the default path is configured in config.ini.
     """
     snapshots = []
-    logger.info("Starting to get list of mastersnapshots used in test files.")
+    # logger.info("Starting to get list of mastersnapshots used in test files.")
     reporting_path = config_value('REPORTING', 'reportOutputFolder')
     json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
-    logger.info(json_dir)
+    # logger.info(json_dir)
     # Only get list of mastertest files.
     test_files = get_json_files(json_dir, MASTERTEST)
-    logger.info('\n'.join(test_files))
+    # logger.info('\n'.join(test_files))
     for test_file in test_files:
+        logger.info('\tMASTERTEST:%s', test_file)
         test_json_data = json_from_file(test_file)
         if test_json_data:
             snapshot = test_json_data['masterSnapshot'] if 'masterSnapshot' in test_json_data else ''
@@ -185,10 +194,11 @@ def generate_container_mastersnapshots_filesystem(container):
     if not snapshot_files:
         logger.error("No mastersnapshot files in %s, exiting!...", snapshot_dir)
         return snapshots_status
-    logger.info('\n'.join(snapshot_files))
+    # logger.info('\n'.join(snapshot_files))
     snapshots = mastersnapshots_used_in_mastertests_filesystem(container)
     populated = []
     for snapshot_file in snapshot_files:
+        logger.info('\tMASTERSNAPSHOT:%s', snapshot_file)
         parts = snapshot_file.rsplit('/', 1)
         if parts[-1] in snapshots and parts[-1] not in populated:
             # Take the snapshot and crawl for the  resource types.
@@ -328,8 +338,11 @@ def generate_container_mastersnapshots(container, dbsystem=True):
     This function is starting point for mastersnapshot crawler operation.
     The default location for mastersnapshots of the container is the database.
     """
-    logger.critical("MASTERSNAPSHOTS: Generate mastersnapshots for '%s' container from %s",
-                    container, "the database." if dbsystem  else "file system.")
+    # logger.critical("MASTERSNAPSHOTS: Generate mastersnapshots for '%s' container from %s",
+    #                 container, "the database." if dbsystem  else "file system.")
+    logger.critical("MASTERSNAPSHOTS:")
+    logger.critical("\tCollection: %s,  Type: %s",
+                    container, "DATABASE" if dbsystem  else "FILESYSTEM")
     if dbsystem:
         return generate_container_mastersnapshots_database(container)
     else:

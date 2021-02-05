@@ -47,7 +47,7 @@ def get_azure_data(snapshot_source):
         file_name = '%s.json' % snapshot_source if snapshot_source and not \
             snapshot_source.endswith('.json') else snapshot_source
         azure_source = '%s/../%s' % (json_test_dir, file_name)
-        logger.info('Azure source: %s', azure_source)
+        logger.info('\tCONNECTOR: %s', azure_source)
         if exists_file(azure_source):
             sub_data = json_from_file(azure_source)
     return sub_data
@@ -125,9 +125,9 @@ def get_client_secret1(key='CLIENTKEY'):
 
 def get_client_secret(key='CLIENTKEY', client_id=None):
     """ Return the client secret used for the current run"""
-    logger.info('before get_from_currentdata CLIENTSECRET invoked! ')
+    # logger.info('before get_from_currentdata CLIENTSECRET invoked! ')
     client_secret = get_from_currentdata(CLIENTSECRET)
-    logger.info('after get_from_currentdata CLIENTSECRET invoked! %s', client_secret)
+    # logger.info('after get_from_currentdata CLIENTSECRET invoked! %s', client_secret)
     if not client_secret:
         if 'UAMI' in os.environ and os.environ['UAMI'] == 'true':
             # client_secret = get_vault_data(client_id)
@@ -172,8 +172,8 @@ def get_access_token():
         }
         if tenant_id:
             url = 'https://login.microsoftonline.com/%s/oauth2/token' % tenant_id
-            logger.info('Get Azure token REST API invoked!')
-            status, data = http_post_request(url, data, headers=hdrs, json_type=True)
+            # logger.info('Get Azure token REST API invoked!')
+            status, data = http_post_request(url, data, headers=hdrs, json_type=True, name='\tAZURE TOKEN')
             if status and isinstance(status, int) and status == 200:
                 token = data['access_token']
                 put_in_currentdata(ACCESSTOKEN, token)

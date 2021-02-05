@@ -13,7 +13,8 @@ FWLOGFILENAME = None
 MONGOLOGGER = None
 DBLOGGER = None
 dbhandler = None
-LOGFORMAT = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
+# LOGFORMAT = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
+LOGFORMAT = '%(asctime)s - %(message)s'
 
 
 def get_dblog_name():

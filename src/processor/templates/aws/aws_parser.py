@@ -49,7 +49,8 @@ class AWSTemplateParser(TemplateParser):
         if self.get_template().endswith(".yaml") and exists_file(self.get_template()):
             template_json = self.yaml_to_json(self.get_template())
         elif self.get_template().endswith(".json"):
-            template_json = json_from_file(self.get_template())
+            template_json = json_from_file(self.get_template(), object_pairs_hook=None)
+            # template_json = self.json_from_file(self.get_template())
 
         logger.info(self.get_template())
         if not template_json:
@@ -65,7 +66,8 @@ class AWSTemplateParser(TemplateParser):
             if 'Parameters' in template_json:
                 self.gparams = template_json['Parameters']
                 if self.parameter_file:
-                    parameters = json_from_file(self.parameter_file)
+                    parameters = json_from_file(self.parameter_file, object_pairs_hook=None)
+                    # parameters = self.json_from_file(self.parameter_file)
                     if parameters:
                         for param in parameters:
                             if "ParameterKey" in param and "ParameterValue" in param:

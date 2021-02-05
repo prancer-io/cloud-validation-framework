@@ -70,12 +70,12 @@ def http_delete_request(url, deldata=None, headers=None, name='DELETE'):
     return urlopen_request(urlreq, name)
 
 
-def http_get_request(url, headers=None, name='GET'):
+def http_get_request(url, headers=None, name='HTTP GET'):
     """Get method sends and accepts JSON format."""
-    logger.info("HTTP %s %s  .......", name, url)
+    logger.info("%s %s  .......", name, url)
     if not url:
         return None, None
-    urlreq = request.Request(url, headers=get_request_headers(headers), method=name)
+    urlreq = request.Request(url, headers=get_request_headers(headers), method='GET')
     return urlopen_request(urlreq, name)
 
 
@@ -94,9 +94,9 @@ def http_put_request(url, mapdata, headers=None, name='PUT', json_type=False):
     return urlopen_request(urlreq, name)
 
 
-def http_post_request(url, mapdata, headers=None, json_type=False, name='POST'):
+def http_post_request(url, mapdata, headers=None, json_type=False, name='HTTP POST:'):
     """Post method sends and accepts JSON format"""
-    logger.info("HTTP %s %s  .......", name, url)
+    logger.info("%s %s  .......", name, url)
     if not url:
         return None, None
     myhdrs = get_request_headers(headers)

@@ -23,10 +23,18 @@ def mongoconnection(dbport=27017, to=TIMEOUT):
     global MONGO
     if MONGO:
        return MONGO
+    dburl = get_dburl_from_cache()
+    # print("Dburl: %s", dburl)
+    if dburl:
+        MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
+    else:
+        MONGO = MongoClient(port=dbport, serverSelectionTimeoutMS=to)
+    return MONGO
+
+def get_dburl_from_cache():
+    """ returns the database url from cache. if it is not preset in cache then it will return from vault """
     dburl = os.getenv('DBURL', None)
-    
-    #dburl = os.getenv(str(threading.currentThread().ident) + '_DBURL', None)
-    #print("DBURL THREAD: " + str(threading.currentThread().ident))
+
     if not dburl:
         memory_dburl = get_from_cachedata(DBURL)
         memory_dburl_expiration = get_from_cachedata(DBURL_EXPIREATION)
@@ -48,13 +56,7 @@ def mongoconnection(dbport=27017, to=TIMEOUT):
             put_in_cachedata(DBURL, dburl)
             put_in_cachedata(DBURL_EXPIREATION, expired_time)
 
-    # print("Dburl: %s", dburl)
-    if dburl:
-        MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
-    else:
-        MONGO = MongoClient(port=dbport, serverSelectionTimeoutMS=to)
-    return MONGO
-
+    return dburl
 
 def mongodb(dbname=None):
     """ Get the dbhandle for the database, if none then default database, 'test' """

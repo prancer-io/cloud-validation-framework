@@ -153,7 +153,9 @@ class RuleInterpreter:
                     'structure': docs[0]['structure'],
                     'reference': docs[0]['reference'],
                     'source': docs[0]['source'],
-                    'collection': docs[0]['collection']
+                    'collection': docs[0]['collection'],
+                    'type': docs[0].get("node", {}).get('type'),
+                    'region' : docs[0].get('region', "")
                 }
                 if 'paths' in docs[0]:
                     snapshot['paths'] = docs[0]['paths']
@@ -173,7 +175,9 @@ class RuleInterpreter:
                             'structure': json_data['structure'],
                             'reference': json_data['reference'],
                             'source': json_data['source'],
-                            'collection': json_data['collection']
+                            'collection': json_data['collection'],
+                            'type': json_data.get("node", {}).get('type'),
+                            'region' : json_data.get('region', "")
                         }
                         if 'paths' in json_data:
                             snapshot_val['paths'] = json_data['paths']
@@ -191,13 +195,15 @@ class RuleInterpreter:
         # print('LHS value: ', lhs_value)
         rhs_value = self.get_value(self.rhs_operand)
         # print('RHS value: ', rhs_value)
-        logger.info('LHS: %s, OP: %s, RHS: %s', lhs_value, self.op, rhs_value)
+        # logger.info('LHS: %s, OP: %s, RHS: %s', lhs_value, self.op, rhs_value)
         retval = False
         if self.op == IN:
-            return compare_in(lhs_value, rhs_value, IN)
+            # return compare_in(lhs_value, rhs_value, IN)
+            return lhs_value, rhs_value, compare_in(lhs_value, rhs_value, IN)
         elif type(lhs_value) == type(rhs_value):
             if type(lhs_value) in comparefuncs:
-                return comparefuncs[type(lhs_value)](lhs_value, rhs_value, self.op)
+                # return comparefuncs[type(lhs_value)](lhs_value, rhs_value, self.op)
+                return lhs_value, rhs_value, comparefuncs[type(lhs_value)](lhs_value, rhs_value, self.op)
         elif isinstance(lhs_value, list):
             intermediate_result = True
             for each_lhs_value in lhs_value:
@@ -212,7 +218,8 @@ class RuleInterpreter:
                     break
             if intermediate_result:
                 retval = True
-        return retval
+        # return retval
+        return lhs_value, rhs_value, retval
 
 
     def get_value(self, value):

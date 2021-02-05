@@ -52,12 +52,12 @@ def mock1_get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
         return 'client_id', None, 'sub_name', 'sub_id', 'tenant_id'
     return 'client_id', 'client_secret', 'sub_name', 'sub_id', 'tenant_id'
 
-def mock_http_get_request_happy(url, headers=None):
+def mock_http_get_request_happy(url, headers=None, name=""):
     data = {'a': 'b'}
     return 200, data
 
 
-def mock_http_get_crawler_request(url, headers=None):
+def mock_http_get_crawler_request(url, headers=None, name=""):
     data = {'value': [
             {
                 'id': 'test_id',
@@ -72,7 +72,7 @@ def mock_get_from_currentdata(name):
     return None
 
 
-def mock_http_get_request_error(url, headers=None):
+def mock_http_get_request_error(url, headers=None, name=""):
     data = {'a': 'b'}
     return 400, data
 

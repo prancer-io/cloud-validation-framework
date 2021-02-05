@@ -109,14 +109,21 @@ class AzureTemplateProcessor(TemplateProcessor):
                     else:
                         logger.error("Invalid json : $schema does not contains the correct value")
             
-            if template_file_path and deployment_file_path:
+            if template_file_path:
                 if azure_cli_flag and azure_cli_flag == "true":
-                    template_json = self.invoke_az_cli("deployment validate --location " + location +
-                                            " --template-file " + template_file_path
-                                            + " --parameters @" + deployment_file_path)
+                    if deployment_file_path:
+                        template_json = self.invoke_az_cli("deployment validate --location " + location +
+                            " --template-file " + template_file_path
+                            + " --parameters @" + deployment_file_path)
+                    else:
+                        template_json = self.invoke_az_cli("deployment validate --location " + location +
+                            " --template-file " + template_file_path)
                 else:
                     try:
-                        azure_template_parser = AzureTemplateParser(template_file_path, parameter_file=[deployment_file_path])
+                        self.template_file = template_file_path
+                        self.parameter_files = [deployment_file_path] if deployment_file_path else []
+                        
+                        azure_template_parser = AzureTemplateParser(template_file_path, parameter_file=self.parameter_files)
                         template_json = azure_template_parser.parse()
                     except:
                         template_json = None

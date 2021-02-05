@@ -132,7 +132,7 @@ def convert_to_json(file_path, node_type):
     return json_data
 
 
-def get_custom_data(snapshot_source):
+def get_custom_data(snapshot_source, tabs=2):
     sub_data = {}
     if json_source():
         container = get_from_currentdata('container')
@@ -150,7 +150,8 @@ def get_custom_data(snapshot_source):
         file_name = '%s.json' % snapshot_source if snapshot_source and not \
             snapshot_source.endswith('.json') else snapshot_source
         custom_source = '%s/../%s' % (json_test_dir, file_name)
-        logger.info('Custom source: %s', custom_source)
+        logger.info('\t\tCUSTOM CONNECTOR: %s ', custom_source)
+        # logger.info('Custom source: %s', custom_source)
         if exists_file(custom_source):
             sub_data = json_from_file(custom_source)
     return sub_data
@@ -178,11 +179,11 @@ def get_node(repopath, node, snapshot, ref, connector):
     }
     json_path = '%s/%s' % (repopath, node['path'])
     file_path = json_path.replace('//', '/')
-    logger.info('File: %s', file_path)
+    logger.info('\t\t\tFile: %s', file_path)
     if exists_file(file_path):
         node_type = node['type'] if 'type' in node and node['type'] else 'json'
         json_data = convert_to_json(file_path, node_type)
-        logger.info('type: %s, json:%s', node_type, json_data)
+        # logger.info('type: %s, json:%s', node_type, json_data)
         # json_data = json_from_file(file_path)
         if json_data:
             db_record['json'] = json_data
@@ -326,11 +327,11 @@ def git_clone_dir(connector):
 
         isprivate = get_field_value(connector, 'private')
         isprivate = True if isprivate is None or not isinstance(isprivate, bool) else isprivate
-        logger.info("Repopath: %s", repopath)
+        # logger.info("Repopath: %s", repopath)
+        logger.info("\t\t\tRepopath: %s", repopath)
         http_match = re.match(r'^http(s)?://', giturl, re.I)
         if http_match:
-            logger.info("Http (private:%s) giturl: %s, Repopath: %s", "YES" if isprivate else "NO",
-                        giturl, repopath)
+            logger.info("\t\t\tHttp (private:%s) giturl: %s", "YES" if isprivate else "NO", giturl)
             username = get_field_value(connector, 'httpsUser')
             if username:
                 pwd = get_field_value(connector, 'httpsPassword')
@@ -345,16 +346,16 @@ def git_clone_dir(connector):
                     if pwd:
                         logger.info("Git password from vault: %s", '*' * len(pwd))
                 if pwd:
-                    git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username),
+                    git_cmd = 'git clone --depth 1 %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username),
                                                         urllib.parse.quote_plus(pwd), other_part, repopath)
                 elif isprivate:
                     logger.error("Please provide password for connect to git repository.")
                     return repopath, clonedir
                 else:
-                    git_cmd = 'git clone %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username), "",
+                    git_cmd = 'git clone --depth 1 %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username), "",
                                                      other_part, repopath)
             else:
-                git_cmd = 'git clone %s %s' % (giturl, repopath)
+                git_cmd = 'git clone --depth 1 %s %s' % (giturl, repopath)
         else:
             logger.info("SSH (private:%s) giturl: %s, Repopath: %s", "YES" if isprivate else "NO",
                         giturl, repopath)
@@ -456,7 +457,7 @@ def populate_custom_snapshot(snapshot, container=None):
         if repopath:
             brnch = get_field_value_with_default(sub_data, 'branchName', 'master')
             for node in snapshot_nodes:
-                node_type = node['type'] if 'type' in node and node['type'] else 'json'
+                node_type = node['type'] if 'type' in node and node['type'] else ''
                 if node_type in TEMPLATE_NODE_TYPES:
                     template_data = {
                         "container" : container,
@@ -472,6 +473,8 @@ def populate_custom_snapshot(snapshot, container=None):
                         snapshot_data = template_processor.populate_template_snapshot()
                     elif 'masterSnapshotId' in node:
                         snapshot_data = template_processor.populate_all_template_snapshot()
+                elif 'paths' in node:
+                    logger.error("ERROR: Invalid json : `%s` is not a valid node type." % (node_type))
                 else:
                     # logger.debug(node)
                     # data = get_node(repopath, node, snapshot_source, brnch)
@@ -529,7 +532,7 @@ def populate_custom_snapshot(snapshot, container=None):
                                     })
                         logger.debug('Type: %s', type(alldata))
         if baserepo and os.path.exists(baserepo):
-            logger.info('Repo path: %s', baserepo)
+            # logger.info('\t\tCLEANING Repo: %s', baserepo)
             shutil.rmtree(baserepo)
     return snapshot_data
 

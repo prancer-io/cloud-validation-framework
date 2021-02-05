@@ -3,6 +3,7 @@ Define an interface for creating an object, but let subclasses decide
 which class to instantiate. Factory Method lets a class defer
 instantiation to subclasses.
 """
+import json
 import os
 import re
 import pymongo
@@ -130,6 +131,7 @@ def opa_binary():
                 pass
             else:
                 opa_exe = None
+
     return opa_exe
 
 
@@ -217,14 +219,26 @@ class ComparatorV01:
                 del self.testcase['evals']
         if not rule_expr:
             rule_expr = 'data.rule.rulepass'
+        testId = 'MISSING ID'
+        if 'testId' in self.testcase:
+            testId = self.testcase['testId']
+        elif 'masterTestId' in self.testcase:
+            testId = self.testcase['masterTestId']
+        logger.info('\tTESTID: %s', testId)
+        logger.info('\t\tRULE: %s', self.testcase['rule'])
+        logger.info('\t\tEVAL: %s', rule_expr)
         opa_exe = opa_binary()
         if not opa_exe:
             # print('*' * 50)
+            logger.info('\t\tERROR: OPA binary not found!')
+            logger.info('\t\tRESULT: FAILED')
             results.append({'eval': 'data.rule.rulepass', 'result': "passed" if result else "failed", 'message': ''})
             return results
         if len(self.testcase['snapshotId'])==1:
             sid = self.testcase['snapshotId'][0]
             inputjson = self.get_snaphotid_doc(sid)
+            if inputjson is None:
+                logger.info('\t\tERROR: Missing snapshot')
         else:
             ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
             for sid in self.testcase['snapshotId']:
@@ -239,6 +253,7 @@ class ComparatorV01:
                 if rego_file:
                     pass
                 else:
+                    logger.info('\t\tERROR: %s missing', rego_match.groups()[0])
                     rego_file = None
             else:
                 rego_txt = [
@@ -252,13 +267,20 @@ class ComparatorV01:
                 open(rego_file, 'w').write('\n'.join(rego_txt))
             if rego_file:
                 if isinstance(rule_expr, list):
-                    os.system('%s eval -i /tmp/input.json -d %s "data.rule" > /tmp/a.json' % (opa_exe, rego_file))
+                    result = os.system('%s eval -i /tmp/input.json -d %s "data.rule" > /tmp/a.json' % (opa_exe, rego_file))
+                    if result != 0 :
+                         logger.info("\t\tERROR: have problem in running opa binary")
                 else:
-                    os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
+                    result = os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
+                    if result != 0 :
+                        logger.info("\t\tERROR: have problem in running opa binary")
+
                 resultval = json_from_file('/tmp/a.json')
                 if resultval and "errors" in resultval and resultval["errors"]:
-                    logger.error(str(resultval["errors"]))
                     results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                    logger.info('\t\tERROR: %s', str(resultval["errors"]))
+                    logger.info('\t\tRESULT: FAILED')
+                    # logger.error(str(resultval["errors"]))
                 elif resultval:
                     if isinstance(rule_expr, list):
                         resultdict = resultval['result'][0]['expressions'][0]['value']
@@ -276,15 +298,31 @@ class ComparatorV01:
                                 else:
                                     continue
                                 msg = resultdict[evalmessage] if not result and evalmessage in resultdict else ""
-                                results.append({'eval': val["eval"], 'result': "passed" if result else "failed", 'message': msg})
+                                results.append({
+                                    'eval': val["eval"], 
+                                    'result': "passed" if result else "failed", 
+                                    'message': msg,
+                                    'id' : val.get("id"),
+                                    'remediation_description' : val.get("remediationDescription"),
+                                    'remediation_function' : val.get("remediationFunction"),
+                                })
+                                # logger.info('\t\tERROR: %s', resultval)
+                                logger.info('\t\tRESULT: %s', results[-1]['result'])
                     else:
                         resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
                         result = parsebool(resultbool)
                         results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                        # logger.info('\t\tERROR: %s', resultval)
+                        logger.info('\t\tRESULT: %s', results[-1]['result'])
+                        if results[-1]['result'] == 'failed':
+                            logger.info('\t\tERROR: %s', json.dumps(dict(resultval)))
+
             else:
                 results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                logger.info('\t\tRESULT: %s', results[-1]['result'])
         else:
             results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+            logger.info('\t\tRESULT: %s', results[-1]['result'])
         return results
 
 
@@ -303,7 +341,9 @@ class ComparatorV01:
                         'structure': json_data['structure'],
                         'reference': json_data['reference'],
                         'source': json_data['source'],
-                        'collection': json_data['collection']
+                        'collection': json_data['collection'],
+                        'type': json_data.get("node", {}).get('type'),
+                        'region' : json_data.get('region', "")
                     }
                     if 'paths' in json_data:
                         snapshot['paths'] = json_data['paths']
@@ -330,7 +370,9 @@ class ComparatorV01:
                     'structure': docs[0]['structure'],
                     'reference': docs[0]['reference'],
                     'source': docs[0]['source'],
-                    'collection': docs[0]['collection']
+                    'collection': docs[0]['collection'],
+                    'type': docs[0].get("node", {}).get('type'),
+                    'region' : docs[0].get('region', "")
                 }
                 if 'paths' in docs[0]:
                     snapshot['paths'] = docs[0]['paths']
@@ -350,7 +392,9 @@ class ComparatorV01:
                             'structure': json_data['structure'],
                             'reference': json_data['reference'],
                             'source': json_data['source'],
-                            'collection': json_data['collection']
+                            'collection': json_data['collection'],
+                            'type': json_data.get("node", {}).get('type'),
+                            'region' : json_data.get('region', "")
                         }
                         if 'paths' in json_data:
                             snapshot_val['paths'] = json_data['paths']
@@ -407,6 +451,34 @@ class ComparatorV01:
                 rego_file_name = None
         return rego_file_name
 
+    def get_connector_data(self):
+        """ get connector data from snapshot """
+        connector_data = {}
+        if self.snapshots:
+            isdb_fetch = get_dbtests()
+            if isdb_fetch:
+                connectors = get_documents(
+                    "structures",
+                    query={
+                        "name" : self.snapshots[0].get("source"),
+                        "type" : "structure",
+                        "container": self.container
+                    },
+                    dbname=self.dbname,
+                    limit=1
+                )
+                connector_data = connectors[0].get("json", {}) if connectors else {}
+            else:
+                json_test_dir = get_test_json_dir()
+                snapshot_source = self.snapshots[0].get("source")
+                file_name = '%s.json' % snapshot_source if snapshot_source and not \
+                    snapshot_source.endswith('.json') else snapshot_source
+                connector_path = '%s/../%s' % (json_test_dir, file_name)
+                logger.info('connector path: %s', connector_path)
+                if exists_file(connector_path):
+                    connector_data = json_from_file(connector_path)
+
+        return connector_data
 
     def validate(self):
         result_val = [{"result": "failed"}]
@@ -448,12 +520,15 @@ class ComparatorV01:
             if self.type == 'rego':
                 results = self.process_rego_test_case()
                 result_val = []
+                connector_data = self.get_connector_data()
                 for result in results:
                     result['snapshots'] = self.snapshots
+                    result['autoRemediate'] = connector_data.get("autoRemediate", False)
                     result_val.append(result)
             else:
-                logger.info('#' * 75)
-                logger.info('Actual Rule: %s', self.rule)
+                # logger.info('#' * 75)
+                logger.info('\tTESTID: %s', self.testcase['testId'])
+                logger.info('\t\tEVAL: %s', self.rule)
                 input_stream = InputStream(self.rule)
                 lexer = comparatorLexer(input_stream)
                 stream = CommonTokenStream(lexer)
@@ -462,13 +537,20 @@ class ComparatorV01:
                 children = []
                 for child in tree.getChildren():
                     children.append((child.getText()))
-                logger.info('*' * 50)
+                # logger.info('*' * 50)
                 logger.debug("All the parsed tokens: %s", children)
                 otherdata = {'dbname': self.dbname, 'snapshots': self.collection_data, 'container': self.container}
                 r_i = RuleInterpreter(children, **otherdata)
-                result = r_i.compare()
+                # result = r_i.compare()
+                l_val, r_val, result = r_i.compare()
                 result_val[0]["result"] = "passed" if result else "failed"
                 result_val[0]['snapshots'] = r_i.get_snapshots()
+                connector_data = self.get_connector_data()
+                result_val[0]['autoRemediate'] = connector_data.get("autoRemediate", False)
+                if not result:
+                    logger.info('\t\tLHS: %s', l_val)
+                    logger.info('\t\tRHS: %s', r_val)
+                logger.info('\t\tRESULT: %s', result_val[0]['result'])
         else:
             result_val[0].update({
                 "result": "skipped",

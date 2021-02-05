@@ -1,3 +1,4 @@
+import json
 import os
 import hcl
 from yaml.loader import FullLoader
@@ -59,6 +60,19 @@ class TemplateParser:
         """
         json_data = yaml_from_file(yaml_file, loader=FullLoader)
         return json_data
+    
+    def json_from_file(self, json_file):
+        """
+        takes the json file path and returns the JSON object
+        """
+        try:
+            with open(json_file) as infile:
+                file_data = infile.read()
+        except UnicodeDecodeError:
+            with open(json_file, 'r', encoding='utf-8') as infile:
+                file_data = infile.read()
+            
+        return json.loads(file_data)
     
     def process_resource(self, resource):
         """

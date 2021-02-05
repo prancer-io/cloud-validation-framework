@@ -115,7 +115,7 @@ def test_http_post_request_exception(monkeypatch):
     monkeypatch.setattr('processor.helper.httpapi.http_utils.request.urlopen', mock_urlopen_exception)
     from processor.helper.httpapi.http_utils import http_post_request
     st, ret = http_post_request('http://a.b.c', {'a': 'b'})
-    assert ret == 'not found'
+    assert ret is None
     assert st == 404
 
 

@@ -82,7 +82,10 @@ def populate_snapshot(snapshot, container):
             logger.error("No nodes in snapshot to be backed up!...")
             return snapshot_data
         snapshot_data = snapshot_fns[snapshot_type](snapshot, container)
-    logger.info('Snapshot: %s', snapshot_data)
+    # logger.info('\tSnapshot: %s', snapshot_data)
+    logger.info('\tSnapshot:')
+    for key,value in snapshot_data.items():
+        logger.info('\t%s:%s', key, json.dumps(value))
     return snapshot_data
 
 
@@ -133,8 +136,9 @@ def populate_container_snapshots(container, dbsystem=True):
     This function is starting point for snapshot population.
     The default location for snapshots of the container is the database.
     """
-    logger.critical("SNAPSHOTS: Populate snapshots for '%s' container from %s",
-                    container, "the database." if dbsystem  else "file system.")
+    logger.critical("SNAPSHOTS:")
+    logger.critical("\tCollection: %s,  Type: %s",
+                    container, "DATABASE" if dbsystem  else "FILESYSTEM")
     refactor_flag = config_value("GENERAL", "refactor_code")
 
     if dbsystem:
@@ -152,6 +156,7 @@ def populate_container_snapshots(container, dbsystem=True):
             return fssnapshot.get_snapshots()
         else:
             return populate_container_snapshots_filesystem(container)
+    logger.critical("SNAPSHOTS COMPLETE:")
 
 
 def populate_container_snapshots_filesystem(container):
@@ -163,12 +168,17 @@ def populate_container_snapshots_filesystem(container):
     snapshots_status = {}
     snapshot_dir, snapshot_files = get_container_snapshot_json_files(container)
     if not snapshot_files:
-        logger.error("No Snapshot files in %s, exiting!...", snapshot_dir)
+        logger.error("ERROR: No Snapshot files in %s, exiting!...", snapshot_dir)
         return snapshots_status
-    logger.info('\n'.join(snapshot_files))
+    # logger.info('\n'.join(snapshot_files))
     snapshots = container_snapshots_filesystem(container)
+    if not snapshots:
+        logger.error("ERROR: No test file is available or test file does not contains the valid testcases, exiting!...")
+        return snapshots_status
+    
     populated = []
     for snapshot_file in snapshot_files:
+        logger.info('\tSNAPSHOT:%s', snapshot_file)
         parts = snapshot_file.rsplit('/', 1)
         if parts[-1] in snapshots and parts[-1] not in populated:
             # Take the snapshot and populate whether it was successful or not.
@@ -240,13 +250,13 @@ def container_snapshots_filesystem(container):
     The configuration of the default path is configured in config.ini.
     """
     snapshots = []
-    logger.info("Starting to get list of snapshots")
+    # logger.info("Starting to get list of snapshots")
     reporting_path = config_value('REPORTING', 'reportOutputFolder')
     json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
-    logger.info(json_dir)
+    # logger.info(json_dir)
     singletest = get_from_currentdata(SINGLETEST)
     test_files = get_json_files(json_dir, JSONTEST)
-    logger.info('\n'.join(test_files))
+    # logger.info('\n'.join(test_files))
     for test_file in test_files:
         test_json_data = json_from_file(test_file)
         if test_json_data:
