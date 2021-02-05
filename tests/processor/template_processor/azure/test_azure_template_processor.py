@@ -117,16 +117,16 @@ def test_populate_all_template_snapshot(monkeypatch):
 				'snapshotId': 'MASTER_SNAPSHOT_1',
 				'type': 'cloudformation',
 				'collection': 'cloudformation',
-				'paths': ['/sample/vars.keyvaultrg.json'],
-				'status': 'inactive',
+				'paths': ['/sample/keyvault.json'],
+				'status': 'active',
 				'validate': True
 			},
 			{
 				'snapshotId': 'MASTER_SNAPSHOT_2',
 				'type': 'cloudformation',
 				'collection': 'cloudformation',
-				'paths': ['/sample/keyvault.json'],
-				'status': 'active',
+				'paths': ['/sample/vars.keyvaultrg.json'],
+				'status': 'inactive',
 				'validate': True
 			}
 		]
