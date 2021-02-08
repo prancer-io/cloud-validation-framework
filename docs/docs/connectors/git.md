@@ -119,6 +119,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 > Putting the `httpsPassword` in the connector file is only good for testing purposes. We recommend moving the `httpsPassword` out of the connector file. 
 
 To move the `httpsPassword` out of the connector file, you have two options:
+
  - set the environment variable to store the password
  - using vault [vault configuration](../configuration/secrets.md)
 
