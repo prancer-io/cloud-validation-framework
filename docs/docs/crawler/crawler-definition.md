@@ -42,7 +42,9 @@ The development of other providers are in progress.
 To run the crawler process from the CLI, use the following command:
 prancer --crawler <name-of-the-container>
 as an example:
-prancer crawler container3
+```
+prancer --crawler container3
+```
 
 ### API
 To run the crawler by API call, use the following format:
