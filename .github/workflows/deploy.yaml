@@ -40,6 +40,8 @@ jobs:
           pip install pytest
           CURPWD=`pwd`
           export PYTHONPATH=$CURPWD/adv:$PYTHONPATH
+          echo $CURPWD
+          echo $CURPWD/adv:$PYTHONPATH
           py.test --cov=adv/processor_enterprise tests/ --cov-report term-missing --junitxml=junit/test-results.xml
 
       - name: install SO dependencies
