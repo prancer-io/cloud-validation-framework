@@ -1,0 +1,39 @@
+name: build and publish PRANCER BASIC
+on:
+  push:
+    branches:
+      - master
+  
+  workflow_dispatch:
+    inputs:
+      branch:
+        required: true
+        description: 'Branch' 
+        default: 'development'
+jobs:
+  build:
+    name: build and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+      
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: prancer-io/cloud-validation-framework 
+          ref: ${{ github.event.inputs.branch }}
+          token: ${{ secrets.GIT_TOKEN }}
+
+      - name: testing
+        run: |
+          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.8 sh unit_testing.sh
