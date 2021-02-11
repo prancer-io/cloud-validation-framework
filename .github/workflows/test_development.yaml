@@ -2,7 +2,7 @@ name: build and publish PRANCER BASIC
 on:
   push:
     branches:
-      - master
+      - development
   
   workflow_dispatch:
     inputs:
