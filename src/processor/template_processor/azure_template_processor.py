@@ -120,7 +120,7 @@ class AzureTemplateProcessor(TemplateProcessor):
                             " --template-file " + template_file_path)
                 else:
                     try:
-                        self.template_file = template_file_path
+                        self.template_files = [template_file_path]
                         self.parameter_files = [deployment_file_path] if deployment_file_path else []
                         
                         azure_template_parser = AzureTemplateParser(template_file_path, parameter_file=self.parameter_files)
