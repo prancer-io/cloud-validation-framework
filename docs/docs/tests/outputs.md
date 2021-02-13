@@ -38,7 +38,7 @@ The results section contains all the result of each test case that was run in on
 
 | Field | Description |
 |-----|-------------------|
-| result | Reports if the test case was a `success` or a `failed` (failure) |
+| result | Reports if the test case was a `passed` or a `failed` (failure) |
 | snapshots | An array of all snapshots that were used in rule. See below for more information. |
 | testId | The name of the test case that generated this result |
 | rule | The rule that was used to run this test |
