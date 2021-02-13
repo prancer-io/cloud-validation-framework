@@ -23,6 +23,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | tag | What to put there |
 |-----|-------------------|
 | snapshot-to-use | Name of the snapshot to use, it can be a full filename with extension in the current directory of the test file or be stored in the **MongoDB** database under a name similar to the filename but without extension. |
+| notification | Notification only works in Enterprize Version |
 
 # Tests
 
@@ -149,3 +150,6 @@ Here is a full example of what a test file could look like:
             }
         ]
     }
+
+
+Note: Remember that everything inside {} must be exactly the same as the snapshotId which defined earlier.
