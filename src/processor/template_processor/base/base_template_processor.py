@@ -43,7 +43,7 @@ class TemplateProcessor:
         self.exclude_directories = []
         self.paths = []
         self.dir_path = ""
-        self.template_file = ""
+        self.template_files = []
         self.parameter_files = []
 
     def create_database_record(self):
@@ -225,26 +225,36 @@ class TemplateProcessor:
 
         template_file_list = []
         parameter_file_list = []
-
+        path_is_file,path_is_dir = False,False
+        
+        if exists_file(dir_path):
+            path_is_file = True
         if exists_dir(dir_path):
-            list_of_file = os.listdir(dir_path)
-            for entry in list_of_file:
-                new_dir_path = ('%s/%s' % (dir_path, entry)).replace('//', '/')
-                new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
-                if exists_dir(new_dir_path):
-                    count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
-                elif exists_file(new_dir_path):
-                    if self.is_template_file(new_dir_path):
-                        template_file_list.append(new_sub_directory_path)
-                    elif self.is_parameter_file(new_dir_path):
-                        parameter_file_list.append(new_sub_directory_path)
+            path_is_dir = True
+
+        if any([path_is_dir,path_is_file]):
+            if path_is_dir :
+                list_of_file = os.listdir(dir_path)
+                for entry in list_of_file:
+                    new_dir_path = ('%s/%s' % (dir_path, entry)).replace('//', '/')
+                    new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
+                    if exists_dir(new_dir_path):
+                        count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
+                    elif exists_file(new_dir_path):
+                        if self.is_template_file(new_dir_path):
+                            template_file_list.append(new_sub_directory_path)
+                        elif self.is_parameter_file(new_dir_path):
+                            parameter_file_list.append(new_sub_directory_path)
+
+            if path_is_file:
+               template_file_list.append('%s' % (sub_dir_path).replace('//', '/'))
 
             logger.info("parameter_file_list   %s   : ", str(parameter_file_list))
             logger.info("template_file_list   %s   : ", str(template_file_list))
             generated_template_file_list = []
             if template_file_list:
                 for template_file in template_file_list:
-                    template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
+                    # template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
                     if parameter_file_list:
                         self.generate_template_and_parameter_file_list(file_path, template_file, parameter_file_list, generated_template_file_list)
                     else:
@@ -284,6 +294,7 @@ class TemplateProcessor:
             root_dir_path = self.repopath 
 
         self.paths = get_field_value(self.node, 'paths')
+
         if self.paths and isinstance(self.paths, list):
             count = 0
             for path in self.paths:
@@ -295,6 +306,6 @@ class TemplateProcessor:
                 else:
                     logger.error("Invalid path : directory does not exist : " + self.dir_path)
         else:
-            logger.error("Invalid json : `paths` field is missing for 'arm' node type or it is not a list")    
+            logger.error("\t\tERROR: Invalid json : `paths` is not a list or is not exist in master snapshot")    
         
         return self.snapshot_data

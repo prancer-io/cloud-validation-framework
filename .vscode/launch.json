@@ -4,14 +4,21 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
+            "env": {
+                "BASEDIR": "${workspaceFolder}",
+                "PYTHONPATH": "${workspaceFolder}/src",
+                "FRAMEWORKDIR": "${workspaceFolder}"
+            },
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["scenario-aws"]
+            "python": "${command:python.interpreterPath}",
+            "args": [
+                "gitScenario"
+            ]
         }
     ]
 }
