@@ -10,5 +10,5 @@ TEMPLATE_NODE_TYPES = {
     "arm" : AzureTemplateProcessor,
     "deploymentmanager" : GoogleTemplateProcessor,
     "terraform" : TerraformTemplateProcessor,
-    "kubernetesIacFiles" : KubernetesTemplateProcessor
+    "kubernetesObjectFiles" : KubernetesTemplateProcessor
 }
