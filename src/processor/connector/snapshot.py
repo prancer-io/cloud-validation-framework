@@ -49,6 +49,7 @@ from processor.reporting.json_output import dump_output_results
 from processor.connector.populate_json import pull_json_data
 from processor.connector.snapshot_azure_refactor import populate_snapshot_azure
 from processor.connector.snapshot_custom_refactor import populate_snapshot_custom
+from processor.connector.snapshot_kubernetes import populate_snapshot_kubernetes
 
 logger = getlogger()
 # Different types of snapshots supported by the validation framework.
@@ -56,6 +57,7 @@ snapshot_fns = {
     'azure': populate_azure_snapshot,
     'aws': populate_aws_snapshot,
     'google': populate_google_snapshot,
+    'kubernetes': populate_snapshot_kubernetes,
     'filesystem': populate_custom_snapshot
 }
 
