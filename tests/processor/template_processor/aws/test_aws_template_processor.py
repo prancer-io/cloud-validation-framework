@@ -111,26 +111,21 @@ def test_populate_all_template_snapshot(monkeypatch):
 	template_processor = AWSTemplateProcessor(node_data, **master_template_processor_kwargs)
 	snapshot_data = template_processor.populate_all_template_snapshot()
 
-	print("snapshot data Aws")
-	print(snapshot_data)
-
 	assert snapshot_data == {
-		"MASTER_SNAPSHOT_": [
-			{
-				"snapshotId": "MASTER_SNAPSHOT_1",
-				"type": "cloudformation",
-				"collection": "cloudformation",
-				"paths": ["/sample/EC2InstanceWithSecurityGroupSample.yaml"],
-				"status": "active",
-				"validate": True
-			},
-			{
-				"snapshotId": "MASTER_SNAPSHOT_2",
-				"type": "cloudformation",
-				"collection": "cloudformation",
-				"paths": ["/sample/parameters.json"],
-				"status": "inactive",
-				"validate": True
-			}
-		]
+		'MASTER_SNAPSHOT_': [{
+			'snapshotId': 'MASTER_SNAPSHOT_1', 
+			'type': 'cloudformation', 
+			'collection': 'cloudformation', 
+			'paths': ['/sample/parameters.json'], 
+			'status': 'inactive', 
+			'validate': True
+		}, 
+		{
+			'snapshotId': 'MASTER_SNAPSHOT_2', 
+			'type': 'cloudformation', 
+			'collection': 'cloudformation', 
+			'paths': ['/sample/EC2InstanceWithSecurityGroupSample.yaml'], 
+			'status': 'active', 
+			'validate': True
+		}]
 	}
