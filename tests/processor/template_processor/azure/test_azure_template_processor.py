@@ -109,25 +109,25 @@ def test_populate_all_template_snapshot(monkeypatch):
 
 	template_processor = AzureTemplateProcessor(node_data, **master_template_processor_kwargs)
 	snapshot_data = template_processor.populate_all_template_snapshot()
+	value = sorted(snapshot_data['MASTER_SNAPSHOT_'], key=lambda i: i['snapshotId'])
+	# print(value[0])
+	# print(value[1])
 	
-	assert snapshot_data == {
-		'MASTER_SNAPSHOT_': 
-		[
+	assert value == [
 			{
 				'snapshotId': 'MASTER_SNAPSHOT_1',
 				'type': 'cloudformation',
 				'collection': 'cloudformation',
-				'paths': ['/sample/keyvault.json'],
-				'status': 'active',
+				'paths': ['/sample/vars.keyvaultrg.json'],
+				'status': 'inactive',
 				'validate': True
 			},
 			{
 				'snapshotId': 'MASTER_SNAPSHOT_2',
 				'type': 'cloudformation',
 				'collection': 'cloudformation',
-				'paths': ['/sample/vars.keyvaultrg.json'],
-				'status': 'inactive',
+				'paths': ['/sample/keyvault.json'],
+				'status': 'active',
 				'validate': True
 			}
 		]
-	}
