@@ -109,6 +109,9 @@ def test_populate_all_template_snapshot(monkeypatch):
 
 	template_processor = AzureTemplateProcessor(node_data, **master_template_processor_kwargs)
 	snapshot_data = template_processor.populate_all_template_snapshot()
+
+	print("snapshot data Azure")
+	print(snapshot_data)
 	
 	assert snapshot_data == {
 		"MASTER_SNAPSHOT_": [
