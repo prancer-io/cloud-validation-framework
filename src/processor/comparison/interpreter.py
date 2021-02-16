@@ -134,7 +134,6 @@ def opa_binary():
 
     return opa_exe
 
-
 def get_rego_rule_filename(rego_file, container):
     rego_file_name = None
     json_dir = get_test_json_dir()
