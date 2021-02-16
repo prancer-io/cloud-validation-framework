@@ -1,4 +1,4 @@
-name: build and publish PRANCER BASIC
+name: Unit testing PRANCER BASIC
 on:
   push:
     branches:
