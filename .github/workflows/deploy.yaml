@@ -22,10 +22,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Set up Python 3.6
+      - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
-          python-version: "3.6"
+          python-version: "3.8"
       
       - name: Checkout code
         uses: actions/checkout@v2
@@ -36,11 +36,7 @@ jobs:
 
       - name: testing
         run: |
-          python -m pip install --upgrade pip && pip install -r requirements.txt
-          pip install pytest
-          CURPWD=`pwd`
-          export PYTHONPATH=$CURPWD/adv:$PYTHONPATH
-          py.test --cov=adv/processor_enterprise tests/ --cov-report term-missing --junitxml=junit/test-results.xml
+          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.8 sh unit_testing.sh
 
       - name: install SO dependencies
         run: |
