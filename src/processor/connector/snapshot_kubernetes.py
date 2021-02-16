@@ -29,12 +29,10 @@ def populate_snapshot_kubernetes(snapshot, container=None):
             for node in snapshot_nodes:
                 node_paths = get_field_value(node,'paths')
                 node_type = get_field_value(node,'type')
-                # print(container)
                 for node_path in node_paths:
                     kubernetes_structure_data = get_kubernetes_structure_data(snapshot_source)
                     print(node)
                     kubernetes_snapshot_data = get_kubernetes_snapshot_data(kubernetes_structure_data,node_path,node_type,snapshot_serviceAccount,snapshot_namespace) 
-                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
                     if kubernetes_snapshot_data :
                         error_str = kubernetes_snapshot_data.pop('error', None)
@@ -45,8 +43,6 @@ def populate_snapshot_kubernetes(snapshot, container=None):
                         snapshot_data[node['snapshotId']] = False if error_str else True
                         if snapshot_dir:
                             store_snapshot(snapshot_dir, node_db_record_data)
-                    else :
-                        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
                 get_kube_apiserver_info(node_paths,snapshot_source)
         except Exception as ex:
@@ -86,7 +82,6 @@ def get_kubernetes_snapshot_data(kubernetes_structure_data,path,node_type,snapsh
         except Exception as ex:
                 logger.info('error in calling api: %s', ex)
                 raise ex
-        print("!!!!!!!!!!!!!!",api_response)
         api_response_dict = todict(api_response)
     return api_response_dict
 
