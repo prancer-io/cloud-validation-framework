@@ -111,7 +111,7 @@ def test_populate_all_template_snapshot(monkeypatch):
 	template_processor = AWSTemplateProcessor(node_data, **master_template_processor_kwargs)
 	snapshot_data = template_processor.populate_all_template_snapshot()
 	value = sorted(snapshot_data['MASTER_SNAPSHOT_'], key=lambda i: i['snapshotId'])
-	assert value == [
+	result = [
 			{
 				'snapshotId': 'MASTER_SNAPSHOT_1',
 				'type': 'cloudformation',
@@ -129,3 +129,6 @@ def test_populate_all_template_snapshot(monkeypatch):
 					'validate': True
 				}
 			]
+	assert len(value) == len(result)
+	assert value[0]['snapshotId'] == result[0]['snapshotId']
+	assert value[1]['snapshotId'] == result[1]['snapshotId']
