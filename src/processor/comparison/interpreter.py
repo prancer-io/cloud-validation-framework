@@ -277,7 +277,7 @@ class ComparatorV01:
 
                 resultval = json_from_file('/tmp/a.json')
                 if resultval and "errors" in resultval and resultval["errors"]:
-                    results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                    results.append({'eval': rule_expr, 'result': "failed", 'message': ''})
                     logger.info('\t\tERROR: %s', str(resultval["errors"]))
                     logger.info('\t\tRESULT: FAILED')
                     # logger.error(str(resultval["errors"]))

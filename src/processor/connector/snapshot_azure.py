@@ -7,6 +7,7 @@ import hashlib
 import time
 import pymongo
 import os
+from processor.connector.special_crawler.azure_crawler import AzureCrawler
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
@@ -24,30 +25,35 @@ from processor.connector.snapshot_utils import validate_snapshot_nodes
 
 
 logger = getlogger()
+apiversions = None
 
+def get_api_versions():
+    """ get api versions dict """
+    global apiversions
+    if not apiversions:
+        api_source = config_value('AZURE', 'api')
+        if json_source():
+            dbname = config_value(DATABASE, DBNAME)
+            collection = config_value(DATABASE, collectiontypes[STRUCTURE])
+            parts = api_source.rsplit('/')
+            name = parts[-1].split('.')
+            qry = {'name': name[0]}
+            sort = [sort_field('timestamp', False)]
+            docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
+            logger.info('Number of Azure API versions: %s', len(docs))
+            if docs and len(docs):
+                apiversions = docs[0]['json']
+        else:
+            apiversions_file = '%s/%s' % (framework_dir(), api_source)
+            # logger.info(apiversions_file)
+            if exists_file(apiversions_file):
+                apiversions = json_from_file(apiversions_file)
+    return apiversions
 
 def get_version_for_type(node):
     """Url version of the resource."""
     version = None
-    apiversions = None
-    # logger.info("Get type's version")
-    api_source = config_value('AZURE', 'api')
-    if json_source():
-        dbname = config_value(DATABASE, DBNAME)
-        collection = config_value(DATABASE, collectiontypes[STRUCTURE])
-        parts = api_source.rsplit('/')
-        name = parts[-1].split('.')
-        qry = {'name': name[0]}
-        sort = [sort_field('timestamp', False)]
-        docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
-        logger.info('Number of Azure API versions: %s', len(docs))
-        if docs and len(docs):
-            apiversions = docs[0]['json']
-    else:
-        apiversions_file = '%s/%s' % (framework_dir(), api_source)
-        # logger.info(apiversions_file)
-        if exists_file(apiversions_file):
-            apiversions = json_from_file(apiversions_file)
+    apiversions = get_api_versions()
     if apiversions:
         if node and 'type' in node and node['type'] in apiversions:
             version = apiversions[node['type']]['version']
@@ -98,6 +104,9 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
             else:
                 put_in_currentdata('errors', data)
                 logger.info("Get Id returned invalid status: %s", status)
+        
+        azure_crawler = AzureCrawler(resources, token=token, apiversions=get_api_versions())
+        resources = azure_crawler.check_for_special_crawl(nodetype)
         if resources:
             for idx, value in enumerate(resources):
                 if nodetype in value['type']:
