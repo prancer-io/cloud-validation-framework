@@ -27,6 +27,7 @@ Prancer Cloud Validation framework has built-in simple and robust classic rule e
     "eval": "data.rule.rulepass"
 }
 ```
+- If you have a master test file, you should use "masterSnapshotId" instead of "snapshotId"
 
    The classic rule has an expression with a Left Hand Side(LHS) and Right Hand Side(RHS) with a comparator operator. The classic rule engine evaluates LHS and RHS, uses the comparator to evaluate the rule.
 

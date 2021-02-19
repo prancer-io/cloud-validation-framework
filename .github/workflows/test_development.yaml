@@ -1,4 +1,4 @@
-name: build and publish PRANCER BASIC
+name: Unit testing PRANCER BASIC
 on:
   push:
     branches:
@@ -36,4 +36,4 @@ jobs:
 
       - name: testing
         run: |
-          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.8 sh unit_testing.sh
+          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.8 sh dev-test.sh

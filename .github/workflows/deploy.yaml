@@ -3,13 +3,6 @@ on:
   push:
     branches:
       - master
-  # For manual build
-  #workflow_dispatch:
-  #  inputs:
-  #    branch:
-  #      required: true
-  #      description: 'Branch' 
-  #      default: 'master'
 jobs:
   build:
     name: build and publish
@@ -36,7 +29,7 @@ jobs:
 
       - name: testing
         run: |
-          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.8 sh unit_testing.sh
+          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.8 sh dev-test.sh
 
       - name: install SO dependencies
         run: |
