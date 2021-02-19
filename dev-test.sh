@@ -28,3 +28,5 @@ else
       echo "Variables are NOT empty, passing tests"
       return 0
 fi
+
+chmod -R 777 $BASEDIR
