@@ -9,6 +9,7 @@ git clone https://github.com/prancer-io/prancer-hello-world.git
 cd $BASEDIR/prancer-hello-world
 export FRAMEWORKDIR=`pwd`
 cd $BASEDIR
+chmod -R 777 $BASEDIR
 python utilities/validator.py --db NONE scenario-pass
 pass_success=`grep passed $BASEDIR/prancer-hello-world/validation/scenario-pass/output-test.json`
 fail_error=`grep failed $BASEDIR/prancer-hello-world/validation/scenario-pass/output-test.json`
