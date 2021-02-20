@@ -4,8 +4,8 @@ import os
 path = os.path.dirname(os.path.abspath(__file__))
 
 template_processor_kwargs = {
-	'container': 'aws_template', 
-	'snapshot_source': 'fsAwsConnector', 
+	'container': 'azure_template', 
+	'snapshot_source': 'fsAzureConnector', 
 	'repopath': '/tmp/tmp2u5r6vxn', 
 	'connector_data': { 
 		'fileType' : 'structure', 
@@ -20,8 +20,8 @@ template_processor_kwargs = {
 		'nodes' : [
 			{
 				'snapshotId': 'SNAPSHOT_1',
-				'type': 'cloudformation',
-				'collection': 'cloudformation',
+				'type': 'arm',
+				'collection': 'arm',
 				'paths' : [
 					'sample/keyvault.json',
 					'sample/vars.keyvaultrg.json'
@@ -36,8 +36,8 @@ template_processor_kwargs = {
 }
 
 master_template_processor_kwargs = {
-	'container': 'google_template', 
-	'snapshot_source': 'fsGoogleConnector', 
+	'container': 'azure_template', 
+	'snapshot_source': 'fsAzureConnector', 
 	'repopath': '/tmp/tmp2u5r6vxn', 
 	'connector_data': { 
 		'fileType' : 'structure', 
@@ -52,8 +52,8 @@ master_template_processor_kwargs = {
 		'nodes' : [
 			{
 				'masterSnapshotId': 'MASTER_SNAPSHOT_',
-				'type': 'cloudformation',
-				'collection': 'cloudformation',
+				'type': 'arm',
+				'collection': 'arm',
 				'paths' : [
 					'/sample'
 				],
@@ -109,25 +109,16 @@ def test_populate_all_template_snapshot(monkeypatch):
 
 	template_processor = AzureTemplateProcessor(node_data, **master_template_processor_kwargs)
 	snapshot_data = template_processor.populate_all_template_snapshot()
-	
+
 	assert snapshot_data == {
-		'MASTER_SNAPSHOT_': 
-		[
+		"MASTER_SNAPSHOT_": [
 			{
-				'snapshotId': 'MASTER_SNAPSHOT_1',
-				'type': 'cloudformation',
-				'collection': 'cloudformation',
-				'paths': ['/sample/keyvault.json'],
-				'status': 'active',
-				'validate': True
-			},
-			{
-				'snapshotId': 'MASTER_SNAPSHOT_2',
-				'type': 'cloudformation',
-				'collection': 'cloudformation',
-				'paths': ['/sample/vars.keyvaultrg.json'],
-				'status': 'inactive',
-				'validate': True
+				"snapshotId": "MASTER_SNAPSHOT_1",
+				"type": "arm",
+				"collection": "arm",
+				"paths": ["/sample/keyvault.json", "/sample/vars.keyvaultrg.json"],
+				"status": "active",
+				"validate": True,
 			}
 		]
 	}

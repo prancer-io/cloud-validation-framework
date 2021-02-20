@@ -300,9 +300,11 @@ class TemplateProcessor:
             for path in self.paths:
                 self.dir_path = str('%s/%s' % (root_dir_path, path)).replace('//', '/')
                 if exists_dir(self.dir_path):
-                    list_of_file = os.listdir(self.dir_path)
-                    for entry in list_of_file:
-                        count = self.populate_sub_directory_snapshot(path, self.dir_path, entry, self.snapshot, self.dbname, self.node, self.snapshot_data, count)
+                    path = path.rstrip("/")
+                    count = self.populate_sub_directory_snapshot(path, self.dir_path, "", self.snapshot, self.dbname, self.node, self.snapshot_data, count)
+                    # list_of_file = os.listdir(self.dir_path)
+                    # for entry in list_of_file:
+                    #     count = self.populate_sub_directory_snapshot(path, self.dir_path, entry, self.snapshot, self.dbname, self.node, self.snapshot_data, count)
                 else:
                     logger.error("Invalid path : directory does not exist : " + self.dir_path)
         else:

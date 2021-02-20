@@ -1,32 +1,21 @@
 python -m pip install --upgrade pip && pip install -r requirements.txt
-pip install pymongo
 export BASEDIR=`pwd`
 export FRAMEWORKDIR=`pwd`
 export PYTHONPATH=$FRAMEWORKDIR/src
 python utilities/validator.py --help
 py.test --cov=processor tests/processor --cov-report term-missing
-
-export FRAMEWORKDIR=`pwd`
-cd $BASEDIR
+if [ $? -ne 0 ]; then echo "Unit tests failed"; exit 1; fi
 git clone https://github.com/prancer-io/prancer-hello-world.git
 cd $BASEDIR/prancer-hello-world
 export FRAMEWORKDIR=`pwd`
 cd $BASEDIR
-python utilities/validator.py --db NONE scenario-pass
-cd $BASEDIR/prancer-hello-world/validation/scenario-pass/
-pass_error=`grep passed output-test.json`n
-cd $BASEDIR
-python utilities/validator.py --db NONE scenario-fail
-cd $BASEDIR/prancer-hello-world/validation/scenario-fail/
-fail_error=`grep failed output-test.json`
-echo pass_error = $pass_error
-echo fail_error = $fail_error
-if [ -z "$pass_error" ] && [ -z "$fail_error" ]
-then
-      echo "Variables contains one of them or both empty, failing tests"
-else
-      echo "Variables are NOT empty, passing tests"
-      return 0
-fi
-
 chmod -R 777 $BASEDIR
+python utilities/validator.py --db NONE scenario-pass
+pass_success=`grep passed $BASEDIR/prancer-hello-world/validation/scenario-pass/output-test.json`
+fail_error=`grep failed $BASEDIR/prancer-hello-world/validation/scenario-pass/output-test.json`
+if [[ -z "$pass_success" ]] || [[ ! -z "$failed_error" ]] ; then   echo "scenario-pass failed"; exit 1;fi
+python utilities/validator.py --db NONE scenario-fail
+fail_success=`grep failed $BASEDIR/prancer-hello-world/validation/scenario-fail/output-test.json`
+pass_error=`grep passed $BASEDIR/prancer-hello-world/validation/scenario-fail/output-test.json`
+if [[ -z "$fail_success" ]] || [[ ! -z "$pass_error" ]] ; then   echo "scenario-fail failed"; exit 1;fi
+exit 0
