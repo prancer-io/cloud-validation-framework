@@ -75,7 +75,7 @@ def create_kube_apiserver_instance_client(cluster_url,service_account_secret,nod
     configuration.verify_ssl=False 
     configuration.debug = False
     client.Configuration.set_default(configuration)
-    if node_type in ["pod","service"]:
+    if node_type in ["pod","service","serviceaccount"]:
         api_client = client.CoreV1Api()
     if node_type in ["deployment","replicaset"]:
         api_client = client.AppsV1Api()
@@ -120,6 +120,10 @@ def get_kubernetes_snapshot_data(kubernetes_structure_data,path,node_type,snapsh
         api_response = api_instance.read_namespaced_role_binding(name=object_name,namespace=snapshot_namespace)
         # logger.info('error in calling api for getting information  roleBinding: %s', object_name)
 
+    if node_type == "serviceaccount":
+        api_response = api_instance.read_namespaced_service_account(name=object_name,namespace=snapshot_namespace)
+        # logger.info('error in calling api for getting information  roleBinding: %s', object_name)
+    
     api_response_dict = todict(api_response)  
     return api_response_dict
 
