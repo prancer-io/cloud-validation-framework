@@ -79,8 +79,8 @@ def create_kube_apiserver_instance_client(cluster_url,service_account_secret,nod
         api_client = client.CoreV1Api()
     if node_type in ["deployment","replicaset"]:
         api_client = client.AppsV1Api()
-    if node_type in ["role"]:
-        api_client=client.RbacAuthorizationApi()
+    if node_type in ["networkpolicy"]:
+        api_client = client.NetworkingV1Api()
     return api_client
 
 def get_kubernetes_snapshot_data(kubernetes_structure_data,path,node_type,snapshot_serviceAccount,snapshot_namespace):
@@ -90,20 +90,23 @@ def get_kubernetes_snapshot_data(kubernetes_structure_data,path,node_type,snapsh
 
     if node_type == "pod":
         api_response = api_instance.read_namespaced_pod(name=object_name,namespace=snapshot_namespace)
-        logger.info('error in calling api for getting information pod : %s', object_name)
+        # logger.info('error in calling api for getting information pod : %s', object_name)
         
     if node_type == "deployment":
         api_response = api_instance.read_namespaced_deployment(name=object_name,namespace=snapshot_namespace)
-        logger.info('error in calling api for getting information deployment : %s', object_name)
+        # logger.info('error in calling api for getting information deployment : %s', object_name)
     
     if node_type == "replicaset":
         api_response = api_instance.read_namespaced_replica_set(name=object_name,namespace=snapshot_namespace)
-        logger.info('error in calling api for getting information replicaset : %s', object_name)
+        # logger.info('error in calling api for getting information replicaset : %s', object_name)
     
     if node_type == "service":
-        # print(object_name,snapshot_namespace)
         api_response = api_instance.read_namespaced_service(name=object_name,namespace=snapshot_namespace)
-        logger.info('error in calling api for getting information replicaset : %s', object_name)
+        # logger.info('error in calling api for getting information replicaset : %s', object_name)
+
+    if node_type == "networkpolicy":
+        api_response = api_instance.read_namespaced_network_policy(name=object_name,namespace=snapshot_namespace)
+        # logger.info('error in calling api for getting information networkPolicy : %s', object_name)
 
     api_response_dict = todict(api_response)  
     return api_response_dict
