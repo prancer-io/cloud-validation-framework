@@ -81,6 +81,8 @@ def create_kube_apiserver_instance_client(cluster_url,service_account_secret,nod
         api_client = client.AppsV1Api()
     if node_type in ["networkpolicy"]:
         api_client = client.NetworkingV1Api()
+    if node_type in ["podsecuritypolicy"]:
+        api_client = client.PolicyV1beta1Api()
     return api_client
 
 def get_kubernetes_snapshot_data(kubernetes_structure_data,path,node_type,snapshot_serviceAccount,snapshot_namespace):
@@ -108,6 +110,10 @@ def get_kubernetes_snapshot_data(kubernetes_structure_data,path,node_type,snapsh
         api_response = api_instance.read_namespaced_network_policy(name=object_name,namespace=snapshot_namespace)
         # logger.info('error in calling api for getting information networkPolicy : %s', object_name)
 
+    if node_type == "podsecuritypolicy":
+        api_response = api_instance.read_pod_security_policy(name=object_name)
+        # logger.info('error in calling api for getting information  podSecurityPolicy: %s', object_name)
+    
     api_response_dict = todict(api_response)  
     return api_response_dict
 
