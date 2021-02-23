@@ -227,24 +227,24 @@ def populate_json_files(args):
         containerId = filtered_list[0]['containerId']
     # return containerId
 
-    if args.dir:
-        logger.info("Checking this directory: %s for json files", args.dir)
-        json_dir = args.dir
-        if exists_dir(args.dir):
-            for filename in glob.glob('%s/*.json' % json_dir.replace('//', '/')):
-                json_data = json_from_file(filename)
-                if json_data and 'fileType' in json_data:
-                    filetype = json_data['fileType']
-                else:
-                    filetype = 'structure'
-                logger.info('Storing file:%s from directory: %s', json_dir, filename)
-                db_record = json_record(args.container, filetype, filename, json_data)
-                if validate_json_data(db_record['json'], db_record['type']):
-                    insert_one_document(db_record, db_record['collection'], dbname, False)
-                    logger.debug('DB Record: %s', json.dumps(db_record, indent=2))
-                else:
-                    logger.info('Invalid json for type:%s', db_record['type'])
-                logger.info('*' * 80)
+    # if args.dir:
+    #     logger.info("Checking this directory: %s for json files", args.dir)
+    #     json_dir = args.dir
+    #     if exists_dir(args.dir):
+    #         for filename in glob.glob('%s/*.json' % json_dir.replace('//', '/')):
+    #             json_data = json_from_file(filename)
+    #             if json_data and 'fileType' in json_data:
+    #                 filetype = json_data['fileType']
+    #             else:
+    #                 filetype = 'structure'
+    #             logger.info('Storing file:%s from directory: %s', json_dir, filename)
+    #             db_record = json_record(args.container, filetype, filename, json_data)
+    #             if validate_json_data(db_record['json'], db_record['type']):
+    #                 insert_one_document(db_record, db_record['collection'], dbname, False)
+    #                 logger.debug('DB Record: %s', json.dumps(db_record, indent=2))
+    #             else:
+    #                 logger.info('Invalid json for type:%s', db_record['type'])
+    #             logger.info('*' * 80)
     if args.file:
         logger.info("Populating %s json file.", args.file)
         json_file = args.file
@@ -253,8 +253,8 @@ def populate_json_files(args):
                 json_data = json_from_file(json_file)
                 if json_data and 'fileType' in json_data:
                     filetype = json_data['fileType']
-                elif args.type:
-                    filetype = args.type
+                # elif args.type:
+                #     filetype = args.type
                 else:
                     filetype = 'structure'
                 logger.info('Storing file:%s', json_file)
