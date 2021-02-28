@@ -51,7 +51,7 @@ def create_kube_apiserver_instance(kubernetes_structure_data,snapshot_serviceAcc
     service_account_secret = get_client_secret(kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace)
 
     if service_account_secret == "" :
-        logger.error("\t\t ERROR : service account token can not find for service account : %s" % (snapshot_serviceAccount))
+        logger.error("\t\t ERROR : can not find secret for service account : %s" % (snapshot_serviceAccount))
         # return api_instance
     cluster_url = get_field_value(kubernetes_structure_data,'clusterUrl')
     api_instance = create_kube_apiserver_instance_client(cluster_url,service_account_secret,node_type)
@@ -63,7 +63,7 @@ def get_client_secret(kubernetes_structure_data,snapshot_serviceAccount,snapshot
     for namespace in namespaces :
         service_accounts = get_field_value(namespace,'serviceAccounts')
         for service_account in service_accounts :
-            if snapshot_serviceAccount == service_account['name'] and snapshot_namespace == namespace['namespace']:
+            if snapshot_serviceAccount == service_account['name'] and namespace['namespace'] in snapshot_namespace :
                 service_account_secret = get_field_value(service_account,'token')
     return service_account_secret 
 
@@ -93,22 +93,30 @@ def get_kubernetes_snapshot_data(kubernetes_structure_data,path,node_type,snapsh
     api_instance = create_kube_apiserver_instance(kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type)
 
     if node_type == "pod":
-        api_response = api_instance.read_namespaced_pod(name=object_name,namespace=snapshot_namespace)
-        # logger.info('error in calling api for getting information pod : %s', object_name)
+        snapshot_namespace = path.split("/")[3]
+        try:
+            api_response = api_instance.read_namespaced_pod(name=object_name,namespace=snapshot_namespace)
+        except Exception as ex :
+            logger.info('\t\tERROR : error in calling api for getting information pod : %s', object_name)
+            logger.info('\t\tERROR : %s',ex)
         
     if node_type == "deployment":
+        snapshot_namespace = path.split("/")[4]
         api_response = api_instance.read_namespaced_deployment(name=object_name,namespace=snapshot_namespace)
         # logger.info('error in calling api for getting information deployment : %s', object_name)
     
     if node_type == "replicaset":
+        snapshot_namespace = path.split("/")[4]
         api_response = api_instance.read_namespaced_replica_set(name=object_name,namespace=snapshot_namespace)
         # logger.info('error in calling api for getting information replicaset : %s', object_name)
     
     if node_type == "service":
+        snapshot_namespace = path.split("/")[3]
         api_response = api_instance.read_namespaced_service(name=object_name,namespace=snapshot_namespace)
         # logger.info('error in calling api for getting information replicaset : %s', object_name)
 
     if node_type == "networkpolicy":
+        snapshot_namespace = path.split("/")[4]
         api_response = api_instance.read_namespaced_network_policy(name=object_name,namespace=snapshot_namespace)
         # logger.info('error in calling api for getting information networkPolicy : %s', object_name)
 
@@ -117,10 +125,12 @@ def get_kubernetes_snapshot_data(kubernetes_structure_data,path,node_type,snapsh
         # logger.info('error in calling api for getting information  podSecurityPolicy: %s', object_name)
     
     if node_type == "rolebinding":
+        snapshot_namespace = path.split("/")[4]
         api_response = api_instance.read_namespaced_role_binding(name=object_name,namespace=snapshot_namespace)
         # logger.info('error in calling api for getting information  roleBinding: %s', object_name)
 
     if node_type == "serviceaccount":
+        snapshot_namespace = path.split("/")[3]
         api_response = api_instance.read_namespaced_service_account(name=object_name,namespace=snapshot_namespace)
         # logger.info('error in calling api for getting information  roleBinding: %s', object_name)
     
@@ -146,7 +156,7 @@ def node_db_record(node,node_path,snapshot):
     collection = node['collection'] if 'collection' in node else COLLECTION
     data = {
     "structure":"kubernetes",
-    "refrence": snapshot['namespace'],
+    "reference": snapshot['namespace'],
     "source": snapshot['source'],
     "path":node_path,
     "timestamp": int(time.time() * 1000),
@@ -159,17 +169,54 @@ def node_db_record(node,node_path,snapshot):
     }
     return data
 
-def get_lits(node_type,namespaces,kubernetes_structure_data,snapshot_serviceAccount):
+def get_lits(node_type,namespace,kubernetes_structure_data,snapshot_serviceAccount):
     list_items = []
     if node_type == 'pod':
-        for namespace in namespaces :
-            list_item = get_list_namespaced_pods(
-                namespace,
-                kubernetes_structure_data,
-                snapshot_serviceAccount,
-                namespace,
-                'pod')
-            list_items.append(list_item)
+        list_item = get_list_namespaced_pods(
+            namespace,
+            kubernetes_structure_data,
+            snapshot_serviceAccount,
+            namespace,
+            node_type)
+        list_items.append(list_item)
+    
+    if node_type == 'networkpolicy':
+        list_item = get_list_namespaced_network_policy(
+            namespace,
+            kubernetes_structure_data,
+            snapshot_serviceAccount,
+            namespace,
+            node_type)
+        list_items.append(list_item)
+    
+        
+    if node_type == 'podsecuritypolicy':
+        list_item = get_list_namespaced_pod_security_policy(
+            namespace,
+            kubernetes_structure_data,
+            snapshot_serviceAccount,
+            namespace,
+            node_type)
+        list_items.append(list_item)        
+    
+    if node_type == 'rolebinding':
+        list_item = get_list_namespaced_role_binding(
+            namespace,
+            kubernetes_structure_data,
+            snapshot_serviceAccount,
+            namespace,
+            node_type)
+        list_items.append(list_item)
+
+    if node_type == 'serviceaccount':
+        list_item = get_list_namespaced_service_account(
+            namespace,
+            kubernetes_structure_data,
+            snapshot_serviceAccount,
+            namespace,
+            node_type)
+        list_items.append(list_item)        
+
     return list_items
 
 def get_list_namespaced_pods(namespace,kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type):
@@ -189,6 +236,73 @@ def get_list_namespaced_pods(namespace,kubernetes_structure_data,snapshot_servic
             })
         return pod_items
 
+def get_list_namespaced_network_policy(namespace,kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type):
+    network_policy_items = []
+    api_instance = create_kube_apiserver_instance(kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type)
+    api_response = api_instance.list_namespaced_network_policy(namespace=namespace)
+    api_response_dict = todict(api_response) 
+    api_response_dict_items = get_field_value(api_response_dict,'items')
+    for api_response_dict_item in api_response_dict_items :
+        network_policy_name = get_field_value(api_response_dict_item,'metadata.name')
+        network_policy_path = "apis/networking.k8s.io/v1/namespaces/%s/networkpolicies/%s" % (namespace,network_policy_name)
+        network_policy_items.append({
+            'namespace': namespace,
+            'paths':[
+                network_policy_path
+            ]
+        })
+    return network_policy_items
+
+def get_list_namespaced_pod_security_policy(namespace,kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type):
+    pod_security_policy_items = []
+    api_instance = create_kube_apiserver_instance(kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type)
+    api_response = api_instance.list_pod_security_policy()
+    api_response_dict = todict(api_response) 
+    api_response_dict_items = get_field_value(api_response_dict,'items')
+    for api_response_dict_item in api_response_dict_items :
+        pod_security_policy_name = get_field_value(api_response_dict_item,'metadata.name')
+        pod_security_policy_path = "apis/policy/v1beta1/podsecuritypolicies/%s" % (pod_security_policy_name)
+        pod_security_policy_items.append({
+            'namespace': namespace,
+            'paths':[
+                pod_security_policy_path
+            ]
+        })
+    return pod_security_policy_items
+
+def get_list_namespaced_role_binding(namespace,kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type):
+    role_binding_items = []
+    api_instance = create_kube_apiserver_instance(kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type)
+    api_response = api_instance.list_namespaced_role_binding(namespace=namespace)
+    api_response_dict = todict(api_response) 
+    api_response_dict_items = get_field_value(api_response_dict,'items')
+    for api_response_dict_item in api_response_dict_items :
+        role_binding_name = get_field_value(api_response_dict_item,'metadata.name')
+        role_binding_path = "apis/rbac.authorization.k8s.io/v1beta1/namespaces/%s/rolebindings/%s" % (namespace,role_binding_name)
+        role_binding_items.append({
+            'namespace': namespace,
+            'paths':[
+                role_binding_path
+            ]
+        })
+    return role_binding_items
+
+def get_list_namespaced_service_account(namespace,kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type):
+    service_account_items = []
+    api_instance = create_kube_apiserver_instance(kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type)
+    api_response = api_instance.list_namespaced_service_account(namespace=namespace)
+    api_response_dict = todict(api_response) 
+    api_response_dict_items = get_field_value(api_response_dict,'items')
+    for api_response_dict_item in api_response_dict_items :
+        service_account_name = get_field_value(api_response_dict_item,'metadata.name')
+        service_account_path = "api/v1/namespaces/%s/serviceaccounts/%s" % (namespace,service_account_name)
+        service_account_items.append({
+            'namespace': namespace,
+            'paths':[
+                service_account_path
+            ]
+        })
+    return service_account_items
 
 def generate_crawler_snapshot(snapshot,container,node,node_type,node_path,snapshot_data,kubernetes_structure_data,snapshot_serviceAccount):
     snapshot_source = get_field_value(snapshot, 'source')
@@ -200,28 +314,31 @@ def generate_crawler_snapshot(snapshot,container,node,node_type,node_path,snapsh
     parts = snapshot_source.split('.')
     namespace = get_field_value_with_default(snapshot,'namespace',"")
     node_type = get_field_value_with_default(node, 'type',"")
+    resource_items = []
+    for snapshot_namespace in snapshot_namespaces:
+        resource_items+=get_lits(
+            node_type=node_type,
+            namespace=snapshot_namespace,
+            kubernetes_structure_data=kubernetes_structure_data,
+            snapshot_serviceAccount=snapshot_serviceAccount)
 
-    resource_items = get_lits(
-        node_type=node_type,
-        namespaces=snapshot_namespaces,
-        kubernetes_structure_data=kubernetes_structure_data,
-        snapshot_serviceAccount=snapshot_serviceAccount)
-    
     snapshot_data[node['masterSnapshotId']] = []
-    for masterSnapshotId,snapshot_list in snapshot_data.items() :
-        old_record = None
-        if isinstance(snapshot_list, list):
-            for item in snapshot_list:
-                if item["path"] == node_path:
-                    old_record = item
-            if old_record:
-                found_old_record = True
-                if node['masterSnapshotId'] not in old_record['masterSnapshotId']:
-                    old_record['masterSnapshotId'].append(
-                        node['masterSnapshotId'])        
+    found_old_record = False
     for resource_item in resource_items :
+        for masterSnapshotId,snapshot_list in snapshot_data.items() :
+            old_record = None
+            if isinstance(snapshot_list, list):
+                for item in snapshot_list:
+                    if item["paths"] == node_path:
+                        old_record = item
+                if old_record:
+                    found_old_record = True
+                    if node['masterSnapshotId'] not in old_record['masterSnapshotId']:
+                        old_record['masterSnapshotId'].append(
+                            node['masterSnapshotId'])        
         for index,resource_namespaced_item in enumerate(resource_item):
-            snapshot_data[node['masterSnapshotId']].append(               {
+
+            snapshot_data[node['masterSnapshotId']].append({
                             "masterSnapshotId" : [node['masterSnapshotId']],
                             "snapshotId": '%s%s_%s' % (node['masterSnapshotId'],resource_namespaced_item['namespace'], str(index)),
                             "type": node_type,
