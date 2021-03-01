@@ -8,10 +8,12 @@ class AzureCrawler(BaseCrawler):
         super().__init__(resources, **kwargs)
         self.token = kwargs.get("token")
         self.apiversions = kwargs.get("apiversions")
+        self.subscription_id = kwargs.get("subscription_id")
 
         self.special_resource_types = {
             "Microsoft.Sql/servers/securityAlertPolicies" : self.crawl_server_security_alert_policies,
-            "Microsoft.Sql/servers/auditingSettings" : self.crawl_server_audit_settings
+            "Microsoft.Sql/servers/auditingSettings" : self.crawl_server_audit_settings,
+            "Microsoft.Authorization/roleDefinitions": self.crawl_role_definitions
         }
     
     def check_for_special_crawl(self, resource_type):
@@ -63,3 +65,12 @@ class AzureCrawler(BaseCrawler):
                 if resource.get("type") == "Microsoft.Sql/servers":
                     url = 'https://management.azure.com%s/%s?api-version=%s' % (resource.get("id"), "auditingSettings", version)
                     self.call_azure_api(url)
+    
+    def crawl_role_definitions(self, resource_type):
+        """
+        crawl "Microsoft.Authorization/roleDefinitions" resource type
+        """
+        version = self.get_version_of_resource_type(resource_type)
+        if version:
+            url = 'https://management.azure.com/subscriptions/%s/providers/%s?api-version=%s' % (self.subscription_id, resource_type, version)
+            self.call_azure_api(url)
