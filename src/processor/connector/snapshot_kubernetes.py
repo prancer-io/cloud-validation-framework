@@ -2,6 +2,7 @@ import json
 import ast
 import hashlib
 import time
+import os
 from datetime import datetime
 from openapi_schema_to_json_schema import to_json_schema
 from processor.helper.json.json_utils import get_field_value,json_from_file,save_json_to_file,\
@@ -13,6 +14,7 @@ import kubernetes.client
 from kubernetes.client.rest import ApiException
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.database.database import COLLECTION
+
 
 
 
@@ -64,7 +66,9 @@ def get_client_secret(kubernetes_structure_data,snapshot_serviceAccount,snapshot
         service_accounts = get_field_value(namespace,'serviceAccounts')
         for service_account in service_accounts :
             if snapshot_serviceAccount == service_account['name'] and namespace['namespace'] in snapshot_namespace :
-                service_account_secret = get_field_value(service_account,'token')
+                service_account_secret = get_field_value(service_account['name'],'secret')
+                if service_account_secret is None:
+                    service_account_secret = os.getenv(snapshot_serviceAccount, None)
     return service_account_secret 
 
 def create_kube_apiserver_instance_client(cluster_url,service_account_secret,node_type):
