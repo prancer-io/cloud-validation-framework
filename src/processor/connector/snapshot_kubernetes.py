@@ -95,49 +95,48 @@ def get_kubernetes_snapshot_data(kubernetes_structure_data,path,node_type,snapsh
     api_response = None
     object_name = path.split("/")[-1]
     api_instance = create_kube_apiserver_instance(kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type)
-
-    if node_type == "pod":
-        snapshot_namespace = path.split("/")[3]
-        try:
+    try:
+        if node_type == "pod":
+            snapshot_namespace = path.split("/")[3]
             api_response = api_instance.read_namespaced_pod(name=object_name,namespace=snapshot_namespace)
-        except Exception as ex :
-            logger.info('\t\tERROR : error in calling api for getting information pod : %s', object_name)
-            logger.info('\t\tERROR : %s',ex)
+
+        if node_type == "deployment":
+            snapshot_namespace = path.split("/")[4]
+            api_response = api_instance.read_namespaced_deployment(name=object_name,namespace=snapshot_namespace)
+            # logger.info('error in calling api for getting information deployment : %s', object_name)
+
+        if node_type == "replicaset":
+            snapshot_namespace = path.split("/")[4]
+            api_response = api_instance.read_namespaced_replica_set(name=object_name,namespace=snapshot_namespace)
+            # logger.info('error in calling api for getting information replicaset : %s', object_name)
+
+        if node_type == "service":
+            snapshot_namespace = path.split("/")[3]
+            api_response = api_instance.read_namespaced_service(name=object_name,namespace=snapshot_namespace)
+            # logger.info('error in calling api for getting information replicaset : %s', object_name)
+
+        if node_type == "networkpolicy":
+            snapshot_namespace = path.split("/")[4]
+            api_response = api_instance.read_namespaced_network_policy(name=object_name,namespace=snapshot_namespace)
+            # logger.info('error in calling api for getting information networkPolicy : %s', object_name)
+
+        if node_type == "podsecuritypolicy":
+            api_response = api_instance.read_pod_security_policy(name=object_name)
+            # logger.info('error in calling api for getting information  podSecurityPolicy: %s', object_name)
+
+        if node_type == "rolebinding":
+            snapshot_namespace = path.split("/")[4]
+            api_response = api_instance.read_namespaced_role_binding(name=object_name,namespace=snapshot_namespace)
+            # logger.info('error in calling api for getting information  roleBinding: %s', object_name)
+
+        if node_type == "serviceaccount":
+            snapshot_namespace = path.split("/")[3]
+            api_response = api_instance.read_namespaced_service_account(name=object_name,namespace=snapshot_namespace)
+            # logger.info('error in calling api for getting information  roleBinding: %s', object_name)
+    except Exception as ex :
+        logger.info('\t\tERROR : error in calling api for getting information %s : %s',node_type, object_name)
+        logger.info('\t\tERROR : %s',ex)
         
-    if node_type == "deployment":
-        snapshot_namespace = path.split("/")[4]
-        api_response = api_instance.read_namespaced_deployment(name=object_name,namespace=snapshot_namespace)
-        # logger.info('error in calling api for getting information deployment : %s', object_name)
-    
-    if node_type == "replicaset":
-        snapshot_namespace = path.split("/")[4]
-        api_response = api_instance.read_namespaced_replica_set(name=object_name,namespace=snapshot_namespace)
-        # logger.info('error in calling api for getting information replicaset : %s', object_name)
-    
-    if node_type == "service":
-        snapshot_namespace = path.split("/")[3]
-        api_response = api_instance.read_namespaced_service(name=object_name,namespace=snapshot_namespace)
-        # logger.info('error in calling api for getting information replicaset : %s', object_name)
-
-    if node_type == "networkpolicy":
-        snapshot_namespace = path.split("/")[4]
-        api_response = api_instance.read_namespaced_network_policy(name=object_name,namespace=snapshot_namespace)
-        # logger.info('error in calling api for getting information networkPolicy : %s', object_name)
-
-    if node_type == "podsecuritypolicy":
-        api_response = api_instance.read_pod_security_policy(name=object_name)
-        # logger.info('error in calling api for getting information  podSecurityPolicy: %s', object_name)
-    
-    if node_type == "rolebinding":
-        snapshot_namespace = path.split("/")[4]
-        api_response = api_instance.read_namespaced_role_binding(name=object_name,namespace=snapshot_namespace)
-        # logger.info('error in calling api for getting information  roleBinding: %s', object_name)
-
-    if node_type == "serviceaccount":
-        snapshot_namespace = path.split("/")[3]
-        api_response = api_instance.read_namespaced_service_account(name=object_name,namespace=snapshot_namespace)
-        # logger.info('error in calling api for getting information  roleBinding: %s', object_name)
-    
     api_response_dict = todict(api_response)  
     return api_response_dict
 
@@ -175,52 +174,56 @@ def node_db_record(node,node_path,snapshot):
 
 def get_lits(node_type,namespace,kubernetes_structure_data,snapshot_serviceAccount):
     list_items = []
-    if node_type == 'pod':
-        list_item = get_list_namespaced_pods(
-            namespace,
-            kubernetes_structure_data,
-            snapshot_serviceAccount,
-            namespace,
-            node_type)
-        list_items.append(list_item)
-    
-    if node_type == 'networkpolicy':
-        list_item = get_list_namespaced_network_policy(
-            namespace,
-            kubernetes_structure_data,
-            snapshot_serviceAccount,
-            namespace,
-            node_type)
-        list_items.append(list_item)
-    
-        
-    if node_type == 'podsecuritypolicy':
-        list_item = get_list_namespaced_pod_security_policy(
-            namespace,
-            kubernetes_structure_data,
-            snapshot_serviceAccount,
-            namespace,
-            node_type)
-        list_items.append(list_item)        
-    
-    if node_type == 'rolebinding':
-        list_item = get_list_namespaced_role_binding(
-            namespace,
-            kubernetes_structure_data,
-            snapshot_serviceAccount,
-            namespace,
-            node_type)
-        list_items.append(list_item)
+    try:
+        if node_type == 'pod':
+            list_item = get_list_namespaced_pods(
+                namespace,
+                kubernetes_structure_data,
+                snapshot_serviceAccount,
+                namespace,
+                node_type)
+            list_items.append(list_item)
 
-    if node_type == 'serviceaccount':
-        list_item = get_list_namespaced_service_account(
-            namespace,
-            kubernetes_structure_data,
-            snapshot_serviceAccount,
-            namespace,
-            node_type)
-        list_items.append(list_item)        
+        if node_type == 'networkpolicy':
+            list_item = get_list_namespaced_network_policy(
+                namespace,
+                kubernetes_structure_data,
+                snapshot_serviceAccount,
+                namespace,
+                node_type)
+            list_items.append(list_item)
 
+
+        if node_type == 'podsecuritypolicy':
+            list_item = get_list_namespaced_pod_security_policy(
+                namespace,
+                kubernetes_structure_data,
+                snapshot_serviceAccount,
+                namespace,
+                node_type)
+            list_items.append(list_item)        
+
+        if node_type == 'rolebinding':
+            list_item = get_list_namespaced_role_binding(
+                namespace,
+                kubernetes_structure_data,
+                snapshot_serviceAccount,
+                namespace,
+                node_type)
+            list_items.append(list_item)
+
+        if node_type == 'serviceaccount':
+            list_item = get_list_namespaced_service_account(
+                namespace,
+                kubernetes_structure_data,
+                snapshot_serviceAccount,
+                namespace,
+                node_type)
+            list_items.append(list_item)        
+    except Exception as ex :
+        logger.info('\t\tERROR : error in calling api for getting information %s ',node_type)
+        logger.info('\t\tERROR : %s',ex)
+    
     return list_items
 
 def get_list_namespaced_pods(namespace,kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type):
