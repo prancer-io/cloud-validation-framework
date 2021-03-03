@@ -174,52 +174,21 @@ def node_db_record(node,node_path,snapshot):
 
 def get_lits(node_type,namespace,kubernetes_structure_data,snapshot_serviceAccount):
     list_items = []
+    master_snapshot_func = {
+        'pod' : get_list_namespaced_pods,
+        'networkpolicy' : get_list_namespaced_network_policy,
+        'podsecuritypolicy' : get_list_namespaced_pod_security_policy,
+        'rolebinding' : get_list_namespaced_role_binding,
+        'serviceaccount' : get_list_namespaced_service_account
+    }
     try:
-        if node_type == 'pod':
-            list_item = get_list_namespaced_pods(
+        list_items.append(master_snapshot_func[node_type](
                 namespace,
                 kubernetes_structure_data,
                 snapshot_serviceAccount,
                 namespace,
-                node_type)
-            list_items.append(list_item)
-
-        if node_type == 'networkpolicy':
-            list_item = get_list_namespaced_network_policy(
-                namespace,
-                kubernetes_structure_data,
-                snapshot_serviceAccount,
-                namespace,
-                node_type)
-            list_items.append(list_item)
-
-
-        if node_type == 'podsecuritypolicy':
-            list_item = get_list_namespaced_pod_security_policy(
-                namespace,
-                kubernetes_structure_data,
-                snapshot_serviceAccount,
-                namespace,
-                node_type)
-            list_items.append(list_item)        
-
-        if node_type == 'rolebinding':
-            list_item = get_list_namespaced_role_binding(
-                namespace,
-                kubernetes_structure_data,
-                snapshot_serviceAccount,
-                namespace,
-                node_type)
-            list_items.append(list_item)
-
-        if node_type == 'serviceaccount':
-            list_item = get_list_namespaced_service_account(
-                namespace,
-                kubernetes_structure_data,
-                snapshot_serviceAccount,
-                namespace,
-                node_type)
-            list_items.append(list_item)        
+                node_type)) 
+         
     except Exception as ex :
         logger.info('\t\tERROR : error in calling api for getting information %s ',node_type)
         logger.info('\t\tERROR : %s',ex)
