@@ -214,7 +214,7 @@ Runs the prancer framework based on the configuration files available in collect
     retval = 0
     logger = init_logger(args.db, framework_config())
     # logger = add_file_logging(config_ini)
-    logger.critical("START: Argument parsing and Run Initialization. Version %s", __version__)
+    logger.info("START: Argument parsing and Run Initialization. Version %s", __version__)
 
 
     from processor.connector.snapshot import populate_container_snapshots
@@ -234,7 +234,7 @@ Runs the prancer framework based on the configuration files available in collect
             atexit.register(delete_currentdata)
         init_currentdata()
 
-        logger.critical("Using Framework dir: %s", framework_dir())
+        logger.info("Using Framework dir: %s", framework_dir())
         logger.info("Args: %s", args)
         logger.debug("Running tests from %s.", DBVALUES[args.db])
         fs = True if args.db > DBVALUES.index(SNAPSHOT) else False

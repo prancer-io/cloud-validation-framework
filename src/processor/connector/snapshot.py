@@ -136,8 +136,8 @@ def populate_container_snapshots(container, dbsystem=True):
     This function is starting point for snapshot population.
     The default location for snapshots of the container is the database.
     """
-    logger.critical("SNAPSHOTS:")
-    logger.critical("\tCollection: %s,  Type: %s",
+    logger.info("SNAPSHOTS:")
+    logger.info("\tCollection: %s,  Type: %s",
                     container, "DATABASE" if dbsystem  else "FILESYSTEM")
     refactor_flag = config_value("GENERAL", "refactor_code")
 
