@@ -247,12 +247,13 @@ Runs the prancer framework based on the configuration files available in collect
         #         pid = open('/tmp/pid_%s' % os.getpid(), 'w')
         #         pid.write(log_name)
         #         pid.close()
+        put_in_currentdata('container', args.container)
         if args.customer:
             put_in_currentdata(CUSTOMER, args.customer)
-            put_in_currentdata('container', args.container)
+            # put_in_currentdata('container', args.container)
         if args.test:
             put_in_currentdata(SINGLETEST, args.test)
-            put_in_currentdata('container', args.container)
+            # put_in_currentdata('container', args.container)
         else:
             put_in_currentdata(SINGLETEST, False)
         if args.connector:
