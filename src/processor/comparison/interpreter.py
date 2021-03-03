@@ -555,6 +555,9 @@ class ComparatorV01:
                 "result": "skipped",
                 "reason": "Unsupported testcase format"
             })
+        
+        if 'dirpath' in self.testcase:
+            del self.testcase['dirpath']
         return result_val
 
 
