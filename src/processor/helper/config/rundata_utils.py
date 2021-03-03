@@ -131,7 +131,7 @@ def delete_currentdata():
         cdir = get_container_dir(container)
         shutil.rmtree('%s/snapshots' % cdir)
 
-    logger.critical("END: Completed the run and cleaning up.")
+    logger.info("END: Completed the run and cleaning up.")
     runctx = get_currentdata()
     runctx['end'] = int(time.time() * 1000)
     runctx['log'] = FWLOGFILENAME
