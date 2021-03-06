@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - development
+
+  pull_request:
+    types: [opened, synchronize]   
   
   workflow_dispatch:
     inputs:
@@ -31,9 +34,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: prancer-io/cloud-validation-framework 
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ github.head_ref }}
           token: ${{ secrets.GIT_TOKEN }}
 
       - name: testing
         run: |
+          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.6.8 sh dev-test.sh
           docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.8 sh dev-test.sh
+          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.9 sh dev-test.sh

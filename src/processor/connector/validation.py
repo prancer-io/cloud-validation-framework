@@ -319,35 +319,39 @@ def run_container_validation_tests_database(container, snapshot_status=None):
         for doc in docs:
             test_json_data = doc['json']
             if test_json_data:
-                if "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
-                    dirpath, pull_response = pull_json_data(test_json_data)
-                    if not pull_response:
-                        return {}
-                snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
-                mastersnapshots = defaultdict(list)
-                snapshot_data = snapshot_status[snapshot_key] if snapshot_key in snapshot_status else {}
-                for snapshot_id, mastersnapshot_id in snapshot_data.items():
-                    if isinstance(mastersnapshot_id, list):
-                        for msnp_id in mastersnapshot_id:
-                            mastersnapshots[msnp_id].append(snapshot_id)    
-                    else:
-                        mastersnapshots[mastersnapshot_id].append(snapshot_id)
-                test_json_data['snapshot'] = snapshot_key
-                testsets = get_field_value_with_default(test_json_data, 'testSet', [])
-                for testset in testsets:
-                    testcases = get_field_value_with_default(testset, 'cases', [])
-                    testset['cases'] = _get_new_testcases(testcases, mastersnapshots)
-                # print(json.dumps(test_json_data, indent=2))
-                resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
-                if resultset:
-                    snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
-                    test_file = doc['name'] if 'name' in doc else ''
-                    dump_output_results(resultset, container, test_file, snapshot, False)
-                    for result in resultset:
-                        if 'result' in result:
-                            if not re.match(r'passed', result['result'], re.I):
-                                finalresult = False
-                                break
+                snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
+                test_file = doc['name'] if 'name' in doc else '-'
+                try:
+                    if "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
+                        dirpath, pull_response = pull_json_data(test_json_data)
+                        if not pull_response:
+                            return {}
+                    snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
+                    mastersnapshots = defaultdict(list)
+                    snapshot_data = snapshot_status[snapshot_key] if snapshot_key in snapshot_status else {}
+                    for snapshot_id, mastersnapshot_id in snapshot_data.items():
+                        if isinstance(mastersnapshot_id, list):
+                            for msnp_id in mastersnapshot_id:
+                                mastersnapshots[msnp_id].append(snapshot_id)    
+                        else:
+                            mastersnapshots[mastersnapshot_id].append(snapshot_id)
+                    test_json_data['snapshot'] = snapshot_key
+                    testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+                    for testset in testsets:
+                        testcases = get_field_value_with_default(testset, 'cases', [])
+                        testset['cases'] = _get_new_testcases(testcases, mastersnapshots)
+                    # print(json.dumps(test_json_data, indent=2))
+                    resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
+                    if resultset:
+                        dump_output_results(resultset, container, test_file, snapshot, False)
+                        for result in resultset:
+                            if 'result' in result:
+                                if not re.match(r'passed', result['result'], re.I):
+                                    finalresult = False
+                                    break
+                except Exception as e:
+                    dump_output_results([], container, test_file, snapshot, False)
+                    raise e
     else:
         logger.info('No mastertest Documents found!')
         mastertest_files_found = False
