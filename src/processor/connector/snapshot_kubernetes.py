@@ -173,7 +173,7 @@ def node_db_record(node,node_path,snapshot):
     return data
 
 def get_lits(node_type,namespace,kubernetes_structure_data,snapshot_serviceAccount):
-    list_items = []
+
     master_snapshot_func = {
         'pod' : get_list_namespaced_pods,
         'networkpolicy' : get_list_namespaced_network_policy,
@@ -181,19 +181,20 @@ def get_lits(node_type,namespace,kubernetes_structure_data,snapshot_serviceAccou
         'rolebinding' : get_list_namespaced_role_binding,
         'serviceaccount' : get_list_namespaced_service_account
     }
+    list_item=[]
     try:
-        list_items.append(master_snapshot_func[node_type](
+         list_item.append(master_snapshot_func[node_type](
                 namespace,
                 kubernetes_structure_data,
                 snapshot_serviceAccount,
                 namespace,
-                node_type)) 
-         
+                node_type))
+
     except Exception as ex :
         logger.info('\t\tERROR : error in calling api for getting information %s ',node_type)
         logger.info('\t\tERROR : %s',ex)
     
-    return list_items
+    return list_item
 
 def get_list_namespaced_pods(namespace,kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace,node_type):
         pod_items = []
