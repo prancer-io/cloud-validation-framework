@@ -92,7 +92,8 @@ class AzureTemplateParser(TemplateParser):
             new_resource = {}
             for key, value in resource.items():
                 if key == "accessPolicies":
-                    print("Here")
+                    # print("Here")
+                    pass
                 # if key == 'dnsNameForPublicIP':
                 #     print("Here")
                 if isinstance(value, str):
@@ -192,7 +193,7 @@ class AzureTemplateParser(TemplateParser):
                         return success, updated_value
             return True, value
         else:
-            print("%s variable does not exist" % val)
+            logger.warning("%s variable does not exist" % val)
         return True, val
 
 
@@ -219,7 +220,7 @@ class AzureTemplateParser(TemplateParser):
                     return True, get_field_value(self.gparams[val]['defaultValue'], ex_params)
                 return True, self.gparams[val]['defaultValue']
         else:
-            print("%s does not exist" % val)
+            logger.warning("%s does not exist" % val)
         return True, val
 
     def handle_concat(self, concat_expr):

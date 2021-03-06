@@ -159,9 +159,11 @@ def get_dburl():
     unittest = os.getenv('UNITTEST', "false")
     if unittest == 'true':
         return None
-    dburl = get_azure_vault_data(DBURL)
-    if dburl:
-        os.environ[DBURL] = dburl
+    dburl = os.getenv('DBURL', None)
+    if not dburl:
+        dburl = get_azure_vault_data(DBURL)
+        if dburl:
+            os.environ[DBURL] = dburl
     return dburl
 
 

@@ -214,7 +214,7 @@ Runs the prancer framework based on the configuration files available in collect
     retval = 0
     logger = init_logger(args.db, framework_config())
     # logger = add_file_logging(config_ini)
-    logger.critical("START: Argument parsing and Run Initialization. Version %s", __version__)
+    logger.info("START: Argument parsing and Run Initialization. Version %s", __version__)
 
 
     from processor.connector.snapshot import populate_container_snapshots
@@ -234,12 +234,13 @@ Runs the prancer framework based on the configuration files available in collect
             atexit.register(delete_currentdata)
         init_currentdata()
 
-        logger.critical("Using Framework dir: %s", framework_dir())
+        logger.info("Using Framework dir: %s", framework_dir())
         logger.info("Args: %s", args)
         logger.debug("Running tests from %s.", DBVALUES[args.db])
         fs = True if args.db > DBVALUES.index(SNAPSHOT) else False
         put_in_currentdata('jsonsource', fs)
         put_in_currentdata(DBTESTS, args.db)
+        put_in_currentdata('container', args.container)
         # if args.db == DBVALUES.index(FULL):
         #     from processor.logging.log_handler import get_dblogger
         #     log_name = get_dblogger()
@@ -249,10 +250,8 @@ Runs the prancer framework based on the configuration files available in collect
         #         pid.close()
         if args.customer:
             put_in_currentdata(CUSTOMER, args.customer)
-            put_in_currentdata('container', args.container)
         if args.test:
             put_in_currentdata(SINGLETEST, args.test)
-            put_in_currentdata('container', args.container)
         else:
             put_in_currentdata(SINGLETEST, False)
         if args.connector:

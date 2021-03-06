@@ -340,8 +340,8 @@ def generate_container_mastersnapshots(container, dbsystem=True):
     """
     # logger.critical("MASTERSNAPSHOTS: Generate mastersnapshots for '%s' container from %s",
     #                 container, "the database." if dbsystem  else "file system.")
-    logger.critical("MASTERSNAPSHOTS:")
-    logger.critical("\tCollection: %s,  Type: %s",
+    logger.info("MASTERSNAPSHOTS:")
+    logger.info("\tCollection: %s,  Type: %s",
                     container, "DATABASE" if dbsystem  else "FILESYSTEM")
     if dbsystem:
         return generate_container_mastersnapshots_database(container)

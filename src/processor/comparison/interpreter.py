@@ -7,6 +7,7 @@ import json
 import os
 import re
 import pymongo
+import subprocess
 from processor.helper.json.json_utils import get_field_value, json_from_file, save_json_to_file
 from processor.helper.config.config_utils import get_test_json_dir, parsebool, config_value, SINGLETEST
 from processor.helper.file.file_utils import exists_file, exists_dir
@@ -131,6 +132,12 @@ def opa_binary():
                 pass
             else:
                 opa_exe = None
+    if not opa_exe:
+        try:
+            subprocess.Popen(['opa', "version"])
+            opa_exe = "opa"
+        except FileNotFoundError:
+            opa_exe = None
 
     return opa_exe
 
@@ -229,8 +236,8 @@ class ComparatorV01:
         opa_exe = opa_binary()
         if not opa_exe:
             # print('*' * 50)
-            logger.info('\t\tERROR: OPA binary not found!')
-            logger.info('\t\tRESULT: FAILED')
+            logger.error('\t\tERROR: OPA binary not found!')
+            logger.error('\t\tRESULT: FAILED')
             results.append({'eval': 'data.rule.rulepass', 'result': "passed" if result else "failed", 'message': ''})
             return results
         if len(self.testcase['snapshotId'])==1:
@@ -277,8 +284,8 @@ class ComparatorV01:
                 resultval = json_from_file('/tmp/a.json')
                 if resultval and "errors" in resultval and resultval["errors"]:
                     results.append({'eval': rule_expr, 'result': "failed", 'message': ''})
-                    logger.info('\t\tERROR: %s', str(resultval["errors"]))
-                    logger.info('\t\tRESULT: FAILED')
+                    logger.error('\t\tERROR: %s', str(resultval["errors"]))
+                    logger.error('\t\tRESULT: FAILED')
                     # logger.error(str(resultval["errors"]))
                 elif resultval:
                     if isinstance(rule_expr, list):
@@ -306,25 +313,29 @@ class ComparatorV01:
                                     'remediation_function' : val.get("remediationFunction"),
                                 })
                                 # logger.info('\t\tERROR: %s', resultval)
-                                logger.info('\t\tRESULT: %s', results[-1]['result'])
+                                self.log_result(results[-1]['result'])
                     else:
                         resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
                         result = parsebool(resultbool)
                         results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
                         # logger.info('\t\tERROR: %s', resultval)
-                        logger.info('\t\tRESULT: %s', results[-1]['result'])
+                        self.log_result(results[-1]['result'])
                         if results[-1]['result'] == 'failed':
-                            logger.info('\t\tERROR: %s', json.dumps(dict(resultval)))
+                            logger.error('\t\tERROR: %s', json.dumps(dict(resultval)))
 
             else:
                 results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-                logger.info('\t\tRESULT: %s', results[-1]['result'])
+                self.log_result(results[-1]['result'])
         else:
             results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-            logger.info('\t\tRESULT: %s', results[-1]['result'])
+            self.log_result(results[-1]['result'])
         return results
 
-
+    def log_result(self, result):
+        if result == "passed":
+            logger.info('\t\tRESULT: %s', result, extra={"type" : "SUCCESS"})
+        else:
+            logger.error('\t\tRESULT: %s', result)
 
     def get_snaphotid_doc_old(self, sid, container):
         doc = None
@@ -549,12 +560,15 @@ class ComparatorV01:
                 if not result:
                     logger.info('\t\tLHS: %s', l_val)
                     logger.info('\t\tRHS: %s', r_val)
-                logger.info('\t\tRESULT: %s', result_val[0]['result'])
+                self.log_result(result_val[0]['result'])
         else:
             result_val[0].update({
                 "result": "skipped",
                 "reason": "Unsupported testcase format"
             })
+        
+        if 'dirpath' in self.testcase:
+            del self.testcase['dirpath']
         return result_val
 
 
