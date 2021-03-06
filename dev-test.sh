@@ -63,4 +63,6 @@ fail_success=`grep failed $BASEDIR/prancer-hello-world/validation/scenario-kuber
 pass_error=`grep passed $BASEDIR/prancer-hello-world/validation/scenario-kubernetes-fail/output-master-test.json`
 if [[ -z "$fail_success" ]] || [[ ! -z "$pass_error" ]] ; then   echo "scenario-kubernetes-fail failed"; exit 1;fi
 
+chmod -R 777 $BASEDIR
+
 exit 0
