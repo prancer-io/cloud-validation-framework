@@ -240,6 +240,7 @@ Runs the prancer framework based on the configuration files available in collect
         fs = True if args.db > DBVALUES.index(SNAPSHOT) else False
         put_in_currentdata('jsonsource', fs)
         put_in_currentdata(DBTESTS, args.db)
+        put_in_currentdata('container', args.container)
         # if args.db == DBVALUES.index(FULL):
         #     from processor.logging.log_handler import get_dblogger
         #     log_name = get_dblogger()
@@ -247,13 +248,10 @@ Runs the prancer framework based on the configuration files available in collect
         #         pid = open('/tmp/pid_%s' % os.getpid(), 'w')
         #         pid.write(log_name)
         #         pid.close()
-        put_in_currentdata('container', args.container)
         if args.customer:
             put_in_currentdata(CUSTOMER, args.customer)
-            # put_in_currentdata('container', args.container)
         if args.test:
             put_in_currentdata(SINGLETEST, args.test)
-            # put_in_currentdata('container', args.container)
         else:
             put_in_currentdata(SINGLETEST, False)
         if args.connector:
