@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+
 jobs:
   build:
     name: build and publish
