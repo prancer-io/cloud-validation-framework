@@ -266,9 +266,11 @@ def pull_json_data(document_json):
 
             if file_type == "mastertest":
                 validate = validate_master_test_data(json_data, document_json)
+        else:
+            logger.error("Failed to fetch remote file %s : either file does not exist or invalid file format!" % file_location)
         
         return dirpath, validate
     else:
-        raise Exception('Require valid fields for populate JSON are not present!')
+        raise Exception("ERROR: Failed to clone the remote repository, check the connection configuration in %s connector. " % connector)
 
     return dirpath, False

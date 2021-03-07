@@ -36,8 +36,8 @@ template_processor_kwargs = {
 }
 
 master_template_processor_kwargs = {
-	'container': 'google_template', 
-	'snapshot_source': 'fsGoogleConnector', 
+	'container': 'aws_template', 
+	'snapshot_source': 'fsAwsConnector', 
 	'repopath': '/tmp/tmp2u5r6vxn', 
 	'connector_data': { 
 		'fileType' : 'structure', 
@@ -110,24 +110,20 @@ def test_populate_all_template_snapshot(monkeypatch):
 
 	template_processor = AWSTemplateProcessor(node_data, **master_template_processor_kwargs)
 	snapshot_data = template_processor.populate_all_template_snapshot()
+
 	assert snapshot_data == {
-		'MASTER_SNAPSHOT_': 
-		[
+		"MASTER_SNAPSHOT_": [
 			{
-				'snapshotId': 'MASTER_SNAPSHOT_1',
-				'type': 'cloudformation',
-				'collection': 'cloudformation',
-			        'paths': ['/sample/parameters.json'],
-				'status': 'inactive',
-				'validate': True
-				},
-				{
-					'snapshotId': 'MASTER_SNAPSHOT_2',
-					'type': 'cloudformation',
-					'collection': 'cloudformation',
-				        'paths': ['/sample/EC2InstanceWithSecurityGroupSample.yaml'],
-					'status': 'active',
-					'validate': True
-				}
-			]
+				"snapshotId": "MASTER_SNAPSHOT_1",
+				"type": "cloudformation",
+				"collection": "cloudformation",
+				"paths": [
+					"/sample/EC2InstanceWithSecurityGroupSample.yaml",
+					"/sample/parameters.json",
+				],
+				"status": "active",
+				"validate": True,
+			}
+		]
 	}
+

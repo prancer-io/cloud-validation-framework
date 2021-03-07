@@ -87,7 +87,8 @@ class MongoDBHandler(logging.Handler):
             "module": record.module,
             "line": record.lineno,
             "asctime": record.asctime,
-            "msg": self.log_msg
+            "msg": self.log_msg,
+            "log_type": getattr(record, "type", "DEFAULT")
         }
 
         try:
@@ -97,6 +98,50 @@ class MongoDBHandler(logging.Handler):
         except Exception as e:
             print('CRITICAL Logger DB ERROR: Logging to database not possible!')
 
+class CustomLogger(logging.Logger):
+    def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None):
+        log_record = logging.Logger.makeRecord(self, name, level, fn, lno, msg, args, exc_info, func, extra)
+        if extra and isinstance(extra, dict):
+            for key, value in extra.items():
+                log_record.__dict__.setdefault(key, value)
+        return log_record
+
+
+class ColorFormatter(logging.Formatter):
+    """Logging Formatter to add colors and count warning / errors"""
+
+    grey = "\033[90m"
+    yellow = "\033[93m"
+    red = "\033[91m"
+    bold_red = "\x1b[31;1m"
+    success = "\033[92m"
+    blue = "\033[94m"
+    default = "\033[99m"
+    reset = "\x1b[0m"
+
+    def __init__(self, log_format):
+        self.log_format = log_format
+        self.COLOR_FORMATS = {
+            # for set color based on record type from extra parameters
+            "debug" : self.grey + log_format + self.reset,
+            "info" : self.blue + log_format + self.reset,
+            "success" : self.success + log_format + self.reset,
+            "default": self.default + log_format + self.reset,
+
+            # for set color based on record levelname
+            "CRITICAL" : self.bold_red + log_format + self.reset,
+            "WARNING" : self.yellow + log_format + self.reset,
+            "ERROR" : self.red + log_format + self.reset
+        }
+
+    def format(self, record):
+        levelname = record.levelname
+        log_fmt = self.COLOR_FORMATS.get(levelname)
+        if not log_fmt:
+            log_type = getattr(record, "type", "DEFAULT")
+            log_fmt = self.COLOR_FORMATS.get(log_type.lower())
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
 
 def get_logdir(fw_cfg, baselogdir):
     """ Given ini logging config and base framework dir, checks if the log folder is writeable."""
@@ -163,10 +208,14 @@ def default_logging(fwconfigfile=None):
     if fwconfigfile:
         log_config = ini_logging_config(fwconfigfile)
 
-    logging.basicConfig(format=LOGFORMAT)
-    logger = logging.getLogger(__name__)
+    # logging.basicConfig(format=LOGFORMAT)
+    logger = CustomLogger(__name__)
     logger.propagate = log_config['propagate'] if log_config and 'propagate' in log_config else True
     logger.setLevel(get_loglevel(log_config))
+    
+    handler = logging.StreamHandler()
+    handler.setFormatter(ColorFormatter(LOGFORMAT))
+    logger.addHandler(handler)
     return logger
 
 

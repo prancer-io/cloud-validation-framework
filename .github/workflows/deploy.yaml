@@ -3,13 +3,6 @@ on:
   push:
     branches:
       - master
-  # For manual build
-  #workflow_dispatch:
-  #  inputs:
-  #    branch:
-  #      required: true
-  #      description: 'Branch' 
-  #      default: 'master'
 jobs:
   build:
     name: build and publish
@@ -22,10 +15,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Set up Python 3.6
+      - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
-          python-version: "3.6"
+          python-version: "3.8"
       
       - name: Checkout code
         uses: actions/checkout@v2
@@ -36,26 +29,9 @@ jobs:
 
       - name: testing
         run: |
-          python -m pip install --upgrade pip && pip install -r requirements.txt
-          pip install pymongo
-          export BASEDIR=`pwd`
-          export FRAMEWORKDIR=`pwd`
-          export PYTHONPATH=$FRAMEWORKDIR/src
-          python utilities/validator.py --help
-          py.test --cov=processor tests/processor --cov-report term-missing
-          export FRAMEWORKDIR=`pwd`
-          cd $BASEDIR
-          git clone https://github.com/prancer-io/prancer-hello-world.git
-          cd $BASEDIR/prancer-hello-world
-          export FRAMEWORKDIR=`pwd`
-          cd $BASEDIR
-          python utilities/validator.py --db NONE scenario-pass
-          cd $BASEDIR/prancer-hello-world/validation/scenario-pass/
-          grep passed output-test.json
-          cd $BASEDIR
-          python utilities/validator.py --db NONE scenario-fail
-          cd $BASEDIR/prancer-hello-world/validation/scenario-fail/
-          grep failed output-test.json
+          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.6.8 sh dev-test.sh
+          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.8 sh dev-test.sh
+          docker run --rm -v $(pwd):$(pwd) -w=$(pwd) python:3.9 sh dev-test.sh
 
       - name: install SO dependencies
         run: |
