@@ -6,16 +6,15 @@ import time
 import os
 import pymongo
 from datetime import datetime
-from processor.helper.config.rundata_utils import put_in_currentdata, get_dbtests, get_from_currentdata
-from processor.helper.json.json_utils import get_field_value,json_from_file,save_json_to_file,\
+from processor.helper.config.rundata_utils import get_dbtests
+from processor.helper.json.json_utils import get_field_value,json_from_file,\
     make_snapshots_dir,store_snapshot,get_field_value_with_default
 from processor.logging.log_handler import getlogger
-from processor.helper.config.config_utils import config_value, get_test_json_dir,framework_dir
+from processor.helper.config.config_utils import config_value,framework_dir
 from kubernetes import client,config
 import kubernetes.client
-from kubernetes.client.rest import ApiException
 from processor.connector.snapshot_utils import validate_snapshot_nodes
-from processor.database.database import insert_one_document, sort_field, get_documents,\
+from processor.database.database import insert_one_document,\
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 
 
@@ -346,20 +345,7 @@ def generate_crawler_snapshot(snapshot,node,snapshot_data):
     resource_items=get_lits(snapshot=snapshot,node=node)
 
     snapshot_data[node['masterSnapshotId']] = []
-    # found_old_record = False
     for index,resource_namespaced_item in enumerate(resource_items) :
-        # for _,snapshot_list in snapshot_data.items() :
-        #     old_record = None
-        #     if isinstance(snapshot_list, list):
-        #         for item in snapshot_list:
-        #             if item["paths"] == node_path:
-        #                 old_record = item
-        #         if old_record:
-        #             found_old_record = True
-        #             if node['masterSnapshotId'] not in old_record['masterSnapshotId']:
-        #                 old_record['masterSnapshotId'].append(
-        #                     node['masterSnapshotId'])        
-
         snapshot_data[node['masterSnapshotId']].append({
                         "masterSnapshotId" : [node['masterSnapshotId']],
                         "snapshotId": '%s%s_%s' % (node['masterSnapshotId'],resource_namespaced_item['namespace'], str(index)),
