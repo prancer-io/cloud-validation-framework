@@ -1,4 +1,4 @@
-name: Unit testing - development - PRANCER BASIC
+name: Unit testing and Integration testing [development]
 on:
   push:
     branches:
