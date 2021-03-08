@@ -42,13 +42,12 @@ def get_kubernetes_structure_data(snapshot_source):
     kubernetes_structure_path = get_kubernetes_structure_path(snapshot_source)
     return json_from_file(kubernetes_structure_path)
 
-
-
-def get_kube_apiserver_info():
-    container_path = get_test_json_dir()
-    return container_path
-
 def make_kubernetes_snapshot_template(snapshot,node,kubernetes_snapshot_data):
+    """
+    make_kubernetes_snapshot_template prepare the data for db records and add data which got from 
+    kubernetes cluster.
+    This function is required  if we need to add kubernetes data to mongo db 
+    """
     node_db_record_data= node_db_record(snapshot,node)
     node_db_record_data['json']=kubernetes_snapshot_data
 
@@ -57,6 +56,10 @@ def make_kubernetes_snapshot_template(snapshot,node,kubernetes_snapshot_data):
 
 
 def create_kube_apiserver_instance(snapshot,node):
+    """
+    create_kube_apiserver_instance creating kubernetes apiserver instance to have 
+    communication and get response kubernetes apiserver 
+    """
     snapshot_serviceAccount = get_field_value(snapshot,'serviceAccount')
     snapshot_namespace = get_field_value(snapshot,'namespace')
     node_type =  get_field_value(node,'type')
@@ -70,6 +73,16 @@ def create_kube_apiserver_instance(snapshot,node):
     return api_instance
 
 def get_client_secret(kubernetes_structure_data,snapshot_serviceAccount,snapshot_namespace):
+    """
+    get_client_secret get service account from master snapshot and will 
+    compare with other service accounts which allocated in kubernetes
+    structure file and get secret of service account if it’s exist in
+    structure file. Also check environment variables if service account
+    secret isn’t exist in structure file with the name got from snap shot file.
+    This function return secret as string which will use to get connection with 
+    kubernetes cluster.
+
+    """
     namespaces = get_field_value(kubernetes_structure_data,'namespaces')
     service_account_secret = ""
     for namespace in namespaces :
@@ -89,6 +102,12 @@ def get_client_secret(kubernetes_structure_data,snapshot_serviceAccount,snapshot
     return service_account_secret 
 
 def create_kube_apiserver_instance_client(cluster_url,service_account_secret,node_type):
+    """ 
+    Kubernetes library have several core kinds for getting data with cluster api server.
+    For each Object type we have different core and we should use those function to get
+    correct and reliable result. create_kube_apiserver_instance_client function pass 
+    core instance due to node type.
+    """
     configuration = kubernetes.client.Configuration()
     token = '%s' % (service_account_secret)
     configuration.api_key={"authorization":"Bearer "+ token}
@@ -109,6 +128,17 @@ def create_kube_apiserver_instance_client(cluster_url,service_account_secret,nod
     return api_client
 
 def get_kubernetes_snapshot_data(snapshot,node):
+    """
+    get_kubernetes_snapshot_data get api instance and due to snapshot and
+    node and will request the data from kubernetes cluster.
+    Snapshot file should have path in nodes so get_kubernetes_snapshot_data
+    can use it here to find out which kind of object in which name space we need to get. 
+    Also this function can use path to request the data from kubernetes apiserver.
+    Some of the objects does not have any namespace so this function should 
+    be able find out the  name space from path.
+    In this function also kubernetes library exception are handled to find if
+     any error happened.
+    """
     path=  get_field_value(node,'paths')[0]
     node_type = get_field_value(node,'type')
     api_response = None
@@ -155,6 +185,9 @@ def get_kubernetes_snapshot_data(snapshot,node):
     return api_response_dict
 
 def todict(obj):
+    """
+    todict function convert data to serialized json.
+    """
     if hasattr(obj, 'attribute_map'):
         result = {}
         for k,v in getattr(obj, 'attribute_map').items():
@@ -170,6 +203,10 @@ def todict(obj):
         return obj
 
 def node_db_record(snapshot,node): 
+    """
+    node_db_record add additional fields to prepare the data for inserting 
+    in database.
+    """
     collection = node['collection'] if 'collection' in node else COLLECTION
     data = {
     "structure":"kubernetes",
