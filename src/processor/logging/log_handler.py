@@ -7,12 +7,13 @@ import os
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 
-
 FWLOGGER = None
 FWLOGFILENAME = None
 MONGOLOGGER = None
 DBLOGGER = None
 dbhandler = None
+DEFAULT_LOGGER = None
+LOGLEVEL = None
 # LOGFORMAT = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
 LOGFORMAT = '%(asctime)s - %(message)s'
 
@@ -24,21 +25,47 @@ def get_dblog_name():
         dblog_name = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     return dblog_name
 
+def default_logger():
+    global DEFAULT_LOGGER
+    if DEFAULT_LOGGER:
+        return DEFAULT_LOGGER
+    logging.basicConfig(format=LOGFORMAT)
+    DEFAULT_LOGGER = logging.Logger(__name__)
+    
+    handler = logging.StreamHandler()
+    handler.setFormatter(ColorFormatter(LOGFORMAT))
+    DEFAULT_LOGGER.addHandler(handler)
+    return DEFAULT_LOGGER
 
 def get_loglevel(fwconf=None):
     """ Highest priority is at command line, then ini file otherwise default is INFO"""
+    global LOGLEVEL
+    if LOGLEVEL:
+        return LOGLEVEL
+    
+    default_logger()
     loglevels = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']
     level = os.getenv('LOGLEVEL', None)
-    loglevel = level if level and level in loglevels else None
-    cfglevel = fwconf['level'].upper() if fwconf and 'level' in fwconf and fwconf['level'] and fwconf['level'].upper() in \
-                                          loglevels else None
-    if loglevel:
-        return loglevel
-    elif cfglevel:
-        return cfglevel
-    else:
-        return logging.INFO
+    loglevel = None
+    if level and level in loglevels:
+        loglevel = level
+    elif level and level not in loglevels:
+        DEFAULT_LOGGER.warning("Invalid log level passed in parameter \"%s\", valid log levels are %s" % (level, ", ".join(loglevels)))
+        os.environ["LOGLEVEL"] = "INFO"
 
+    cfglevel =  None
+    if fwconf and 'level' in fwconf and fwconf['level'] and fwconf['level'].upper() in loglevels:
+        cfglevel = fwconf['level'].upper()
+    elif fwconf and 'level' in fwconf and fwconf['level'] and fwconf['level'].upper() not in loglevels:
+        DEFAULT_LOGGER.warning("Invalid log level set in config file \"%s\", valid log levels are %s" % (fwconf['level'], ", ".join(loglevels)))
+
+    if loglevel:
+        LOGLEVEL = loglevel
+    elif cfglevel:
+        LOGLEVEL = cfglevel
+    else:
+        return logging.getLevelName(logging.INFO)
+    return LOGLEVEL
 
 class MongoDBHandler(logging.Handler):
     """Customized logging handler that puts logs to the database, pymongo required
