@@ -1,0 +1,55 @@
+name: Docker build and publish
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        required: true
+        description: 'branch to build' 
+        default: 'master'
+
+jobs:
+  build:
+    name: build and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: prancer-io/cloud-validation-framework 
+          ref: ${{ github.event.inputs.branch }}
+          token: ${{ secrets.GIT_TOKEN }}
+
+      - name: read_version
+        id: read_version
+        run: |
+          VERSION=$(cat setup.py | grep version=)
+          echo $VERSION > output
+          sed -i "s/'//g" output
+          sed -i 's/"//g' output
+          sed -i 's/,//g' output
+          sed -i 's/version=//g' output
+          sed -i 's/\n//g' output
+          VERSION=$(cat output | tr -d '\n')
+          echo Application version $VERSION
+          echo ::set-output name=VERSION::$VERSION
+
+      - name: Docker build
+        id: docker_build
+        run: |
+          docker build -t prancer/prancer-basic:${{ steps.read_version.outputs.VERSION }}\
+                       --build-arg APP_VERSION=${{ steps.read_version.outputs.VERSION }} -f dockerfiles/Dockerfile .
+                       
+      - name: Docker push
+        id: docker_push
+        run: |
+          # Wait X seconds for pypi to have the binary ready
+          sleep 120
+          docker login -u ${{ secrets.DOCKER_USER }} -p '${{ secrets.DOCKER_PASSWORD }}'
+          docker push prancer/prancer-basic:${{ steps.read_version.outputs.VERSION }}
