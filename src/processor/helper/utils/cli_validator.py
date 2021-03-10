@@ -262,7 +262,7 @@ Runs the prancer framework based on the configuration files available in collect
             retval = 0 if container_exists(args.container) else 2
             if retval:
                 logger.critical("Container(%s) is not present in Framework dir: %s",
-                                args.container, framework_dir())
+                                args.container, framework_dir(), extra={"type" : "critical"})
                 # TODO: Log the path the framework looked for.
                 return retval
         if args.crawler:

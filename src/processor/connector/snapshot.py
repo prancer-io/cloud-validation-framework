@@ -156,7 +156,7 @@ def populate_container_snapshots(container, dbsystem=True):
             return fssnapshot.get_snapshots()
         else:
             return populate_container_snapshots_filesystem(container)
-    logger.critical("SNAPSHOTS COMPLETE:")
+    logger.critical("SNAPSHOTS COMPLETE:", extra={"type" : "critical"})
 
 
 def populate_container_snapshots_filesystem(container):
