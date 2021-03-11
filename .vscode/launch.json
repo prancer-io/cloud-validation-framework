@@ -1,25 +1,23 @@
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
-            "env":{
-                "BASEDIR":"${workspaceFolder}",
-                "PYTHONPATH":"${workspaceFolder}/src",
-                "FRAMEWORKDIR" : "${workspaceFolder}"
+            "env": {
+                "BASEDIR": "${workspaceFolder}",
+                "PYTHONPATH": "${workspaceFolder}/src",
+                "FRAMEWORKDIR": "${workspaceFolder}"
             },
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "utilities/validator.py",
+            "program": "${file}",
             "console": "integratedTerminal",
+            "python": "${command:python.interpreterPath}",
             "args": [
-                "scenario-pass","--db","FULL"
-            ],
-            "sudo": false
+                "gitScenario"
+            ]
         }
     ]
 }
