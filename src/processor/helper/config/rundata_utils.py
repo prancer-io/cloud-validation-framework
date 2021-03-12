@@ -142,7 +142,7 @@ def delete_currentdata():
     for field in exclude_list:
         if field in runctx:
             del runctx[field]
-    logger.info("\033[92m Run Stats: %s\033[00m" % json.dumps(runctx, indent=2))
+    logger.critical("\033[92m Run Stats: %s\033[00m" % json.dumps(runctx, indent=2))
     run_file = framework_currentdata()
     remove_file(run_file)
 
