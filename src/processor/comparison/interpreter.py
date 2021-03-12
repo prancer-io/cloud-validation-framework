@@ -230,9 +230,9 @@ class ComparatorV01:
             testId = self.testcase['testId']
         elif 'masterTestId' in self.testcase:
             testId = self.testcase['masterTestId']
-        logger.info('\tTESTID: %s', testId)
-        logger.info('\t\tRULE: %s', self.testcase['rule'])
-        logger.info('\t\tEVAL: %s', rule_expr)
+        logger.critical('\tTESTID: %s', testId)
+        logger.critical('\t\tRULE: %s', self.testcase['rule'])
+        logger.critical('\t\tEVAL: %s', rule_expr)
         opa_exe = opa_binary()
         if not opa_exe:
             # print('*' * 50)
@@ -332,8 +332,9 @@ class ComparatorV01:
         return results
 
     def log_result(self, result):
-        if result == "passed":
-            logger.info('\t\tRESULT: %s', result, extra={"type" : "SUCCESS"})
+        if result == "passed": 
+            logger.critical('\t\tRESULT: %s', result, extra={"type" : "SUCCESS"})
+            
         else:
             logger.error('\t\tRESULT: %s', result)
 
@@ -537,8 +538,8 @@ class ComparatorV01:
                     result_val.append(result)
             else:
                 # logger.info('#' * 75)
-                logger.info('\tTESTID: %s', self.testcase['testId'])
-                logger.info('\t\tEVAL: %s', self.rule)
+                logger.critical('\tTESTID: %s', self.testcase['testId'])
+                logger.critical('\t\tEVAL: %s', self.rule)
                 input_stream = InputStream(self.rule)
                 lexer = comparatorLexer(input_stream)
                 stream = CommonTokenStream(lexer)
@@ -558,8 +559,8 @@ class ComparatorV01:
                 connector_data = self.get_connector_data()
                 result_val[0]['autoRemediate'] = connector_data.get("autoRemediate", False)
                 if not result:
-                    logger.info('\t\tLHS: %s', l_val)
-                    logger.info('\t\tRHS: %s', r_val)
+                    logger.critical('\t\tLHS: %s', l_val)
+                    logger.critical('\t\tRHS: %s', r_val)
                 self.log_result(result_val[0]['result'])
         else:
             result_val[0].update({

@@ -158,7 +158,6 @@ def populate_container_snapshots(container, dbsystem=True):
             return fssnapshot.get_snapshots()
         else:
             return populate_container_snapshots_filesystem(container)
-    logger.critical("SNAPSHOTS COMPLETE:")
 
 
 def populate_container_snapshots_filesystem(container):
@@ -190,6 +189,7 @@ def populate_container_snapshots_filesystem(container):
             populated.append(parts[-1])
             name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
             snapshots_status[name] = snapshot_file_data
+    logger.critical("SNAPSHOTS COMPLETE:")
     return snapshots_status
 
 
@@ -240,6 +240,7 @@ def populate_container_snapshots_database(container):
                     raise e
     if not snapshots_status:
         raise Exception("No snapshots contained for this container: %s, add and run again!...", container)
+    logger.critical("SNAPSHOTS COMPLETE:")
     return snapshots_status
 
 

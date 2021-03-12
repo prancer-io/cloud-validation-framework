@@ -154,9 +154,10 @@ class ColorFormatter(logging.Formatter):
             "info" : self.blue + log_format + self.reset,
             "success" : self.success + log_format + self.reset,
             "default": self.default + log_format + self.reset,
+            "critical" : self.bold_red + log_format + self.reset,
 
             # for set color based on record levelname
-            "CRITICAL" : self.bold_red + log_format + self.reset,
+            # "CRITICAL" : self.bold_red + log_format + self.reset,
             "WARNING" : self.yellow + log_format + self.reset,
             "ERROR" : self.red + log_format + self.reset
         }
