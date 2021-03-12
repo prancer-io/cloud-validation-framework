@@ -184,6 +184,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
         result = result and val
     if test_files:
         # return the result value if "test" file is processed collection
+        logger.critical("VALIDATION COMPLETE:")
         return result
 
     # mastertest files
@@ -248,7 +249,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
         else:
             logger.info('\tERROR: No mastertest Documents found!')
             finalresult = False
-    logger.info("VALIDATION COMPLETE:")
+    logger.critical("VALIDATION COMPLETE:")
     return finalresult
 
 
