@@ -107,6 +107,7 @@ def create_kube_apiserver_instance_client(cluster_url,service_account_secret,nod
     correct and reliable result. create_kube_apiserver_instance_client function pass 
     core instance due to node type.
     """
+    node_type=node_type.lower()
     configuration = kubernetes.client.Configuration()
     token = '%s' % (service_account_secret)
     configuration.api_key={"authorization":"Bearer "+ token}
@@ -122,7 +123,7 @@ def create_kube_apiserver_instance_client(cluster_url,service_account_secret,nod
         api_client = client.NetworkingV1Api()
     if node_type in ["podsecuritypolicy"]:
         api_client = client.PolicyV1beta1Api()
-    if node_type in ["rolebinding"]:
+    if node_type in ["rolebinding","role","clusterrole","clusterrolebinding"]:
         api_client = client.RbacAuthorizationV1beta1Api()
     return api_client
 
@@ -136,7 +137,7 @@ def get_kubernetes_snapshot_data(snapshot,node):
     Some of the objects does not have any namespace so this function should 
     be able find out the  name space from path.
     In this function also kubernetes library exception are handled to find if
-     any error happened.
+    any error happened.
     """
     path=  get_field_value(node,'paths')[0]
     node_type = get_field_value(node,'type')
@@ -172,6 +173,16 @@ def get_kubernetes_snapshot_data(snapshot,node):
             snapshot_namespace = path.split("/")[4]
             api_response = api_instance.read_namespaced_role_binding(name=object_name,namespace=snapshot_namespace)
 
+        if node_type == "role":
+            snapshot_namespace = path.split("/")[4]
+            api_response = api_instance.read_namespaced_role(name=object_name,namespace=snapshot_namespace)
+        
+        if node_type == "clusterrolebinding":
+            api_response = api_instance.read_cluster_role_binding(name=object_name)
+        
+        if node_type == "clusterrole":
+            api_response = api_instance.read_cluster_role(name=object_name)
+        
         if node_type == "serviceaccount":
             snapshot_namespace = path.split("/")[3]
             api_response = api_instance.read_namespaced_service_account(name=object_name,namespace=snapshot_namespace)
@@ -230,7 +241,8 @@ def get_lits(snapshot,node):
         'networkpolicy' : get_list_namespaced_network_policy,
         'podsecuritypolicy' : get_list_namespaced_pod_security_policy,
         'rolebinding' : get_list_namespaced_role_binding,
-        'serviceaccount' : get_list_namespaced_service_account
+        'serviceaccount' : get_list_namespaced_service_account,
+        # 'role'
     }
     list_item=[]
     try:
