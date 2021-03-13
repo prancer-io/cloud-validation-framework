@@ -240,9 +240,11 @@ def get_lits(snapshot,node):
         'pod' : get_list_namespaced_pods,
         'networkpolicy' : get_list_namespaced_network_policy,
         'podsecuritypolicy' : get_list_namespaced_pod_security_policy,
+        'role':get_list_namespaced_role,
         'rolebinding' : get_list_namespaced_role_binding,
+        'clusterrole':get_list_cluster_role,
+        'clusterrolebinding' : get_list_cluster_role_binding,
         'serviceaccount' : get_list_namespaced_service_account,
-        # 'role'
     }
     list_item=[]
     try:
@@ -312,6 +314,26 @@ def get_list_namespaced_pod_security_policy(snapshot,node):
             })
     return pod_security_policy_items
 
+def get_list_namespaced_role(snapshot,node):
+    snapshot_namespaces = get_field_value(snapshot,'namespace')
+    role_items = []
+    api_instance = create_kube_apiserver_instance(snapshot,node)
+    for snapshot_namespace in snapshot_namespaces:
+        api_response = api_instance.list_namespaced_role(namespace=snapshot_namespace)
+        api_response_dict = todict(api_response) 
+        api_response_dict_items = get_field_value(api_response_dict,'items')
+        for api_response_dict_item in api_response_dict_items :
+            role_binding_name = get_field_value(api_response_dict_item,'metadata.name')
+            role_binding_path = "apis/rbac.authorization.k8s.io/v1beta1/namespaces/%s/roles/%s" % (snapshot_namespace,role_binding_name)
+            role_items.append({
+                'namespace': snapshot_namespace,
+                'paths':[
+                    role_binding_path
+                ]
+            })
+    return role_items
+
+
 def get_list_namespaced_role_binding(snapshot,node):
     snapshot_namespaces = get_field_value(snapshot,'namespace')
     role_binding_items = []
@@ -330,6 +352,44 @@ def get_list_namespaced_role_binding(snapshot,node):
                 ]
             })
     return role_binding_items
+
+def get_list_cluster_role(snapshot,node):
+    snapshot_namespaces = get_field_value(snapshot,'namespace')
+    cluster_role_items = []
+    api_instance = create_kube_apiserver_instance(snapshot,node)
+    for snapshot_namespace in snapshot_namespaces:
+        api_response = api_instance.list_cluster_role()
+        api_response_dict = todict(api_response) 
+        api_response_dict_items = get_field_value(api_response_dict,'items')
+        for api_response_dict_item in api_response_dict_items :
+            cluster_role_name = get_field_value(api_response_dict_item,'metadata.name')
+            cluster_role_path = "apis/rbac.authorization.k8s.io/v1beta1/clusterroles/%s" % (cluster_role_name)
+            cluster_role_items.append({
+                'namespace': snapshot_namespace,
+                'paths':[
+                    cluster_role_path
+                ]
+            })
+    return cluster_role_items
+
+def get_list_cluster_role_binding(snapshot,node):
+    snapshot_namespaces = get_field_value(snapshot,'namespace')
+    cluster_role_binding_items = []
+    api_instance = create_kube_apiserver_instance(snapshot,node)
+    for snapshot_namespace in snapshot_namespaces:
+        api_response = api_instance.list_cluster_role()
+        api_response_dict = todict(api_response) 
+        api_response_dict_items = get_field_value(api_response_dict,'items')
+        for api_response_dict_item in api_response_dict_items :
+            cluster_role_binding_name = get_field_value(api_response_dict_item,'metadata.name')
+            cluster_role_binding_path = "apis/rbac.authorization.k8s.io/v1beta1/clusterrolebindings/%s" % (cluster_role_binding_name)
+            cluster_role_binding_items.append({
+                'namespace': snapshot_namespace,
+                'paths':[
+                    cluster_role_binding_path
+                ]
+            })
+    return cluster_role_binding_items
 
 def get_list_namespaced_service_account(snapshot,node):
     snapshot_namespaces = get_field_value(snapshot,'namespace')
