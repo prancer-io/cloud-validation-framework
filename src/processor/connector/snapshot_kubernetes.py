@@ -16,7 +16,7 @@ import kubernetes.client
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.database.database import insert_one_document,\
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
-
+import traceback
 
 
 
@@ -190,6 +190,8 @@ def get_kubernetes_snapshot_data(snapshot,node):
     except Exception as ex :
         logger.info('\t\tERROR : error in calling api for getting information %s : %s',node_type, object_name)
         logger.info('\t\tERROR : %s',ex)
+        print(traceback.format_exc())
+
         
     api_response_dict = todict(api_response)  
     return api_response_dict
@@ -253,6 +255,7 @@ def get_lits(snapshot,node):
     except Exception as ex :
         logger.info('\t\tERROR : error in calling api for getting information %s ',node_type)
         logger.info('\t\tERROR : %s',ex)
+        print(traceback.format_exc())
 
     return list_item
 
@@ -492,5 +495,6 @@ def populate_kubernetes_snapshot(snapshot, container=None):
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 logger.error('can not connect to kubernetes cluster: %s ', ex )
                 logger.error('\t ERROR INFO : \n \tfile name : %s\n \tline : %s\n \ttype : %s\n \tobject : %s',fname,exc_tb.tb_lineno,exc_type,exc_obj)
+                print(traceback.format_exc())
                 raise ex
     return snapshot_data
