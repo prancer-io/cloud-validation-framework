@@ -47,7 +47,7 @@ sample file:
             "serviceAccounts": [
                 {
                     "name": "prancer_ro",
-                    "secret":"eyJhbGciOiJSUzI1NiIsImtpZCI6ImpvS2RmQ3dfZ05URGY4TjRSZElvMno1OU9L"
+                    "secret":"<someToken>"
                 }
             ]
         }

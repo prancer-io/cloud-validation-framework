@@ -161,3 +161,128 @@ example file :
     ]
 }
 ```
+
+## Kubernetes master snapshot configuration 
+We have to setup master snapshot configuration file for getting snapshot from kubernetes cluster information.
+Here is the master snapshot configuration file template for kubernetes post deployment:
+```
+{
+    "contentVersion": "1.0.0.0",
+    "fileType": "<file-type>",
+    "snapshots": [
+        {
+            "source": "<structure-file>",
+            "serviceAccount": "<service-account>",
+            "namespace": [
+                <namespace>
+            ],
+            "nodes": [
+                {
+                    
+                    "masterSnapshotId": "<master-snapshot>",
+                    "type": "<type>",
+                    "paths": [
+                        <paths>
+                    ],
+                    "collection": "<collection>"
+                }
+            ]
+        } 
+    ]
+}
+
+
+```   
+| Key           |Value Description |
+| ------------- |:-------------:   |
+|file-type|masterSnapshot|
+|structure-file|is the name of structure file without json tag|
+|service-account|the service account which has access to the snapshot namespace|
+|namespace|the namespaces which we want to get information from them|
+|masterSnapshotId|should be unique for each node|
+|type|the type of kubernetes object we want to get snapshot from them|
+|path|api path of that object should get snapshot|
+|collection|mongo collection that we want to save snapshot if use prancer as full db mode|
+
+example file:
+```
+{
+    "contentVersion": "1.0.0.0",
+    "fileType": "masterSnapshot",
+    "snapshots": [
+        {
+            "source": "k8sConnector",
+            "serviceAccount": "prancer_ro",
+            "namespace": [
+                "default","backend-test"
+            ],
+            "nodes": [
+                {
+                    
+                    "masterSnapshotId": "K8SSNP_POD_",
+                    "type": "pod",
+                    "paths": [
+                        "api/v1"
+                    ],
+                    "collection": "pod"
+                }
+            ]
+        },
+        {
+            "source": "k8sConnector",
+            "serviceAccount": "prancer_ro",
+            "namespace": [
+                "default"
+            ],
+            "nodes": [
+                {
+                    
+                    "masterSnapshotId": "K8SSNP_POD2_",
+                    "type": "pod",
+                    "paths": [
+                        "api/v1"
+                    ],
+                    "collection": "pod"
+                }
+            ]
+        },
+        {
+            "source": "k8sConnector",
+            "serviceAccount": "prancer_ro",
+            "namespace": [
+                "default","backend-test"
+            ],
+            "nodes": [
+                {
+                    
+                    "masterSnapshotId": "K8SSNP_SERVICEACC_",
+                    "type": "serviceaccount",
+                    "paths": [
+                        "api/v1"
+                    ],
+                    "collection": "serviceaccount"
+                }
+            ]
+        },
+        {
+            "source": "k8sConnector",
+            "serviceAccount": "prancer_ro",
+            "namespace": [
+                "default","backend-test"
+            ],
+            "nodes": [
+                {
+                    
+                    "masterSnapshotId": "K8SSNP_ROLEBINDING_",
+                    "type": "rolebinding",
+                    "paths": [
+                        "api/v1"
+                    ],
+                    "collection": "rolebinding"
+                }
+            ]
+        }
+        
+    ]
+}
+```
