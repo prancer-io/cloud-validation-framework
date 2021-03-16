@@ -3,7 +3,6 @@ We have to setup snapshot configuration file for getting snapshot from kubernete
 Here is the snapshot configuration file template for kubernetes post deployment:
 ```
 {
-    "contentVersion": "1.0.0.0",
     "fileType": "<file-type>",
     "snapshots": [
         {
@@ -39,7 +38,6 @@ Here is the snapshot configuration file template for kubernetes post deployment:
 example file :
 ```
 {
-    "contentVersion": "1.0.0.0",
     "fileType": "snapshot",
     "snapshots": [
         {
@@ -167,7 +165,6 @@ We have to setup master snapshot configuration file for getting snapshot from ku
 Here is the master snapshot configuration file template for kubernetes post deployment:
 ```
 {
-    "contentVersion": "1.0.0.0",
     "fileType": "<file-type>",
     "snapshots": [
         {
@@ -207,7 +204,6 @@ Here is the master snapshot configuration file template for kubernetes post depl
 example file:
 ```
 {
-    "contentVersion": "1.0.0.0",
     "fileType": "masterSnapshot",
     "snapshots": [
         {
