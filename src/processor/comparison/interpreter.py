@@ -134,7 +134,7 @@ def opa_binary():
                 opa_exe = None
     if not opa_exe:
         try:
-            subprocess.Popen(['opa', "version"])
+            subprocess.Popen(['opa', "version"], stdout=subprocess.DEVNULL)
             opa_exe = "opa"
         except FileNotFoundError:
             opa_exe = None
@@ -230,10 +230,18 @@ class ComparatorV01:
             testId = self.testcase['testId']
         elif 'masterTestId' in self.testcase:
             testId = self.testcase['masterTestId']
+        sid = self.testcase['snapshotId'][0]
+        snapshot_doc = self.get_snaphotid_doc(sid)
         logger.critical('\tTESTID: %s', testId)
-        logger.critical('\t\tRULE: %s', self.testcase['rule'])
-        logger.critical('\t\tEVAL: %s', rule_expr)
-        opa_exe = opa_binary()
+        logger.critical('\t\tSNAPSHOTID: %s', self.testcase['snapshotId'][0])
+        if self.snapshots:
+            snapshot = self.snapshots[0]
+            logger.critical('\t\tPATHS: ')
+            for path in snapshot.get('paths', []):
+                logger.critical('\t\t\t %s', path)
+                
+        # logger.critical('\t\tEVAL: %s', rule_expr)
+        opa_exe = opa_binary()        
         if not opa_exe:
             # print('*' * 50)
             logger.error('\t\tERROR: OPA binary not found!')
@@ -241,8 +249,9 @@ class ComparatorV01:
             results.append({'eval': 'data.rule.rulepass', 'result': "passed" if result else "failed", 'message': ''})
             return results
         if len(self.testcase['snapshotId'])==1:
-            sid = self.testcase['snapshotId'][0]
-            inputjson = self.get_snaphotid_doc(sid)
+            # sid = self.testcase['snapshotId'][0]
+            # inputjson = self.get_snaphotid_doc(sid)
+            inputjson = snapshot_doc
             if inputjson is None:
                 logger.info('\t\tERROR: Missing snapshot')
         else:
@@ -259,7 +268,6 @@ class ComparatorV01:
                 if rego_file:
                     pass
                 else:
-                    logger.info('\t\tERROR: %s missing', rego_match.groups()[0])
                     rego_file = None
             else:
                 rego_txt = [
@@ -284,7 +292,11 @@ class ComparatorV01:
                 resultval = json_from_file('/tmp/a.json')
                 if resultval and "errors" in resultval and resultval["errors"]:
                     results.append({'eval': rule_expr, 'result': "failed", 'message': ''})
-                    logger.error('\t\tERROR: %s', str(resultval["errors"]))
+                    logger.critical('\t\tTITLE: %s', self.testcase.get('title', ""))
+                    logger.critical('\t\tDESCRIPTION: %s', self.testcase.get('description', ""))
+                    logger.critical('\t\tRULE: %s', self.testcase.get('rule', ""))
+                    logger.critical('\t\tERROR: %s', str(resultval["errors"]))
+                    logger.critical('\t\tREMEDIATION: %s', self.testcase.get('remediation_description', ""))
                     logger.error('\t\tRESULT: FAILED')
                     # logger.error(str(resultval["errors"]))
                 elif resultval:
@@ -298,10 +310,12 @@ class ComparatorV01:
                                     if isinstance(resultdict[evalfield], bool):
                                         result = parsebool(resultdict[evalfield])
                                     else:
+                                        logger.warning('\t\tRESULT: SKIPPED')
                                         continue
                                 elif evalmessage in resultdict:
                                     result = False
                                 else:
+                                    logger.warning('\t\tRESULT: SKIPPED')
                                     continue
                                 msg = resultdict[evalmessage] if not result and evalmessage in resultdict else ""
                                 results.append({
@@ -313,30 +327,38 @@ class ComparatorV01:
                                     'remediation_function' : val.get("remediationFunction"),
                                 })
                                 # logger.info('\t\tERROR: %s', resultval)
-                                self.log_result(results[-1]['result'])
+                                self.log_result(results[-1])
                     else:
                         resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
                         result = parsebool(resultbool)
                         results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
                         # logger.info('\t\tERROR: %s', resultval)
-                        self.log_result(results[-1]['result'])
+                        self.log_result(results[-1])
                         if results[-1]['result'] == 'failed':
                             logger.error('\t\tERROR: %s', json.dumps(dict(resultval)))
 
             else:
-                results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-                self.log_result(results[-1]['result'])
+                logger.info('\t\tERROR: %s missing', rego_match.groups()[0])
+                logger.warning('\t\tRESULT: SKIPPED')
+                # results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                # self.log_result(results[-1])
         else:
             results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-            self.log_result(results[-1]['result'])
+            self.log_result(results[-1])
         return results
 
     def log_result(self, result):
-        if result == "passed": 
-            logger.critical('\t\tRESULT: %s', result, extra={"type" : "SUCCESS"})
-            
+        if result.get("result") == "passed":
+            logger.critical('\t\tTITLE: %s', self.testcase.get('title', ""))
+            logger.critical('\t\tRULE: %s', self.testcase.get('rule', ""))
+            logger.critical('\t\tRESULT: %s', result.get("result"), extra={"type" : "SUCCESS"})            
         else:
-            logger.error('\t\tRESULT: %s', result)
+            logger.critical('\t\tTITLE: %s', self.testcase.get('title', ""))
+            logger.critical('\t\tDESCRIPTION: %s', self.testcase.get('description', ""))
+            logger.critical('\t\tRULE: %s', self.testcase.get('rule', ""))
+            logger.critical('\t\tERROR: %s', result.get("message", ""))
+            logger.critical('\t\tREMEDIATION: %s', result.get('remediation_description', ""))
+            logger.error('\t\tRESULT: %s', result.get("result"))
 
     def get_snaphotid_doc_old(self, sid, container):
         doc = None
@@ -485,7 +507,6 @@ class ComparatorV01:
                 file_name = '%s.json' % snapshot_source if snapshot_source and not \
                     snapshot_source.endswith('.json') else snapshot_source
                 connector_path = '%s/../%s' % (json_test_dir, file_name)
-                logger.info('connector path: %s', connector_path)
                 if exists_file(connector_path):
                     connector_data = json_from_file(connector_path)
 
@@ -539,7 +560,6 @@ class ComparatorV01:
             else:
                 # logger.info('#' * 75)
                 logger.critical('\tTESTID: %s', self.testcase['testId'])
-                logger.critical('\t\tEVAL: %s', self.rule)
                 input_stream = InputStream(self.rule)
                 lexer = comparatorLexer(input_stream)
                 stream = CommonTokenStream(lexer)
@@ -558,10 +578,16 @@ class ComparatorV01:
                 result_val[0]['snapshots'] = r_i.get_snapshots()
                 connector_data = self.get_connector_data()
                 result_val[0]['autoRemediate'] = connector_data.get("autoRemediate", False)
+                if result_val[0]['snapshots']:
+                    snapshot = result_val[0]['snapshots'][0]
+                    logger.critical('\t\tSNAPSHOTID: %s', snapshot['id'])
+                    logger.critical('\t\tPATHS: ')
+                    for path in snapshot.get('paths', []):
+                        logger.critical('\t\t\t %s', path)
                 if not result:
                     logger.critical('\t\tLHS: %s', l_val)
                     logger.critical('\t\tRHS: %s', r_val)
-                self.log_result(result_val[0]['result'])
+                self.log_result(result_val[0])
         else:
             result_val[0].update({
                 "result": "skipped",
