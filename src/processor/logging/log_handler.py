@@ -14,7 +14,7 @@ DBLOGGER = None
 dbhandler = None
 DEFAULT_LOGGER = None
 LOGLEVEL = None
-# LOGFORMAT = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
+DEBUG_LOGFORMAT = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
 LOGFORMAT = '%(asctime)s - %(message)s'
 
 
@@ -36,6 +36,11 @@ def default_logger():
     handler.setFormatter(ColorFormatter(LOGFORMAT))
     DEFAULT_LOGGER.addHandler(handler)
     return DEFAULT_LOGGER
+
+def get_logformat(log_level):
+    if log_level == "DEBUG":
+        return DEBUG_LOGFORMAT
+    return LOGFORMAT
 
 def get_loglevel(fwconf=None):
     """ Highest priority is at command line, then ini file otherwise default is INFO"""
@@ -236,13 +241,16 @@ def default_logging(fwconfigfile=None):
     if fwconfigfile:
         log_config = ini_logging_config(fwconfigfile)
 
+    log_level = get_loglevel(log_config)
+    log_format = get_logformat(log_level)
+    
     # logging.basicConfig(format=LOGFORMAT)
     logger = CustomLogger(__name__)
     logger.propagate = log_config['propagate'] if log_config and 'propagate' in log_config else True
     logger.setLevel(get_loglevel(log_config))
     
     handler = logging.StreamHandler()
-    handler.setFormatter(ColorFormatter(LOGFORMAT))
+    handler.setFormatter(ColorFormatter(log_format))
     logger.addHandler(handler)
     return logger
 
@@ -263,7 +271,7 @@ def add_file_logging(fwconfigfile):
         maxBytes=1024 * 1024 * log_config['size'],
         backupCount=log_config['backups']
     )
-    handler.setFormatter(logging.Formatter(LOGFORMAT))
+    handler.setFormatter(logging.Formatter(get_logformat(log_config['level'])))
     handler.setLevel(log_config['level'])
     FWLOGGER.addHandler(handler)
 
@@ -276,7 +284,7 @@ def add_db_logging(fwconfigfile, dburl, dbargs):
     if log_config['db'] and unittest != "true" and dbargs and dburl:
         if not FWLOGGER:
             FWLOGGER = default_logging()
-        dblogformat = '%(asctime)s-%(message)s'
+        dblogformat = get_logformat(log_config['level'])
         dbhandler = MongoDBHandler(dburl, log_config['db'])
         dbhandler.setFormatter(logging.Formatter(dblogformat))
         dbhandler.setLevel(log_config['level'])
