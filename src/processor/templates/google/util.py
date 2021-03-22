@@ -39,7 +39,7 @@ class SilentUndefined(Undefined):
                 )
         else:
             hint = self._undefined_hint
-        logger.error(hint)
+        # logger.error(hint)
         return ''
 
     __slots__ = ()

@@ -16,7 +16,7 @@ import kubernetes.client
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.database.database import insert_one_document,\
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
-
+import traceback
 
 
 
@@ -107,6 +107,7 @@ def create_kube_apiserver_instance_client(cluster_url,service_account_secret,nod
     correct and reliable result. create_kube_apiserver_instance_client function pass 
     core instance due to node type.
     """
+    node_type=node_type.lower()
     configuration = kubernetes.client.Configuration()
     token = '%s' % (service_account_secret)
     configuration.api_key={"authorization":"Bearer "+ token}
@@ -122,7 +123,7 @@ def create_kube_apiserver_instance_client(cluster_url,service_account_secret,nod
         api_client = client.NetworkingV1Api()
     if node_type in ["podsecuritypolicy"]:
         api_client = client.PolicyV1beta1Api()
-    if node_type in ["rolebinding"]:
+    if node_type in ["rolebinding","role","clusterrole","clusterrolebinding"]:
         api_client = client.RbacAuthorizationV1beta1Api()
     return api_client
 
@@ -136,7 +137,7 @@ def get_kubernetes_snapshot_data(snapshot,node):
     Some of the objects does not have any namespace so this function should 
     be able find out the  name space from path.
     In this function also kubernetes library exception are handled to find if
-     any error happened.
+    any error happened.
     """
     path=  get_field_value(node,'paths')[0]
     node_type = get_field_value(node,'type')
@@ -172,6 +173,16 @@ def get_kubernetes_snapshot_data(snapshot,node):
             snapshot_namespace = path.split("/")[4]
             api_response = api_instance.read_namespaced_role_binding(name=object_name,namespace=snapshot_namespace)
 
+        if node_type == "role":
+            snapshot_namespace = path.split("/")[4]
+            api_response = api_instance.read_namespaced_role(name=object_name,namespace=snapshot_namespace)
+        
+        if node_type == "clusterrolebinding":
+            api_response = api_instance.read_cluster_role_binding(name=object_name)
+        
+        if node_type == "clusterrole":
+            api_response = api_instance.read_cluster_role(name=object_name)
+        
         if node_type == "serviceaccount":
             snapshot_namespace = path.split("/")[3]
             api_response = api_instance.read_namespaced_service_account(name=object_name,namespace=snapshot_namespace)
@@ -179,6 +190,8 @@ def get_kubernetes_snapshot_data(snapshot,node):
     except Exception as ex :
         logger.info('\t\tERROR : error in calling api for getting information %s : %s',node_type, object_name)
         logger.info('\t\tERROR : %s',ex)
+        print(traceback.format_exc())
+
         
     api_response_dict = todict(api_response)  
     return api_response_dict
@@ -229,8 +242,11 @@ def get_lits(snapshot,node):
         'pod' : get_list_namespaced_pods,
         'networkpolicy' : get_list_namespaced_network_policy,
         'podsecuritypolicy' : get_list_namespaced_pod_security_policy,
+        'role':get_list_namespaced_role,
         'rolebinding' : get_list_namespaced_role_binding,
-        'serviceaccount' : get_list_namespaced_service_account
+        'clusterrole':get_list_cluster_role,
+        'clusterrolebinding' : get_list_cluster_role_binding,
+        'serviceaccount' : get_list_namespaced_service_account,
     }
     list_item=[]
     try:
@@ -239,6 +255,7 @@ def get_lits(snapshot,node):
     except Exception as ex :
         logger.info('\t\tERROR : error in calling api for getting information %s ',node_type)
         logger.info('\t\tERROR : %s',ex)
+        print(traceback.format_exc())
 
     return list_item
 
@@ -300,6 +317,26 @@ def get_list_namespaced_pod_security_policy(snapshot,node):
             })
     return pod_security_policy_items
 
+def get_list_namespaced_role(snapshot,node):
+    snapshot_namespaces = get_field_value(snapshot,'namespace')
+    role_items = []
+    api_instance = create_kube_apiserver_instance(snapshot,node)
+    for snapshot_namespace in snapshot_namespaces:
+        api_response = api_instance.list_namespaced_role(namespace=snapshot_namespace)
+        api_response_dict = todict(api_response) 
+        api_response_dict_items = get_field_value(api_response_dict,'items')
+        for api_response_dict_item in api_response_dict_items :
+            role_binding_name = get_field_value(api_response_dict_item,'metadata.name')
+            role_binding_path = "apis/rbac.authorization.k8s.io/v1beta1/namespaces/%s/roles/%s" % (snapshot_namespace,role_binding_name)
+            role_items.append({
+                'namespace': snapshot_namespace,
+                'paths':[
+                    role_binding_path
+                ]
+            })
+    return role_items
+
+
 def get_list_namespaced_role_binding(snapshot,node):
     snapshot_namespaces = get_field_value(snapshot,'namespace')
     role_binding_items = []
@@ -318,6 +355,44 @@ def get_list_namespaced_role_binding(snapshot,node):
                 ]
             })
     return role_binding_items
+
+def get_list_cluster_role(snapshot,node):
+    snapshot_namespaces = get_field_value(snapshot,'namespace')
+    cluster_role_items = []
+    api_instance = create_kube_apiserver_instance(snapshot,node)
+    for snapshot_namespace in snapshot_namespaces:
+        api_response = api_instance.list_cluster_role()
+        api_response_dict = todict(api_response) 
+        api_response_dict_items = get_field_value(api_response_dict,'items')
+        for api_response_dict_item in api_response_dict_items :
+            cluster_role_name = get_field_value(api_response_dict_item,'metadata.name')
+            cluster_role_path = "apis/rbac.authorization.k8s.io/v1beta1/clusterroles/%s" % (cluster_role_name)
+            cluster_role_items.append({
+                'namespace': snapshot_namespace,
+                'paths':[
+                    cluster_role_path
+                ]
+            })
+    return cluster_role_items
+
+def get_list_cluster_role_binding(snapshot,node):
+    snapshot_namespaces = get_field_value(snapshot,'namespace')
+    cluster_role_binding_items = []
+    api_instance = create_kube_apiserver_instance(snapshot,node)
+    for snapshot_namespace in snapshot_namespaces:
+        api_response = api_instance.list_cluster_role()
+        api_response_dict = todict(api_response) 
+        api_response_dict_items = get_field_value(api_response_dict,'items')
+        for api_response_dict_item in api_response_dict_items :
+            cluster_role_binding_name = get_field_value(api_response_dict_item,'metadata.name')
+            cluster_role_binding_path = "apis/rbac.authorization.k8s.io/v1beta1/clusterrolebindings/%s" % (cluster_role_binding_name)
+            cluster_role_binding_items.append({
+                'namespace': snapshot_namespace,
+                'paths':[
+                    cluster_role_binding_path
+                ]
+            })
+    return cluster_role_binding_items
 
 def get_list_namespaced_service_account(snapshot,node):
     snapshot_namespaces = get_field_value(snapshot,'namespace')
@@ -420,5 +495,6 @@ def populate_kubernetes_snapshot(snapshot, container=None):
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 logger.error('can not connect to kubernetes cluster: %s ', ex )
                 logger.error('\t ERROR INFO : \n \tfile name : %s\n \tline : %s\n \ttype : %s\n \tobject : %s',fname,exc_tb.tb_lineno,exc_type,exc_obj)
+                print(traceback.format_exc())
                 raise ex
     return snapshot_data
