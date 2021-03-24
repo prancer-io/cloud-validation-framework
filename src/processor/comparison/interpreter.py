@@ -16,6 +16,7 @@ from processor.comparison.comparison_functions import equality,\
     less_than, less_than_equal, greater_than, greater_than_equal, exists
 from antlr4 import InputStream
 from antlr4 import CommonTokenStream
+from antlr4.error.ErrorListener import ErrorListener, ConsoleErrorListener
 from processor.comparison.comparisonantlr.comparatorLexer import comparatorLexer
 from processor.comparison.comparisonantlr.comparatorParser import comparatorParser
 from processor.comparison.comparisonantlr.rule_interpreter import RuleInterpreter
@@ -39,6 +40,13 @@ OPERATORS = {
 MATHOPERATORS = ['lt', 'le', 'gt', 'ge', 'eq', 'neq']
 TESTCASEV1 = 1
 TESTCASEV2 = 2
+
+class MyConsoleErrorListener(ErrorListener):
+
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        logger.debug("******line " + str(line) + ":" + str(column) + " " + msg)
+
+ConsoleErrorListener.INSTANCE = MyConsoleErrorListener()
 
 
 def version_str(version):

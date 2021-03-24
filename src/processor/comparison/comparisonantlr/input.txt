@@ -41,3 +41,4 @@ contains({13}.resources[0].properties.securityRules[1].properties.destinationAdd
 {15}.resources[1].properties.securityRules['name' = 'httpFromPublic'].properties.destinationPortRange=80
 {AWS-SECURITY_GROUP1}.resources[*].properties.securityRules[*].properties.destinationPortRange=443
 {AZR_NSG-2}.resources[*].properties.securityRules[*].properties.destinationPortRange=443
+{1}.version=1.5.2
