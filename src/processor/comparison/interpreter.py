@@ -4,6 +4,7 @@ which class to instantiate. Factory Method lets a class defer
 instantiation to subclasses.
 """
 import json
+import logging
 import os
 import re
 import pymongo
@@ -222,6 +223,15 @@ class ComparatorV01:
         else:
             self.format = None
 
+    def log_compliance_info(self, test_id):
+        logger.critical('\tTESTID: %s', test_id)
+        logger.critical('\t\tSNAPSHOTID: %s', self.testcase['snapshotId'][0])
+        if self.snapshots:
+            snapshot = self.snapshots[0]
+            logger.critical('\t\tPATHS: ')
+            for path in snapshot.get('paths', []):
+                logger.critical('\t\t\t %s', path)
+
     def process_rego_test_case(self):
         results = []
         inputjson = {}
@@ -240,13 +250,6 @@ class ComparatorV01:
             testId = self.testcase['masterTestId']
         sid = self.testcase['snapshotId'][0]
         snapshot_doc = self.get_snaphotid_doc(sid)
-        logger.critical('\tTESTID: %s', testId)
-        logger.critical('\t\tSNAPSHOTID: %s', self.testcase['snapshotId'][0])
-        if self.snapshots:
-            snapshot = self.snapshots[0]
-            logger.critical('\t\tPATHS: ')
-            for path in snapshot.get('paths', []):
-                logger.critical('\t\t\t %s', path)
                 
         # logger.critical('\t\tEVAL: %s', rule_expr)
         opa_exe = opa_binary()        
@@ -291,15 +294,18 @@ class ComparatorV01:
                 if isinstance(rule_expr, list):
                     result = os.system('%s eval -i /tmp/input.json -d %s "data.rule" > /tmp/a.json' % (opa_exe, rego_file))
                     if result != 0 :
-                         logger.info("\t\tERROR: have problem in running opa binary")
+                        self.log_compliance_info(testId)
+                        logger.info("\t\tERROR: have problem in running opa binary")
                 else:
                     result = os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
                     if result != 0 :
+                        self.log_compliance_info(testId)
                         logger.info("\t\tERROR: have problem in running opa binary")
 
                 resultval = json_from_file('/tmp/a.json')
                 if resultval and "errors" in resultval and resultval["errors"]:
                     results.append({'eval': rule_expr, 'result': "failed", 'message': ''})
+                    self.log_compliance_info(testId)
                     logger.critical('\t\tTITLE: %s', self.testcase.get('title', ""))
                     logger.critical('\t\tDESCRIPTION: %s', self.testcase.get('description', ""))
                     logger.critical('\t\tRULE: %s', self.testcase.get('rule', ""))
@@ -318,12 +324,16 @@ class ComparatorV01:
                                     if isinstance(resultdict[evalfield], bool):
                                         result = parsebool(resultdict[evalfield])
                                     else:
-                                        logger.warning('\t\tRESULT: SKIPPED')
+                                        if logger.level == logging.DEBUG:
+                                            self.log_compliance_info(testId)
+                                            logger.warning('\t\tRESULT: SKIPPED')
                                         continue
                                 elif evalmessage in resultdict:
                                     result = False
                                 else:
-                                    logger.warning('\t\tRESULT: SKIPPED')
+                                    if logger.level == logging.DEBUG:
+                                        self.log_compliance_info(testId)
+                                        logger.warning('\t\tRESULT: SKIPPED')
                                     continue
                                 msg = resultdict[evalmessage] if not result and evalmessage in resultdict else ""
                                 results.append({
@@ -335,19 +345,23 @@ class ComparatorV01:
                                     'remediation_function' : val.get("remediationFunction"),
                                 })
                                 # logger.info('\t\tERROR: %s', resultval)
+                                self.log_compliance_info(testId)
                                 self.log_result(results[-1])
                     else:
                         resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
                         result = parsebool(resultbool)
                         results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
                         # logger.info('\t\tERROR: %s', resultval)
+                        self.log_compliance_info(testId)
                         self.log_result(results[-1])
                         if results[-1]['result'] == 'failed':
                             logger.error('\t\tERROR: %s', json.dumps(dict(resultval)))
 
             else:
-                logger.info('\t\tERROR: %s missing', rego_match.groups()[0])
-                logger.warning('\t\tRESULT: SKIPPED')
+                if logger.level == logging.DEBUG:
+                    self.log_compliance_info(testId)
+                    logger.info('\t\tERROR: %s missing', rego_match.groups()[0])
+                    logger.warning('\t\tRESULT: SKIPPED')
                 # results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
                 # self.log_result(results[-1])
         else:
