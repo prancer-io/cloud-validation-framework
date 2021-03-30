@@ -181,7 +181,7 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     client_id, client_secret, sub_name, sub_id, tenant_id = \
         get_web_client_data(snapshot_type, snapshot_source, snapshot_user)
     if not client_id:
-        logger.info("No client_id in the snapshot to access azure resource!...")
+        # logger.info("No client_id in the snapshot to access azure resource!...")
         raise Exception("No client id in the snapshot to access azure resource!...")
 
     # Read the client secrets from envirnment variable
