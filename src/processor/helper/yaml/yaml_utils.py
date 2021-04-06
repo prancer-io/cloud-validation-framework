@@ -1,6 +1,7 @@
 """ Utility functions for yaml."""
 
 import yaml
+from yaml.loader import FullLoader
 from collections import OrderedDict
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
@@ -67,7 +68,7 @@ def multiple_yaml_from_file(yamlfile, loader=None):
     return yamldata
 
 def is_multiple_yaml_file(file_path):
-      if len (multiple_yaml_from_file(file_path)) > 1:
+      if len (multiple_yaml_from_file(file_path,loader=FullLoader)) > 1:
           return True
       else: 
           return False
