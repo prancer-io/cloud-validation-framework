@@ -3,6 +3,7 @@ import os
 import hashlib
 import pymongo
 import hcl
+from yaml.loader import FullLoader
 from processor.helper.config.config_utils import config_value
 from processor.helper.config.rundata_utils import get_dbtests
 from processor.logging.log_handler import getlogger
@@ -139,7 +140,7 @@ class TemplateProcessor:
         return False
     
     def break_multiple_yaml_file(self,new_file_path):
-        mutli_yaml = multiple_yaml_from_file(new_file_path)
+        mutli_yaml = multiple_yaml_from_file(new_file_path,loader=FullLoader)
         paths=[]
         for index,single_object in enumerate(mutli_yaml) :
             new_file = '%s_multiple_yaml_%d.yaml' % (new_file_path.split(".")[0],index)
