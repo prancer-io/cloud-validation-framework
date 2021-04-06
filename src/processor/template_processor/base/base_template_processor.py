@@ -164,8 +164,6 @@ class TemplateProcessor:
         
         if is_multiple_yaml_convertion(self.paths[0]):
             multiple_source = '%s/%s.yaml' % (self.dir_path,(self.paths[0]).split(MultipleConvertionKey)[0])
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print(exists_file(multiple_source))
             if exists_file(multiple_source):
                 self.break_multiple_yaml_file(multiple_source)
 
