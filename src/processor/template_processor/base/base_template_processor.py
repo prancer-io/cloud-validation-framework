@@ -9,6 +9,8 @@ from processor.logging.log_handler import getlogger
 from processor.database.database import insert_one_document, COLLECTION, DATABASE, DBNAME, \
     get_collection_size, create_indexes
 from processor.helper.json.json_utils import get_field_value, store_snapshot, make_snapshots_dir
+from processor.helper.yaml.yaml_utils import is_multiple_yaml_file,multiple_yaml_from_file,save_yaml_to_file,\
+    is_multiple_yaml_convertion,MultipleConvertionKey
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 logger = getlogger()
@@ -135,6 +137,16 @@ class TemplateProcessor:
         It should be override by child class.
         """
         return False
+    
+    def break_multiple_yaml_file(self,new_file_path):
+        mutli_yaml = multiple_yaml_from_file(new_file_path)
+        paths=[]
+        for index,single_object in enumerate(mutli_yaml) :
+            new_file = '%s_multiple_yaml_%d.yaml' % (new_file_path.split(".")[0],index)
+            save_yaml_to_file(single_object,new_file)
+            paths.append(new_file.split("/")[-1])
+        os.remove(new_file_path)
+        return paths
 
     def populate_template_snapshot(self):
         """
@@ -149,6 +161,13 @@ class TemplateProcessor:
             self.node['status'] = 'inactive'
             logger.error("Invalid json : `paths` field is missing in node or it is not a list")
             return self.snapshot_data
+        
+        if is_multiple_yaml_convertion(self.paths[0]):
+            multiple_source = '%s/%s.yaml' % (self.dir_path,(self.paths[0]).split(MultipleConvertionKey)[0])
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print(exists_file(multiple_source))
+            if exists_file(multiple_source):
+                self.break_multiple_yaml_file(multiple_source)
 
         self.processed_template = self.process_template(self.paths)
         if self.processed_template:
@@ -211,6 +230,7 @@ class TemplateProcessor:
                 })
 
 
+
     def populate_sub_directory_snapshot(self, file_path, base_dir_path, sub_dir_path, snapshot, dbname, node, snapshot_data, count):
         """
         Iterate the subdirectories for process each files inside the directory.
@@ -240,6 +260,9 @@ class TemplateProcessor:
                     new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
                     if exists_dir(new_dir_path):
                         count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
+                    if is_multiple_yaml_file(new_dir_path):
+                        paths = self.break_multiple_yaml_file(new_dir_path)
+                        template_file_list+=paths
                     elif exists_file(new_dir_path):
                         if self.is_template_file(new_dir_path):
                             template_file_list.append(new_sub_directory_path)
