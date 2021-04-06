@@ -6,7 +6,7 @@ from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 
 logger = getlogger()
-
+MultipleConvertionKey = "_multiple_yaml"
 
 def save_yaml_to_file(indata, outfile, indent=None):
     """Save dict data to the file in yaml format"""
@@ -65,3 +65,12 @@ def multiple_yaml_from_file(yamlfile, loader=None):
     except Exception as ex:
         print('Failed to load yaml from file: %s, exception: %s', yamlfile, ex)
     return yamldata
+
+def is_multiple_yaml_file(file_path):
+      if len (multiple_yaml_from_file(file_path)) > 1:
+          return True
+      else: 
+          return False
+
+def is_multiple_yaml_convertion(file_path):
+    return MultipleConvertionKey in file_path
