@@ -68,10 +68,13 @@ def multiple_yaml_from_file(yamlfile, loader=None):
     return yamldata
 
 def is_multiple_yaml_file(file_path):
+    try:
       if len (multiple_yaml_from_file(file_path,loader=FullLoader)) > 1:
           return True
       else: 
           return False
+    except Exception as ex:
+        return False
 
 def is_multiple_yaml_convertion(file_path):
     return MultipleConvertionKey in file_path
