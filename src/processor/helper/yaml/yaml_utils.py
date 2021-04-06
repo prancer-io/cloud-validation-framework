@@ -52,3 +52,16 @@ def valid_yaml(yaml_input):
         print('Not a valid yaml: %s', yaml_input)
     return False
 
+def multiple_yaml_from_file(yamlfile, loader=None):
+    """ Get multiple yaml data from the file in a dict."""
+    yamldata = None
+    try:
+        if exists_file(yamlfile):
+            with open(yamlfile) as infile:
+                if loader:
+                    yamldata = list(yaml.load_all(infile, Loader=loader))
+                else:
+                    yamldata = list(yaml.load_all(infile))
+    except Exception as ex:
+        print('Failed to load yaml from file: %s, exception: %s', yamlfile, ex)
+    return yamldata
