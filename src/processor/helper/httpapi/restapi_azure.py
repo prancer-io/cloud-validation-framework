@@ -84,6 +84,8 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
                         break
                 if found:
                     break
+    if not found:
+        logger.error("No connector data found, check the connector configuration and snapshot configuration files.")
     return client_id, client_secret, sub_name, sub_id, tenant_id
 
 
