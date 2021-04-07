@@ -137,12 +137,12 @@ def generate_snapshots_from_mastersnapshot_file(mastersnapshot_file):
     mastersnapshot_json_data = json_from_file(mastersnapshot_file_name)
     if not mastersnapshot_json_data:
         logger.error("masterSnapshot file %s looks to be empty, next!...", mastersnapshot_file)
-        return {}
+        return {}, {}
 
     if "connector" in mastersnapshot_json_data and "remoteFile" in mastersnapshot_json_data and mastersnapshot_json_data["connector"] and mastersnapshot_json_data["remoteFile"]:
         _, pull_response = pull_json_data(mastersnapshot_json_data)
         if not pull_response:
-            return {}
+            return {}, {}
     logger.debug(json.dumps(mastersnapshot_json_data, indent=2))
     parts = mastersnapshot_file_name.rsplit('.', 1)
     snapshot_file_name = '%s_gen.%s' % (parts[0], parts[1])

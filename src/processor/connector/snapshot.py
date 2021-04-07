@@ -79,6 +79,8 @@ def populate_snapshot(snapshot, container):
     connector_data = get_custom_data(snapshot_source)
     if connector_data:
         snapshot_type = get_field_value(connector_data, "type")
+    else:
+        logger.error("Invalid source `%s`, connector not found. Please check the snapshot configuration." %  snapshot_source)
     if snapshot_type and snapshot_type in snapshot_fns:
         if 'nodes' not in snapshot or not snapshot['nodes']:
             logger.error("No nodes in snapshot to be backed up!...")
@@ -187,8 +189,10 @@ def populate_container_snapshots_filesystem(container):
             # snapshots that have been susccessfully fetched shall be executed.
             snapshot_file_data = populate_snapshots_from_file(snapshot_file, container)
             populated.append(parts[-1])
-            name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
-            snapshots_status[name] = snapshot_file_data
+            
+            if snapshot_file_data:
+                name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
+                snapshots_status[name] = snapshot_file_data
     logger.critical("SNAPSHOTS COMPLETE:")
     return snapshots_status
 
@@ -234,7 +238,8 @@ def populate_container_snapshots_database(container):
                             update_one_document(doc, collection, dbname)
                             
                         populated.append(snapshot)
-                        snapshots_status[snapshot] = snapshot_file_data
+                        if snapshot_file_data:
+                            snapshots_status[snapshot] = snapshot_file_data
                 except Exception as e:
                     dump_output_results([], container, "-", snapshot, False)
                     raise e

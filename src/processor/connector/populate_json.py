@@ -34,15 +34,15 @@ def run_subprocess_cmd(cmd, ignoreerror=False, maskoutput=False, outputmask="Err
                 logger.info("CMD: '%s', OUTPUT: %s, ERROR: %s", cmd, result, error_result)
     return error_result, result
 
-def validate_snapshot_data(snapshot_json, document_json):
+def validate_snapshot_data(snapshot_json, document_json, file_location):
     validate = True
     if "snapshots" not in snapshot_json:
-        logger.info("Invalid json: 'Snapshots' field does not exists.")
+        logger.error("Invalid json %s: 'Snapshots' field is not exists in remote snapshot configuration file." % file_location)
         return False
 
     snapshots = snapshot_json["snapshots"]
     if not isinstance(snapshots, list):
-        logger.info("Invalid json: 'Snapshots' field is not type list.")
+        logger.error("Invalid json %s: 'Snapshots' field is not type of list." % file_location)
         return False
 
     # Add validations based on snapshot type
@@ -51,31 +51,31 @@ def validate_snapshot_data(snapshot_json, document_json):
     
     return validate
 
-def validate_master_snapshot_data(master_snapshot_json, document_json):
+def validate_master_snapshot_data(master_snapshot_json, document_json, file_location):
     validate = True
     
     connector_users = get_field_value(document_json, "connectorUsers")
     if not connector_users:
-        logger.info("Invalid snapshot: 'connectorUsers' field does not exists or it is empty.")
+        logger.error("Invalid snapshot %s: 'connectorUsers' field does not exists or it is empty." % file_location)
         return False
 
     if "snapshots" not in master_snapshot_json:
-        logger.info("Invalid json: 'Snapshots' field does not exists.")
+        logger.error("Invalid json %s: 'Snapshots' field does not exists in mastersnapshot configuration file." % file_location)
         return False
 
     snapshots = master_snapshot_json["snapshots"]
     if not isinstance(snapshots, list):
-        logger.info("Invalid json: 'Snapshots' field is not type list.")
+        logger.error("Invalid json %s: 'Snapshots' field is not type list in snapshot configuration file." % file_location)
         return False
 
     for snapshot in snapshots:
         if "type" not in snapshot:
-            logger.info("Invalid json: 'type' field is not exists in snapshot.")
+            logger.error("Invalid json %s: 'type' field is not exists in snapshot configuration file." % file_location)
             validate = False
             break
 
         if "connectorUser" not in snapshot:
-            logger.info("Invalid json: 'connectorUser' field is not exists in snapshot.")
+            logger.error("Invalid json %s: 'connectorUser' field is not exists in snapshot configuration file." % file_location)
             validate = False
             break
         else:
@@ -89,38 +89,38 @@ def validate_master_snapshot_data(master_snapshot_json, document_json):
                             snapshot[key] = value
         
             if not found_connector_user:
-                logger.info("Invalid json: given 'connectorUser' not found in 'connectorUsers'.")
+                logger.error("Invalid json %s: `testUser` in snapshot configuration file is not mactch with the 'connectorUser' in remote snapshot file." % file_location)
                 validate = False
                 break
             
         if "nodes" not in snapshot:
-            logger.info("Invalid json: 'nodes' field is not exists in snapshot.")
+            logger.error("Invalid json %s: 'nodes' field is not exists in snapshot configuration file." % file_location)
             validate = False
             break
 
         if not isinstance(snapshot["nodes"], list):
-            logger.info("Invalid json: 'snapshots -> nodes' field is not type list.")
+            logger.error("Invalid json %s: 'snapshots -> nodes' field is not type list." % file_location)
             validate = False
             break
 
         for node in snapshot["nodes"]:
             if "masterSnapshotId" not in node:
-                logger.info("Invalid json: 'masterSnapshotId' field is not exists in node.")
+                logger.error("Invalid json %s: 'masterSnapshotId' field is not exists in node." % file_location)
                 validate = False
                 break
 
             if snapshot["type"] == "aws" and "arn" not in node:
-                logger.info("Invalid json: 'arn' field is not exists in node.")
+                logger.error("Invalid json %s: 'arn' field is not exists in node." % file_location)
                 validate = False
                 break
 
             elif snapshot["type"] != "aws" and "type" not in node:
-                logger.info("Invalid json: 'type' field is not exists in node.")
+                logger.error("Invalid json %s: 'type' field is not exists in node." % file_location)
                 validate = False
                 break
 
             if "collection" not in node:
-                logger.info("Invalid json: 'collection' field is not exists in node.")
+                logger.error("Invalid json %s: 'collection' field is not exists in node." % file_location)
                 validate = False
                 break
         
@@ -135,37 +135,37 @@ def validate_master_snapshot_data(master_snapshot_json, document_json):
     
     return validate    
 
-def validate_test_data(test_json, document_json):
+def validate_test_data(test_json, document_json, file_location):
     validate = True
     
     if "testSet" not in test_json:
-        logger.info("Invalid json: 'testSet' field does not exists.")
+        logger.error("Invalid json %s: 'testSet' field does not exists." % file_location)
         return False
 
     testsets = test_json["testSet"]
     if not isinstance(testsets, list):
-        logger.info("Invalid json: 'testSet' field is not type list.")
+        logger.error("Invalid json %s: 'testSet' field is not type list." % file_location)
         return False
 
     for testset in testsets:
         if "testName" not in testset:
-            logger.info("Invalid json: 'testName' field is not exists in testset.")
+            logger.error("Invalid json %s: 'testName' field is not exists in testset." % file_location)
             validate = False
             break
             
         if "cases" not in testset:
-            logger.info("Invalid json: 'cases' field is not exists in testset.")
+            logger.error("Invalid json %s: 'cases' field is not exists in testset." % file_location)
             validate = False
             break
 
         if not isinstance(testset["cases"], list):
-            logger.info("Invalid json: 'testset -> cases' field is not type list.")
+            logger.error("Invalid json %s: 'testset -> cases' field is not type list." % file_location)
             validate = False
             break
 
         for case in testset["cases"]:
             if "testId" not in case:
-                logger.info("Invalid json: 'testId' field is not exists in case.")
+                logger.error("Invalid json %s: 'testId' field is not exists in case." % file_location)
                 validate = False
                 break
         
@@ -179,37 +179,37 @@ def validate_test_data(test_json, document_json):
     
     return validate
 
-def validate_master_test_data(master_test_json, document_json):
+def validate_master_test_data(master_test_json, document_json, file_location):
     validate = True
     
     if "testSet" not in master_test_json:
-        logger.info("Invalid json: 'testSet' field does not exists.")
+        logger.error("Invalid json %s: 'testSet' field does not exists." % file_location)
         return False
 
     testsets = master_test_json["testSet"]
     if not isinstance(testsets, list):
-        logger.info("Invalid json: 'testSet' field is not type list.")
+        logger.error("Invalid json %s: 'testSet' field is not type list." % file_location)
         return False
 
     for testset in testsets:
         if "masterTestName" not in testset:
-            logger.info("Invalid json: 'masterTestName' field is not exists in testset.")
+            logger.error("Invalid json %s: 'masterTestName' field is not exists in testset." % file_location)
             validate = False
             break
             
         if "cases" not in testset:
-            logger.info("Invalid json: 'cases' field is not exists in testset.")
+            logger.error("Invalid json %s: 'cases' field is not exists in testset." % file_location)
             validate = False
             break
 
         if not isinstance(testset["cases"], list):
-            logger.info("Invalid json: 'testset -> cases' field is not type list.")
+            logger.error("Invalid json %s: 'testset -> cases' field is not type list." % file_location)
             validate = False
             break
 
         for case in testset["cases"]:
             if "masterTestId" not in case:
-                logger.info("Invalid json: 'masterTestId' field is not exists in case.")
+                logger.error("Invalid json %s: 'masterTestId' field is not exists in case." % file_location)
                 validate = False
                 break
         
@@ -233,15 +233,15 @@ def pull_json_data(document_json):
     file_type = get_field_value(document_json, "fileType")
 
     if not connector:
-        logger.info("Invalid snapshot: 'connector' field does not exists or it is empty.")
+        logger.error("Invalid json: 'connector' field does not exists or it is empty.")
         return dirpath, False
 
     if not file_location:
-        logger.info("Invalid snapshot: 'remoteFile' field does not exists or it is empty.")
+        logger.error("Invalid json: 'remoteFile' field does not exists or it is empty.")
         return dirpath, False
 
     if not file_type:
-        logger.info("Invalid snapshot: 'fileType' field does not exists or it is empty.")
+        logger.error("Invalid json: 'fileType' field does not exists or it is empty.")
         return dirpath, False
 
     connector_data = get_custom_data(connector)
@@ -256,16 +256,16 @@ def pull_json_data(document_json):
         validate = False
         if json_data:
             if file_type == "snapshot":
-                validate = validate_snapshot_data(json_data, document_json)
+                validate = validate_snapshot_data(json_data, document_json, file_location)
 
             if file_type == "masterSnapshot":
-                validate = validate_master_snapshot_data(json_data, document_json)
+                validate = validate_master_snapshot_data(json_data, document_json, file_location)
 
             if file_type == "test":
-                validate = validate_test_data(json_data, document_json)
+                validate = validate_test_data(json_data, document_json, file_location)
 
             if file_type == "mastertest":
-                validate = validate_master_test_data(json_data, document_json)
+                validate = validate_master_test_data(json_data, document_json, file_location)
         else:
             logger.error("Failed to fetch remote file %s : either file does not exist or invalid file format!" % file_location)
         
