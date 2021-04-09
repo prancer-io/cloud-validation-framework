@@ -42,3 +42,5 @@ contains({13}.resources[0].properties.securityRules[1].properties.destinationAdd
 {AWS-SECURITY_GROUP1}.resources[*].properties.securityRules[*].properties.destinationPortRange=443
 {AZR_NSG-2}.resources[*].properties.securityRules[*].properties.destinationPortRange=443
 {1}.version=1.5.2
+{1}.version='Boolean flag to turn on and off of virtual machine scale sets'
+{1}.location='eastus-2'
