@@ -4,6 +4,7 @@ import re
 import json
 import time
 import glob
+from json.decoder import JSONDecodeError
 from collections import OrderedDict
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor.helper.config.config_utils import get_test_json_dir
@@ -82,6 +83,13 @@ def json_from_file(jsonfile, escape_chars=None, object_pairs_hook=OrderedDict):
             if escape_chars and isinstance(escape_chars, list):
                 for escape_char in escape_chars:
                     file_data = file_data.replace(escape_char, '\\\%s' % escape_char)
+            
+            try:
+                jsondata = json.loads(file_data, object_pairs_hook=object_pairs_hook)
+            except JSONDecodeError:
+                with open(jsonfile, 'r', encoding='utf-8-sig') as infile:
+                    file_data = infile.read()
+            
             jsondata = json.loads(file_data, object_pairs_hook=object_pairs_hook)
     except Exception as ex:
         logger.debug('Failed to load json from file: %s, exception: %s', jsonfile, ex)
