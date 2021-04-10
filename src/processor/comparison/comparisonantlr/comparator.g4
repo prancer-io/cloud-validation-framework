@@ -78,7 +78,7 @@ DICTSTRING
     : FLOPEN (.)*? FLCLOSE;
 
 QUOTESTRING
-    : QUOTE STRING QUOTE
+    : QUOTE (.)*? QUOTE
     ;
 
 // Number format regular expression
