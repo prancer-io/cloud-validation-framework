@@ -8,15 +8,21 @@ import pymongo
 from datetime import datetime
 from processor.helper.config.rundata_utils import get_dbtests
 from processor.helper.json.json_utils import get_field_value,json_from_file,\
-    make_snapshots_dir,store_snapshot,get_field_value_with_default
+    make_snapshots_dir,store_snapshot,get_field_value_with_default,STRUCTURE,\
+    collectiontypes
 from processor.logging.log_handler import getlogger
 from processor.helper.config.config_utils import config_value,framework_dir
 from kubernetes import client,config
 import kubernetes.client
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.database.database import insert_one_document,\
-    COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
+    COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes,sort_field,\
+    get_documents
 import traceback
+from processor.helper.httpapi.restapi_azure import json_source
+from processor.connector.snapshot_base import Snapshot
+
+
 
 
 
@@ -38,8 +44,21 @@ def get_kubernetes_structure_data(snapshot_source):
     file which specified in snapshot as source field.
     Return structure data as json dictionary
     """
-    kubernetes_structure_path = get_kubernetes_structure_path(snapshot_source)
-    return json_from_file(kubernetes_structure_path)
+    kubernetes_structure_data = {}
+    if json_source():
+        qry = {'name': snapshot_source}
+        dbname = config_value('MONGODB', 'dbname')
+        sort = [sort_field('timestamp', False)]
+        collection =config_value(DATABASE, collectiontypes[STRUCTURE])
+        structure_docs = get_documents(collection=collection , dbname=dbname, sort= sort, query=qry, limit=1)
+        logger.info('%s fetched %s number of documents: %s', Snapshot.LOGPREFIX, STRUCTURE, len(structure_docs))
+        if structure_docs and len(structure_docs):
+            kubernetes_structure_data = structure_docs[0]['json']
+    else:
+        kubernetes_structure_path = get_kubernetes_structure_path(snapshot_source)
+        kubernetes_structure_data = json_from_file(kubernetes_structure_path)
+
+    return kubernetes_structure_data
 
 def make_kubernetes_snapshot_template(snapshot,node,kubernetes_snapshot_data):
     """
