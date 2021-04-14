@@ -32,7 +32,7 @@ def default_logger():
     logging.basicConfig(format=LOGFORMAT)
     DEFAULT_LOGGER = logging.Logger(__name__)
     
-    handler = logging.StreamHandler()
+    handler = DefaultLoggingHandler()
     handler.setFormatter(ColorFormatter(LOGFORMAT))
     DEFAULT_LOGGER.addHandler(handler)
     return DEFAULT_LOGGER
@@ -47,7 +47,7 @@ def get_loglevel(fwconf=None):
     global LOGLEVEL
     if LOGLEVEL:
         return LOGLEVEL
-    
+
     default_logger()
     loglevels = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']
     level = os.getenv('LOGLEVEL', None)
@@ -71,6 +71,66 @@ def get_loglevel(fwconf=None):
     else:
         return logging.getLevelName(logging.INFO)
     return LOGLEVEL
+
+class DefaultLoggingHandler(logging.StreamHandler):
+
+    def emit(self, record):
+        """
+        Emit a record.
+
+        If a formatter is specified, it is used to format the record.
+        The record is then written to the stream with a trailing newline.  If
+        exception information is present, it is formatted using
+        traceback.print_exception and appended to the stream.  If the stream
+        has an 'encoding' attribute, it is used to determine how to do the
+        output to the stream.
+        """
+        try:
+            msg = self.format(record)
+            stream = self.stream
+            stream.write(msg)
+            stream.write(self.terminator)
+            self.flush()
+        except UnicodeEncodeError:
+            msg = self.format(record)
+            stream = self.stream
+            stream.write(str(msg.encode('utf-8')))
+            stream.write(self.terminator)
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+
+class DefaultFileHandler(logging.FileHandler):
+
+    def emit(self, record):
+        """
+        Emit a record.
+
+        If the stream was not opened because 'delay' was specified in the
+        constructor, open it before calling the superclass's emit.
+        """
+        if self.stream is None:
+            self.stream = self._open()
+        DefaultLoggingHandler.emit(self, record)
+
+
+class DefaultRoutingFileHandler(RotatingFileHandler):
+
+    def emit(self, record):
+        """
+        Emit a record.
+
+        Output the record to the file, catering for rollover as described
+        in doRollover().
+        """
+        try:
+            if self.shouldRollover(record):
+                self.doRollover()
+            DefaultFileHandler.emit(self, record)
+        except Exception:
+            self.handleError(record)
+
 
 class MongoDBHandler(logging.Handler):
     """Customized logging handler that puts logs to the database, pymongo required
@@ -243,13 +303,13 @@ def default_logging(fwconfigfile=None):
 
     log_level = get_loglevel(log_config)
     log_format = get_logformat(log_level)
-    
+
     # logging.basicConfig(format=LOGFORMAT)
     logger = CustomLogger(__name__)
     logger.propagate = log_config['propagate'] if log_config and 'propagate' in log_config else True
     logger.setLevel(get_loglevel(log_config))
-    
-    handler = logging.StreamHandler()
+
+    handler = DefaultLoggingHandler()
     handler.setFormatter(ColorFormatter(log_format))
     logger.addHandler(handler)
     return logger
@@ -266,7 +326,7 @@ def add_file_logging(fwconfigfile):
     FWLOGFILENAME = '%s/%s.log' % (log_config['logpath'], logname)
     if not FWLOGGER:
         FWLOGGER = default_logging()
-    handler = RotatingFileHandler(
+    handler = DefaultRoutingFileHandler(
         FWLOGFILENAME,
         maxBytes=1024 * 1024 * log_config['size'],
         backupCount=log_config['backups']
