@@ -21,12 +21,14 @@ from processor.database.database import insert_one_document,\
 import traceback
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_base import Snapshot
+from processor.connector.vault import get_vault_data
 
-
-
+Cache_secret = ""
+Cache_namespace = ""
 
 
 logger = getlogger()
+
 
 
 def get_kubernetes_structure_path(snapshot_source):
@@ -101,6 +103,11 @@ def get_client_secret(kubernetes_structure_data,snapshot_serviceAccount,snapshot
     kubernetes cluster.
 
     """
+    global Cache_namespace,Cache_secret
+    if snapshot_namespace  == Cache_namespace:
+        return Cache_secret
+
+
     namespaces = get_field_value(kubernetes_structure_data,'namespaces')
     service_account_secret = ""
     for namespace in namespaces :
@@ -108,10 +115,20 @@ def get_client_secret(kubernetes_structure_data,snapshot_serviceAccount,snapshot
         for service_account in service_accounts :
             if snapshot_serviceAccount == service_account['name'] and namespace['namespace'] in snapshot_namespace :
                 service_account_secret = get_field_value(service_account,'secret')
-                return service_account_secret
-            elif service_account_secret is None:
-                service_account_secret = os.getenv(snapshot_serviceAccount, None)
-                return service_account_secret
+                if service_account_secret is not None:
+                    Cache_secret= service_account_secret
+                    Cache_namespace = snapshot_namespace
+                    return service_account_secret
+                else :
+                    service_account_secret = get_vault_data(service_account['id'])
+                    if  service_account_secret is not None:
+                        Cache_secret= service_account_secret
+                        Cache_namespace = snapshot_namespace
+            
+
+    
+   
+            
 
     
     if service_account_secret == "" :
