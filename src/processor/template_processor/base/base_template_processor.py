@@ -11,7 +11,9 @@ from processor.database.database import insert_one_document, COLLECTION, DATABAS
     get_collection_size, create_indexes
 from processor.helper.json.json_utils import get_field_value, store_snapshot, make_snapshots_dir
 from processor.helper.yaml.yaml_utils import is_multiple_yaml_file,multiple_yaml_from_file,save_yaml_to_file,\
-    is_multiple_yaml_convertion,MultipleConvertionKey
+    is_multiple_yaml_convertion,is_helm_chart_convertion,MultipleConvertionKey,HelmChartConvertionKey\
+    
+from processor.templates.helm.helm_parser import HelmTemplateParser
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 logger = getlogger()
@@ -139,13 +141,36 @@ class TemplateProcessor:
         """
         return False
     
+    def is_helm_chart_dir(self,file_path):
+        """
+        """
+        file_type = file_path.split(".")[-1]
+        file_name = file_path.split("/")[-1].split(".")[0]
+        if file_type == "yaml" and file_name == "Chart" :
+            helm_template = HelmTemplateParser(file_path)
+            return helm_template.validate(file_path)
+        return False
+
+    def process_helm_chart(self,dir_path):
+        helm_source_dir_name = dir_path.rpartition("/")[-1]
+        helm_path = config_value('HELM','helmexe')
+        result = os.system('%s template %s > %s/%s_prancer_helm_template.yaml' % (helm_path, dir_path,dir_path,helm_source_dir_name))
+        paths = self.break_multiple_yaml_file('%s/%s_prancer_helm_template.yaml' % (dir_path,helm_source_dir_name))
+        # os.remove('%s/Chart.yaml' % dir_path)
+        return paths
+        
+        # helm_template = HelmTemplateParser()   
     def break_multiple_yaml_file(self,new_file_path):
         mutli_yaml = multiple_yaml_from_file(new_file_path,loader=FullLoader)
         paths=[]
         for index,single_object in enumerate(mutli_yaml) :
             new_file = '%s_multiple_yaml_%d.yaml' % (new_file_path.split(".")[0],index)
             save_yaml_to_file(single_object,new_file)
-            paths.append(new_file.split("/",3)[-1])
+            if HelmChartConvertionKey in new_file_path :
+                splited_path = new_file.rsplit("/",2)
+                paths.append("/".join([splited_path[-2],splited_path[-1]]))
+            else :
+                paths.append(new_file.split("/",3)[-1])
         os.remove(new_file_path)
         return paths
 
@@ -167,6 +192,11 @@ class TemplateProcessor:
             multiple_source = '%s/%s.yaml' % (self.dir_path,(self.paths[0]).split(MultipleConvertionKey)[0])
             if exists_file(multiple_source):
                 self.break_multiple_yaml_file(multiple_source)
+
+        if is_helm_chart_convertion(self.paths[0]):
+            helm_dir = '%s/%s' % (self.dir_path,self.paths[0].rpartition("/")[0]) 
+            if not exists_file('%s/%s' % (helm_dir,self.paths[0].rpartition("/")[-1])):
+                self.process_helm_chart(helm_dir)
 
         self.processed_template = self.process_template(self.paths)
         if self.processed_template:
@@ -250,7 +280,7 @@ class TemplateProcessor:
             path_is_file = True
         if exists_dir(dir_path):
             path_is_dir = True
-
+       
         if any([path_is_dir,path_is_file]):
             if path_is_dir :
                 list_of_file = os.listdir(dir_path)
@@ -259,7 +289,10 @@ class TemplateProcessor:
                     new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
                     if exists_dir(new_dir_path):
                         count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
-                    if is_multiple_yaml_file(new_dir_path):
+                    if self.is_helm_chart_dir(new_dir_path):
+                        paths=self.process_helm_chart(dir_path)
+                        template_file_list += paths
+                    elif is_multiple_yaml_file(new_dir_path):
                         paths = self.break_multiple_yaml_file(new_dir_path)
                         template_file_list+=paths
                     elif exists_file(new_dir_path):
