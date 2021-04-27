@@ -153,7 +153,8 @@ class TemplateProcessor:
 
     def process_helm_chart(self,dir_path):
         helm_source_dir_name = dir_path.rpartition("/")[-1]
-        result = os.system('%s template %s > %s/%s_prancer_helm_template.yaml' % ("helm", dir_path,dir_path,helm_source_dir_name))
+        helm_path = config_value('HELM','helmexe')
+        result = os.system('%s template %s > %s/%s_prancer_helm_template.yaml' % (helm_path, dir_path,dir_path,helm_source_dir_name))
         paths = self.break_multiple_yaml_file('%s/%s_prancer_helm_template.yaml' % (dir_path,helm_source_dir_name))
         # os.remove('%s/Chart.yaml' % dir_path)
         return paths
