@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+
 jobs:
   build:
     name: build and publish
@@ -102,6 +103,7 @@ jobs:
           python -c "$c"
           #fi
           rm output
+          
       - name: upload to pypi.org
         id: twine
         run: |
@@ -112,13 +114,13 @@ jobs:
       - name: Docker build
         id: docker_build
         run: |
+          # Wait X seconds for pypi to have the binary ready
+          sleep 600
           docker build -t prancer/prancer-basic:${{ steps.read_version.outputs.VERSION }}\
                        --build-arg APP_VERSION=${{ steps.read_version.outputs.VERSION }} -f dockerfiles/Dockerfile .
                        
       - name: Docker push
         id: docker_push
-        run: |
-          # Wait X seconds for pypi to have the binary ready
-          sleep 120
+        run: |          
           docker login -u ${{ secrets.DOCKER_USER }} -p '${{ secrets.DOCKER_PASSWORD }}'
           docker push prancer/prancer-basic:${{ steps.read_version.outputs.VERSION }}

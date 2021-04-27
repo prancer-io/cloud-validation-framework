@@ -78,7 +78,7 @@ DICTSTRING
     : FLOPEN (.)*? FLCLOSE;
 
 QUOTESTRING
-    : QUOTE STRING QUOTE
+    : QUOTE (.)*? QUOTE
     ;
 
 // Number format regular expression
@@ -88,7 +88,7 @@ NUMBER
 
 //Float Number format regular expression
 FNUMBER
-    : [0-9]+('.'[0-9]+)?
+    : [0-9]+('.'[0-9]+)+
     ;
 
 IPADDRESS : (QUOTE)?NUMBER '.' NUMBER '.' NUMBER '.' NUMBER ('/'NUMBER)?(QUOTE)?;

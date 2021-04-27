@@ -114,7 +114,7 @@ from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.connector.vault import get_vault_data
 from processor.template_processor.base.base_template_constatns import TEMPLATE_NODE_TYPES
-
+from processor.connector.git_functions import GithubFunctions
 
 logger = getlogger()
 
@@ -332,8 +332,35 @@ def git_clone_dir(connector):
         http_match = re.match(r'^http(s)?://', giturl, re.I)
         if http_match:
             logger.info("\t\t\tHttp (private:%s) giturl: %s", "YES" if isprivate else "NO", giturl)
+
+            accessToken = get_field_value(connector, 'httpsAccessToken')
             username = get_field_value(connector, 'httpsUser')
-            if username:
+            if accessToken:
+                logger.info("AccessToken: %s" % accessToken)
+                pwd = get_field_value(connector, 'httpsPassword')
+                pwd = pwd if pwd else get_git_pwd(key=accessToken)
+                if not pwd:
+                    pwd = get_pwd_from_vault(accessToken)
+                    if pwd:
+                        logger.info("Git access token from vault: %s", '*' * len(pwd))
+                if pwd:
+                    gh = GithubFunctions()
+                    gh.set_access_token(pwd)
+                    _ = gh.populate_user()
+                    rpo = gh.clone_repo(giturl, repopath, branch)
+                    if rpo:
+                        logger.info('Successfully cloned in %s dir' % repopath)
+                        checkdir = '%s/tmpclone' % repopath if subdir else repopath
+                        clonedir = checkdir if exists_dir('%s/.git' % checkdir) else None
+                        if not exists_dir(clonedir):
+                            logger.error("No valid data provided for connect to git : %s", giturl)
+                        return repopath, clonedir
+                    elif isprivate:
+                        logger.error("Please provide password for connect to git repository.")
+                        return repopath, clonedir
+                    else:
+                        git_cmd = 'git clone %s %s' % (giturl, repopath)
+            elif username:
                 pwd = get_field_value(connector, 'httpsPassword')
                 schema = giturl[:http_match.span()[-1]]
                 other_part = giturl[http_match.span()[-1]:]

@@ -7,13 +7,14 @@ import os
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 
-
 FWLOGGER = None
 FWLOGFILENAME = None
 MONGOLOGGER = None
 DBLOGGER = None
 dbhandler = None
-# LOGFORMAT = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
+DEFAULT_LOGGER = None
+LOGLEVEL = None
+DEBUG_LOGFORMAT = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
 LOGFORMAT = '%(asctime)s - %(message)s'
 
 
@@ -24,20 +25,111 @@ def get_dblog_name():
         dblog_name = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     return dblog_name
 
+def default_logger():
+    global DEFAULT_LOGGER
+    if DEFAULT_LOGGER:
+        return DEFAULT_LOGGER
+    logging.basicConfig(format=LOGFORMAT)
+    DEFAULT_LOGGER = logging.Logger(__name__)
+    
+    handler = DefaultLoggingHandler()
+    handler.setFormatter(ColorFormatter(LOGFORMAT))
+    DEFAULT_LOGGER.addHandler(handler)
+    return DEFAULT_LOGGER
+
+def get_logformat(log_level):
+    if log_level == "DEBUG":
+        return DEBUG_LOGFORMAT
+    return LOGFORMAT
 
 def get_loglevel(fwconf=None):
     """ Highest priority is at command line, then ini file otherwise default is INFO"""
+    global LOGLEVEL
+    if LOGLEVEL:
+        return LOGLEVEL
+
+    default_logger()
     loglevels = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']
     level = os.getenv('LOGLEVEL', None)
-    loglevel = level if level and level in loglevels else None
-    cfglevel = fwconf['level'].upper() if fwconf and 'level' in fwconf and fwconf['level'] and fwconf['level'].upper() in \
-                                          loglevels else None
+    loglevel = None
+    if level and level in loglevels:
+        loglevel = level
+    elif level and level not in loglevels:
+        DEFAULT_LOGGER.warning("Invalid log level passed in parameter \"%s\", valid log levels are %s" % (level, ", ".join(loglevels)))
+        os.environ["LOGLEVEL"] = "INFO"
+
+    cfglevel =  None
+    if fwconf and 'level' in fwconf and fwconf['level'] and fwconf['level'].upper() in loglevels:
+        cfglevel = fwconf['level'].upper()
+    elif fwconf and 'level' in fwconf and fwconf['level'] and fwconf['level'].upper() not in loglevels:
+        DEFAULT_LOGGER.warning("Invalid log level set in config file \"%s\", valid log levels are %s" % (fwconf['level'], ", ".join(loglevels)))
+
     if loglevel:
-        return loglevel
+        LOGLEVEL = loglevel
     elif cfglevel:
-        return cfglevel
+        LOGLEVEL = cfglevel
     else:
-        return logging.INFO
+        return logging.getLevelName(logging.INFO)
+    return LOGLEVEL
+
+class DefaultLoggingHandler(logging.StreamHandler):
+
+    def emit(self, record):
+        """
+        Emit a record.
+
+        If a formatter is specified, it is used to format the record.
+        The record is then written to the stream with a trailing newline.  If
+        exception information is present, it is formatted using
+        traceback.print_exception and appended to the stream.  If the stream
+        has an 'encoding' attribute, it is used to determine how to do the
+        output to the stream.
+        """
+        try:
+            msg = self.format(record)
+            stream = self.stream
+            stream.write(msg)
+            stream.write(self.terminator)
+            self.flush()
+        except UnicodeEncodeError:
+            msg = self.format(record)
+            stream = self.stream
+            stream.write(str(msg.encode('utf-8')))
+            stream.write(self.terminator)
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+
+class DefaultFileHandler(logging.FileHandler):
+
+    def emit(self, record):
+        """
+        Emit a record.
+
+        If the stream was not opened because 'delay' was specified in the
+        constructor, open it before calling the superclass's emit.
+        """
+        if self.stream is None:
+            self.stream = self._open()
+        DefaultLoggingHandler.emit(self, record)
+
+
+class DefaultRoutingFileHandler(RotatingFileHandler):
+
+    def emit(self, record):
+        """
+        Emit a record.
+
+        Output the record to the file, catering for rollover as described
+        in doRollover().
+        """
+        try:
+            if self.shouldRollover(record):
+                self.doRollover()
+            DefaultFileHandler.emit(self, record)
+        except Exception:
+            self.handleError(record)
 
 
 class MongoDBHandler(logging.Handler):
@@ -127,9 +219,10 @@ class ColorFormatter(logging.Formatter):
             "info" : self.blue + log_format + self.reset,
             "success" : self.success + log_format + self.reset,
             "default": self.default + log_format + self.reset,
+            "critical" : self.bold_red + log_format + self.reset,
 
             # for set color based on record levelname
-            "CRITICAL" : self.bold_red + log_format + self.reset,
+            # "CRITICAL" : self.bold_red + log_format + self.reset,
             "WARNING" : self.yellow + log_format + self.reset,
             "ERROR" : self.red + log_format + self.reset
         }
@@ -208,13 +301,16 @@ def default_logging(fwconfigfile=None):
     if fwconfigfile:
         log_config = ini_logging_config(fwconfigfile)
 
+    log_level = get_loglevel(log_config)
+    log_format = get_logformat(log_level)
+
     # logging.basicConfig(format=LOGFORMAT)
     logger = CustomLogger(__name__)
     logger.propagate = log_config['propagate'] if log_config and 'propagate' in log_config else True
     logger.setLevel(get_loglevel(log_config))
-    
-    handler = logging.StreamHandler()
-    handler.setFormatter(ColorFormatter(LOGFORMAT))
+
+    handler = DefaultLoggingHandler()
+    handler.setFormatter(ColorFormatter(log_format))
     logger.addHandler(handler)
     return logger
 
@@ -230,12 +326,12 @@ def add_file_logging(fwconfigfile):
     FWLOGFILENAME = '%s/%s.log' % (log_config['logpath'], logname)
     if not FWLOGGER:
         FWLOGGER = default_logging()
-    handler = RotatingFileHandler(
+    handler = DefaultRoutingFileHandler(
         FWLOGFILENAME,
         maxBytes=1024 * 1024 * log_config['size'],
         backupCount=log_config['backups']
     )
-    handler.setFormatter(logging.Formatter(LOGFORMAT))
+    handler.setFormatter(logging.Formatter(get_logformat(log_config['level'])))
     handler.setLevel(log_config['level'])
     FWLOGGER.addHandler(handler)
 
@@ -248,7 +344,7 @@ def add_db_logging(fwconfigfile, dburl, dbargs):
     if log_config['db'] and unittest != "true" and dbargs and dburl:
         if not FWLOGGER:
             FWLOGGER = default_logging()
-        dblogformat = '%(asctime)s-%(message)s'
+        dblogformat = get_logformat(log_config['level'])
         dbhandler = MongoDBHandler(dburl, log_config['db'])
         dbhandler.setFormatter(logging.Formatter(dblogformat))
         dbhandler.setLevel(log_config['level'])

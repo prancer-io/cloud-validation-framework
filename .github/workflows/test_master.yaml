@@ -1,18 +1,16 @@
-name: Unit testing and Integration testing [development]
+name: Unit testing and Integration testing
 on:
-  push:
-    branches:
-      - development
-
   pull_request:
     types: [opened, synchronize]   
+    branches:
+      - 'master'
   
   workflow_dispatch:
     inputs:
       branch:
         required: true
         description: 'Branch' 
-        default: 'development'
+        default: 'master'
 jobs:
   build:
     name: build and publish

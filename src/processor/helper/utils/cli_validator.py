@@ -64,6 +64,7 @@ from processor.helper.config.config_utils import framework_dir, config_value, fr
     CFGFILE, get_config_data, FULL, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, CUSTOMER, SINGLETEST, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor import __version__
+import traceback
 
 
 
@@ -262,7 +263,7 @@ Runs the prancer framework based on the configuration files available in collect
             retval = 0 if container_exists(args.container) else 2
             if retval:
                 logger.critical("Container(%s) is not present in Framework dir: %s",
-                                args.container, framework_dir())
+                                args.container, framework_dir(), extra={"type" : "critical"})
                 # TODO: Log the path the framework looked for.
                 return retval
         if args.crawler:
@@ -280,6 +281,7 @@ Runs the prancer framework based on the configuration files available in collect
             check_send_notification(args.container, args.db)
     except (Exception, KeyboardInterrupt) as ex:
         logger.error("Execution exception: %s", ex)
+        print(traceback.format_exc())
         retval = 2
     return retval
 
