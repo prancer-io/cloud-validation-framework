@@ -145,7 +145,7 @@ class TemplateProcessor:
         for index,single_object in enumerate(mutli_yaml) :
             new_file = '%s_multiple_yaml_%d.yaml' % (new_file_path.split(".")[0],index)
             save_yaml_to_file(single_object,new_file)
-            paths.append(new_file.split("/")[-1])
+            paths.append(new_file.split("/",3)[-1])
         os.remove(new_file_path)
         return paths
 
