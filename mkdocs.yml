@@ -24,6 +24,7 @@ nav:
     - AWS connector: connectors/aws.md
     - Azure connector: connectors/azure.md
     - Google connector: connectors/google.md
+    - Kubernetes connector: connectors/kubernetes.md
   - Crawler:
     - Definition: crawler/crawler-definition.md
     - AWS Crawler: crawler/aws-crawler.md
@@ -32,6 +33,7 @@ nav:
     - AWS snapshot: snapshots/aws.md
     - Azure snapshot: snapshots/azure.md
     - Filesystem snapshot: snapshots/filesystem.md
+    - Kubernetes snapshot: snapshots/kubernetes.md
   - Tests:
     - Definition: tests/tests-definition.md
     - Test basics: tests/basics.md
