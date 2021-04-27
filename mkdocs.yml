@@ -26,6 +26,7 @@ nav:
     - Google connector: connectors/google.md
   - Crawler:
     - Definition: crawler/crawler-definition.md
+    - AWS Crawler: crawler/aws-crawler.md
   - Snapshots:
     - Definition: snapshots/snapshot-definition.md
     - AWS snapshot: snapshots/aws.md

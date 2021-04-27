@@ -1,4 +1,4 @@
-# Accessing the Prancer validation framework
+# Accessing the Prancer Platform
 There are three ways to communicate with the framework.
 
 - Command Line Interface (CLI)

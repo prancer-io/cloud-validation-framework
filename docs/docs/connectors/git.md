@@ -1,4 +1,4 @@
-The **Filesystem** connector allows you to inspect files from a local file system or git repository. It acts more as a prevention mechanism when opposed to service connectors such as **AWS** or **Azure**. This is the main connector we use for **Infrastructure as Code** validation. While the **Filesystem** connector will inspect a static file committed into your project, the service connectors validate actual infrastructure components. Therefore, you should use this connector to preemptively validate your cloud management templates before applying changes to your infrastructure.
+The **Filesystem** connector allows you to connect to files from a local file system or a git repository. This is the main connector we use for **Infrastructure as Code** (IaC) security validation. The **Filesystem** connector will help to inspect a static file committed into your project. Therefore, you should use this connector to preemptively validate your cloud management templates before applying your infrastructure changes.
 
 # SSH user configuration
 
@@ -21,7 +21,7 @@ To configure the **Filesystem** connector, copy the following code to a file nam
 
 > <NoteTitle>Notes: Naming conventions</NoteTitle>
 >
-> This file can be named anything you want but we suggest `fsConnector.json`
+> This file can be named anything you want, but we suggest `fsConnector.json` to clearly distinguish this from other connectors
 
 **local filesystem example**
 
@@ -116,17 +116,17 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 
 
 > <NoteTitle>Notes</NoteTitle>
-> Putting the `httpsPassword` in the connector file is only good for testing purposes. We recommend moving the `httpsPassword` out of the connector file. 
+> Putting the `httpsPassword` in the connector file is only good for testing purposes. We recommend moving the `httpsPassword` out of the connector file in production scenario. 
 
 To move the `httpsPassword` out of the connector file, you have two options:
  - set the environment variable to store the password
  - using vault [vault configuration](../configuration/secrets.md)
 
-To set an environment variable, you should export the `username` and assign the `password` value to that. For example, if your username is `prancer-git` and your password is `password`:
+To set an environment variable, you should export the `username` and assign the `password` value. For example, if your username is `prancer-git` and your password is `password`:
 
     export prancer-git=password
 
-When you run the prancer, it will automatically reading the value from environment variable.
+When you run the prancer, it will automatically read the value from the environment variable.
 
 # Users
 
