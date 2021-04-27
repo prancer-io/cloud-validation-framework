@@ -1,9 +1,5 @@
 name: Unit testing and Integration testing
 on:
-  push:
-    branches:
-      - master
-
   pull_request:
     types: [opened, synchronize]   
     branches:
