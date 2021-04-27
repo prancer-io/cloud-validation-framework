@@ -8,6 +8,7 @@ from processor.logging.log_handler import getlogger
 
 logger = getlogger()
 MultipleConvertionKey = "_multiple_yaml"
+HelmChartConvertionKey = "_prancer_helm_template"
 
 def save_yaml_to_file(indata, outfile, indent=None):
     """Save dict data to the file in yaml format"""
@@ -64,7 +65,7 @@ def multiple_yaml_from_file(yamlfile, loader=None):
                 else:
                     yamldata = list(yaml.load_all(infile))
     except Exception as ex:
-        print('Failed to load yaml from file: %s, exception: %s', yamlfile, ex)
+        return None
     return yamldata
 
 def is_multiple_yaml_file(file_path):
@@ -78,3 +79,7 @@ def is_multiple_yaml_file(file_path):
 
 def is_multiple_yaml_convertion(file_path):
     return MultipleConvertionKey in file_path
+
+def is_helm_chart_convertion(file_path):
+    return HelmChartConvertionKey in file_path
+    
