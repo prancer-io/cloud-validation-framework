@@ -170,7 +170,7 @@ class TemplateProcessor:
                 splited_path = new_file.rsplit("/",2)
                 paths.append("/".join([splited_path[-2],splited_path[-1]]))
             else :
-                paths.append(new_file.split("/")[-1])
+                paths.append(new_file.split("/",3)[-1])
         os.remove(new_file_path)
         return paths
 
