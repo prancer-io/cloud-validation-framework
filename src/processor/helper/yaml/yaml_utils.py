@@ -26,7 +26,7 @@ def yaml_from_string(yaml_str):
         yamldata = yaml.load(yaml_str)
         return yamldata
     except:
-        print('Failed to load yaml data: %s', yaml_str)
+        print('Failed to load yaml data: %s' % yaml_str)
     return None
 
 
@@ -41,7 +41,7 @@ def yaml_from_file(yamlfile, loader=None):
                 else:
                     yamldata = yaml.load(infile)
     except Exception as ex:
-        print('Failed to load yaml from file: %s, exception: %s', yamlfile, ex)
+        print('Failed to load yaml from file: %s, exception: %s' % (yamlfile, ex))
     return yamldata
 
 
@@ -51,7 +51,7 @@ def valid_yaml(yaml_input):
         data = yaml.load(yaml_input)
         return isinstance(data, dict)
     except:
-        print('Not a valid yaml: %s', yaml_input)
+        print('Not a valid yaml: %s' % yaml_input)
     return False
 
 def multiple_yaml_from_file(yamlfile, loader=None):
