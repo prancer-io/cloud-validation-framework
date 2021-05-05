@@ -9,7 +9,7 @@ from processor.helper.config.rundata_utils import get_from_currentdata,\
     put_in_currentdata, add_to_exclude_list
 from processor.helper.config.config_utils import config_value
 from processor.helper.httpapi.restapi_azure import get_vault_access_token, get_uami_vault_access_token,\
-    get_keyvault_secret, set_keyvault_secret, get_all_secrets, delete_keyvault_secret
+    get_keyvault_secret, set_keyvault_secret, get_all_secrets, delete_keyvault_secret, set_keyvault_secret_with_response
 
 logger = getlogger()
 
@@ -35,6 +35,14 @@ def set_vault_data(key_name=None, value=None):
             val = set_azure_vault_data(key_name, value)
     return val
 
+def set_vault_data_with_response(key_name=None, value=None):
+    """Update vault data"""
+    vaulttype = config_value('VAULT', 'type')
+    status, response = None, None
+    if vaulttype:
+        if vaulttype == 'azure':
+            status, response = set_azure_vault_data_with_response(key_name, value)
+    return status, response
 
 def delete_vault_data(secret_key=None):
     """Delete vault data from config"""
@@ -130,6 +138,16 @@ def set_azure_vault_data(secret_key=None, value=None):
             return True
     return False
 
+def set_azure_vault_data_with_response(secret_key=None, value=None):
+    """Fetches the bearer token for Azure Vault API calls"""
+    status, data = None, None
+    vaulttoken = _get_vault_token()
+    logger.debug('Vault Token: %s', vaulttoken)
+    if vaulttoken and secret_key and value:
+        keyvault = config_value('VAULT', 'keyvault')
+        logger.info('Keyvault: %s, key:%s', keyvault, '*' * len(secret_key))
+        status, data = set_keyvault_secret_with_response(keyvault, vaulttoken, secret_key, value)
+    return status, data
 
 def delete_azure_vault_data(secret_key=None):
     """"Delete a key from vault"""

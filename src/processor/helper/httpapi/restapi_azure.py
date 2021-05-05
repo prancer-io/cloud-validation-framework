@@ -2,13 +2,15 @@
 
 from builtins import input
 import os
+import requests
+import json
 from datetime import datetime
 from processor.logging.log_handler import getlogger
 from processor.helper.file.file_utils import exists_file
 from processor.helper.config.rundata_utils import get_from_currentdata, put_in_currentdata
 from processor.helper.httpapi.http_utils import http_post_request, http_get_request,\
     http_put_request, http_delete_request
-from processor.helper.json.json_utils import get_field_value, json_from_file, collectiontypes, STRUCTURE
+from processor.helper.json.json_utils import get_field_value, get_field_value_with_default, json_from_file, collectiontypes, STRUCTURE
 from processor.helper.config.config_utils import get_test_json_dir, config_value, CUSTOMER
 from processor.database.database import DATABASE, DBNAME, sort_field, get_documents
 
@@ -63,11 +65,11 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
     if snapshot_type == 'azure':
         sub_data = get_azure_data(snapshot_source)
         if sub_data:
-            accounts = get_field_value(sub_data, 'accounts')
+            accounts = get_field_value_with_default(sub_data, 'accounts', [])
             for account in accounts:
-                subscriptions = get_field_value(account, 'subscription')
+                subscriptions = get_field_value_with_default(account, 'subscription', [])
                 for subscription in subscriptions:
-                    users = get_field_value(subscription, 'users')
+                    users = get_field_value_with_default(subscription, 'users', [])
                     if users:
                         for user in users:
                             name = get_field_value(user, 'name')
@@ -328,6 +330,19 @@ def set_keyvault_secret(keyvault, vaulttoken, secret_key, value):
         logger.info("Set Id returned invalid status: %s", status)
         return False
 
+def set_keyvault_secret_with_response(keyvault, vaulttoken, secret_key, value):
+    hdrs = {
+        'Authorization': 'Bearer %s' % vaulttoken,
+        'Content-Type': 'application/json'
+    }
+    urlstr = 'https://%s.vault.azure.net/secrets/%s?api-version=7.0'
+    url = urlstr % (keyvault, secret_key)
+    params = {
+        "value" : value
+    }
+    params = json.dumps(params)
+    response = requests.put(url, data=params, headers=hdrs)
+    return response.status_code, response.json()
 
 def delete_keyvault_secret(keyvault, secret_key, vaulttoken):
     hdrs = {
