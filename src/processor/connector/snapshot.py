@@ -183,16 +183,18 @@ def populate_container_snapshots_filesystem(container):
     for snapshot_file in snapshot_files:
         logger.info('\tSNAPSHOT:%s', snapshot_file)
         parts = snapshot_file.rsplit('/', 1)
-        if parts[-1] in snapshots and parts[-1] not in populated:
-            # Take the snapshot and populate whether it was successful or not.
-            # Then pass it back to the validation tests, so that tests for those
-            # snapshots that have been susccessfully fetched shall be executed.
-            snapshot_file_data = populate_snapshots_from_file(snapshot_file, container)
-            populated.append(parts[-1])
-            
-            if snapshot_file_data:
-                name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
-                snapshots_status[name] = snapshot_file_data
+        if parts[-1] in snapshots:
+            if parts[-1] not in populated:
+                # Take the snapshot and populate whether it was successful or not.
+                # Then pass it back to the validation tests, so that tests for those
+                # snapshots that have been susccessfully fetched shall be executed.
+                snapshot_file_data = populate_snapshots_from_file(snapshot_file, container)
+                populated.append(parts[-1])
+                if snapshot_file_data:
+                    name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
+                    snapshots_status[name] = snapshot_file_data
+        else:
+            logger.error("No testcase document found for %s " % parts[-1])
     logger.critical("SNAPSHOTS COMPLETE:")
     return snapshots_status
 
@@ -228,18 +230,21 @@ def populate_container_snapshots_database(container):
                         if not pull_response:
                             break
 
-                    if snapshot in snapshots and snapshot not in populated:
-                        # Take the snapshot and populate whether it was successful or not.
-                        # Then pass it back to the validation tests, so that tests for those
-                        # snapshots that have been susccessfully fetched shall be executed.
-                        snapshot_file_data = populate_snapshots_from_json(doc['json'], container)
+                    if snapshot in snapshots:
+                        if snapshot not in populated:
+                            # Take the snapshot and populate whether it was successful or not.
+                            # Then pass it back to the validation tests, so that tests for those
+                            # snapshots that have been susccessfully fetched shall be executed.
+                            snapshot_file_data = populate_snapshots_from_json(doc['json'], container)
 
-                        if not git_connector_json:
-                            update_one_document(doc, collection, dbname)
-                            
-                        populated.append(snapshot)
-                        if snapshot_file_data:
-                            snapshots_status[snapshot] = snapshot_file_data
+                            if not git_connector_json:
+                                update_one_document(doc, collection, dbname)
+
+                            populated.append(snapshot)
+                            if snapshot_file_data:
+                                snapshots_status[snapshot] = snapshot_file_data
+                    else:
+                        logger.error("No testcase found for %s " % snapshot)
                 except Exception as e:
                     dump_output_results([], container, "-", snapshot, False)
                     raise e

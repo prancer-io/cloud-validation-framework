@@ -57,6 +57,8 @@ def get_version_for_type(node):
     if apiversions:
         if node and 'type' in node and node['type'] in apiversions:
             version = apiversions[node['type']]['version']
+    else:
+        logger.error("Azure API versions are not set or invalid path")
     return version
 
 def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
@@ -167,6 +169,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
             logger.info("Get Id returned invalid status: %s, response: %s", status, data)
             logger.error("Failed to get Azure resourse with given path : %s, please verify your azure connector detail and path given in snapshot.", node['path'])
     else:
+        db_record = {}
         logger.info('Get requires valid subscription, token and path.!')
     return db_record
 
