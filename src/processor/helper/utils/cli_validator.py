@@ -208,7 +208,7 @@ Runs the prancer framework based on the configuration files available in collect
     fw_cfg = get_config_data(framework_config())
     log_writeable, logdir = get_logdir(fw_cfg, framework_dir())
     if not log_writeable:
-        console_log('Logging directory(%s) is not writeable, exiting....' % logdir)
+        console_log('Logging directory(%s) is not writeable, exiting....' % logdir, currentframe())
         return retval
 
     # Alls well from this point, check container exists in the directory configured

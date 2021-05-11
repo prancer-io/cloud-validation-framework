@@ -219,6 +219,9 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
                     mastersnapshots[master_snapshot_id].append(snapshot_id)
             elif isinstance(mastersnapshot_id, str):
                 mastersnapshots[mastersnapshot_id].append(snapshot_id)
+        if not mastersnapshots:
+            logger.error("No generated snapshots found for validation.")
+            continue
         test_json_data['snapshot'] = snapshot_key
         testsets = get_field_value_with_default(test_json_data, 'testSet', [])
         for testset in testsets:
@@ -235,7 +238,9 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
                         newtestcases.append(testcase)
                 testset['cases'] = newtestcases
         resultset = run_json_validation_tests(test_json_data, container, True, snapshot_status, dirpath=dirpath)
-        if resultset:
+        if test_json_data.get('testSet') and not resultset:
+            logger.error('\tERROR: Testset does not contains any testcases or all testcases are skipped due to invalid rules.')
+        elif resultset:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             if singletest:
                 print(json.dumps(resultset, indent=2))
@@ -247,7 +252,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
                         finalresult = False
                         break
         else:
-            logger.info('\tERROR: No mastertest Documents found!')
+            logger.error('\tERROR: No mastertest Documents found!')
             finalresult = False
     logger.critical("VALIDATION COMPLETE:")
     return finalresult
