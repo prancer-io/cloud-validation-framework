@@ -202,18 +202,21 @@ def generate_container_mastersnapshots_filesystem(container):
     for snapshot_file in snapshot_files:
         logger.info('\tMASTERSNAPSHOT:%s', snapshot_file)
         parts = snapshot_file.rsplit('/', 1)
-        if parts[-1] in snapshots and parts[-1] not in populated:
-            # Take the snapshot and crawl for the  resource types.
-            snapshot_file_data, snapshot_json_data = generate_snapshots_from_mastersnapshot_file(snapshot_file)
-            file_name = '%s.json' % snapshot_file if snapshot_file and not snapshot_file.endswith('.json') else snapshot_file
-            # snapshot_json_data = json_from_file(file_name)
-            generate_snapshot(snapshot_json_data, snapshot_file_data)
-            parts = file_name.rsplit('.', 1)
-            new_file_name = '%s_gen.%s' % (parts[0], parts[1])
-            save_json_to_file(snapshot_json_data, new_file_name)
-            populated.append(parts[-1])
-            name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
-            snapshots_status[name] = snapshot_file_data
+        if parts[-1] in snapshots:
+            if parts[-1] not in populated:
+                # Take the snapshot and crawl for the  resource types.
+                snapshot_file_data, snapshot_json_data = generate_snapshots_from_mastersnapshot_file(snapshot_file)
+                file_name = '%s.json' % snapshot_file if snapshot_file and not snapshot_file.endswith('.json') else snapshot_file
+                # snapshot_json_data = json_from_file(file_name)
+                generate_snapshot(snapshot_json_data, snapshot_file_data)
+                parts = file_name.rsplit('.', 1)
+                new_file_name = '%s_gen.%s' % (parts[0], parts[1])
+                save_json_to_file(snapshot_json_data, new_file_name)
+                populated.append(parts[-1])
+                name = parts[-1].replace('.json', '') if parts[-1].endswith('.json') else parts[-1]
+                snapshots_status[name] = snapshot_file_data
+        else:
+            logger.error("No master testcase found for %s " % parts[-1])
     return snapshots_status
 
 
@@ -271,38 +274,41 @@ def generate_container_mastersnapshots_database(container):
                             logger.info("Failed to populate master snapshot json from the git repository")
                             break
 
-                    if snapshot in snapshots and snapshot not in populated:
-                        snp_collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
-                        snp_name = '%s_gen' % snapshot
-                        snp_qry = {'container': container, 'name': snp_name}
-                        snp_sort = [sort_field('timestamp', False)]
-                        snp_docs = get_documents(snp_collection, dbname=dbname, sort=snp_sort, query=snp_qry, _id=True)
-                        snp_json_data = {}
-                        if snp_docs and len(snp_docs):
-                            logger.info('Number of snapshot Documents: %s', len(snp_docs))
-                            snp_json_data = snp_docs[0]
-                        # Take the mastersnapshot and populate the mastersnapshot
-                        snapshot_file_data = generate_mastersnapshots_from_json(doc['json'], snp_json_data)
-                        # Insert or update the new generated snapshot document with name='*_gen' and same container name.
-                        generate_snapshot(doc['json'], snapshot_file_data)
-                        if snp_json_data:
-                            set_snapshot_activate_and_validate_data(doc['json'], snp_json_data['json'])
-                            snp_json_data['json'] = doc['json']
-                            snp_json_data["timestamp"] = int(time.time() * 1000)
-                            update_one_document(snp_json_data, snp_json_data['collection'], dbname)
-                        else:
-                            db_record = {
-                                "timestamp": int(time.time() * 1000),
-                                "container": container,
-                                "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
-                                "type": "snapshot",
-                                "name": snp_name,
-                                "collection": "snapshots",
-                                "json": doc['json']
-                            }
-                            insert_one_document(db_record, db_record['collection'], dbname, False)
-                        populated.append(snapshot)
-                        snapshots_status[snapshot] = snapshot_file_data
+                    if snapshot in snapshots:
+                        if snapshot not in populated:
+                            snp_collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
+                            snp_name = '%s_gen' % snapshot
+                            snp_qry = {'container': container, 'name': snp_name}
+                            snp_sort = [sort_field('timestamp', False)]
+                            snp_docs = get_documents(snp_collection, dbname=dbname, sort=snp_sort, query=snp_qry, _id=True)
+                            snp_json_data = {}
+                            if snp_docs and len(snp_docs):
+                                logger.info('Number of snapshot Documents: %s', len(snp_docs))
+                                snp_json_data = snp_docs[0]
+                            # Take the mastersnapshot and populate the mastersnapshot
+                            snapshot_file_data = generate_mastersnapshots_from_json(doc['json'], snp_json_data)
+                            # Insert or update the new generated snapshot document with name='*_gen' and same container name.
+                            generate_snapshot(doc['json'], snapshot_file_data)
+                            if snp_json_data:
+                                set_snapshot_activate_and_validate_data(doc['json'], snp_json_data['json'])
+                                snp_json_data['json'] = doc['json']
+                                snp_json_data["timestamp"] = int(time.time() * 1000)
+                                update_one_document(snp_json_data, snp_json_data['collection'], dbname)
+                            else:
+                                db_record = {
+                                    "timestamp": int(time.time() * 1000),
+                                    "container": container,
+                                    "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
+                                    "type": "snapshot",
+                                    "name": snp_name,
+                                    "collection": "snapshots",
+                                    "json": doc['json']
+                                }
+                                insert_one_document(db_record, db_record['collection'], dbname, False)
+                            populated.append(snapshot)
+                            snapshots_status[snapshot] = snapshot_file_data
+                    else:
+                        logger.error("No master testcase found for %s " % snapshot)
     except Exception as e:
         generate_crawler_run_output(container)
         raise e
