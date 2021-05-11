@@ -2,6 +2,8 @@
 import configparser
 import time
 import os
+import random
+import string
 import threading
 from processor.helper.file.file_utils import exists_file, exists_dir
 
@@ -22,6 +24,20 @@ CUSTOMER = "customer"
 DBVALUES = [NONE, SNAPSHOT, FULL]
 CACHEDATA = None
 
+def generateid(name):
+    pwdSize = 5
+    digits = False
+    chars = string.digits if digits else string.ascii_letters
+    numval = (random.choice(chars) for x in range(pwdSize))
+    pwdSize = 4
+    digits = True
+    chars1 = string.digits if digits else string.ascii_letters
+    charval = (random.choice(chars1) for x in range(pwdSize))
+    if name:
+        idval = '%s_%s_%s' % (name, ''.join(numval), ''.join(charval))
+    else:
+        idval = '%s_%s' % (''.join(numval), ''.join(charval))
+    return idval.lower()
 
 def parseint(value, default=0):
     intvalue = default
@@ -47,7 +63,7 @@ def get_framework_currentdata_for_customer(space_id):
     global CURRENTDATA
     if CURRENTDATA:
         return CURRENTDATA
-    CURRENTDATA = '%s/config/%s/%d_rundata' % (framework_dir(), space_id, int(time.time() * 1000))
+    CURRENTDATA = '%s/config/%s/rundata_%d_%s' % (framework_dir(), space_id, int(time.time() * 1000000), generateid(None))
     return CURRENTDATA
 
 def get_cache_data():
@@ -70,7 +86,7 @@ def framework_currentdata():
         global CURRENTDATA
         if CURRENTDATA:
             return CURRENTDATA
-        CURRENTDATA = '%s/rundata' % framework_dir()
+        CURRENTDATA = '%s/rundata_%d_%s' % (framework_dir(), int(time.time() * 100000), generateid(None))
         return CURRENTDATA
 
 
