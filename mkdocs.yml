@@ -33,6 +33,7 @@ nav:
     - AWS snapshot: snapshots/aws.md
     - Azure snapshot: snapshots/azure.md
     - Filesystem snapshot: snapshots/filesystem.md
+    - Helm snapshot: snapshots/helm.md
     - Kubernetes snapshot: snapshots/kubernetes.md
   - Tests:
     - Definition: tests/tests-definition.md
@@ -51,6 +52,19 @@ nav:
     - Features: enterprise/basics.md
     - Use case: enterprise/use-case.md
     - Backup & export: enterprise/backup-export.md
+  - API Reference:
+    - authentication: api/authentication.md
+    - collection: api/collection.md
+    - compliance: api/compliance.md
+    - connector: api/connector.md
+    - dashboard: api/dashboard.md
+    - policy: api/policy.md
+    - remediation: api/remediation.md
+    - reports: api/reports.md
+    - resources: api/resources.md
+    - tags: api/tags.md
+    - users: api/users.md
+    - wizard: api/wizard.md
   - Connector Tutorials:
     - AWS - Security group monitoring: tutorials/connectors/aws/01-security-group.md
     - AWS - Testing values in CloudFormation templates: tutorials/connectors/aws/02-testing-values-in-cloudformation-templates.md
