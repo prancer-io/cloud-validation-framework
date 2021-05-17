@@ -3,6 +3,7 @@ Define an interface for creating an object, but let subclasses decide
 which class to instantiate. Factory Method lets a class defer
 instantiation to subclasses.
 """
+import time
 import json
 import logging
 import os
@@ -10,8 +11,8 @@ import re
 import pymongo
 import subprocess
 from processor.helper.json.json_utils import get_field_value, json_from_file, save_json_to_file
-from processor.helper.config.config_utils import get_test_json_dir, parsebool, config_value, SINGLETEST
-from processor.helper.file.file_utils import exists_file, exists_dir
+from processor.helper.config.config_utils import get_test_json_dir, parsebool, config_value, SINGLETEST, generateid
+from processor.helper.file.file_utils import exists_file, exists_dir, remove_file
 from processor.database.database import COLLECTION, get_documents
 from processor.comparison.comparison_functions import equality,\
     less_than, less_than_equal, greater_than, greater_than_equal, exists
@@ -233,6 +234,7 @@ class ComparatorV01:
                 logger.critical('\t\t\t %s', path)
 
     def process_rego_test_case(self):
+        tid = '%d_%s' % (int(time.time() * 1000000), generateid(None))
         results = []
         inputjson = {}
         result = False
@@ -271,7 +273,7 @@ class ComparatorV01:
                 inputjson.update({ms_id[sid]: self.get_snaphotid_doc(sid)})
         results = []
         if inputjson:
-            save_json_to_file(inputjson, '/tmp/input.json')
+            save_json_to_file(inputjson, '/tmp/input_%s.json' % tid)
             rego_rule = self.rule
             rego_match=re.match(r'^file\((.*)\)$', rego_rule, re.I)
             if rego_match:
@@ -288,23 +290,23 @@ class ComparatorV01:
                     "   %s" % rego_rule,
                     "}", ""
                 ]
-                rego_file = '/tmp/input.rego'
+                rego_file = '/tmp/input_%s.rego' % tid
                 open(rego_file, 'w').write('\n'.join(rego_txt))
             if rego_file:
                 if isinstance(rule_expr, list):
-                    result = os.system('%s eval -i /tmp/input.json -d %s "data.rule" > /tmp/a.json' % (opa_exe, rego_file))
+                    result = os.system('%s eval -i /tmp/input_%s.json -d %s "data.rule" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, tid))
                     if result != 0 :
                         self.log_compliance_info(testId)
                         logger.error("\t\tERROR: have problem in running opa binary")
                         self.log_rego_error(json_from_file("/tmp/a.json", object_pairs_hook=None))
                 else:
-                    result = os.system('%s eval -i /tmp/input.json -d %s "%s" > /tmp/a.json' % (opa_exe, rego_file, rule_expr))
+                    result = os.system('%s eval -i /tmp/input_%s.json -d %s "%s" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, rule_expr, tid))
                     if result != 0 :
                         self.log_compliance_info(testId)
                         logger.error("\t\tERROR: have problem in running opa binary")
                         self.log_rego_error(json_from_file("/tmp/a.json", object_pairs_hook=None))
 
-                resultval = json_from_file('/tmp/a.json')
+                resultval = json_from_file('/tmp/a_%s.json' % tid)
                 if resultval and "errors" in resultval and resultval["errors"]:
                     results.append({'eval': rule_expr, 'result': "failed", 'message': ''})
                     self.log_compliance_info(testId)
@@ -366,6 +368,8 @@ class ComparatorV01:
                     logger.warning('\t\tRESULT: SKIPPED')
                 # results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
                 # self.log_result(results[-1])
+            remove_file('/tmp/input_%s.json' % tid)
+            remove_file('/tmp/a_%s.json' % tid)
         else:
             results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
             self.log_result(results[-1])
