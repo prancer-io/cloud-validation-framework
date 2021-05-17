@@ -298,13 +298,13 @@ class ComparatorV01:
                     if result != 0 :
                         self.log_compliance_info(testId)
                         logger.error("\t\tERROR: have problem in running opa binary")
-                        self.log_rego_error(json_from_file("/tmp/a.json", object_pairs_hook=None))
+                        self.log_rego_error(json_from_file("/tmp/a_%s.json" % tid, object_pairs_hook=None))
                 else:
                     result = os.system('%s eval -i /tmp/input_%s.json -d %s "%s" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, rule_expr, tid))
                     if result != 0 :
                         self.log_compliance_info(testId)
                         logger.error("\t\tERROR: have problem in running opa binary")
-                        self.log_rego_error(json_from_file("/tmp/a.json", object_pairs_hook=None))
+                        self.log_rego_error(json_from_file("/tmp/a_%s.json" % tid, object_pairs_hook=None))
 
                 resultval = json_from_file('/tmp/a_%s.json' % tid)
                 if resultval and "errors" in resultval and resultval["errors"]:
