@@ -36,8 +36,11 @@ def get_kubernetes_structure_path(snapshot_source):
     get_kubernetes_structure_path will get kubernetes connector file path
     from configuration file.
     """
-    connector_path = '%s/%s/%s.json' % \
-                 (framework_dir(),config_value('KUBERNETES','kubernetsStructureFolder'),snapshot_source)
+    folder = config_value('KUBERNETES','kubernetesStructureFolder')
+    if folder:
+        connector_path = '%s/%s/%s.json' % (framework_dir(), folder, snapshot_source)
+    else:
+        connector_path = '%s/%s.json' % (framework_dir(), snapshot_source)
     return connector_path
 
 def get_kubernetes_structure_data(snapshot_source):
