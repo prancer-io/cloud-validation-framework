@@ -773,3 +773,53 @@ curl -X GET ' https://portal.prancer.io/api/query/resources?query=Microsoft.Stor
     "status": 200
 }
 ```
+
+**Resource - query sample**
+---
+- API for get sample queries for filter the resources.
+
+**CURL Sample**
+```
+curl -X GET ' https://portal.prancer.io/api/query/samples' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+```
+
+- **URL:** https://portal.prancer.io/api/query/samples
+- **Method:** GET
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+```
+- No Parameters
+```
+
+**Response:**
+```
+{
+    "data": [
+        {
+            "json.Owner.DisplayName": "farshid.mahdavipour"
+        },
+        {
+            "json.properties.state": "Disabled",
+            "json.type": "Microsoft.Sql/servers/securityAlertPolicies"
+        },
+        {
+            "json.node.arn": "arn:aws:ec2:us-east-2::i-0e1234abcdgh12345",
+            "json.Reservations.Instances.InstanceType": "t2.micro",
+        },
+        {
+            "json.location": {
+                "$regex": "^.*east.*$"
+            }
+        }
+    ],
+    "error": "",
+    "message": "",
+    "metadata": {},
+    "status": 200
+}
+```
