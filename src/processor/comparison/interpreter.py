@@ -297,12 +297,14 @@ class ComparatorV01:
                     result = os.system('%s eval -i /tmp/input_%s.json -d %s "data.rule" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, tid))
                     if result != 0 :
                         self.log_compliance_info(testId)
-                        logger.info("\t\tERROR: have problem in running opa binary")
+                        logger.error("\t\tERROR: have problem in running opa binary")
+                        self.log_rego_error(json_from_file("/tmp/a_%s.json" % tid, object_pairs_hook=None))
                 else:
                     result = os.system('%s eval -i /tmp/input_%s.json -d %s "%s" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, rule_expr, tid))
                     if result != 0 :
                         self.log_compliance_info(testId)
-                        logger.info("\t\tERROR: have problem in running opa binary")
+                        logger.error("\t\tERROR: have problem in running opa binary")
+                        self.log_rego_error(json_from_file("/tmp/a_%s.json" % tid, object_pairs_hook=None))
 
                 resultval = json_from_file('/tmp/a_%s.json' % tid)
                 if resultval and "errors" in resultval and resultval["errors"]:
@@ -373,6 +375,21 @@ class ComparatorV01:
             self.log_result(results[-1])
         return results
 
+    def log_rego_error(self, result):
+        """ 
+        log error raised while running the rego file
+        """
+        if result and "errors" in result and result.get("errors"):
+            error = result.get("errors")[0]
+            location = error.get("location")
+            logger.error('\t\t  %s' % error.get("message"))
+            
+            if location:
+                file_location = "/".join(location.get("file", "").split("/")[3:])
+                logger.error("\t\t  location : %s" % file_location)
+                logger.error("\t\t  row : %s" % location.get("row"))
+                logger.error("\t\t  col : %s" % location.get("col"))
+                
     def log_result(self, result):
         if result.get("result") == "passed":
             logger.critical('\t\tTITLE: %s', self.testcase.get('title', ""))
