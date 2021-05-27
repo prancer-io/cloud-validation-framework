@@ -801,20 +801,80 @@ curl -X GET ' https://portal.prancer.io/api/query/samples' -H 'authorization: Be
 {
     "data": [
         {
-            "json.Owner.DisplayName": "farshid.mahdavipour"
+            "collection": "microsoftcompute",
+            "description": "Search for an Admin user in a Linux virtual Machine",
+            "query": {
+                "json.properties.osProfile.adminUsername": {
+                    "$in": [
+                        "user-1",
+                        "user-2",
+                        "user-3",
+                    ]
+                },
+                "json.properties.storageProfile.osDisk.osType": {
+                    "$eq": "Linux"
+                },
+                "json.type": {
+                    "$eq": "Microsoft.Compute/virtualMachines"
+                }
+            },
+            "title": "Admin Users for Linux Compute resources"
         },
         {
-            "json.properties.state": "Disabled",
-            "json.type": "Microsoft.Sql/servers/securityAlertPolicies"
+            "collection": "microsoftcompute",
+            "description": "Find azure virtual machines by it's name",
+            "query": {
+                "json.name": {
+                    "$in": [
+                        "vm-instance-1",
+                        "vm-instance-2",
+                        "vm-instance-3"
+                    ]
+                },
+                "json.type": {
+                    "$eq": "Microsoft.Compute/virtualMachines"
+                }
+            },
+            "title": "Azure virtual machine by name"
         },
         {
-            "json.node.arn": "arn:aws:ec2:us-east-2::i-0e1234abcdgh12345",
-            "json.Reservations.Instances.InstanceType": "t2.micro",
+            "collection": "microsoftcompute",
+            "description": "Search azure virtual machines which have disabled password authentication.",
+            "query": {
+                "json.properties.osProfile.linuxConfiguration.disablePasswordAuthentication": {
+                    "$eq": true
+                },
+                "json.type": {
+                    "$eq": "Microsoft.Compute/virtualMachines"
+                }
+            },
+            "title": "Azure virtual machine with disabled password authentication"
         },
         {
-            "json.location": {
-                "$regex": "^.*east.*$"
-            }
+            "collection": "microsoftstorage",
+            "description": "Find microsoft storage by locations",
+            "query": {
+                "json.location": {
+                    "$in": [
+                        "eastus",
+                        "eastus2"
+                    ]
+                },
+                "json.type": {
+                    "$eq": "Microsoft.Storage/storageAccounts"
+                }
+            },
+            "title": "Mircrosoft storage with specific location"
+        },
+        {
+            "collection": "aws_ec2",
+            "description": "Find AWS ec2 instance by security group name",
+            "query": {
+                "json.SecurityGroups.GroupName": {
+                    "$regex": ".*wizard-group-1.*"
+                }
+            },
+            "title": "AWS ec2 instance by security group name"
         }
     ],
     "error": "",
