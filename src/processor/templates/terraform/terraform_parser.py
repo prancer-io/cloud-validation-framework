@@ -47,6 +47,7 @@ class TerraformTemplateParser(TemplateParser):
             "||" : "or",
             "None" : None
         }
+        self.replace_value_str = ["and", "or"]
         self.template_file_list = [self.template_file]
         self.parameter_file_list = self.parameter_file if self.parameter_file else []
 
@@ -497,6 +498,12 @@ class TerraformTemplateParser(TemplateParser):
                 for param in found_parameters:
                 # for param in re.findall("(?:[^,()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))+", parameter_str.strip()):
                 # for param in parameter_str.strip().split(","):
+                    param_exmatch = re.search(r'(^[\'|\"]\${([^}]*)}[\'|\"]$)|(^\${([^}]*)}$)', param.strip(), re.I)
+                    if param_exmatch:
+                        match_values = re.search(r'(?<=\{).*(?=\})', param.strip(), re.I)
+                        if match_values:
+                            param = match_values.group(0)
+                
                     processed_param = self.process_resource("${" + param.strip() + "}", count)
                     if (isinstance(processed_param, str) and re.search(r'\${([^}]*)}', processed_param, re.I)):
                         process = False
@@ -528,20 +535,30 @@ class TerraformTemplateParser(TemplateParser):
 
                     parameter_str = m.group(0)
                     # params = re.findall(r"[a-zA-Z0-9.()\[\]_*\"]+|(?:(?![a-zA-Z0-9.()\[\]_*\"]).)+", parameter_str)
-                    params = re.findall(r"[a-zA-Z0-9.()\[\]_*\"\'\{\$\}]+|(?:(?![a-zA-Z0-9.()\[\]_*\"\'\{\$\}]).)+", parameter_str)
+                    params = re.findall(r"[a-zA-Z0-9.()\[\],-_*\"\'\{\$\}]+|(?:(?![a-zA-Z0-9.()\[\]_*\"\'\{\$\}]).)+", parameter_str)
 
                     if params and len(params) > 1:
                         new_parameter_list = []
+                        process_function = True
                         for param in params:
                             processed_param = self.process_resource("${" + param.strip() + "}")
-                            if isinstance(processed_param, str) and re.findall(r"[a-zA-Z]", processed_param):
+                            if isinstance(processed_param, str) and (re.findall(r".*\(.*\)", processed_param) or re.findall(r"\${([^}]*)}", processed_param)):
+                                process_function = False # parameter processing failed
+                                new_parameter_list.append("\"" + param + "\"")
+                            elif isinstance(processed_param, str) and re.findall(r"[a-zA-Z]", processed_param) and processed_param not in self.replace_value_str:
                                 new_parameter_list.append("\"" + processed_param + "\"")
                             elif isinstance(processed_param, str) and len(processed_param) == 0:
                                 new_parameter_list.append('""')
+                            elif processed_param is None and len(param.strip().split(".")) > 1:
+                                process_function = False # variable value not set in vars.tf file
+                                new_parameter_list.append("\"" + param + "\"")
                             else:
                                 new_parameter_list.append(str(processed_param))
 
-                        new_resource = func['method'](" ".join(new_parameter_list))
+                        if process_function:
+                            new_resource = func['method'](" ".join(new_parameter_list))
+                        else:
+                            new_resource = matched_str
                 else:
                     splited_list = matched_str.split(".") 
                     if len(splited_list) > 1:
