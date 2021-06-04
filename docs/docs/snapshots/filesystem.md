@@ -61,7 +61,15 @@ We use master snapshot configuration file to read all the files in a directory w
                         "collection": "<collection-name>",
                         "paths": [
                             "<relative-paths-to-file>"
-                        ]
+                        ],
+                        "exclude" : {
+                            "paths" : [
+                                "<exclude-paths-to-file>"
+                            ],
+                            "regex" : [
+                                "<regular-expression-to-exclude-file>"
+                            ]
+                        }
                     }
                 ]
             }
@@ -76,6 +84,8 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | user-to-use-on-connector | Same username as defined in the **filesystem** connector configuration file |
 | branch-to-use-on-connector | Same branch as defined in the **filesystem** connector configuration file. This attribute is only used when we are connecting to a **git** repository |
 | master-snapshot-name | Name of the snapshot, you will use this in test files |
-| file-type | type of the file. it could be `json` or `yaml` or `arm` or `cloudformation` |
+| file-type | type of the file. Supported file types are `json`, `yaml`, `arm`, `cloudformation`, `deploymentmanager`, `terraform`, `kubernetesObjectFiles` and `helmChart` |
 | collection-name | Name of the **NoSQL** database collection used to store snapshots of this file |
 | relative-paths-to-file | Path to the file to read, relative to the root of the repository that the connector checks out |
+| exclude-paths-to-file | Path to the file to exclude, relative to the root of the repository that the connector checks out |
+| regular-expression-to-exclude-file | regular expression which matches with the filename or directory path to exclude  |
