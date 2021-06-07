@@ -165,6 +165,7 @@ Runs the prancer framework based on the configuration files available in collect
     cmd_parser.add_argument('--crawler', action='store_true', default=False,
                             help='Crawls and generates snapshot files only')
     cmd_parser.add_argument('--test', action='store', default=None, help='Run a single test in NODB mode')
+    cmd_parser.add_argument('--compliance', action='store_true', default=False, help='Run only compliance on snapshot file')
     cmd_parser.add_argument('--customer', action='store', default=None, help='customer name for config')
     cmd_parser.add_argument('--connector', action='store', default=None, help='specify the name of the connector which you want to run from the collection')
     cmd_parser.add_argument('--branch', action='store', default=None, help='specify the name of the branch to populate snapshots, for the filesystem connector')
@@ -266,10 +267,16 @@ Runs the prancer framework based on the configuration files available in collect
                                 args.container, framework_dir(), extra={"type" : "critical"})
                 # TODO: Log the path the framework looked for.
                 return retval
-        if args.crawler:
+ 
+        crawl_and_run = False
+        if not args.compliance and not args.crawler:
+            crawl_and_run = True
+        
+        if args.crawler or crawl_and_run:
             # Generate snapshot files from here.
             generate_container_mastersnapshots(args.container, fs)
-        else:
+        
+        if args.compliance or crawl_and_run:
             # Normal flow
             snapshot_status = populate_container_snapshots(args.container, fs)
             logger.debug(json.dumps(snapshot_status, indent=2))
