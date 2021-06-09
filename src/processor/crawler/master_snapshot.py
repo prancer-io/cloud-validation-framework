@@ -53,6 +53,9 @@ mastersnapshot_fns = {
     'kubernetes': populate_kubernetes_snapshot
 }
 
+REMOVE_SNAPSHOTGEN_FIELDS = [
+    "exclude"
+]
 
 def generate_snapshot(snapshot_json_data, snapshot_file_data):
     """
@@ -78,6 +81,11 @@ def generate_snapshot(snapshot_json_data, snapshot_file_data):
                                     else:
                                         newnode = copy.deepcopy(node)
                                     newnode.update(sid_data)
+                                    
+                                    for field in REMOVE_SNAPSHOTGEN_FIELDS:
+                                        if field in newnode:
+                                            del newnode[field]
+                                    
                                     new_nodes.append(newnode)
                         # if new_nodes:
                         snapshot['nodes'] = new_nodes
