@@ -12,7 +12,7 @@
 curl -X GET https://portal.prancer.io/api/default/tags -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/api/default/tags
+- **URL:** https://portal.prancer.io/api/default/tags?provider_type=iac
 - **Method:** GET
 - **Header:**
 ```
@@ -21,8 +21,15 @@ curl -X GET https://portal.prancer.io/api/default/tags -H 'authorization: Bearer
 ```
 - **Param:**
 ```
-- No Parameters
+{
+    "provider_type" : "iac"
+}
 ```
+
+- **Explanation:**
+
+    `Optional Fields`
+    - **provider_type:** Filter the tags by provider types. Valid values for provider types are `cloud` and `iac`. If the provider type not pass in request parameter then it will return all tags.
 
 **Response:**
 ```
