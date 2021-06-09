@@ -30,7 +30,8 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
 	"services" : ["Networking"],
     "status": "failed",
     "count" : 3,
-    "index" : 0
+    "index" : 0,
+    "provider_type" : "cloud"
 }
 ```
 - **Explanation:**
@@ -48,6 +49,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
     - **compliance:** A valid list of compliance for filter the policy. See [Default - tags](/prancer-ent-apis/tags) API for get valid compliance list.
     - **services:** A valid list of services for filter the services. See [Default - tags](/prancer-ent-apis/tags) API for get valid services list.
     - **status:** Filter the reports by report's result. ( "Passed" or "Failed" )
+    - **provider_type:** Filter the reports by provider types. Valid values for provider types are `cloud` and `iac`. If the provider type not pass in request parameter then it will return report of last compliance run.
 
  **NOTE:** 
  - `index` and `count` parameters are useful for pagination. If no index pass then it will return all the records.
