@@ -13,6 +13,7 @@ nav:
   - Installation: installation.md
   - Workflow: workflow.md
   - How to Access: access.md
+  - How to Run CLI: cli_run.md
   - Configuration:
     - Files and Folders structure: configuration/basics.md
     - Configuration file: configuration/config.md
