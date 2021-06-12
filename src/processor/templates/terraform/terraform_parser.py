@@ -230,6 +230,9 @@ class TerraformTemplateParser(TemplateParser):
                         module_parser = ModuleParser(value["source"], template_file_path, connector_data=self.connector_data)
                         module_file_path = module_parser.process_source()
 
+                        if not module_file_path:
+                            continue
+
                         logger.info("Finding module : %s", module_file_path)
                         if exists_dir(module_file_path):
                             list_of_file = os.listdir(module_file_path)
