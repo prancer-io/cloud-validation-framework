@@ -14,6 +14,7 @@ from processor.templates.terraform.helper.function.terraform_functions import de
 from processor.templates.terraform.helper.expression.terraform_expressions import expression_list
 from processor.helper.json.json_utils import json_from_file, json_from_string
 from processor.helper.hcl.hcl_utils import hcl_to_json
+from processor.templates.terraform.helper.module_parser import ModuleParser
 
 logger = getlogger()
 
@@ -50,6 +51,8 @@ class TerraformTemplateParser(TemplateParser):
         self.replace_value_str = ["and", "or"]
         self.template_file_list = [self.template_file]
         self.parameter_file_list = self.parameter_file if self.parameter_file else []
+        self.connector_data = kwargs.get("connector_data", False)
+        self.exclude_directories = [".git"]
 
     def is_template_file(self, file_path):
         """
@@ -223,16 +226,22 @@ class TerraformTemplateParser(TemplateParser):
                                 self.module_params["module"][key][k] = processed_data
 
                         full_path_list = self.template_file.split("/")[:-1]
-                        full_path = ("/".join(full_path_list)).replace("//","/")
-                        module_file_path = ("%s/%s" % (full_path, value["source"])).replace("//","/")
+                        template_file_path = ("/".join(full_path_list)).replace("//","/")
+                        module_parser = ModuleParser(value["source"], template_file_path, connector_data=self.connector_data)
+                        module_file_path = module_parser.process_source()
 
-                        logger.info("Finding module : %s", value["source"])
+                        if not module_file_path:
+                            continue
+
+                        logger.info("Finding module : %s", module_file_path)
                         if exists_dir(module_file_path):
                             list_of_file = os.listdir(module_file_path)
 
                             template_file_path = ""
                             parameter_file_list = []
                             for entry in list_of_file:
+                                if any(exclude_dir in entry for exclude_dir in self.exclude_directories):
+                                    continue
                                 new_file_path = ('%s/%s' % (module_file_path, entry)).replace('//', '/')
                                 if exists_file(new_file_path):
                                     if self.is_template_file(new_file_path):
