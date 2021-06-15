@@ -114,7 +114,6 @@ from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.connector.vault import get_vault_data
 from processor.template_processor.base.base_template_constatns import TEMPLATE_NODE_TYPES
-from processor.connector.git_functions import GithubFunctions
 from processor.connector.git_connector.git_processor import git_clone_dir
 
 logger = getlogger()
