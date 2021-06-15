@@ -1,5 +1,18 @@
 This snapshot configuration file type is used along with the **filesystem** connector. It allows you to take snaphots of entire files as resources to test.
 
+# Supported IaC file types.
+1. `json:` Crawl and process valid JSON files.
+2. `yaml:` Crawl and process valid YAML files.
+3. `arm:` Azure arm template.
+4. `cloudformation:` AWS Cloud​Formation template.
+5. `deploymentmanager:` Google cloud deploymentmanager.
+6. `terraform:` Terraform files.
+7. `kubernetesObjectFiles:` Kubernetes files.
+8. `helmChart:` Kubernetes Helm Charts.
+9. `ack:` AWS Controllers for Kubernetes.
+10. `aso:` Azure Service Operator.
+11. `kcc:` GCP Kubernetes Config Connector.
+
 # Snapshot configuration file
 
 To setup a **filesystem** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
@@ -38,7 +51,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | user-to-use-on-connector | Same username as defined in the **filesystem** connector configuration file |
 | branch-to-use-on-connector | Same branch as defined in the **filesystem** connector configuration file. This attribute is only used when we are connecting to a **git** repository |
 | snapshot-name | Name of the snapshot, you will use this in test files |
-| file-type | type of the file. it could be `json` or `yaml` or `arm` or `cloudformation` |
+| file-type | type of the file, which should be one of the supported file type.|
 | collection-name | Name of the **NoSQL** database collection used to store snapshots of this file |
 | relative-paths-to-file | Path to the file to read, relative to the root of the repository that the connector checks out |
 
@@ -84,7 +97,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | user-to-use-on-connector | Same username as defined in the **filesystem** connector configuration file |
 | branch-to-use-on-connector | Same branch as defined in the **filesystem** connector configuration file. This attribute is only used when we are connecting to a **git** repository |
 | master-snapshot-name | Name of the snapshot, you will use this in test files |
-| file-type | type of the file. Supported file types are `json`, `yaml`, `arm`, `cloudformation`, `deploymentmanager`, `terraform`, `kubernetesObjectFiles` and `helmChart` |
+| file-type | type of the file, which should be one of the supported file type.|
 | collection-name | Name of the **NoSQL** database collection used to store snapshots of this file |
 | relative-paths-to-file | Path to the file to read, relative to the root of the repository that the connector checks out |
 | exclude-paths-to-file | Path to the file to exclude, relative to the root of the repository that the connector checks out |
