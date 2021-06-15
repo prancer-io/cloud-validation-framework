@@ -18,7 +18,7 @@ TEMPLATE_NODE_TYPES = {
     "yaml" : YamlTemplateProcessor,
     "json": JsonTemplateProcessor,
     "helmChart" : HelmChartTemplateProcessor,
-    "ack" : AckTemplateProcessor,
-    "aso" : AsoTemplateProcessor,
-    "kcc" : KccTemplateProcessor
+    "ack" : AckTemplateProcessor, # AWS Controllers for Kubernetes
+    "aso" : AsoTemplateProcessor, # Azure Service Operator
+    "kcc" : KccTemplateProcessor # GCP Kubernetes Config Connector
 }

@@ -55,6 +55,7 @@ class TemplateProcessor:
         self.dir_path = ""
         self.template_files = []
         self.parameter_files = []
+        self.yaml_iac_types = [ "helmChart", "yaml", "kubernetesObjectFiles"]
     
     def append_exclude_directories(self, dirs):
         """
@@ -316,7 +317,7 @@ class TemplateProcessor:
                     if self.is_helm_chart_dir(new_dir_path):
                         paths=self.process_helm_chart(dir_path)
                         template_file_list += paths
-                    elif is_multiple_yaml_file(new_dir_path):
+                    elif self.node["type"] in self.yaml_iac_types and is_multiple_yaml_file(new_dir_path):
                         paths = self.break_multiple_yaml_file(new_dir_path)
                         template_file_list+=paths
                     elif exists_file(new_dir_path):
