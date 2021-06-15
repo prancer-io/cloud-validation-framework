@@ -51,21 +51,29 @@ class GithubFunctions:
                 return response_data.get("html_url")
         return None
     
-    def clone_repo(self, source_repo, clone_path, branch_name):
+    def clone_repo(self, source_repo, clone_path, branch_name=None):
         """ clone repository at provided path """
-
+        
+        if source_repo.startswith('git'):
+            repo_path = source_repo.replace(':', '/').split("github.com")
+        else:
+            repo_path = source_repo.split("github.com")
+        
         if self.user and self.access_token and self.user.get("login"):
-            if source_repo.startswith('git'):
-                repo_path = source_repo.replace(':', '/').split("github.com")
-            else:
-                repo_path = source_repo.split("github.com")
             source_repo = "https://" + self.user.get("login") + ":" + self.access_token +"@github.com" + repo_path[-1]
+        else:
+            source_repo = "https://github.com" + repo_path[-1]
 
+        kwargs = {
+            "depth" : 1
+        }
+        if branch_name:
+            kwargs["branch"] = branch_name
+            
         self.repo = Repo.clone_from(
             source_repo,
             clone_path,
-            branch=branch_name,
-            depth=1
+            **kwargs
         )
         return self.repo
     

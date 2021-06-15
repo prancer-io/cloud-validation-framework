@@ -82,7 +82,6 @@ def validate_master_snapshot_data(master_snapshot_json, document_json, file_loca
             found_connector_user = False
             for connector_user in connector_users:
                 if connector_user["id"] == snapshot["connectorUser"]:
-                    logger.info(connector_user.items())
                     found_connector_user = True
                     for key, value in connector_user.items():
                         if key != "id":

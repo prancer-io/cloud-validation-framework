@@ -1,3 +1,4 @@
+import re
 import time
 import os
 import hashlib
@@ -45,11 +46,22 @@ class TemplateProcessor:
         self.repopath = kwargs.get("repopath")
         self.snapshot = kwargs.get("snapshot")
         self.processed_template = {}
-        self.exclude_directories = []
+        self.exclude_directories = [
+            ".git"
+        ]
+        self.exclude_paths = []
+        self.exclude_regex = []
         self.paths = []
         self.dir_path = ""
         self.template_files = []
         self.parameter_files = []
+        self.yaml_iac_types = [ "helmChart", "yaml", "kubernetesObjectFiles"]
+    
+    def append_exclude_directories(self, dirs):
+        """
+        append the given list of directories in exclude directory list
+        """
+        self.exclude_directories += dirs
 
     def create_database_record(self):
         """
@@ -268,8 +280,17 @@ class TemplateProcessor:
         dir_path = str('%s/%s' % (base_dir_path, sub_dir_path)).replace('//', '/')
         logger.info("dir_path   %s   : ",dir_path)
 
-        if sub_dir_path in self.exclude_directories:
-            logger.info("Excluded directory : %s", sub_dir_path)
+        if any(exclude_dir in sub_dir_path for exclude_dir in self.exclude_directories):
+            # exclude_directories contains the directories which we have to exclude while crawl. Ex. `.git`, `modules` for terraform 
+            logger.debug("Excluded : %s", sub_dir_path)
+            return count
+
+        if sub_dir_path in self.exclude_paths:
+            logger.warning("Excluded : %s", sub_dir_path)
+            return count
+        
+        if sub_dir_path and any(re.match(regex, sub_dir_path) for regex in self.exclude_regex):
+            logger.warning("Excluded : %s", sub_dir_path)
             return count
 
         template_file_list = []
@@ -287,12 +308,16 @@ class TemplateProcessor:
                 for entry in list_of_file:
                     new_dir_path = ('%s/%s' % (dir_path, entry)).replace('//', '/')
                     new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
+                    if new_dir_path and any(re.match(regex, new_dir_path) for regex in self.exclude_regex):
+                        logger.warning("Excluded : %s", new_dir_path)
+                        return count
+                    
                     if exists_dir(new_dir_path):
                         count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
                     if self.is_helm_chart_dir(new_dir_path):
                         paths=self.process_helm_chart(dir_path)
                         template_file_list += paths
-                    elif is_multiple_yaml_file(new_dir_path):
+                    elif self.node["type"] in self.yaml_iac_types and is_multiple_yaml_file(new_dir_path):
                         paths = self.break_multiple_yaml_file(new_dir_path)
                         template_file_list+=paths
                     elif exists_file(new_dir_path):
@@ -349,6 +374,11 @@ class TemplateProcessor:
             root_dir_path = self.repopath 
 
         self.paths = get_field_value(self.node, 'paths')
+
+        exclude = self.node.get('exclude')
+        if exclude and isinstance(exclude, dict):
+            self.exclude_paths += exclude.get("paths", [])
+            self.exclude_regex += exclude.get("regex", [])
 
         if self.paths and isinstance(self.paths, list):
             count = 0

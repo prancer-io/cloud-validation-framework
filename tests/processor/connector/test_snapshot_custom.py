@@ -250,7 +250,7 @@ def test_populate_custom_snapshot(create_temp_dir, create_temp_json, monkeypatch
         "type": "custom",
         "nodes": []
     }
-    with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
+    with mock.patch('processor.connector.git_connector.git_functions.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
         snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
         assert snapshot_data == {'3': False}
@@ -288,7 +288,7 @@ def test_username_populate_custom_snapshot(create_temp_dir, create_temp_json, mo
             }
         ]
     }
-    with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
+    with mock.patch('processor.connector.git_connector.git_functions.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
         snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
         assert snapshot_data == {'3': False}
@@ -364,7 +364,7 @@ def test_populate_custom_snapshot_sshkey(create_temp_dir, create_temp_json, monk
     # with mock.patch('processor.connector.snapshot_custom.Git', autospec=True) as GitMockHelper:
     #     GitMockHelper.return_value.custom_environment.return_value = None
     with mock.patch.object(Git, 'custom_environment', autospec=True):
-        with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
+        with mock.patch('processor.connector.git_connector.git_functions.Repo', autospec=True) as RepoMockHelper:
             RepoMockHelper.return_value.clone_from.return_value = None
             snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
             assert snapshot_data == {'3': False}
@@ -410,7 +410,7 @@ def test_populate_filesystem_custom_snapshot(create_temp_dir, create_temp_json, 
         "type": "custom",
         "nodes": []
     }
-    with mock.patch('processor.connector.snapshot_custom.Repo', autospec=True) as RepoMockHelper:
+    with mock.patch('processor.connector.git_connector.git_functions.Repo', autospec=True) as RepoMockHelper:
         RepoMockHelper.return_value.clone_from.return_value = None
         snapshot_data = populate_custom_snapshot(snapshot, 'mycontainer1')
         assert snapshot_data == {'5': True}

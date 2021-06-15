@@ -14,7 +14,7 @@ class TerraformTemplateProcessor(TemplateProcessor):
 
     def __init__(self, node, **kwargs):
         super().__init__(node, tosave=False, **kwargs)
-        self.exclude_directories = ["modules"]
+        self.append_exclude_directories(["modules"])
     
     def is_template_file(self, file_path):
         """
@@ -85,7 +85,7 @@ class TerraformTemplateProcessor(TemplateProcessor):
                     parameter_file_list.append(file_path)
 
             if template_file_path:
-                terraform_template_parser = TerraformTemplateParser(template_file_path,parameter_file=parameter_file_list)
+                terraform_template_parser = TerraformTemplateParser(template_file_path, parameter_file=parameter_file_list, connector_data=self.connector_data)
                 template_json = terraform_template_parser.parse()
 
                 self.template_files = terraform_template_parser.template_file_list
