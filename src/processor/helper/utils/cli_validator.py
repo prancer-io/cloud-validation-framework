@@ -62,9 +62,10 @@ import os
 from inspect import currentframe, getframeinfo
 from processor.helper.config.config_utils import framework_dir, config_value, framework_config, \
     CFGFILE, get_config_data, FULL, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, CUSTOMER, SINGLETEST, container_exists
-from processor.helper.file.file_utils import exists_file, exists_dir
+from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor import __version__
 import traceback
+from jinja2 import Environment, FileSystemLoader
 
 
 
@@ -156,7 +157,7 @@ Example: prancer collection1
 Runs the prancer framework based on the configuration files available in collection1 folder
                                          ''')
     cmd_parser.add_argument('-v','--version', action='version', version=("Prancer %s" % __version__) , help='Show prancer version')
-    cmd_parser.add_argument('container', metavar='collection', action='store',
+    cmd_parser.add_argument('container', metavar='collection', action='store', nargs='?', default='',
                             help='The name of the folder which contains the collection of files related to one scenario')
     cmd_parser.add_argument('--db', action='store', default=None, choices=['NONE', 'SNAPSHOT', 'FULL'],
                             help='''NONE - Database will not be used, all the files reside on file system,
@@ -169,6 +170,8 @@ Runs the prancer framework based on the configuration files available in collect
     cmd_parser.add_argument('--customer', action='store', default=None, help='customer name for config')
     cmd_parser.add_argument('--connector', action='store', default=None, help='specify the name of the connector which you want to run from the collection')
     cmd_parser.add_argument('--branch', action='store', default=None, help='specify the name of the branch to populate snapshots, for the filesystem connector')
+    cmd_parser.add_argument('--file', action='store', default=None, help='single file run')
+    cmd_parser.add_argument('--iac', action='store', default=None, help='iac types')
     args = cmd_parser.parse_args(arg_vals)
 
     retval = 2
@@ -260,14 +263,20 @@ Runs the prancer framework based on the configuration files available in collect
             put_in_currentdata("connector", args.connector)
         if args.branch:
             put_in_currentdata("branch", args.branch)
-        if not args.db:
+        if not args.db and not args.file:
             retval = 0 if container_exists(args.container) else 2
             if retval:
                 logger.critical("Container(%s) is not present in Framework dir: %s",
                                 args.container, framework_dir(), extra={"type" : "critical"})
                 # TODO: Log the path the framework looked for.
                 return retval
- 
+
+        if args.file and args.iac:
+            container = generate_file_container(args.file, args.iac)
+            # container = generate_file_container("mydata/deploy.yaml", 'cloudformation')
+            args.container = container
+            args.db  = DBVALUES.index(NONE)
+
         crawl_and_run = False
         if not args.compliance and not args.crawler:
             crawl_and_run = True
@@ -291,4 +300,64 @@ Runs the prancer framework based on the configuration files available in collect
         print(traceback.format_exc())
         retval = 2
     return retval
+
+
+def generate_file_container(filename, iacType):
+    iacs = {
+        'cloudformation': {'abbrev': 'CFR', 'dir': 'aws'},
+        'arm': {'abbrev': 'ARM', 'dir': 'azure'},
+        'kubernetesObjectFiles': {'abbrev': 'K8S', 'dir': 'kubernetes'},
+        'helmChart': {'abbrev': 'K8S', 'dir': 'kubernetes'},
+        'deploymentmanager': {'abbrev': 'GDF', 'dir': 'google'}
+    }
+
+    frameworkdir = os.environ['FRAMEWORKDIR']
+    containerFolder =  config_value('TESTS', 'containerFolder')
+    structureFolder = config_value('AZURE', 'azureStructureFolder')
+    container = 'singleData%s' % iacType
+    containerDir = '%s/%s/%s' % (frameworkdir, containerFolder, container)
+    structureDir = '%s/%s' % (frameworkdir, structureFolder)
+    dataDir = '%s/data' % containerDir
+    mkdir_path(dataDir)
+    fsconnector = 'fs_connector'
+    git_connector = 'git_connector'
+    with open(filename) as f, open('%s/%s' % (dataDir, os.path.basename(filename)), 'w') as w:
+        filedata = f.read()
+        w.write(filedata)
+
+    mt_data = {
+        'iacType': iacType,
+        'iacDir': iacs[iacType]['dir'],
+        'connector': git_connector,
+    }
+
+    ms_data = {
+        'user': 'USER_1',
+        'abbrev': iacs[iacType]['abbrev'],
+        'iacType': iacType,
+        'container': container,
+        'connector': fsconnector
+    }
+
+    tpath = '%s/jinjatemplates' % os.path.dirname(__file__)
+
+    gen_config_file('%s/mastersnapshot.json' % containerDir, tpath, 'mastersnapshot.json', ms_data)
+
+    gen_config_file('%s/mastertest.json' % containerDir, tpath, 'mastertest.json', mt_data)
+
+    gen_config_file('%s/%s.json' % (structureDir, git_connector), tpath, '%s.json' % git_connector, {})
+
+    gen_config_file('%s/%s.json' % (structureDir, fsconnector), tpath,
+                    '%s.json' % fsconnector, {'basedir': '%s/%s' % (frameworkdir, containerFolder)})
+
+    return container
+
+def gen_config_file(fname, path, template, data):
+    env = Environment(loader=FileSystemLoader(path))
+    template = env.get_template(template)
+    output_from_parsed_template = template.render(**data)
+    # print(output_from_parsed_template)
+    with open(fname, 'w') as f:
+        f.write(output_from_parsed_template)
+    return output_from_parsed_template
 

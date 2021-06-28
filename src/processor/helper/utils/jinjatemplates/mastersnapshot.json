@@ -1,0 +1,21 @@
+{
+  "fileType": "masterSnapshot",
+  "snapshots": [
+    {
+      "type": "filesystem",
+      "connectorUser": "{{user}}",
+      "nodes": [
+        {
+          "masterSnapshotId": "{{abbrev}}_TEMPLATE_SNAPSHOT",
+          "type": "{{iacType}}",
+          "collection": "{{iacType}}",
+          "paths": [
+            "{{container}}/data"
+          ]
+        }
+      ],
+      "testUser": "{{user}}",
+      "source": "{{connector}}"
+    }
+  ]
+}
