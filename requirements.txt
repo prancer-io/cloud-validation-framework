@@ -24,3 +24,4 @@ dnspython==1.16.0
 Jinja2==2.11.3
 ruamel.yaml==0.16.12
 kubernetes==12.0.1
+commentjson==0.9.0

@@ -1,0 +1,8 @@
+{
+  "fileType" : "structure",
+  "type" : "filesystem",
+  "companyName" : "prancer",
+  "gitProvider" : "https://github.com/prancer-io/prancer-compliance-test.git",
+  "branchName" : "master",
+  "private" : false
+}
