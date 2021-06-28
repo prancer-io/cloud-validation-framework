@@ -1,0 +1,7 @@
+{
+    "fileType": "structure",
+    "type": "filesystem",
+    "username": "USER_1",
+    "companyName": "prancer",
+    "folderPath": "{{basedir}}"
+}

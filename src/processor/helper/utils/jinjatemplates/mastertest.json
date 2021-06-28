@@ -1,0 +1,9 @@
+{
+  "masterSnapshot" : "mastersnapshot",
+  "fileType" : "mastertest",
+  "testSet" : [ ],
+  "notification" : [ ],
+  "connector" : "{{connector}}",
+  "remoteFile" : "{{iacDir}}/iac/master-compliance-test.json",
+  "connectorUsers" : [ ]
+}
