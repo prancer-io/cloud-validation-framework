@@ -83,25 +83,67 @@ curl -X GET 'https://portal.prancer.io/api/resource/search?count=3&index=0&colle
         },
         "results": [
             {
+                "cloud_type": "azure",
                 "collection_name": "azure_crawler_demo",
                 "compliant": "Yes",
                 "last_scan": "2020-10-27 10:35:08",
                 "resource_name": "acrprancertest01",
-                "resource_path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01"
-            },
-            {
-                "collection_name": "azure_crawler_demo",
-                "compliant": "No",
-                "last_scan": "2020-10-27 10:35:08",
-                "resource_name": "automation-linux-nsg",
-                "resource_path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg"
-            },
-            {
-                "collection_name": "azure_crawler_demo",
-                "compliant": "No",
-                "last_scan": "2020-10-27 10:35:08",
-                "resource_name": "company-app-vnet",
-                "resource_path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/company-app-rg/providers/Microsoft.Network/virtualNetworks/company-app-vnet"
+                "resource_path": "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest",
+                "container_name" : "azure_crawler_demo",
+                "container_url": "/container/search/?container_name=azure_crawler_demo",
+                "content_version": "1.0.0.0",
+                "description": "This policy identifies an Azure Container Registry (ACR) that is using the classic SKU. The initial release of the Azure Container Registry (ACR) service that was offered as a classic SKU is being deprecated and will be unavailable after April 2019. As a best practice, upgrade your existing classic registry to a managed registry.",
+                "last_scan": "2021-04-09 08:33:22",
+                "log": "logs_20210409083236",
+                "log_url": "/log/search/?container_name=azure_crawler_demo&test_name=azure_crawler_test&log_name=logs_20210409083236",
+                "output_id": "6070115296e8545sd5d4f",
+                "resource_names": [
+                    "acrprancertest01"
+                ],
+                "resource_node_id": "AZRSNP_22441",
+                "resource_paths": [
+                    "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01"
+                ],
+                "rule": "file(azure_224.rego)",
+                "snapshot_name": "",
+                "snapshot_url": "/snapshot/search/?container_name=azure_crawler_demo&snapshot_name=&selected_tab=snapshot-config-tab",
+                "snapshots": [
+                    {
+                        "collection": "microsoftcontainerregistry",
+                        "id": "AZRSNP_22441",
+                        "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01",
+                        "paths": [
+                            {
+                                "name": "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01",
+                                "url": "https://portal.azure.com/#@f123456-a59f-478a-8457-54e8d12458d/resource/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01"
+                            }
+                        ],
+                        "reference": "whitekite",
+                        "region": "eastus2",
+                        "source": "azure_crawler_structure",
+                        "source_url": "/connector/search/?container_name=azure_crawler_demo",
+                        "structure": "azure",
+                        "type": "Microsoft.ContainerRegistry/registries"
+                    }
+                ],
+                "tags": [
+                    {
+                        "cloud": "Azure",
+                        "compliance": [
+                            "COSTUM"
+                        ],
+                        "service": [
+                            "Microsoft.ContainerRegistry",
+                            "Container",
+                            "Container Registry"
+                        ]
+                    }
+                ],
+                "test_id": "AZURE_TEST_224",
+                "test_name": "azure_crawler_test",
+                "test_type": "mastertest",
+                "test_url": "/test/search/?container_name=azure_crawler_demo&test_name=azure_crawler_test",
+                "title": "Azure Container Registry using the deprecated not classic registry"
             }
         ]
     },
@@ -208,7 +250,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
         "resource_collection_name": "microsoftnetwork",
         "resource_path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
         "resource_status": "active",
-        "resource_url": "https://portal.azure.com/#@f997f2f9-a48f-465a-9677-54e8d1d90e5d/resource/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
+        "resource_url": "https://portal.azure.com/#@f123456-a59f-478a-8457-54e8d12458d/resource/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
         "testcases": [
             {
                 "date": "2021-02-24 11:20:43",

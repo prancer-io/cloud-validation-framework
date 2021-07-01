@@ -590,7 +590,17 @@ curl -X GET https://portal.prancer.io/api/default/tags -H 'authorization: Bearer
                 "role",
                 "clusterrolebinding"
             ],
-            "git": []
+            "git": [
+                "arm",
+                "cloudformation",
+                "deploymentmanager",
+                "kubernetesObjectFiles",
+                "helmChart",
+                "terraform",
+                "kcc",
+                "aso",
+                "ack"
+            ]
         }
     },
     "error": "",
