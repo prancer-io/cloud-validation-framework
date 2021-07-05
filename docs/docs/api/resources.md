@@ -179,7 +179,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
 ```
 {
     "collection": "azure_crawler_demo",
-    "resource_path" : "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+    "resource_node_id" : "AZRSNP_22441",
     "start_date":"2020-10-19",
     "end_date": "2020-10-20"
 }
@@ -189,7 +189,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
     `Required Fields`
 
     - **collection:** Name of the collection which need to be filter. It is `required` field.
-    - **resource_path:** Specify the resource path which is comes from response of resource search api.
+    - **resource_node_id:** Uniquely identify the resource by id, it comes in the response of resource search api.
 
     `Optional Fields`
 
@@ -257,6 +257,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "6036368b64b6fd6ff8a33429",
                 "status": "passed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22229",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -264,6 +265,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "6036368b64b6fd6ff8a33429",
                 "status": "passed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22230",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             },
             {
@@ -271,6 +273,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "603635bc02a03c3ab4ed8c37",
                 "status": "failed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22231",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -278,6 +281,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "603635bc02a03c3ab4ed8c37",
                 "status": "failed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22232",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             },
             {
@@ -285,6 +289,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "6036317406689c4a72b54d4c",
                 "status": "passed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22233",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -292,6 +297,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "6036317406689c4a72b54d4c",
                 "status": "passed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22234",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             },
             {
@@ -299,6 +305,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "603630c11d855274b00c2a21",
                 "status": "failed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22235",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -306,6 +313,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "603630c11d855274b00c2a21",
                 "status": "failed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22236",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             },
             {
@@ -313,6 +321,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "60363063725937cae2eebfc3",
                 "status": "passed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22237",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -320,6 +329,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "60363063725937cae2eebfc3",
                 "status": "passed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22238",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             },
             {
@@ -327,6 +337,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "60362f73e20439143b65b8c7",
                 "status": "failed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22239",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -334,6 +345,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "60362f73e20439143b65b8c7",
                 "status": "passed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22240",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             }
         ],
@@ -442,7 +454,8 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/testcase?result_id
 ```
 {
     "result_id": "5f97f7dcd94883dff55040e7",
-    "test_id": "AZURE_TEST_229"
+    "test_id": "AZURE_TEST_229",
+    "snapshot_id" : "AZRSNP_22229"
 }
 ```
 - **Explanation:**
@@ -451,6 +464,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/testcase?result_id
 
     - **result_id:** Result Id from which you want to read the testcases.
     - **test_id:** Testcase Id of perticular test from all testcases, it comes from response of Resource - Dashboard API.
+    - **snapshot_id:** Snapshot Id for which the testcase was run.
 
 **Response:**
 ```
