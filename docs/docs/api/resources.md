@@ -165,7 +165,7 @@ curl -X GET 'https://portal.prancer.io/api/resource/search?count=3&index=0&colle
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collection=azure_nist_cloud_demo&resource_path=%2Fsubscriptions%2Fd34d6141-7a19-4458-b0dd-f038bb7760c1%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FnetworkSecurityGroups%2Fnsg-test-456&start_date=2021-02-20&end_date=2021-02-28' -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collection=azure_nist_cloud_demo&resource_path=%2Fsubscriptions%2Fd34d6562-8a12-4458-ba02-b12345f45gdd%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FnetworkSecurityGroups%2Fnsg-test-456&start_date=2021-02-20&end_date=2021-02-28' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
 - **URL:** https://portal.prancer.io/api/resource/dashboard
@@ -248,9 +248,9 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
         "first_crawl": "2021-01-19 09:14:12",
         "pass_count": 7,
         "resource_collection_name": "microsoftnetwork",
-        "resource_path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
+        "resource_path": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
         "resource_status": "active",
-        "resource_url": "https://portal.azure.com/#@f123456-a59f-478a-8457-54e8d12458d/resource/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
+        "resource_url": "https://portal.azure.com/#@f123456-a59f-478a-8457-54e8d12458d/resource/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
         "testcases": [
             {
                 "date": "2021-02-24 11:20:43",
@@ -365,7 +365,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_path=%2Fsubscriptions%2Fd34d6141-7a19-4458-b0dd-f038bb7760c1%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FvirtualNetworks%2FNetworkWatcherRG-vnet&resource_collection_name=microsoftnetwork' -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_path=%2Fsubscriptions%2Fd34d6562-8a12-4458-ba02-b12345f45gdd%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FvirtualNetworks%2FNetworkWatcherRG-vnet&resource_collection_name=microsoftnetwork' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
 - **URL:** https://portal.prancer.io/customer1/api/resource/detail
@@ -378,7 +378,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_pa
 - **Param:**
 ```
 {
-    "resource_path" : "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+    "resource_path" : "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
     "resource_collection_name" : "microsoftnetwork"
 }
 ```
@@ -394,14 +394,14 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_pa
 {
     "data": {
         "etag": "W/\"7174e4bf-0571-4710-8791-343c365576ce\"",
-        "id": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+        "id": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
         "location": "eastus2",
         "name": "automation-linux-nsg",
         "properties": {
             "defaultSecurityRules": [
                 {
                     "etag": "W/\"7174e4bf-0571-4710-8791-343c365576ce\"",
-                    "id": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg/defaultSecurityRules/AllowVnetInBound",
+                    "id": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg/defaultSecurityRules/AllowVnetInBound",
                     "name": "AllowVnetInBound",
                     "properties": {
                         "access": "Allow",
@@ -484,7 +484,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/testcase?result_id
             {
                 "collection": "microsoftnetwork",
                 "id": "AZRSNP_23118",
-                "path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+                "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
                 "reference": "whitekite",
                 "source": "azure_crawler_structure",
                 "structure": "azure"
@@ -555,12 +555,12 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/configuration/drif
     "data": {
         "new_resource": {
             "etag": "W/\"7174e4bf-0571-4710-8791-343c365576ce\"",
-            "id": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+            "id": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
             ...
         },
         "old_resource": {
             "etag": "W/\"57b928f0-c837-4552-9e93-9a7540a4ed1c\"",
-            "id": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+            "id": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
             "location": "eastus2",
             "name": "automation-linux-nsg",
             ...

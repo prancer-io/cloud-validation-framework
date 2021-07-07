@@ -88,7 +88,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
                         {
                             "collection": "microsoftnetwork",
                             "id": "AZRSNP_23113",
-                            "path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
+                            "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
                             "reference": "whitekite",
                             "region": "eastus",
                             "source": "azure_crawler_structure",
@@ -148,7 +148,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
                         {
                             "collection": "microsoftnetwork",
                             "id": "AZRSNP_23114",
-                            "path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/uxmachine-nsg",
+                            "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/uxmachine-nsg",
                             "reference": "whitekite",
                             "region": "eastus2",
                             "source": "azure_crawler_structure",
@@ -208,7 +208,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
                         {
                             "collection": "microsoftnetwork",
                             "id": "AZRSNP_23112",
-                            "path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+                            "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
                             "reference": "whitekite",
                             "region": "eastus2",
                             "source": "azure_crawler_structure",
