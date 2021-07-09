@@ -383,7 +383,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
             groups = existing_json['Reservations'][0]['Instances'][0]['SecurityGroups']
             groupsidlist = [x['GroupId'] for x in groups]
         except:
-            volumeid = []
+            groupsidlist = []
         return {
             'GroupIds': groupsidlist
         }
