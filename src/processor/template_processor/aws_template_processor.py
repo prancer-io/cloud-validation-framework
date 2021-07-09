@@ -64,9 +64,8 @@ class AWSTemplateProcessor(TemplateProcessor):
 
             if template_file:
                 self.template_files = [template_file]
-                self.parameter_files = [parameter_file]
-
                 if parameter_file:
+                    self.parameter_files = [parameter_file]
                     aws_template_parser = AWSTemplateParser(template_file, parameter_file=parameter_file)
                 else:
                     aws_template_parser = AWSTemplateParser(template_file)

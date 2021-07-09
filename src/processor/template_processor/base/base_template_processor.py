@@ -4,6 +4,7 @@ import os
 import hashlib
 import pymongo
 import hcl
+import traceback
 from yaml.loader import FullLoader
 from processor.helper.config.config_utils import config_value
 from processor.helper.config.rundata_utils import get_dbtests
@@ -97,40 +98,50 @@ class TemplateProcessor:
         creates the indexes on collection and stores the data record in database or creates
         the generated snapshot at file system
         """
-        data_record = self.create_database_record()
-        if get_dbtests():
-            if get_collection_size(data_record['collection']) == 0:
-                #Creating indexes for collection
-                create_indexes(
-                    data_record['collection'], 
-                    config_value(DATABASE, DBNAME), 
-                    [
-                        ('snapshotId', pymongo.ASCENDING),
-                        ('timestamp', pymongo.DESCENDING)
-                    ]
-                )
+        store_record = False
+        try:
+            data_record = self.create_database_record()
+            if get_dbtests():
+                if get_collection_size(data_record['collection']) == 0:
+                    #Creating indexes for collection
+                    create_indexes(
+                        data_record['collection'], 
+                        config_value(DATABASE, DBNAME), 
+                        [
+                            ('snapshotId', pymongo.ASCENDING),
+                            ('timestamp', pymongo.DESCENDING)
+                        ]
+                    )
 
-                create_indexes(
-                    data_record['collection'], 
-                    config_value(DATABASE, DBNAME), 
-                    [
-                        ('_id', pymongo.DESCENDING),
-                        ('timestamp', pymongo.DESCENDING),
-                        ('snapshotId', pymongo.ASCENDING)
-                    ]
-                )
-            insert_one_document(data_record, data_record['collection'], self.dbname, check_keys=False)
-        else:
-            snapshot_dir = make_snapshots_dir(self.container)
-            if snapshot_dir:
-                store_snapshot(snapshot_dir, data_record)
+                    create_indexes(
+                        data_record['collection'], 
+                        config_value(DATABASE, DBNAME), 
+                        [
+                            ('_id', pymongo.DESCENDING),
+                            ('timestamp', pymongo.DESCENDING),
+                            ('snapshotId', pymongo.ASCENDING)
+                        ]
+                    )
+                insert_one_document(data_record, data_record['collection'], self.dbname, check_keys=False)
+                store_record = True
+            else:
+                snapshot_dir = make_snapshots_dir(self.container)
+                if snapshot_dir:
+                    store_snapshot(snapshot_dir, data_record)
+                    store_record = True
+                
+            if 'masterSnapshotId' in self.node:
+                self.snapshot_data[self.node['snapshotId']] = self.node['masterSnapshotId']
+            else:
+                self.snapshot_data[self.node['snapshotId']] = False if ('error' in data_record and data_record['error']) else True
             
-        if 'masterSnapshotId' in self.node:
-            self.snapshot_data[self.node['snapshotId']] = self.node['masterSnapshotId']
-        else:
-            self.snapshot_data[self.node['snapshotId']] = False if ('error' in data_record and data_record['error']) else True
-        
-        self.node['status'] = 'active'
+            if store_record:
+                self.node['status'] = 'active'
+        except:
+            store_record = False
+            logger.error("Failed to insert record, invalid snapshot")
+            logger.debug(traceback.format_exc())
+        return store_record
 
     def process_template(self, paths):
         """
@@ -190,32 +201,39 @@ class TemplateProcessor:
         """
         process the snapshot and returns the updated `snapshot_data` which is require for run the test
         """
-        self.dir_path = get_field_value(self.connector_data, 'folderPath')
-        if not self.dir_path:
-            self.dir_path = self.repopath 
+        try:
+            self.dir_path = get_field_value(self.connector_data, 'folderPath')
+            if not self.dir_path:
+                self.dir_path = self.repopath 
 
-        self.paths = get_field_value(self.node, 'paths')
-        if not self.paths or not isinstance(self.paths, list):
-            self.node['status'] = 'inactive'
-            logger.error("Invalid json : `paths` field is missing in node or it is not a list")
-            return self.snapshot_data
-        
-        if is_multiple_yaml_convertion(self.paths[0]):
-            multiple_source = '%s/%s.yaml' % (self.dir_path,(self.paths[0]).split(MultipleConvertionKey)[0])
-            if exists_file(multiple_source):
-                self.break_multiple_yaml_file(multiple_source)
+            self.paths = get_field_value(self.node, 'paths')
+            if not self.paths or not isinstance(self.paths, list):
+                self.node['status'] = 'inactive'
+                logger.error("Invalid json : `paths` field is missing in node or it is not a list")
+                return self.snapshot_data
+            
+            if is_multiple_yaml_convertion(self.paths[0]):
+                multiple_source = '%s/%s.yaml' % (self.dir_path,(self.paths[0]).split(MultipleConvertionKey)[0])
+                if exists_file(multiple_source):
+                    self.break_multiple_yaml_file(multiple_source)
 
-        if is_helm_chart_convertion(self.paths[0]):
-            helm_dir = '%s/%s' % (self.dir_path,self.paths[0].rpartition("/")[0]) 
-            if not exists_file('%s/%s' % (helm_dir,self.paths[0].rpartition("/")[-1])):
-                self.process_helm_chart(helm_dir)
+            if is_helm_chart_convertion(self.paths[0]):
+                helm_dir = '%s/%s' % (self.dir_path,self.paths[0].rpartition("/")[0]) 
+                if not exists_file('%s/%s' % (helm_dir,self.paths[0].rpartition("/")[-1])):
+                    self.process_helm_chart(helm_dir)
 
-        self.processed_template = self.process_template(self.paths)
-        if self.processed_template:
-            self.store_data_record()
-            self.node['status'] = 'active'
-        else:
-            self.node['status'] = 'inactive'
+            self.processed_template = self.process_template(self.paths)
+            if self.processed_template:
+                status = self.store_data_record()
+                if status:
+                    self.node['status'] = 'active'
+                else:
+                    self.node['status'] = 'inactive'
+            else:
+                self.node['status'] = 'inactive'
+        except:
+            logger.error("Failed to process template snapshot")
+            logger.debug(traceback.format_exc())
         return self.snapshot_data
     
     def create_node_record(self, generated_template_file_list, count):
@@ -276,93 +294,97 @@ class TemplateProcessor:
         """
         Iterate the subdirectories for process each files inside the directory.
         """
-        logger.info("Finding files in : %s" % sub_dir_path)
-        dir_path = str('%s/%s' % (base_dir_path, sub_dir_path)).replace('//', '/')
-        logger.info("dir_path   %s   : ",dir_path)
+        try:
+            logger.info("Finding files in : %s" % sub_dir_path)
+            dir_path = str('%s/%s' % (base_dir_path, sub_dir_path)).replace('//', '/')
+            logger.info("dir_path   %s   : ",dir_path)
 
-        if any(exclude_dir in sub_dir_path for exclude_dir in self.exclude_directories):
-            # exclude_directories contains the directories which we have to exclude while crawl. Ex. `.git`, `modules` for terraform 
-            logger.debug("Excluded : %s", sub_dir_path)
-            return count
+            if any(exclude_dir in sub_dir_path for exclude_dir in self.exclude_directories):
+                # exclude_directories contains the directories which we have to exclude while crawl. Ex. `.git`, `modules` for terraform 
+                logger.debug("Excluded : %s", sub_dir_path)
+                return count
 
-        if sub_dir_path in self.exclude_paths:
-            logger.warning("Excluded : %s", sub_dir_path)
-            return count
+            if sub_dir_path in self.exclude_paths:
+                logger.warning("Excluded : %s", sub_dir_path)
+                return count
+            
+            if sub_dir_path and any(re.match(regex, sub_dir_path) for regex in self.exclude_regex):
+                logger.warning("Excluded : %s", sub_dir_path)
+                return count
+
+            template_file_list = []
+            parameter_file_list = []
+            path_is_file,path_is_dir = False,False
         
-        if sub_dir_path and any(re.match(regex, sub_dir_path) for regex in self.exclude_regex):
-            logger.warning("Excluded : %s", sub_dir_path)
-            return count
-
-        template_file_list = []
-        parameter_file_list = []
-        path_is_file,path_is_dir = False,False
-        
-        if exists_file(dir_path):
-            path_is_file = True
-        if exists_dir(dir_path):
-            path_is_dir = True
+            if exists_file(dir_path):
+                path_is_file = True
+            if exists_dir(dir_path):
+                path_is_dir = True
        
-        if any([path_is_dir,path_is_file]):
-            if path_is_dir :
-                list_of_file = os.listdir(dir_path)
-                for entry in list_of_file:
-                    new_dir_path = ('%s/%s' % (dir_path, entry)).replace('//', '/')
-                    new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
-                    if new_dir_path and any(re.match(regex, new_dir_path) for regex in self.exclude_regex):
-                        logger.warning("Excluded : %s", new_dir_path)
-                        return count
-                    
-                    if exists_dir(new_dir_path):
-                        count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
-                    if self.is_helm_chart_dir(new_dir_path):
-                        paths=self.process_helm_chart(dir_path)
-                        template_file_list += paths
-                    elif self.node["type"] in self.yaml_iac_types and is_multiple_yaml_file(new_dir_path):
-                        paths = self.break_multiple_yaml_file(new_dir_path)
-                        template_file_list+=paths
-                    elif exists_file(new_dir_path):
-                        if self.is_template_file(new_dir_path):
-                            template_file_list.append(new_sub_directory_path)
-                        elif self.is_parameter_file(new_dir_path):
-                            parameter_file_list.append(new_sub_directory_path)
+            if any([path_is_dir,path_is_file]):
+                if path_is_dir :
+                    list_of_file = os.listdir(dir_path)
+                    for entry in list_of_file:
+                        new_dir_path = ('%s/%s' % (dir_path, entry)).replace('//', '/')
+                        new_sub_directory_path = ('%s/%s' % (sub_dir_path, entry)).replace('//', '/')
+                        if new_dir_path and any(re.match(regex, new_dir_path) for regex in self.exclude_regex):
+                            logger.warning("Excluded : %s", new_dir_path)
+                            return count
 
-            if path_is_file:
-               template_file_list.append('%s' % (sub_dir_path).replace('//', '/'))
+                        if exists_dir(new_dir_path):
+                            count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
+                        if self.is_helm_chart_dir(new_dir_path):
+                            paths=self.process_helm_chart(dir_path)
+                            template_file_list += paths
+                        elif self.node["type"] in self.yaml_iac_types and is_multiple_yaml_file(new_dir_path):
+                            paths = self.break_multiple_yaml_file(new_dir_path)
+                            template_file_list+=paths
+                        elif exists_file(new_dir_path):
+                            if self.is_template_file(new_dir_path):
+                                template_file_list.append(new_sub_directory_path)
+                            elif self.is_parameter_file(new_dir_path):
+                                parameter_file_list.append(new_sub_directory_path)
 
-            logger.info("parameter_file_list   %s   : ", str(parameter_file_list))
-            logger.info("template_file_list   %s   : ", str(template_file_list))
-            generated_template_file_list = []
-            if template_file_list:
-                for template_file in template_file_list:
-                    # template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
-                    if parameter_file_list:
-                        self.generate_template_and_parameter_file_list(file_path, template_file, parameter_file_list, generated_template_file_list)
-                    else:
-                        paths = [
-                            template_file
-                        ]
-                        template_json = self.process_template(paths)
-                        if template_json:
-                            generated_template_file_list.append({
-                                "paths" : [
-                                    ("%s/%s" % (file_path, template_file)).replace("//", "/")
-                                ],
-                                "status" : "active",
-                                "validate" : node['validate'] if 'validate' in node else True
-                            })
+                if path_is_file:
+                    template_file_list.append('%s' % (sub_dir_path).replace('//', '/'))
+
+                logger.info("parameter_file_list   %s   : ", str(parameter_file_list))
+                logger.info("template_file_list   %s   : ", str(template_file_list))
+                generated_template_file_list = []
+                if template_file_list:
+                    for template_file in template_file_list:
+                        # template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
+                        if parameter_file_list:
+                            self.generate_template_and_parameter_file_list(file_path, template_file, parameter_file_list, generated_template_file_list)
                         else:
-                            generated_template_file_list.append({
-                                "paths" : [
-                                    ("%s/%s" % (file_path, template_file)).replace("//", "/")
-                                ],
-                                "status" : "inactive",
-                                "validate" : node['validate'] if 'validate' in node else True
-                            })
-                    
-                nodes, count = self.create_node_record(generated_template_file_list, count)
-                if self.node['masterSnapshotId'] not in self.snapshot_data or not isinstance(self.snapshot_data[self.node['masterSnapshotId']], list):
-                    self.snapshot_data[self.node['masterSnapshotId']] = []
-                self.snapshot_data[self.node['masterSnapshotId']] = self.snapshot_data[self.node['masterSnapshotId']] + nodes
+                            paths = [
+                                template_file
+                            ]
+                            template_json = self.process_template(paths)
+                            if template_json:
+                                generated_template_file_list.append({
+                                    "paths" : [
+                                        ("%s/%s" % (file_path, template_file)).replace("//", "/")
+                                    ],
+                                    "status" : "active",
+                                    "validate" : node['validate'] if 'validate' in node else True
+                                })
+                            else:
+                                generated_template_file_list.append({
+                                    "paths" : [
+                                        ("%s/%s" % (file_path, template_file)).replace("//", "/")
+                                    ],
+                                    "status" : "inactive",
+                                    "validate" : node['validate'] if 'validate' in node else True
+                                })
+
+                    nodes, count = self.create_node_record(generated_template_file_list, count)
+                    if self.node['masterSnapshotId'] not in self.snapshot_data or not isinstance(self.snapshot_data[self.node['masterSnapshotId']], list):
+                        self.snapshot_data[self.node['masterSnapshotId']] = []
+                    self.snapshot_data[self.node['masterSnapshotId']] = self.snapshot_data[self.node['masterSnapshotId']] + nodes
+        except Exception as e:
+            logger.error("Error occurs while crawl this path: %s " % sub_dir_path)
+            logger.debug(traceback.format_exc())
         return count
 
     def populate_all_template_snapshot(self):
