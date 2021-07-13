@@ -16,7 +16,18 @@ def remove_list_from_values(data):
                     for val in values:
                         if isinstance(val, dict):
                             for k, v in val.items():
-                                value[k] = v
+                                if k in value:
+                                    if isinstance(v, dict):
+                                        for k1, v1 in v.items():
+                                            value[k][k1] = v1
+                                    # if isinstance(value[k], list):
+                                    #     value[k].append(v)
+                                    # else:
+                                    #     oldval = value[k]
+                                    #     value[k] = [oldval]
+                                    #     value[k].append(v)
+                                else:
+                                    value[k] = v
             else:
                 value = values
             value = remove_list_from_values(value)
@@ -43,5 +54,7 @@ def hcl_to_json(file_path):
     return json_data
 
 if __name__ == "__main__":
-    json_data = hcl_to_json("/home/swan-13/Desktop/vars.tf")
-    print(json_data)
+    json_data = hcl_to_json("/tmp/extrasg.tf")
+    import json
+    print(json.dumps(json_data, indent=2))
+
