@@ -46,9 +46,10 @@ class TerraformTemplateParser(TemplateParser):
             "False" : False,
             "&&" : "and",
             "||" : "or",
-            "None" : None
+            "None" : None,
+            "!" : "not",
         }
-        self.replace_value_str = ["and", "or"]
+        self.replace_value_str = ["and", "or", "not"]
         self.template_file_list = [self.template_file]
         self.parameter_file_list = self.parameter_file if self.parameter_file else []
         self.connector_data = kwargs.get("connector_data", False)
@@ -515,6 +516,10 @@ class TerraformTemplateParser(TemplateParser):
                 
                     processed_param = self.process_resource("${" + param.strip() + "}", count)
                     if (isinstance(processed_param, str) and re.search(r'\${([^}]*)}', processed_param, re.I)):
+                        process = False
+                        parameters.append(param.strip())
+                    # Check only for None return
+                    elif processed_param == None and re.match(".*(\.\*\.).*", param.strip()):
                         process = False
                         parameters.append(param.strip())
                     else:
