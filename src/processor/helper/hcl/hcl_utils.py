@@ -1,5 +1,7 @@
 import hcl
 import hcl2
+from lark import tree
+from processor.helper.hcl import parser
 from processor.logging.log_handler import getlogger
 
 logger = getlogger()
@@ -42,7 +44,8 @@ def hcl_to_json(file_path):
     json_data = {}
     try:
         with open(file_path, 'r', encoding="utf-8") as fp:
-            json_data = hcl2.load(fp)
+            json_data = parser.loads(fp)
+            # json_data = hcl2.load(fp)
             json_data = remove_list_from_values(json_data)
     except Exception:
         try:
