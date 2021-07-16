@@ -1,7 +1,9 @@
 import json
 from hcl.parser import HclParser, pickle_file
 from hcl.api import u, isHcl
+from hcl2.lark_parser import Lark_StandAlone
 from processor.helper.hcl import yacc
+from processor.helper.hcl.transformer import HClDictTransformer
 
 class TerraformHCLParer(HclParser):
     def __init__(self):
@@ -18,8 +20,10 @@ def loads(fp):
     :returns: Dictionary 
     '''
     s = fp.read()
-    s = u(s)
-    if isHcl(s):
-        return TerraformHCLParer().parse(s)
-    else:
-        return json.loads(s)
+    hcl2 = Lark_StandAlone(transformer=HClDictTransformer())
+    return hcl2.parse(s + "\n")
+    # s = u(s)
+    # if isHcl(s):
+    #     return TerraformHCLParer().parse(s)
+    # else:
+    #     return json.loads(s)
