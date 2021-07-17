@@ -42,7 +42,7 @@ will return the data for that log.
 Log files are stored in the file system as a text file. Here is the example of the log file:
 
     2019-02-27 20:53:50,211(restapi_azure: 186) - Get Azure token REST API invoked!
-    2019-02-27 20:53:50,213(http_utils:  96) - HTTP POST https://login.microsoftonline.com/f997f2f9-a48f-465a-9677-54e8d1d90e5d/oauth2/token  .......
+    2019-02-27 20:53:50,213(http_utils:  96) - HTTP POST https://login.microsoftonline.com/@f123456-a59f-478a-8457-54e8d12458d/oauth2/token  .......
     2019-02-27 20:53:50,999(http_utils:  50) - HTTP POST: status: 401, ex:HTTP Error 401: Unauthorized 
     2019-02-27 20:53:51,005(restapi_azure: 193) - Get Azure token returned invalid status: 401
     2019-02-27 20:53:51,009(vault:  60) - Secret Value: None

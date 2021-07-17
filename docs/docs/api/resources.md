@@ -83,25 +83,67 @@ curl -X GET 'https://portal.prancer.io/api/resource/search?count=3&index=0&colle
         },
         "results": [
             {
+                "cloud_type": "azure",
                 "collection_name": "azure_crawler_demo",
                 "compliant": "Yes",
                 "last_scan": "2020-10-27 10:35:08",
                 "resource_name": "acrprancertest01",
-                "resource_path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01"
-            },
-            {
-                "collection_name": "azure_crawler_demo",
-                "compliant": "No",
-                "last_scan": "2020-10-27 10:35:08",
-                "resource_name": "automation-linux-nsg",
-                "resource_path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg"
-            },
-            {
-                "collection_name": "azure_crawler_demo",
-                "compliant": "No",
-                "last_scan": "2020-10-27 10:35:08",
-                "resource_name": "company-app-vnet",
-                "resource_path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/company-app-rg/providers/Microsoft.Network/virtualNetworks/company-app-vnet"
+                "resource_path": "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest",
+                "container_name" : "azure_crawler_demo",
+                "container_url": "/container/search/?container_name=azure_crawler_demo",
+                "content_version": "1.0.0.0",
+                "description": "This policy identifies an Azure Container Registry (ACR) that is using the classic SKU. The initial release of the Azure Container Registry (ACR) service that was offered as a classic SKU is being deprecated and will be unavailable after April 2019. As a best practice, upgrade your existing classic registry to a managed registry.",
+                "last_scan": "2021-04-09 08:33:22",
+                "log": "logs_20210409083236",
+                "log_url": "/log/search/?container_name=azure_crawler_demo&test_name=azure_crawler_test&log_name=logs_20210409083236",
+                "output_id": "6070115296e8545sd5d4f",
+                "resource_names": [
+                    "acrprancertest01"
+                ],
+                "resource_node_id": "AZRSNP_22441",
+                "resource_paths": [
+                    "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01"
+                ],
+                "rule": "file(azure_224.rego)",
+                "snapshot_name": "",
+                "snapshot_url": "/snapshot/search/?container_name=azure_crawler_demo&snapshot_name=&selected_tab=snapshot-config-tab",
+                "snapshots": [
+                    {
+                        "collection": "microsoftcontainerregistry",
+                        "id": "AZRSNP_22441",
+                        "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01",
+                        "paths": [
+                            {
+                                "name": "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01",
+                                "url": "https://portal.azure.com/#@f123456-a59f-478a-8457-54e8d12458d/resource/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01"
+                            }
+                        ],
+                        "reference": "whitekite",
+                        "region": "eastus2",
+                        "source": "azure_crawler_structure",
+                        "source_url": "/connector/search/?container_name=azure_crawler_demo",
+                        "structure": "azure",
+                        "type": "Microsoft.ContainerRegistry/registries"
+                    }
+                ],
+                "tags": [
+                    {
+                        "cloud": "Azure",
+                        "compliance": [
+                            "COSTUM"
+                        ],
+                        "service": [
+                            "Microsoft.ContainerRegistry",
+                            "Container",
+                            "Container Registry"
+                        ]
+                    }
+                ],
+                "test_id": "AZURE_TEST_224",
+                "test_name": "azure_crawler_test",
+                "test_type": "mastertest",
+                "test_url": "/test/search/?container_name=azure_crawler_demo&test_name=azure_crawler_test",
+                "title": "Azure Container Registry using the deprecated not classic registry"
             }
         ]
     },
@@ -123,7 +165,7 @@ curl -X GET 'https://portal.prancer.io/api/resource/search?count=3&index=0&colle
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collection=azure_nist_cloud_demo&resource_path=%2Fsubscriptions%2Fd34d6141-7a19-4458-b0dd-f038bb7760c1%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FnetworkSecurityGroups%2Fnsg-test-456&start_date=2021-02-20&end_date=2021-02-28' -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collection=azure_nist_cloud_demo&resource_path=%2Fsubscriptions%2Fd34d6562-8a12-4458-ba02-b12345f45gdd%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FnetworkSecurityGroups%2Fnsg-test-456&start_date=2021-02-20&end_date=2021-02-28' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
 - **URL:** https://portal.prancer.io/api/resource/dashboard
@@ -137,7 +179,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
 ```
 {
     "collection": "azure_crawler_demo",
-    "resource_path" : "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+    "resource_node_id" : "AZRSNP_22441",
     "start_date":"2020-10-19",
     "end_date": "2020-10-20"
 }
@@ -147,7 +189,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
     `Required Fields`
 
     - **collection:** Name of the collection which need to be filter. It is `required` field.
-    - **resource_path:** Specify the resource path which is comes from response of resource search api.
+    - **resource_node_id:** Uniquely identify the resource by id, it comes in the response of resource search api.
 
     `Optional Fields`
 
@@ -206,15 +248,16 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
         "first_crawl": "2021-01-19 09:14:12",
         "pass_count": 7,
         "resource_collection_name": "microsoftnetwork",
-        "resource_path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
+        "resource_path": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
         "resource_status": "active",
-        "resource_url": "https://portal.azure.com/#@f997f2f9-a48f-465a-9677-54e8d1d90e5d/resource/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
+        "resource_url": "https://portal.azure.com/#@f123456-a59f-478a-8457-54e8d12458d/resource/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
         "testcases": [
             {
                 "date": "2021-02-24 11:20:43",
                 "result_id": "6036368b64b6fd6ff8a33429",
                 "status": "passed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22229",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -222,6 +265,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "6036368b64b6fd6ff8a33429",
                 "status": "passed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22230",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             },
             {
@@ -229,6 +273,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "603635bc02a03c3ab4ed8c37",
                 "status": "failed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22231",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -236,6 +281,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "603635bc02a03c3ab4ed8c37",
                 "status": "failed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22232",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             },
             {
@@ -243,6 +289,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "6036317406689c4a72b54d4c",
                 "status": "passed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22233",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -250,6 +297,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "6036317406689c4a72b54d4c",
                 "status": "passed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22234",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             },
             {
@@ -257,6 +305,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "603630c11d855274b00c2a21",
                 "status": "failed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22235",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -264,6 +313,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "603630c11d855274b00c2a21",
                 "status": "failed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22236",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             },
             {
@@ -271,6 +321,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "60363063725937cae2eebfc3",
                 "status": "passed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22237",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -278,6 +329,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "60363063725937cae2eebfc3",
                 "status": "passed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22238",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             },
             {
@@ -285,6 +337,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "60362f73e20439143b65b8c7",
                 "status": "failed",
                 "test_id": "AZURE_TEST_229",
+                "snapshot_id" : "AZRSNP_22239",
                 "title": "Azure Network Security Group (NSG) allows SSH traffic from internet on port 22"
             },
             {
@@ -292,6 +345,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
                 "result_id": "60362f73e20439143b65b8c7",
                 "status": "passed",
                 "test_id": "AZURE_TEST_230",
+                "snapshot_id" : "AZRSNP_22240",
                 "title": "Azure Network Security Group (NSG) allows traffic from internet on port 3389"
             }
         ],
@@ -311,7 +365,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_path=%2Fsubscriptions%2Fd34d6141-7a19-4458-b0dd-f038bb7760c1%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FvirtualNetworks%2FNetworkWatcherRG-vnet&resource_collection_name=microsoftnetwork' -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_path=%2Fsubscriptions%2Fd34d6562-8a12-4458-ba02-b12345f45gdd%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FvirtualNetworks%2FNetworkWatcherRG-vnet&resource_collection_name=microsoftnetwork' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
 - **URL:** https://portal.prancer.io/customer1/api/resource/detail
@@ -324,7 +378,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_pa
 - **Param:**
 ```
 {
-    "resource_path" : "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+    "resource_path" : "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
     "resource_collection_name" : "microsoftnetwork"
 }
 ```
@@ -340,14 +394,14 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_pa
 {
     "data": {
         "etag": "W/\"7174e4bf-0571-4710-8791-343c365576ce\"",
-        "id": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+        "id": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
         "location": "eastus2",
         "name": "automation-linux-nsg",
         "properties": {
             "defaultSecurityRules": [
                 {
                     "etag": "W/\"7174e4bf-0571-4710-8791-343c365576ce\"",
-                    "id": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg/defaultSecurityRules/AllowVnetInBound",
+                    "id": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg/defaultSecurityRules/AllowVnetInBound",
                     "name": "AllowVnetInBound",
                     "properties": {
                         "access": "Allow",
@@ -400,7 +454,8 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/testcase?result_id
 ```
 {
     "result_id": "5f97f7dcd94883dff55040e7",
-    "test_id": "AZURE_TEST_229"
+    "test_id": "AZURE_TEST_229",
+    "snapshot_id" : "AZRSNP_22229"
 }
 ```
 - **Explanation:**
@@ -409,6 +464,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/testcase?result_id
 
     - **result_id:** Result Id from which you want to read the testcases.
     - **test_id:** Testcase Id of perticular test from all testcases, it comes from response of Resource - Dashboard API.
+    - **snapshot_id:** Snapshot Id for which the testcase was run.
 
 **Response:**
 ```
@@ -428,7 +484,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/testcase?result_id
             {
                 "collection": "microsoftnetwork",
                 "id": "AZRSNP_23118",
-                "path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+                "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
                 "reference": "whitekite",
                 "source": "azure_crawler_structure",
                 "structure": "azure"
@@ -499,12 +555,12 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/configuration/drif
     "data": {
         "new_resource": {
             "etag": "W/\"7174e4bf-0571-4710-8791-343c365576ce\"",
-            "id": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+            "id": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
             ...
         },
         "old_resource": {
             "etag": "W/\"57b928f0-c837-4552-9e93-9a7540a4ed1c\"",
-            "id": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+            "id": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
             "location": "eastus2",
             "name": "automation-linux-nsg",
             ...

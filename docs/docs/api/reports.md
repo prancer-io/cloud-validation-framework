@@ -31,7 +31,8 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
     "status": "failed",
     "count" : 3,
     "index" : 0,
-    "provider_type" : "cloud"
+    "provider_type" : "cloud",
+    "search" : <search_text>
 }
 ```
 - **Explanation:**
@@ -50,6 +51,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
     - **services:** A valid list of services for filter the services. See [Default - tags](/prancer-ent-apis/tags) API for get valid services list.
     - **status:** Filter the reports by report's result. ( "Passed" or "Failed" )
     - **provider_type:** Filter the reports by provider types. Valid values for provider types are `cloud` and `iac`. If the provider type not pass in request parameter then it will return report of last compliance run.
+    - **search:** Search reports by title of the report.
 
  **NOTE:** 
  - `index` and `count` parameters are useful for pagination. If no index pass then it will return all the records.
@@ -86,7 +88,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
                         {
                             "collection": "microsoftnetwork",
                             "id": "AZRSNP_23113",
-                            "path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
+                            "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/nsg-test-456",
                             "reference": "whitekite",
                             "region": "eastus",
                             "source": "azure_crawler_structure",
@@ -146,7 +148,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
                         {
                             "collection": "microsoftnetwork",
                             "id": "AZRSNP_23114",
-                            "path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/uxmachine-nsg",
+                            "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/uxmachine-nsg",
                             "reference": "whitekite",
                             "region": "eastus2",
                             "source": "azure_crawler_structure",
@@ -206,7 +208,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
                         {
                             "collection": "microsoftnetwork",
                             "id": "AZRSNP_23112",
-                            "path": "/subscriptions/d34d6141-7a19-4458-b0dd-f038bb7760c1/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
+                            "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
                             "reference": "whitekite",
                             "region": "eastus2",
                             "source": "azure_crawler_structure",
