@@ -32,7 +32,7 @@ class AWSTemplateParser(TemplateParser):
         takes the yaml file path and converts the returns the converted JSON object
         """
         template_json = None
-        with open(yaml_file) as yml_file:
+        with open(yaml_file, encoding="utf-8") as yml_file:
             try:
                 template_json = json.loads(to_json(yml_file.read()))
             except:
