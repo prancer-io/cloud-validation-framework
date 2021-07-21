@@ -35,7 +35,7 @@ class AWSTemplateProcessor(TemplateProcessor):
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] in ["json","yaml"]:
             template_json = None
             if file_path.endswith(".yaml") and exists_file(file_path):
-                with open(file_path) as yml_file:
+                with open(file_path, encoding="utf-8") as yml_file:
                     try:
                         template_json = json.loads(to_json(yml_file.read()))
                     except:
