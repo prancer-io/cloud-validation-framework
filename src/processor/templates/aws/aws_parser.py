@@ -3,17 +3,14 @@ Define an interface for parsing aws template and its parameter files.
 """
 import json
 import copy
-import re
-import os
-import yaml
-from cfn_flip import flip, to_yaml, to_json
-from processor.helper.json.json_utils import json_from_file, save_json_to_file
+from cfn_flip import to_json
+from processor.helper.json.json_utils import json_from_file
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
-from processor.helper.yaml.yaml_utils import yaml_from_file
 from processor.templates.base.template_parser import TemplateParser
 
 logger = getlogger()
+allowed_extensions = ["json","yaml", "template", "txt"]
 
 class AWSTemplateParser(TemplateParser):
     """
@@ -32,7 +29,7 @@ class AWSTemplateParser(TemplateParser):
         takes the yaml file path and converts the returns the converted JSON object
         """
         template_json = None
-        with open(yaml_file) as yml_file:
+        with open(yaml_file, encoding="utf-8") as yml_file:
             try:
                 template_json = json.loads(to_json(yml_file.read()))
             except:
@@ -48,7 +45,8 @@ class AWSTemplateParser(TemplateParser):
         template_json = None
         if self.get_template().endswith(".yaml") and exists_file(self.get_template()):
             template_json = self.yaml_to_json(self.get_template())
-        elif self.get_template().endswith(".json"):
+        elif self.get_template().endswith(".json") or self.get_template().endswith(".template") or \
+                self.get_template().endswith(".txt") :
             template_json = json_from_file(self.get_template(), object_pairs_hook=None)
             # template_json = self.json_from_file(self.get_template())
 
@@ -169,3 +167,11 @@ class AWSTemplateParser(TemplateParser):
             value = self.process_resource(value)
         
         return value
+
+if __name__ == '__main__':
+    parameter_file = None
+    template_file = '/tmp/templates/SQS_With_CloudWatch_Alarms.template'
+    aws_template_parser = AWSTemplateParser(template_file, parameter_file=parameter_file)
+    template_json = aws_template_parser.parse()
+    print(json.dumps(template_json, indent=2))
+
