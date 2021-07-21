@@ -1,0 +1,6 @@
+2020-01-15 04:46:15,102(apicontroller: 590) - Remote: 127.0.0.1
+2020-01-15 04:46:15,125(apicontroller: 371) - Host: portal.prancer.dev, Method: GET vault API
+2020-01-15 04:46:15,147(apicontroller: 449) - Method: GET, ImmutableMultiDict([('key_name', 'prancer-web-config-DB-URL')])
+2020-01-15 04:47:45,148(http_utils:  75) - HTTP GET https://secrets-kv-whitekite.vault.azure.net/secrets/prancer-web-config-DB-URL-CUSTOMER?api-version=7.0  .......
+2020-01-15 04:47:45,277(http_utils:  45) - GET status: 200
+2020-01-15 04:47:45,296(restapi_azure: 214) - Get Id status: 200
