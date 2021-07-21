@@ -2,7 +2,7 @@ import json
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import json_from_file
 from processor.template_processor.base.base_template_processor import TemplateProcessor
-from processor.templates.aws.aws_parser import AWSTemplateParser
+from processor.templates.aws.aws_parser import AWSTemplateParser, allowed_extensions
 from processor.helper.file.file_utils import exists_file
 from cfn_flip import flip, to_yaml, to_json
 
@@ -12,7 +12,6 @@ class AWSTemplateProcessor(TemplateProcessor):
     """
     Base Template Processor for process template 
     """
-
     def __init__(self, node, **kwargs):
         super().__init__(node, tosave=False, **kwargs)
     
@@ -20,7 +19,8 @@ class AWSTemplateProcessor(TemplateProcessor):
         """
         check for valid parameter file for parse cloudformation template
         """
-        if len(file_path.split(".")) > 0 and file_path.split(".")[-1] in ["json","yaml"]:
+        file_parts = file_path.split(".")
+        if len(file_parts) > 0 and file_parts[-1] in allowed_extensions:
             json_data = json_from_file(file_path)
             if json_data and isinstance(json_data, list):
                 parameter = json_data[0]
@@ -32,7 +32,8 @@ class AWSTemplateProcessor(TemplateProcessor):
         """
         check for valid template file for parse cloudformation template
         """
-        if len(file_path.split(".")) > 0 and file_path.split(".")[-1] in ["json","yaml"]:
+        file_parts = file_path.split(".")
+        if len(file_parts) > 0 and file_parts[-1] in allowed_extensions:
             template_json = None
             if file_path.endswith(".yaml") and exists_file(file_path):
                 with open(file_path) as yml_file:
@@ -40,10 +41,16 @@ class AWSTemplateProcessor(TemplateProcessor):
                         template_json = json.loads(to_json(yml_file.read()))
                     except:
                         pass
-            elif file_path.endswith(".json"):
+            elif file_path.endswith(".json") or file_path.endswith(".template") or file_path.endswith(".txt") :
                 template_json = json_from_file(file_path)
 
             if template_json and "AWSTemplateFormatVersion" in template_json:
+                return True
+        return False
+
+    def is_valid_file_extension(self, file_path):
+        for extn in allowed_extensions:
+            if file_path.endswith(extn):
                 return True
         return False
 
@@ -57,7 +64,7 @@ class AWSTemplateProcessor(TemplateProcessor):
             template_file = None
             for path in paths:
                 file_path = ('%s/%s' % (self.dir_path, path)).replace("//", "/")
-                if file_path.endswith("json") and self.is_parameter_file(file_path):
+                if self.is_valid_file_extension(file_path) and self.is_parameter_file(file_path):
                     parameter_file = file_path
                 else:
                     template_file = file_path
