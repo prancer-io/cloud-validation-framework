@@ -13,7 +13,7 @@ python-dateutil==2.7.5
 requests==2.25.1
 ply==3.10
 pyhcl==0.4.4
-python-hcl2==1.0.0
+python-hcl2==3.0.1
 google-api-python-client==1.7.8
 google-auth==1.6.3
 google-auth-httplib2==0.0.3
@@ -24,4 +24,4 @@ dnspython==1.16.0
 Jinja2==2.11.3
 ruamel.yaml==0.16.12
 kubernetes==12.0.1
-commentjson==0.9.0
+lark-parser==0.10.1

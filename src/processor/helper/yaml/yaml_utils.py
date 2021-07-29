@@ -23,7 +23,7 @@ def save_yaml_to_file(indata, outfile, indent=None):
 def yaml_from_string(yaml_str):
     """Get dict from the string in yaml format."""
     try:
-        yamldata = yaml.load(yaml_str)
+        yamldata = yaml.load(yaml_str, Loader=FullLoader)
         return yamldata
     except:
         print('Failed to load yaml data: %s' % yaml_str)
@@ -39,7 +39,7 @@ def yaml_from_file(yamlfile, loader=None):
                 if loader:
                     yamldata = yaml.load(infile, Loader=loader)
                 else:
-                    yamldata = yaml.load(infile)
+                    yamldata = yaml.load(infile, Loader=FullLoader)
     except Exception as ex:
         print('Failed to load yaml from file: %s, exception: %s' % (yamlfile, ex))
     return yamldata
