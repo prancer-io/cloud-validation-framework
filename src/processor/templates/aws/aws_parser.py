@@ -21,7 +21,12 @@ class AWSTemplateParser(TemplateParser):
         self.mappings = {}
         self.intrinsic_functions = {
             "FindInMap" : self.handle_find_in_map,
-            "Join" : self.handle_join
+            "Join" : self.handle_join,
+            "If": self.handle_if,
+            "Equals": self.handle_equals,
+            "And": self.handle_and,
+            "Or": self.handle_or,
+            "Not": self.handle_not
         }
     
     def yaml_to_json(self, yaml_file):
@@ -50,7 +55,7 @@ class AWSTemplateParser(TemplateParser):
             template_json = json_from_file(self.get_template(), object_pairs_hook=None)
             # template_json = self.json_from_file(self.get_template())
 
-        logger.info(self.get_template())
+        self.template_json = template_json
         if not template_json:
             logger.error("Invalid path! No file found at : %s", self.get_template())
             return gen_template_json
@@ -70,7 +75,6 @@ class AWSTemplateParser(TemplateParser):
                         for param in parameters:
                             if "ParameterKey" in param and "ParameterValue" in param:
                                 self.gparams[param["ParameterKey"]] = { "Default" : param["ParameterValue"] } 
-                        logger.info(self.gparams)
             if 'Mappings' in template_json:
                 self.mappings = template_json['Mappings']
             if 'Resources' in template_json:
@@ -169,10 +173,136 @@ class AWSTemplateParser(TemplateParser):
         
         return value
 
+    def handle_if(self, value):
+        """
+        perform the 'If' operation on values
+        """
+        condition, true_value, false_value = value["Fn::If"]
+        new_condition = self.handle_condition(condition)
+        true_value = self.process_resource(true_value)
+        false_value = self.process_resource(false_value)
+
+        
+        if new_condition != condition:
+            if new_condition == True:
+                return true_value
+            elif new_condition == False:
+                return false_value
+        else:
+            return value
+
+    def handle_equals(self, value):
+        """
+        Handle equals between 2 values
+        """
+        first_value, second_value = value.get("Fn::Equals")
+
+        updated_first_value = self.process_handler_value(first_value)
+        updated_second_value = self.process_handler_value(second_value)
+        
+
+        if updated_first_value == updated_second_value:
+            return True
+        else:
+            return False
+    
+    def handle_and(self, value):
+        """
+        Handle AND condition within list
+        """
+        condition_list = value["Fn::And"]
+        updated_condition_list = []
+        for condition in condition_list:
+            updated_condition = self.process_handler_value(condition)
+            updated_condition_list.append(updated_condition)
+            if not isinstance(updated_condition, bool):
+                return value
+
+        return all(updated_condition_list)
+    
+    def handle_or(self, value):
+        """
+        Handle Or condition within list
+        """
+        condition_list = value["Fn::Or"]
+        updated_condition_list = []
+        for condition in condition_list:
+            updated_condition = self.process_handler_value(condition)
+            updated_condition_list.append(updated_condition)
+            if not isinstance(updated_condition, bool):
+                return value
+
+        return any(updated_condition_list)
+    
+        
+    def handle_not(self, value):
+        """
+        Handle Not condition
+        """
+        not_value = value["Fn::Not"][0]
+        updated_not_value = self.process_handler_value(not_value)
+
+        if isinstance(updated_not_value, bool):
+            return not updated_not_value
+        else:
+            return value
+    
+    def handle_condition(self, value):
+        """
+        handle "condition" by getting reference from 
+        """
+        resource_condition = self.template_json.get("Conditions")
+        condition = resource_condition.get(value)
+        if condition:
+            updated_condition = self.process_function(condition)
+            if condition != updated_condition:
+                return updated_condition
+            else:
+                return value
+        else:
+            return value
+
+    def process_handler_value(self, value):
+        def all_keys(dict_obj):
+            ''' This function generates all keys of
+                a nested dictionary. 
+            '''
+            # Iterate over all keys of the dictionary
+            for key , value in dict_obj.items():
+                yield key
+                # If value is of dictionary type then yield all keys
+                # in that nested dictionary
+                if isinstance(value, dict):
+                    for k in all_keys(value):
+                        yield k
+        updated_value = value
+        if isinstance(value, dict):
+            process_function_value = False
+            for key in value.keys():
+                if key in ["Ref", "Fn::If", "Fn::Equals", "Fn:And", "Fn::Not", "Fn::Or"]:
+                    process_function_value = True
+            
+            if process_function_value:
+                updated_value = self.process_function(value)
+            else:
+                updated_value = self.process_resource(value)
+            
+            if value == updated_value:
+                for key in all_keys(value):
+                    if key in ["Ref", "Fn::If", "Fn::Equals", "Fn:And", "Fn::Not", "Fn::Or"]:
+                        return value
+        
+        elif isinstance(value, list):
+            updated_value = self.process_resource(value)
+        
+        else:
+            updated_value = value
+        
+        return updated_value
+
 if __name__ == '__main__':
     parameter_file = None
     template_file = '/tmp/templates/SQS_With_CloudWatch_Alarms.template'
     aws_template_parser = AWSTemplateParser(template_file, parameter_file=parameter_file)
     template_json = aws_template_parser.parse()
     print(json.dumps(template_json, indent=2))
-
