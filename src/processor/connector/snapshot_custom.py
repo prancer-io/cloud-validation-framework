@@ -119,17 +119,21 @@ from processor.connector.git_connector.git_processor import git_clone_dir
 logger = getlogger()
 
 def convert_to_json(file_path, node_type):
+    contentType = 'json'
     json_data = {}
     if node_type == 'json':
         json_data = json_from_file(file_path, escape_chars=['$'])
+        contentType = 'json'
     elif node_type == 'terraform':
+        contentType = 'terraform'
         with open(file_path, 'r') as fp:
             json_data = hcl.load(fp)
     elif node_type == 'yaml' or node_type == 'yml':
+        contentType = 'yaml'
         json_data = yaml_from_file(file_path)
     else:
         logger.error("Snapshot error type:%s and file: %s", node_type, file_path)
-    return json_data
+    return contentType, json_data
 
 
 def get_custom_data(snapshot_source, tabs=2):
@@ -182,10 +186,11 @@ def get_node(repopath, node, snapshot, ref, connector):
     logger.info('\t\t\tFile: %s', file_path)
     if exists_file(file_path):
         node_type = node['type'] if 'type' in node and node['type'] else 'json'
-        json_data = convert_to_json(file_path, node_type)
+        contentType, json_data = convert_to_json(file_path, node_type)
         # logger.info('type: %s, json:%s', node_type, json_data)
         # json_data = json_from_file(file_path)
         if json_data:
+            db_record['contentType'] = contentType
             db_record['json'] = json_data
             data_str = json.dumps(json_data)
             db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
@@ -225,12 +230,13 @@ def get_all_nodes(repopath, node, snapshot, ref, connector):
         for filename in glob.glob('%s/*.json' % file_path.replace('//', '/')):
             parts = filename.rsplit('/', 1)
             path = '%s/%s' % (node['path'], parts[-1])
-            json_data = convert_to_json(filename, node_type)
+            contentType, json_data = convert_to_json(filename, node_type)
             logger.info('type: %s, json:%s', node_type, json_data)
             if json_data:
                 db_record = copy.deepcopy(d_record)
                 db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
                 db_record['path'] = path.replace('//', '/')
+                db_record['contentType'] = contentType
                 db_record['json'] = json_data
                 data_str = json.dumps(json_data)
                 db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
@@ -304,7 +310,7 @@ def populate_custom_snapshot(snapshot, container=None):
                     elif 'masterSnapshotId' in node:
                         snapshot_data = template_processor.populate_all_template_snapshot()
                 elif 'paths' in node:
-                    logger.error("ERROR: Invalid json : `%s` is not a valid node type." % (node_type))
+                    logger.error("ERROR: Invalid json : `%s` is not a valid node type." % node_type)
                 else:
                     # logger.debug(node)
                     # data = get_node(repopath, node, snapshot_source, brnch)

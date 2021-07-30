@@ -14,7 +14,7 @@ class AWSTemplateProcessor(TemplateProcessor):
     """
     def __init__(self, node, **kwargs):
         super().__init__(node, tosave=False, **kwargs)
-    
+
     def is_parameter_file(self, file_path):
         """
         check for valid parameter file for parse cloudformation template
@@ -39,10 +39,12 @@ class AWSTemplateProcessor(TemplateProcessor):
                 with open(file_path, encoding="utf-8") as yml_file:
                     try:
                         template_json = json.loads(to_json(yml_file.read()))
+                        self.contentType = 'yaml'
                     except:
                         pass
-            elif file_path.endswith(".json") or file_path.endswith(".template") or file_path.endswith(".txt") :
+            elif file_path.endswith(".json") or file_path.endswith(".template") or file_path.endswith(".txt"):
                 template_json = json_from_file(file_path)
+                self.contentType = 'json'
 
             if template_json and "AWSTemplateFormatVersion" in template_json:
                 return True
@@ -77,4 +79,5 @@ class AWSTemplateProcessor(TemplateProcessor):
                 else:
                     aws_template_parser = AWSTemplateParser(template_file)
                 template_json = aws_template_parser.parse()
+                self.contentType = aws_template_parser.contentType
         return template_json

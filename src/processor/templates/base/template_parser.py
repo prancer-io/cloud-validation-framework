@@ -25,6 +25,7 @@ class TemplateParser:
         self.tosave = tosave
         self.parameter_file = kwargs.get("parameter_file", None)
         self.gparams = {}
+        self.contentType = 'json'
 
     def get_template(self):
         """

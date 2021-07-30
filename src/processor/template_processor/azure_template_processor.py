@@ -18,7 +18,7 @@ class AzureTemplateProcessor(TemplateProcessor):
 
     def __init__(self, node, **kwargs):
         super().__init__(node, tosave=False, **kwargs)
-    
+
     def invoke_az_cli(self, args_str):
         """ 
         Invoke azure cli command
@@ -125,6 +125,7 @@ class AzureTemplateProcessor(TemplateProcessor):
                         
                         azure_template_parser = AzureTemplateParser(template_file_path, parameter_file=self.parameter_files)
                         template_json = azure_template_parser.parse()
+                        self.contentType = azure_template_parser.contentType
                     except:
                         template_json = None
         return template_json
