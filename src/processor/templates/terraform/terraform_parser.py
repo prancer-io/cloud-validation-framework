@@ -165,6 +165,7 @@ class TerraformTemplateParser(TemplateParser):
         json_data = None
         if len(self.template_file.split(".")) > 0 and self.template_file.split(".")[-1]=="tf":
             json_data = hcl_to_json(self.template_file)
+            self.contentType = 'terraform'
         elif len(self.template_file.split(".")) > 1 and ".tf.json" in self.template_file:
             json_data = json_from_file(self.template_file, escape_chars=['$'])
         return json_data

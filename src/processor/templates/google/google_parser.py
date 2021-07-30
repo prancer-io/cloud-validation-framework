@@ -67,6 +67,7 @@ class GoogleTemplateParser(TemplateParser):
         generate the template json from template and parameter files
         """
         template_json = self.yaml_to_json(self.get_template())
+        self.contentType = 'yaml'
         gen_template_json = None
         if template_json:
             gen_template_json = copy.deepcopy(template_json)

@@ -18,7 +18,7 @@ def convert_terraform_to_json(terraform, output=None):
         if not output:
             parts = terraform.rsplit('.', -1)
             output = '%s.json' % parts[0]
-        json_data = convert_to_json(terraform, 'terraform')
+        _, json_data = convert_to_json(terraform, 'terraform')
         if json_data:
             save_json_to_file(json_data, output)
 

@@ -123,6 +123,7 @@ def get_node(awsclient, node, snapshot_source, snapshot):
         "structure": "aws",
         "error": None,
         "reference": "",
+        "contentType": "json",
         "source": parts[0],
         "path": '',
         "timestamp": int(time.time() * 1000),
@@ -278,6 +279,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
     d_record = {
         "structure": "aws",
         "reference": "",
+        "contentType": "json",
         "source": parts[0],
         "path": '',
         "timestamp": int(time.time() * 1000),

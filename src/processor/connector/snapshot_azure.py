@@ -69,6 +69,7 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
     d_record = {
         "structure": "azure",
         "reference": sub_name,
+        "contentType": "json",
         "source": parts[0],
         "path": '',
         "timestamp": int(time.time() * 1000),
@@ -131,6 +132,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
     db_record = {
         "structure": "azure",
         "reference": sub_name,
+        "contentType": "json",
         "source": parts[0],
         "path": '',
         "timestamp": int(time.time() * 1000),
