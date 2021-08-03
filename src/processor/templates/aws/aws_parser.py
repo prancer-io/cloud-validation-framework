@@ -26,7 +26,11 @@ class AWSTemplateParser(TemplateParser):
             "Equals": self.handle_equals,
             "And": self.handle_and,
             "Or": self.handle_or,
-            "Not": self.handle_not
+            "Not": self.handle_not,
+            "GetAtt": self.handle_get_att,
+            "Select": self.handle_select,
+            "Split": self.handle_split,
+            "Sub": self.handle_sub,
         }
     
     def yaml_to_json(self, yaml_file):
@@ -256,6 +260,62 @@ class AWSTemplateParser(TemplateParser):
         else:
             return value
     
+    def handle_get_att(self, value):
+        """
+        get attribute from local resource and update property
+        """
+        resource_name, attr_name = value["Fn::GetAtt"]
+        attr_path_list = attr_name.split(".")
+        for resource in self.template_json.get("Resources", []):
+            if resource.get("Name") == resource_name:
+                resource_properties = resource.get("Properties",{})
+                resource_properties = self.process_handler_value(resource_properties)
+                for attr in attr_path_list:
+                    resource_properties = resource_properties.get(attr,{})
+                    if resource_properties == None:
+                        return value
+                return resource_properties
+        return value
+    
+    def handle_select(self, value):
+        """
+        select indexed value from list and update property
+        """
+        index, list_value = value["Fn::Select"]
+        index = int(index)
+        list_value = self.process_handler_value(list_value)
+        if isinstance(list_value, list) and len(list_value)-1 >= index:
+            return list_value[index]
+        else:
+            return value
+    
+    def handle_split(self, value):
+        """
+        split string and return list of values
+        """
+        delimiter, source_string = value["Fn::Split"]
+        source_string = self.process_handler_value(source_string)
+        if isinstance(source_string, str):
+            return source_string.split(delimiter)
+        else:
+            return value
+    
+    def handle_sub(self, value):
+        """
+        substitute dict value in string
+        """
+        if isinstance(value["Fn::Sub"], list):
+            string, sub_value_dict = value["Fn::Sub"]
+            for key, val in sub_value_dict.items():
+                val = self.process_handler_value(val)
+                if string.find("${%s}"%(key)) != -1:
+                    string = string.replace("${%s}"%(key),val)
+                else:
+                    return value
+            return string
+        else:
+            return value
+    
     def handle_condition(self, value):
         """
         handle "condition" by getting reference from 
@@ -288,7 +348,7 @@ class AWSTemplateParser(TemplateParser):
         if isinstance(value, dict):
             process_function_value = False
             for key in value.keys():
-                if key in ["Ref", "Fn::If", "Fn::Equals", "Fn:And", "Fn::Not", "Fn::Or"]:
+                if key in ["Ref", "Fn::If", "Fn::Equals", "Fn:And", "Fn::Not", "Fn::Or", "Fn::Split", "Fn::Select", "Fn::GetAtt", "Fn::Sub"]:
                     process_function_value = True
             
             if process_function_value:
@@ -296,11 +356,6 @@ class AWSTemplateParser(TemplateParser):
             else:
                 updated_value = self.process_resource(value)
             
-            if value == updated_value:
-                for key in all_keys(value):
-                    if key in ["Ref", "Fn::If", "Fn::Equals", "Fn:And", "Fn::Not", "Fn::Or"]:
-                        return value
-        
         elif isinstance(value, list):
             updated_value = self.process_resource(value)
         
