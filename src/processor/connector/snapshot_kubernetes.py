@@ -262,6 +262,7 @@ def node_db_record(snapshot,node):
     data = {
     "structure":"kubernetes",
     "reference": snapshot['namespace'],
+    "contentType": "json",
     "source": snapshot['source'],
     "paths": get_field_value(node,"paths"),
     "timestamp": int(time.time() * 1000),

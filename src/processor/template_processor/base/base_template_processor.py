@@ -39,6 +39,7 @@ class TemplateProcessor:
 
     def __init__(self, node, **kwargs):
         self.node = node
+        self.contentType = 'json'
         self.container = kwargs.get("container")
         self.dbname = kwargs.get("dbname")
         self.snapshot_source = kwargs.get("snapshot_source")
@@ -81,6 +82,7 @@ class TemplateProcessor:
             "structure": self.connector_data["type"],
             "error": self.processed_template['error'] if 'error' in self.processed_template else None,
             "reference": ref,
+            "contentType": self.contentType,
             "source": parts[0],
             "paths": self.node["paths"],
             "timestamp": int(time.time() * 1000),
@@ -170,6 +172,7 @@ class TemplateProcessor:
         file_type = file_path.split(".")[-1]
         file_name = file_path.split("/")[-1].split(".")[0]
         if file_type == "yaml" and file_name == "Chart" :
+            self.contentType = "yaml"
             helm_template = HelmTemplateParser(file_path)
             return helm_template.validate(file_path)
         return False
@@ -180,6 +183,7 @@ class TemplateProcessor:
         result = os.system('%s template %s > %s/%s_prancer_helm_template.yaml' % (helm_path, dir_path,dir_path,helm_source_dir_name))
         paths = self.break_multiple_yaml_file('%s/%s_prancer_helm_template.yaml' % (dir_path,helm_source_dir_name))
         # os.remove('%s/Chart.yaml' % dir_path)
+        self.contentType = "yaml"
         return paths
         
         # helm_template = HelmTemplateParser()   
@@ -216,6 +220,7 @@ class TemplateProcessor:
                 multiple_source = '%s/%s.yaml' % (self.dir_path,(self.paths[0]).split(MultipleConvertionKey)[0])
                 if exists_file(multiple_source):
                     self.break_multiple_yaml_file(multiple_source)
+                    self.contentType = "yaml"
 
             if is_helm_chart_convertion(self.paths[0]):
                 helm_dir = '%s/%s' % (self.dir_path,self.paths[0].rpartition("/")[0]) 

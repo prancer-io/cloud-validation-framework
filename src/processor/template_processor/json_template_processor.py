@@ -49,4 +49,5 @@ class JsonTemplateProcessor(TemplateProcessor):
             self.template_file = template_file_path
             if template_file_path:
                 template_json = json_from_file(file_path)
+                self.contentType = 'json'
         return template_json

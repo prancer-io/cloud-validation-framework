@@ -33,6 +33,7 @@ class AzureTemplateParser(TemplateParser):
         """
         stars = '*' * 25
         template_json = json_from_file(self.get_template())
+        self.contentType = 'json'
         self.replace_spacial_characters(template_json)
         gen_template_json = None
         if template_json:
