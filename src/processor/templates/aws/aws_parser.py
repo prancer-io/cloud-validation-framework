@@ -46,10 +46,18 @@ class AWSTemplateParser(TemplateParser):
         if self.get_template().endswith(".yaml") and exists_file(self.get_template()):
             template_json = self.yaml_to_json(self.get_template())
             self.contentType = 'yaml'
-        elif self.get_template().endswith(".json") or self.get_template().endswith(".template") or \
-                self.get_template().endswith(".txt") :
+        elif self.get_template().endswith(".json") :
             template_json = json_from_file(self.get_template(), object_pairs_hook=None)
-            # template_json = self.json_from_file(self.get_template())
+        elif self.get_template().endswith(".template") or self.get_template().endswith(".txt"):
+            template_json = json_from_file(self.get_template(), object_pairs_hook=None)
+            if template_json:
+                self.contentType = "json"
+            else:
+                try:
+                    template_json = self.yaml_to_json(self.get_template())
+                    self.contentType = 'yaml'
+                except:
+                    pass
 
         logger.info(self.get_template())
         if not template_json:
