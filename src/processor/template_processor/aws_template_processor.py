@@ -42,9 +42,21 @@ class AWSTemplateProcessor(TemplateProcessor):
                         self.contentType = 'yaml'
                     except:
                         pass
-            elif file_path.endswith(".json") or file_path.endswith(".template") or file_path.endswith(".txt"):
+            elif file_path.endswith(".json"):
                 template_json = json_from_file(file_path)
                 self.contentType = 'json'
+            
+            elif file_path.endswith(".template") or file_path.endswith(".txt"):
+                template_json = json_from_file(file_path)
+                if template_json:
+                    self.contentType = 'json'
+                else:
+                    with open(file_path, encoding="utf-8") as yml_file:
+                        try:
+                            template_json = json.loads(to_json(yml_file.read()))
+                            self.contentType = 'yaml'
+                        except:
+                            pass
 
             if template_json and "AWSTemplateFormatVersion" in template_json:
                 return True
