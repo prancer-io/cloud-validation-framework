@@ -265,6 +265,8 @@ def generate_container_mastersnapshots_database(container):
     dbname = config_value(DATABASE, DBNAME)
     collection = config_value(DATABASE, collectiontypes[MASTERSNAPSHOT])
     snp_collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
+    generate_crawler_run_output(container)
+    
     qry = {'container': container}
     sort = [sort_field('timestamp', False)]
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
@@ -318,9 +320,7 @@ def generate_container_mastersnapshots_database(container):
                     else:
                         logger.error("No master testcase found for %s " % snapshot)
     except Exception as e:
-        generate_crawler_run_output(container)
         raise e
-    generate_crawler_run_output(container)
     return snapshots_status
 
 def set_snapshot_activate_and_validate_data(snapshot_data, snapshot_doc_data):

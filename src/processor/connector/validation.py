@@ -15,7 +15,7 @@ from processor.helper.config.config_utils import config_value, get_test_json_dir
     DATABASE, DBNAME, SINGLETEST, framework_dir
 from processor.database.database import create_indexes, COLLECTION,\
     sort_field, get_documents
-from processor.reporting.json_output import dump_output_results
+from processor.reporting.json_output import dump_output_results, update_output_testname
 from processor.helper.config.rundata_utils import get_dbtests, get_from_currentdata
 from processor.connector.populate_json import pull_json_data
 
@@ -139,6 +139,10 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
         current_snapshot_status = snapshot_status[test_json_data['snapshot']]
     else:
         current_snapshot_status = {}
+    
+    skip = 0
+    limit = 10
+    dumpsize = 10
     for testset in testsets:
         version = get_field_value(testset, 'version')
         testcases = get_field_value(testset, 'cases')
@@ -155,6 +159,17 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
             results = run_validation_test(version, container, dbname, collection_data,
                                              testcase)
             resultset.extend(results)
+            if not filesystem:
+                if len(resultset) >= limit:
+                    dump_output_results(resultset[skip:limit], container, test_file="", snapshot="", filesystem=False)
+                    skip = limit
+                    limit = skip + dumpsize
+        
+        if not filesystem and len(resultset) >= (skip+1):
+            dump_output_results(resultset[skip:], container, test_file="", snapshot="", filesystem=False)
+            skip = len(resultset)
+            limit = skip + dumpsize
+        
     return resultset
 
 
@@ -296,21 +311,22 @@ def run_container_validation_tests_database(container, snapshot_status=None):
             if doc['json']:
                 try:
                     snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
+                    test_file = doc['name'] if 'name' in doc else ''
+                    update_output_testname(test_file, snapshot, filesystem=False)
                     if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
                         dirpath, pull_response = pull_json_data(doc['json'])
                         if not pull_response:
                             return {}
                     resultset = run_json_validation_tests(doc['json'], container, False, dirpath=dirpath)
                     if resultset:
-                        test_file = doc['name'] if 'name' in doc else ''
-                        dump_output_results(resultset, container, test_file, snapshot, False)
+                        # dump_output_results(resultset, container, test_file, snapshot, False)
                         for result in resultset:
                             if 'result' in result:
                                 if not re.match(r'passed', result['result'], re.I):
                                     finalresult = False
                                     break
                 except Exception as e:
-                    dump_output_results([], container, "-", snapshot, False)
+                    # dump_output_results([], container, "-", snapshot, False)
                     raise e
     else:
         logger.info('No test Documents found!')
@@ -327,6 +343,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
             if test_json_data:
                 snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
                 test_file = doc['name'] if 'name' in doc else '-'
+                update_output_testname(test_file, snapshot, filesystem=False)
                 try:
                     if "connector" in test_json_data and "remoteFile" in test_json_data and test_json_data["connector"] and test_json_data["remoteFile"]:
                         dirpath, pull_response = pull_json_data(test_json_data)
@@ -349,14 +366,14 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                     # print(json.dumps(test_json_data, indent=2))
                     resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
                     if resultset:
-                        dump_output_results(resultset, container, test_file, snapshot, False)
+                        # dump_output_results(resultset, container, test_file, snapshot, False)
                         for result in resultset:
                             if 'result' in result:
                                 if not re.match(r'passed', result['result'], re.I):
                                     finalresult = False
                                     break
                 except Exception as e:
-                    dump_output_results([], container, test_file, snapshot, False)
+                    # dump_output_results([], container, test_file, snapshot, False)
                     raise e
     else:
         logger.info('No mastertest Documents found!')

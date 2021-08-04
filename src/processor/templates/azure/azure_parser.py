@@ -52,7 +52,7 @@ class AzureTemplateParser(TemplateParser):
                             else:
                                 template_json['parameters'][key]['value'] = value['value']
                         else:
-                            logger.error("From parameter %s was not replaced.", key)
+                            logger.debug("Default value is not specified for %s parameter.", key)
                 gen_template_json['parameters'] = self.gparams
             # print('%s Updated Parameters %s' % (stars, stars))
             # print(json.dumps(template_json['parameters'], indent=2))

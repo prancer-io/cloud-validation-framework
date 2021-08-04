@@ -117,6 +117,14 @@ def update_one_document(doc, collection, dbname):
     if coll and doc:
         coll.save(doc)
 
+def find_and_update_document(collection, dbname, query, update_value):
+    """ find and update single document into the collection. """
+    db = mongodb()
+    collection = get_collection(dbname, collection)
+    if collection:
+        collection.update_many(query, update_value)
+        return True
+    return False
 
 def insert_one_document(doc, collection, dbname, check_keys=True):
     """ Insert one document into the collection. """

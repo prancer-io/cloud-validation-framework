@@ -308,7 +308,13 @@ class ComparatorV01:
 
                 resultval = json_from_file('/tmp/a_%s.json' % tid)
                 if resultval and "errors" in resultval and resultval["errors"]:
-                    results.append({'eval': rule_expr, 'result': "failed", 'message': ''})
+                    if isinstance(rule_expr, list):
+                        if rule_expr[0] and "eval" in rule_expr[0]:
+                            results.append({'eval': rule_expr[0].get("eval"), 'result': "failed", 'message': ''})
+                        else:
+                            results.append({'eval': "data.rule", 'result': "failed", 'message': ''})
+                    else:
+                        results.append({'eval': rule_expr, 'result': "failed", 'message': ''})
                     self.log_compliance_info(testId)
                     logger.critical('\t\tTITLE: %s', self.testcase.get('title', ""))
                     logger.critical('\t\tDESCRIPTION: %s', self.testcase.get('description', ""))
