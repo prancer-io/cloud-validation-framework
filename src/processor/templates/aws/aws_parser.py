@@ -267,14 +267,17 @@ class AWSTemplateParser(TemplateParser):
         resource_name, attr_name = value["Fn::GetAtt"]
         attr_path_list = attr_name.split(".")
         for resource in self.template_json.get("Resources", []):
-            if resource.get("Name") == resource_name:
-                resource_properties = resource.get("Properties",{})
-                resource_properties = self.process_handler_value(resource_properties)
-                for attr in attr_path_list:
-                    resource_properties = resource_properties.get(attr,{})
-                    if resource_properties == None:
-                        return value
-                return resource_properties
+            try:
+                if resource.get("Name") == resource_name:
+                    resource_properties = resource.get("Properties",{})
+                    resource_properties = self.process_handler_value(resource_properties)
+                    for attr in attr_path_list:
+                        resource_properties = resource_properties.get(attr,{})
+                        if resource_properties == None:
+                            return value
+                    return resource_properties
+            except:
+                return value
         return value
     
     def handle_select(self, value):
