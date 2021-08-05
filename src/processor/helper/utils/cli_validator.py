@@ -67,7 +67,7 @@ from processor import __version__
 import traceback
 from jinja2 import Environment, FileSystemLoader
 
-from processor.reporting.json_output import create_output_entry
+from processor.reporting.json_output import create_output_entry, dump_output_results
 
 
 def set_customer(cust=None):
@@ -297,6 +297,8 @@ Runs the prancer framework based on the configuration files available in collect
             else:
                 retval = 1
             check_send_notification(args.container, args.db)
+            if fs:
+                dump_output_results([], args.container, test_file="", snapshot="", filesystem=fs, status="Completed")
     except (Exception, KeyboardInterrupt) as ex:
         logger.error("Execution exception: %s", ex)
         print(traceback.format_exc())

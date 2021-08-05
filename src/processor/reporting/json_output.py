@@ -34,6 +34,7 @@ def create_output_entry(container, test_file="", filesystem=False):
     od["fileType"] = OUTPUT
     od["timestamp"] = int(time.time() * 1000)
     od["container"] = container
+    od["status"] = "Running"
     dblog = get_dblogger()
     od["log"] = dblog if dblog else ""
     if not filesystem:
@@ -60,7 +61,7 @@ def update_output_testname(test_file="", snapshot="", filesystem=False):
             }
         )
 
-def dump_output_results(results, container, test_file, snapshot, filesystem=True):
+def dump_output_results(results, container, test_file, snapshot, filesystem=True, status=None):
     """ Dump the report in the json format for test execution results."""
     dbname = config_value(DATABASE, DBNAME)
     collection = config_value(DATABASE, collectiontypes[OUTPUT])
@@ -87,11 +88,16 @@ def dump_output_results(results, container, test_file, snapshot, filesystem=True
             doc = json_record(container, OUTPUT, test_file, od)
             insert_one_document(doc, collection, dbname)
     else:
+        update_value = {}
+        if results:
+            update_value["$push"] = { "json.results": { "$each" : results }}
+        
+        if status:
+            update_value["$set"] = { "json.status": status }
+            
         find_and_update_document(
             collection=collection,
             dbname=dbname,
             query={"_id" : ObjectId(doc_id)},
-            update_value={
-                "$push" : { "json.results": { "$each" : results}}
-            }
+            update_value=update_value
         )
