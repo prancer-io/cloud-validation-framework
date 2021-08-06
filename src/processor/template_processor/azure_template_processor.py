@@ -18,7 +18,7 @@ class AzureTemplateProcessor(TemplateProcessor):
 
     def __init__(self, node, **kwargs):
         super().__init__(node, tosave=False, **kwargs)
-    
+
     def invoke_az_cli(self, args_str):
         """ 
         Invoke azure cli command
@@ -57,7 +57,7 @@ class AzureTemplateProcessor(TemplateProcessor):
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "json":
             json_data = json_from_file(file_path)
             if json_data and '$schema' in json_data and json_data['$schema']:
-                match =  re.match(r'.*deploymentParameters.json#', json_data['$schema'], re.I)
+                match =  re.match(r'.*/deploymentParameters.json#', json_data['$schema'], re.I)
                 return True if match else False
         return False
 
@@ -68,7 +68,7 @@ class AzureTemplateProcessor(TemplateProcessor):
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "json":
             json_data = json_from_file(file_path)
             if json_data and '$schema' in json_data and json_data['$schema']:
-                match =  re.match(r'.*deploymentTemplate.json#$', json_data['$schema'], re.I)
+                match =  re.match(r'.*/deploymentTemplate.json#$', json_data['$schema'], re.I)
                 return True if match else False
         return False
 
@@ -125,6 +125,7 @@ class AzureTemplateProcessor(TemplateProcessor):
                         
                         azure_template_parser = AzureTemplateParser(template_file_path, parameter_file=self.parameter_files)
                         template_json = azure_template_parser.parse()
+                        self.contentType = azure_template_parser.contentType
                     except:
                         template_json = None
         return template_json

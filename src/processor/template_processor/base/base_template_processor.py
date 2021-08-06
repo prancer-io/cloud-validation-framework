@@ -39,6 +39,7 @@ class TemplateProcessor:
 
     def __init__(self, node, **kwargs):
         self.node = node
+        self.contentType = 'json'
         self.container = kwargs.get("container")
         self.dbname = kwargs.get("dbname")
         self.snapshot_source = kwargs.get("snapshot_source")
@@ -56,7 +57,6 @@ class TemplateProcessor:
         self.dir_path = ""
         self.template_files = []
         self.parameter_files = []
-        self.yaml_iac_types = [ "helmChart", "yaml", "kubernetesObjectFiles"]
     
     def append_exclude_directories(self, dirs):
         """
@@ -81,6 +81,7 @@ class TemplateProcessor:
             "structure": self.connector_data["type"],
             "error": self.processed_template['error'] if 'error' in self.processed_template else None,
             "reference": ref,
+            "contentType": self.contentType,
             "source": parts[0],
             "paths": self.node["paths"],
             "timestamp": int(time.time() * 1000),
@@ -170,6 +171,7 @@ class TemplateProcessor:
         file_type = file_path.split(".")[-1]
         file_name = file_path.split("/")[-1].split(".")[0]
         if file_type == "yaml" and file_name == "Chart" :
+            self.contentType = "yaml"
             helm_template = HelmTemplateParser(file_path)
             return helm_template.validate(file_path)
         return False
@@ -180,6 +182,7 @@ class TemplateProcessor:
         result = os.system('%s template %s > %s/%s_prancer_helm_template.yaml' % (helm_path, dir_path,dir_path,helm_source_dir_name))
         paths = self.break_multiple_yaml_file('%s/%s_prancer_helm_template.yaml' % (dir_path,helm_source_dir_name))
         # os.remove('%s/Chart.yaml' % dir_path)
+        self.contentType = "yaml"
         return paths
         
         # helm_template = HelmTemplateParser()   
@@ -216,6 +219,7 @@ class TemplateProcessor:
                 multiple_source = '%s/%s.yaml' % (self.dir_path,(self.paths[0]).split(MultipleConvertionKey)[0])
                 if exists_file(multiple_source):
                     self.break_multiple_yaml_file(multiple_source)
+                    self.contentType = "yaml"
 
             if is_helm_chart_convertion(self.paths[0]):
                 helm_dir = '%s/%s' % (self.dir_path,self.paths[0].rpartition("/")[0]) 
@@ -336,9 +340,16 @@ class TemplateProcessor:
                         if self.is_helm_chart_dir(new_dir_path):
                             paths=self.process_helm_chart(dir_path)
                             template_file_list += paths
-                        elif self.node["type"] in self.yaml_iac_types and is_multiple_yaml_file(new_dir_path):
+                        elif is_multiple_yaml_file(new_dir_path):
                             paths = self.break_multiple_yaml_file(new_dir_path)
-                            template_file_list+=paths
+                            for path in paths:
+                                yaml_file = path.split("/")[-1]
+                                new_dir_path = ('%s/%s' % (dir_path, yaml_file)).replace('//', '/')
+                                new_sub_directory_path = ('%s/%s' % (sub_dir_path, yaml_file)).replace('//', '/')
+                                if self.is_template_file(new_dir_path):
+                                    template_file_list.append(new_sub_directory_path)
+                                elif self.is_parameter_file(new_dir_path):
+                                    parameter_file_list.append(new_sub_directory_path)
                         elif exists_file(new_dir_path):
                             if self.is_template_file(new_dir_path):
                                 template_file_list.append(new_sub_directory_path)

@@ -27,13 +27,15 @@ import json
 import time
 import copy
 import hashlib
+
+from bson.objectid import ObjectId
 from processor.logging.log_handler import getlogger, get_dblog_handler
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     get_container_snapshot_json_files, MASTERSNAPSHOT, SNAPSHOT,\
     collectiontypes, get_json_files, MASTERTEST, save_json_to_file, OUTPUT,\
     get_field_value_with_default
 from processor.helper.config.config_utils import config_value, framework_dir
-from processor.database.database import DATABASE, DBNAME, get_documents, sort_field, insert_one_document, update_one_document
+from processor.database.database import DATABASE, DBNAME, find_and_update_document, get_documents, sort_field, insert_one_document, update_one_document
 from processor.connector.snapshot_azure import populate_azure_snapshot
 from processor.connector.snapshot_custom import populate_custom_snapshot, get_custom_data
 from processor.connector.snapshot_aws import populate_aws_snapshot
@@ -42,7 +44,7 @@ from processor.connector.snapshot_kubernetes import populate_kubernetes_snapshot
 from processor.connector.populate_json import pull_json_data
 from processor.helper.file.file_utils import exists_file,remove_file
 
-
+doc_id = None
 logger = getlogger()
 # Different types of snapshots supported by the validation framework.
 mastersnapshot_fns = {
@@ -265,6 +267,8 @@ def generate_container_mastersnapshots_database(container):
     dbname = config_value(DATABASE, DBNAME)
     collection = config_value(DATABASE, collectiontypes[MASTERSNAPSHOT])
     snp_collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
+    generate_crawler_run_output(container)
+    
     qry = {'container': container}
     sort = [sort_field('timestamp', False)]
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
@@ -317,10 +321,11 @@ def generate_container_mastersnapshots_database(container):
                             snapshots_status[snapshot] = snapshot_file_data
                     else:
                         logger.error("No master testcase found for %s " % snapshot)
+    
+        update_crawler_run_status("Completed")
     except Exception as e:
-        generate_crawler_run_output(container)
+        update_crawler_run_status("Completed")
         raise e
-    generate_crawler_run_output(container)
     return snapshots_status
 
 def set_snapshot_activate_and_validate_data(snapshot_data, snapshot_doc_data):
@@ -369,6 +374,7 @@ def generate_crawler_run_output(container):
     This creates a entry in the output collection, whenever a crawler runs
     to fetch data. 
     """
+    global doc_id
     timestamp = int(time.time() * 1000)
     sort = [sort_field('timestamp', False)]    
     qry = {'container': container}    
@@ -407,7 +413,22 @@ def generate_crawler_run_output(container):
             "master_test_list" : master_tests, 
             "master_snapshot_list" : master_snapshots, 
             "output_type" : "crawlerrun", 
-            "results" : []
+            "results" : [],
+            "status": "Running"
         }
     }
-    insert_one_document(db_record, db_record['collection'], dbname, False)
+    doc_id = insert_one_document(db_record, db_record['collection'], dbname, False)
+
+def update_crawler_run_status(status):
+    """
+    Update the status of crawler process in database
+    """
+    output_collection = config_value(DATABASE, collectiontypes[OUTPUT])
+    dbname = config_value(DATABASE, DBNAME)
+    
+    find_and_update_document(
+        collection=output_collection,
+        dbname=dbname,
+        query={"_id" : ObjectId(doc_id)},
+        update_value={ "$set" : { "json.status": status }}
+    )

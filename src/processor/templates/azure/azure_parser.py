@@ -33,6 +33,7 @@ class AzureTemplateParser(TemplateParser):
         """
         stars = '*' * 25
         template_json = json_from_file(self.get_template())
+        self.contentType = 'json'
         self.replace_spacial_characters(template_json)
         gen_template_json = None
         if template_json:
@@ -51,7 +52,7 @@ class AzureTemplateParser(TemplateParser):
                             else:
                                 template_json['parameters'][key]['value'] = value['value']
                         else:
-                            logger.error("From parameter %s was not replaced.", key)
+                            logger.debug("Default value is not specified for %s parameter.", key)
                 gen_template_json['parameters'] = self.gparams
             # print('%s Updated Parameters %s' % (stars, stars))
             # print(json.dumps(template_json['parameters'], indent=2))

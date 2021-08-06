@@ -30,6 +30,7 @@ class KubernetesTemplateParser(TemplateParser):
         with open(file_path) as scanned_file:
             try:
                 template_json = json.loads(to_json(scanned_file.read()))
+                self.contentType = 'yaml'
             except:
                 file_name = file_path.split("/")[-1]
                 logger.error("\t\t ERROR:  please check yaml file contains correct content: %s", file_name)

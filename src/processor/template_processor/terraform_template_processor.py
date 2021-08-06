@@ -87,7 +87,7 @@ class TerraformTemplateProcessor(TemplateProcessor):
             if template_file_path:
                 terraform_template_parser = TerraformTemplateParser(template_file_path, parameter_file=parameter_file_list, connector_data=self.connector_data)
                 template_json = terraform_template_parser.parse()
-
+                self.contentType = terraform_template_parser.contentType
                 self.template_files = terraform_template_parser.template_file_list
                 self.parameter_files = terraform_template_parser.parameter_file_list
 
