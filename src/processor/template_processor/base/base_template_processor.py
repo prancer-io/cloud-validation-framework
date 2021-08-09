@@ -1,4 +1,5 @@
 import re
+import subprocess
 import time
 import os
 import hashlib
@@ -178,14 +179,23 @@ class TemplateProcessor:
 
     def process_helm_chart(self,dir_path):
         helm_source_dir_name = dir_path.rpartition("/")[-1]
-        helm_path = config_value('HELM','helmexe')
+        helm_path = self.helm_binary()
         result = os.system('%s template %s > %s/%s_prancer_helm_template.yaml' % (helm_path, dir_path,dir_path,helm_source_dir_name))
         paths = self.break_multiple_yaml_file('%s/%s_prancer_helm_template.yaml' % (dir_path,helm_source_dir_name))
         # os.remove('%s/Chart.yaml' % dir_path)
         self.contentType = "yaml"
         return paths
         
-        # helm_template = HelmTemplateParser()   
+    def helm_binary(self):
+        helm_exe = config_value('HELM','helmexe')
+        if not helm_exe:
+            try:
+                subprocess.Popen(['helm', "version"], stdout=subprocess.DEVNULL)
+                helm_exe = "helm"
+            except FileNotFoundError:
+                helm_exe = None
+        return helm_exe
+   
     def break_multiple_yaml_file(self,new_file_path):
         mutli_yaml = multiple_yaml_from_file(new_file_path,loader=FullLoader)
         paths=[]
@@ -205,6 +215,10 @@ class TemplateProcessor:
         process the snapshot and returns the updated `snapshot_data` which is require for run the test
         """
         try:
+            if self.node["type"] == "helmChart" and not self.helm_binary():
+                logger.error("HELM binary not found!")
+                return self.snapshot_data
+            
             self.dir_path = get_field_value(self.connector_data, 'folderPath')
             if not self.dir_path:
                 self.dir_path = self.repopath 
@@ -337,7 +351,7 @@ class TemplateProcessor:
 
                         if exists_dir(new_dir_path):
                             count = self.populate_sub_directory_snapshot(file_path, base_dir_path, new_sub_directory_path, snapshot, dbname, node, snapshot_data, count)
-                        if self.is_helm_chart_dir(new_dir_path):
+                        if self.node["type"] == "helmChart" and self.is_helm_chart_dir(new_dir_path):
                             paths=self.process_helm_chart(dir_path)
                             template_file_list += paths
                         elif is_multiple_yaml_file(new_dir_path):
@@ -412,6 +426,10 @@ class TemplateProcessor:
         if exclude and isinstance(exclude, dict):
             self.exclude_paths += exclude.get("paths", [])
             self.exclude_regex += exclude.get("regex", [])
+
+        if self.node["type"] == "helmChart" and not self.helm_binary():
+            logger.error("HELM binary not found!")
+            return self.snapshot_data
 
         if self.paths and isinstance(self.paths, list):
             count = 0
