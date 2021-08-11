@@ -548,7 +548,7 @@ class TerraformTemplateParser(TemplateParser):
                 parameters = []
                 process = True
 
-                found_parameters = self.split_parameters(parameter_str)
+                found_parameters = self.split_parameters(parameter_str.strip())
 
                 for param in found_parameters:
                 # for param in re.findall("(?:[^,()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))+", parameter_str.strip()):
