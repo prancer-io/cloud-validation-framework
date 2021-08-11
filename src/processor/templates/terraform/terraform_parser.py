@@ -7,6 +7,7 @@ import re
 import os
 import inspect
 import ast
+import hcl2
 from processor.logging.log_handler import getlogger
 from processor.templates.base.template_parser import TemplateParser
 from processor.helper.file.file_utils import exists_file, exists_dir
@@ -226,7 +227,7 @@ class TerraformTemplateParser(TemplateParser):
                             self.module_params["module"][key] = {}
                             for k, v in value.items():
                                 if k != "source":
-                                    processed_data, processed = self.process_resource(v)
+                                    processed_data, processed = self.process_resource(v, count=self.count)
                                     default_gparams[k] = processed_data
                                     self.module_params["module"][key][k] = processed_data
 
@@ -293,7 +294,7 @@ class TerraformTemplateParser(TemplateParser):
                 data_resource = {}
                 for data_item in template_json['data']:
                     for data_key, data_value in data_item.items():
-                        processed_data, processed = self.process_resource(data_value)
+                        processed_data, processed = self.process_resource(data_value, count=self.count)
                         self.gdata[data_key] = processed_data
                         data_resource[data_key] = processed_data
                 gen_template_json['data'] = data_resource
@@ -303,7 +304,7 @@ class TerraformTemplateParser(TemplateParser):
             if "resource" in new_resources and isinstance(new_resources["resource"], list):
                 for resource in new_resources["resource"]:
                     for resource_name, properties in resource.items():
-                        processed_resource, processed = self.process_resource(properties)
+                        processed_resource, processed = self.process_resource(properties, count=self.count)
                         if not self.process_module:
                             if resource_name in self.resource:
                                 self.resource[resource_name].append(processed_resource)
@@ -315,7 +316,7 @@ class TerraformTemplateParser(TemplateParser):
             if 'resource' in template_json:
                 for res in template_json['resource']:
                     for resource_name, properties in res.items():
-                        processed_resource, processed = self.process_resource(properties)
+                        processed_resource, processed = self.process_resource(properties, count=self.count)
                         if not self.process_module:
                             if resource_name in self.resource:
                                 self.resource[resource_name].append(processed_resource)
@@ -374,6 +375,11 @@ class TerraformTemplateParser(TemplateParser):
             resource, processed = self.process_resource(json_data, count=count)
             return True, resource
         
+        json_data = json_from_string(re.sub(r"(?<!\\)\"", "\\\"", resource).replace("\'","\""))
+        if json_data:
+            resource, processed = self.process_resource(json_data, count=count)
+            return True, resource
+        
         try:
             if resource.startswith('[') and resource.endswith(']'):
                 list_data = ast.literal_eval(resource)
@@ -388,6 +394,31 @@ class TerraformTemplateParser(TemplateParser):
         if resource.startswith('"') and resource.endswith('"'):
             resource = resource[1:-1]
         return resource
+
+    def split_parameters(self, value):
+        try:
+            value = "[%s]" % value
+            value = value.replace("'", '"')
+            parsed = hcl2.loads('split = %s \n' % value)
+            
+            params = []
+            for split_str in parsed["split"]:
+                if split_str != None:
+                    split_str = str(split_str)
+                    exmatch = re.search(r'^\${.*}$', split_str, re.I)
+                    if exmatch:
+                        match_values = re.search(r'(?<=\{).*(?=\})', split_str, re.I)
+                        if match_values:
+                            split_str = match_values.group(0)
+                        else:
+                            split_str = exmatch.group(0)[2:-1]
+                
+                params.append(split_str)
+            return params 
+        except Exception as e:
+            logger.debug("Failed to split paramaters")
+            logger.debug(value)
+            return []
 
     def process_resource(self, resource, count=None):
         """ 
@@ -517,7 +548,7 @@ class TerraformTemplateParser(TemplateParser):
                 parameters = []
                 process = True
 
-                found_parameters = re.findall(r'(?:[^,[\"|()|\{\}|\[\]]|[\{|\"|\(|\[](?:[^[\{\}|\"\"|()|\[\]]|[\{|\(|\[][^[\{\}|\"\"|()|\[\]]*[\}|\"|\)|\]])*[\}|\"|\)|\]])+', parameter_str.strip())
+                found_parameters = self.split_parameters(parameter_str)
 
                 for param in found_parameters:
                 # for param in re.findall("(?:[^,()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))+", parameter_str.strip()):
@@ -563,7 +594,7 @@ class TerraformTemplateParser(TemplateParser):
 
                     parameter_str = m.group(0)
                     # params = re.findall(r"[a-zA-Z0-9.()\[\]_*\"]+|(?:(?![a-zA-Z0-9.()\[\]_*\"]).)+", parameter_str)
-                    params = re.findall(r"[a-zA-Z0-9.()\[\],-_*\"\'\{\$\}]+|(?:(?![a-zA-Z0-9.()\[\]_*\"\'\{\$\}]).)+", parameter_str)
+                    params = re.findall(r"[a-zA-Z0-9.()\[\],-_*\"\'\{\$\}]+|(?:(?![ a-zA-Z0-9.()\[\]_*\"\'\{\$\}]).)+", parameter_str)
 
                     if params and len(params) > 1:
                         new_parameter_list = []
