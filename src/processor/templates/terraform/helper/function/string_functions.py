@@ -68,3 +68,7 @@ def title(str_value):
     """ converts the first character of each word of given string to uppercase. """
     return str_value.title()
     
+def format(spec, *values):
+    """ format the string """
+    return spec % values
+    
