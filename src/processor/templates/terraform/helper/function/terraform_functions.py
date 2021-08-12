@@ -48,4 +48,5 @@ default_functions = [
     { "expression" : "(strrev[(].*[)])$", "method" : string_functions.strrev },
     { "expression" : "(substr[(].*[)])$", "method" : string_functions.substr },
     { "expression" : "(title[(].*[)])$", "method" : string_functions.title },
+    { "expression" : "(format[(].*[)])$", "method" : string_functions.format },
 ]
