@@ -59,6 +59,7 @@ import datetime
 import atexit
 import json
 import os
+import signal
 from inspect import currentframe, getframeinfo
 from processor.helper.config.config_utils import framework_dir, config_value, framework_config, \
     CFGFILE, get_config_data, FULL, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, CUSTOMER, SINGLETEST, container_exists
@@ -68,6 +69,31 @@ import traceback
 from jinja2 import Environment, FileSystemLoader
 
 from processor.reporting.json_output import create_output_entry, dump_output_results
+
+current_progress = None
+
+def handler(signum, cf):
+    message = "%d Signal handler called with signal" % signum
+    print('Signal handler called with signal', signum)
+    filename = getframeinfo(cf).filename
+    line = cf.f_lineno
+    now = datetime.datetime.now()
+    fmtstr = '%s,%s(%s: %3d) %s' % (now.strftime('%Y-%m-%d %H:%M:%S'), str(now.microsecond)[:3],
+                                    os.path.basename(filename).replace('.py', ''), line, message)
+    print(fmtstr)
+    from processor.helper.config.rundata_utils import get_from_currentdata
+    fs = get_from_currentdata('jsonsource')
+    if fs:
+        if current_progress == 'CRAWLERSTART':
+            from processor.crawler.master_snapshot import update_crawler_run_status
+            update_crawler_run_status('Cancelled')
+        elif current_progress == 'COMPLIANCESTART':
+            dump_output_results([], get_from_currentdata('container'), test_file="", snapshot="", filesystem=False, status="Cancelled")
+        else:
+            print("Killed after completion, not updating to cancelled")
+
+    print("Exiting....received SIGTERM!....")
+    sys.exit(2)
 
 
 def set_customer(cust=None):
@@ -152,6 +178,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
        2 - Exception, missing config.ini, Mongo connection failure or http connection exception,
            the tests execution could not be started or completed.
     """
+    global  current_progress
     cmd_parser = argparse.ArgumentParser("prancer", formatter_class=argparse.RawDescriptionHelpFormatter,
                                          epilog='''\
 Example: prancer collection1
@@ -238,6 +265,8 @@ Runs the prancer framework based on the configuration files available in collect
         # Delete the rundata at the end of the script as per caller, default is True.
         if delete_rundata:
             atexit.register(delete_currentdata)
+
+        signal.signal(signal.SIGTERM, handler)
         init_currentdata()
 
         logger.info("Using Framework dir: %s", framework_dir())
@@ -284,9 +313,12 @@ Runs the prancer framework based on the configuration files available in collect
         
         if args.crawler or crawl_and_run:
             # Generate snapshot files from here.
+            current_progress = 'CRAWLERSTART'
             generate_container_mastersnapshots(args.container, fs)
+            current_progress = 'CRAWLERCOMPLETE'
         
         if args.compliance or crawl_and_run:
+            current_progress = 'COMPLIANCESTART'
             create_output_entry(args.container, test_file="-", filesystem=False)
             # Normal flow
             snapshot_status = populate_container_snapshots(args.container, fs)
@@ -299,6 +331,7 @@ Runs the prancer framework based on the configuration files available in collect
             check_send_notification(args.container, args.db)
             if fs:
                 dump_output_results([], args.container, test_file="", snapshot="", filesystem=fs, status="Completed")
+            current_progress = 'COMPLIANCECOMPLETE'
     except (Exception, KeyboardInterrupt) as ex:
         logger.error("Execution exception: %s", ex)
         print(traceback.format_exc())
