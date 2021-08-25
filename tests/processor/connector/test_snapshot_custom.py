@@ -93,6 +93,8 @@ def test_get_node(create_temp_json, create_temp_dir):
     assert True == isinstance(ret, dict)
     assert data_dict == ret['json']
 
+def mock_get_from_currentdata(name):
+    return {}
 
 def test_terraform_get_node(create_terraform, create_temp_dir):
     from processor.connector.snapshot_custom import get_node
@@ -427,6 +429,8 @@ def test_get_all_nodes(monkeypatch, create_temp_dir, create_temp_json):
     monkeypatch.setattr('processor.connector.snapshot_custom.get_test_json_dir', mock_get_test_json_dir)
     monkeypatch.setattr('processor.connector.snapshot_custom.insert_one_document', mock_insert_one_document)
     # monkeypatch.setattr('processor.connector.snapshot_custom.get_vault_data', mock_get_vault_data)
+    monkeypatch.setattr('processor.template_processor.base.base_template_processor.get_from_currentdata', mock_get_from_currentdata)
+
     monkeypatch.setattr('processor.connector.snapshot_custom.Popen', Popen)
     from processor.connector.snapshot_custom import populate_custom_snapshot
     tmpdir = create_temp_dir()

@@ -170,6 +170,9 @@ def mock_file_exist(path):
 def mock_get_collection_size(collection_name):
     return 100
 
+def mock_get_from_currentdata(name):
+    return {}
+
 class MyMockCredential:
     access_token = "test"
 
@@ -409,6 +412,7 @@ def test_get_node(monkeypatch):
 
 def test_get_all_nodes(monkeypatch):
     monkeypatch.setattr('processor.connector.snapshot_google.http_get_request', mock_http_get_request)
+    monkeypatch.setattr('processor.connector.snapshot_google.get_from_currentdata', mock_get_from_currentdata)
     from processor.connector.snapshot_google import get_all_nodes
     node = master_snapshot['nodes'][0]
     val = get_all_nodes(MyMockCredentialCrawler(), node, "file.file", snapshot, {})
@@ -417,6 +421,7 @@ def test_get_all_nodes(monkeypatch):
     assert val['json'] == {}
 
 def test_set_snapshot_data(monkeypatch):
+    monkeypatch.setattr('processor.connector.snapshot_google.get_from_currentdata', mock_get_from_currentdata)
     from processor.connector.snapshot_google import set_snapshot_data
     node = master_snapshot['nodes'][0]
     items = [instanse_data, instanse_data]

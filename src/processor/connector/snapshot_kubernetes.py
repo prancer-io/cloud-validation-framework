@@ -6,12 +6,12 @@ import time
 import os
 import pymongo
 from datetime import datetime
-from processor.helper.config.rundata_utils import get_dbtests
+from processor.helper.config.rundata_utils import get_dbtests, get_from_currentdata
 from processor.helper.json.json_utils import get_field_value,json_from_file,\
     make_snapshots_dir,store_snapshot,get_field_value_with_default,STRUCTURE,\
     collectiontypes
 from processor.logging.log_handler import getlogger
-from processor.helper.config.config_utils import config_value,framework_dir
+from processor.helper.config.config_utils import config_value,framework_dir, EXCLUSION
 from kubernetes import client,config
 import kubernetes.client
 from processor.connector.snapshot_utils import validate_snapshot_nodes
@@ -459,8 +459,24 @@ def generate_crawler_snapshot(snapshot,node,snapshot_data):
     resource_items = []
     resource_items=get_lits(snapshot=snapshot,node=node)
 
+    exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
+    resourceExclusions = {}
+    for exclusion in exclusions:
+        if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
+            if 'paths' in exclusion and isinstance(exclusion['paths'], list):
+                resourceExclusions[tuple(exclusion['paths'])] = exclusion
+
     snapshot_data[node['masterSnapshotId']] = []
     for index,resource_namespaced_item in enumerate(resource_items) :
+        if isinstance(resource_namespaced_item['paths'], str):
+            key = tuple([resource_namespaced_item['paths']])
+        elif isinstance(resource_namespaced_item['paths'], list):
+            key = tuple(resource_namespaced_item['paths'])
+        else:
+            key = None
+        if key and key in resourceExclusions:
+            logger.warning("Excluded from resource exclusions: %s", resource_namespaced_item['paths'])
+            continue
         snapshot_data[node['masterSnapshotId']].append({
                         "masterSnapshotId" : [node['masterSnapshotId']],
                         "snapshotId": '%s%s_%s' % (node['masterSnapshotId'],resource_namespaced_item['namespace'], str(index)),

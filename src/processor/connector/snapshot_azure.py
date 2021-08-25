@@ -18,7 +18,7 @@ from processor.helper.httpapi.restapi_azure import get_access_token,\
     get_web_client_data, get_client_secret, json_source
 from processor.connector.vault import get_vault_data
 from processor.helper.httpapi.http_utils import http_get_request
-from processor.helper.config.config_utils import config_value, framework_dir, CUSTOMER
+from processor.helper.config.config_utils import config_value, framework_dir, CUSTOMER, EXCLUSION
 from processor.database.database import insert_one_document, COLLECTION, get_collection_size, create_indexes, \
      DATABASE, DBNAME, sort_field, get_documents
 from processor.connector.snapshot_utils import validate_snapshot_nodes
@@ -271,6 +271,13 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                 alldata = get_all_nodes(
                     token, sub_name, sub_id, node, snapshot_user, snapshot_source)
                 if alldata:
+                    exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
+                    resourceExclusions = {}
+                    for exclusion in exclusions:
+                        if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
+                            if 'paths' in exclusion and isinstance(exclusion['paths'], list):
+                                resourceExclusions[tuple(exclusion['paths'])] = exclusion
+
                     snapshot_data[node['masterSnapshotId']] = []
                     for data in alldata:
                         # insert_one_document(data, data['collection'], dbname)
@@ -289,6 +296,15 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                                             node['masterSnapshotId'])
 
                         if not found_old_record:
+                            if isinstance(data['path'], str):
+                                key = tuple([data['path']])
+                            elif isinstance(data['path'], list):
+                                key = tuple(data['path'])
+                            else:
+                                key = None
+                            if key and key in resourceExclusions:
+                                logger.warning("Excluded from resource exclusions: %s", data['path'])
+                                continue
                             snapshot_data[node['masterSnapshotId']].append(
                                 {
                                     'masterSnapshotId': [node['masterSnapshotId']],

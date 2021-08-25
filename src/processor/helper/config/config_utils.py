@@ -20,6 +20,7 @@ NONE = 'NONE'
 SNAPSHOT = 'SNAPSHOT'
 FULL = 'FULL'
 SINGLETEST = 'singletest'
+EXCLUSION = 'exclusion'
 CUSTOMER = "customer"
 DBVALUES = [NONE, SNAPSHOT, FULL]
 CACHEDATA = None
