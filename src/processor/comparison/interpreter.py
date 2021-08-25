@@ -175,18 +175,19 @@ class Comparator:
     Call the factory method to create the comparator object.
     """
 
-    def __init__(self, version, container, dbname, collection_data, testcase):
-        self.comparator = self._factory_method(version, container, dbname, collection_data, testcase)
+    def __init__(self, version, container, dbname, collection_data, testcase, excludedTestIds):
+        self.comparator = self._factory_method(version, container, dbname, collection_data,
+                                               testcase, excludedTestIds)
 
     @staticmethod
-    def _factory_method(version, container, dbname, collection_data, testcase):
+    def _factory_method(version, container, dbname, collection_data, testcase, excludedTestIds):
         version_val = version_str(version)
         if version_val == COMPARATOR_V0_1:
-            return ComparatorV01(container, dbname, collection_data, testcase)
+            return ComparatorV01(container, dbname, collection_data, testcase, excludedTestIds)
         elif version_val == COMPARATOR_V0_2:
-            return ComparatorV02(container, dbname, collection_data, testcase)
+            return ComparatorV02(container, dbname, collection_data, testcase, excludedTestIds)
         else:
-            return ComparatorV01(container, dbname, collection_data, testcase)
+            return ComparatorV01(container, dbname, collection_data, testcase, excludedTestIds)
 
     def validate(self):
         return self.comparator.validate()
@@ -195,11 +196,12 @@ class Comparator:
 class ComparatorV01:
     """Override the validate method to return to run comparator"""
 
-    def __init__(self, container, dbname, collection_data, testcase):
+    def __init__(self, container, dbname, collection_data, testcase, excludedTestIds):
         self.container = container
         self.dbname = dbname
         self.collection_data = collection_data
         self.testcase = testcase
+        self.excludedTestIds = excludedTestIds
         loperand = get_field_value(testcase, 'attribute')
         value = get_field_value(testcase, 'comparison')
         rule = get_field_value(testcase, 'rule')
@@ -246,12 +248,20 @@ class ComparatorV01:
         if not rule_expr:
             rule_expr = 'data.rule.rulepass'
         testId = 'MISSING ID'
+        isMasterTest = False
         if 'testId' in self.testcase:
             testId = self.testcase['testId']
         elif 'masterTestId' in self.testcase:
             testId = self.testcase['masterTestId']
+            isMasterTest = True
         sid = self.testcase['snapshotId'][0]
-        snapshot_doc = self.get_snaphotid_doc(sid)
+        toExclude, snapshot_doc = self.get_snaphotid_doc(sid, testId, isMasterTest)
+        if toExclude:
+            logger.warn('\t\tWARN: Excluded test case: %s' % testId)
+            logger.warn('\t\tRESULT: SKIPPED')
+            msg = 'Excluded testcase because of testId: %s' % testId
+            results.append({'eval': 'data.rule.rulepass', 'result': 'skipped', 'message': msg})
+            return results
                 
         # logger.critical('\t\tEVAL: %s', rule_expr)
         opa_exe = opa_binary()        
@@ -262,15 +272,16 @@ class ComparatorV01:
             results.append({'eval': 'data.rule.rulepass', 'result': "passed" if result else "failed", 'message': ''})
             return results
         if len(self.testcase['snapshotId'])==1:
-            # sid = self.testcase['snapshotId'][0]
-            # inputjson = self.get_snaphotid_doc(sid)
             inputjson = snapshot_doc
             if inputjson is None:
                 logger.info('\t\tERROR: Missing snapshot')
         else:
             ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
             for sid in self.testcase['snapshotId']:
-                inputjson.update({ms_id[sid]: self.get_snaphotid_doc(sid)})
+                toExclude, snapshot_doc = self.get_snaphotid_doc(sid, testId, isMasterTest)
+                if toExclude:
+                    logger.error('Excluded testcase because of testId: %s' % testId)
+                inputjson.update({ms_id[sid]: snapshot_doc})
         results = []
         if inputjson:
             save_json_to_file(inputjson, '/tmp/input_%s.json' % tid)
@@ -435,8 +446,17 @@ class ComparatorV01:
                     self.snapshots.append(snapshot)
         return doc
 
+    def exclude_test_case(self, doc, testId, isMasterTest=False):
+        toExclude = False
+        if isMasterTest and testId and testId in self.excludedTestIds:
+            path = doc['paths'][0]
+            toExclude = True if path in self.excludedTestIds[testId] else False
+        return toExclude
+        pass
 
-    def get_snaphotid_doc(self, sid):
+
+    def get_snaphotid_doc(self, sid, testId, isMasterTest=False):
+        tobeExcluded = False
         doc = None
         isdb_fetch = get_dbtests()
         if isdb_fetch:
@@ -446,6 +466,7 @@ class ComparatorV01:
                                  sort=[('timestamp', pymongo.DESCENDING)], limit=1)
             logger.debug('Number of Snapshot Documents: %s', len(docs))
             if docs and len(docs):
+                tobeExcluded = self.exclude_test_case(docs[0], testId, isMasterTest)
                 doc = docs[0]['json']
                 snapshot = {
                     'id': docs[0]['snapshotId'],
@@ -468,6 +489,7 @@ class ComparatorV01:
                 if exists_file(fname):
                     json_data = json_from_file(fname)
                     if json_data and 'json' in json_data:
+                        tobeExcluded = self.exclude_test_case(json_data, testId, isMasterTest)
                         doc = json_data['json']
                         snapshot_val = {
                             'id': json_data['snapshotId'],
@@ -487,7 +509,7 @@ class ComparatorV01:
                         if singletest:
                             snapshot_val['json'] = doc
                         self.snapshots.append(snapshot_val)
-        return doc
+        return tobeExcluded, doc
 
 
     def rego_rule_filename(self, rego_file, container):
@@ -652,8 +674,8 @@ class ComparatorV02(ComparatorV01):
     """
     Override the validate method to run the comparisons
     """
-    def __init__(self, container, dbname, collection_data, testcase):
-        ComparatorV01.__init__(self, container, dbname, collection_data, testcase)
+    def __init__(self, container, dbname, collection_data, testcase, excludedTestIds):
+        ComparatorV01.__init__(self, container, dbname, collection_data, testcase, excludedTestIds)
 
     def validate(self):
         return ComparatorV01.validate(self)

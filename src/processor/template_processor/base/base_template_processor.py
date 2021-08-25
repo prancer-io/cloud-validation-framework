@@ -7,8 +7,8 @@ import pymongo
 import hcl
 import traceback
 from yaml.loader import FullLoader
-from processor.helper.config.config_utils import config_value
-from processor.helper.config.rundata_utils import get_dbtests
+from processor.helper.config.config_utils import config_value, EXCLUSION
+from processor.helper.config.rundata_utils import get_dbtests,  get_from_currentdata
 from processor.logging.log_handler import getlogger
 from processor.database.database import insert_one_document, COLLECTION, DATABASE, DBNAME, \
     get_collection_size, create_indexes
@@ -378,6 +378,9 @@ class TemplateProcessor:
                 generated_template_file_list = []
                 if template_file_list:
                     for template_file in template_file_list:
+                        if template_file in self.exclude_paths:
+                            logger.warning("Excluded from resource exclusions: %s", template_file)
+                            continue
                         # template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
                         if parameter_file_list:
                             self.generate_template_and_parameter_file_list(file_path, template_file, parameter_file_list, generated_template_file_list)
@@ -426,6 +429,13 @@ class TemplateProcessor:
         if exclude and isinstance(exclude, dict):
             self.exclude_paths += exclude.get("paths", [])
             self.exclude_regex += exclude.get("regex", [])
+
+        exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
+        for exclusion in exclusions:
+            if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
+                for path in exclusion['paths']:
+                    if path not in self.exclude_paths:
+                        self.exclude_paths.append(path)
 
         if self.node["type"] == "helmChart" and not self.helm_binary():
             logger.error("HELM binary not found!")

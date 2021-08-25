@@ -66,6 +66,9 @@ master_template_processor_kwargs = {
 	}
 }
 
+def mock_get_from_currentdata(name):
+	return {}
+
 def mock_get_collection_size(collection_name):
     return 0
 
@@ -104,6 +107,7 @@ def test_populate_all_template_snapshot(monkeypatch):
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.create_indexes', mock_create_indexes)
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.insert_one_document', mock_insert_one_document)
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.TemplateProcessor.process_template', mock_process_template)
+	monkeypatch.setattr('processor.template_processor.base.base_template_processor.get_from_currentdata', mock_get_from_currentdata)
 	from processor.template_processor.aws_template_processor import AWSTemplateProcessor
 
 	node_data = master_template_processor_kwargs["snapshot"]["nodes"][0]

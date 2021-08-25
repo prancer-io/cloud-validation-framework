@@ -8,7 +8,6 @@ from bson.objectid import ObjectId
 from processor.helper.config.config_utils import config_value, DATABASE, DBNAME, DBURL
 from processor.helper.config.rundata_utils import put_in_cachedata, get_from_cachedata
 from processor.logging.dburl_kv import get_dburl
-# import threading
 
 
 MONGO = None
@@ -24,7 +23,7 @@ def mongoconnection(dbport=27017, to=TIMEOUT):
     if MONGO:
        return MONGO
     dburl = get_dburl_from_cache()
-    # print("Dburl: %s", dburl)
+    # print("Dburl: %s" % dburl)
     if dburl:
         MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
     else:

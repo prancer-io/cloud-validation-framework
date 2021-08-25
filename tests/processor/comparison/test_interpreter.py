@@ -33,81 +33,81 @@ def test_interpreter(monkeypatch):
                     "snapshotId": "1",
                     "attribute": "location",
                     "comparison":"exist"
-                })
+                }, {})
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "3",
         "snapshotId": "1",
         "attribute": "location.name",
         "comparison": "not exist"
-    })
+    }, {})
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "4",
         "snapshotId": "1",
         "attribute": "location",
         "comparison": "gt 10"
-    })
+    }, {})
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "1",
         "snapshotId": "1",
         "attribute": "location",
         "comparison": '"eastus2"'
-    })
+    }, {})
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "1",
         "snapshotId": "1",
         "attribute": "location",
         "comparison": 'len(eastus2)'
-    })
+    }, {})
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "1",
         "snapshotId": "1",
         "attribute": "location",
         "comparison": "'eastus2'"
-    })
+    }, {})
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "4",
         "snapshotId": "1",
         "attribute": "location",
         "comparison": "gt a"
-    })
+    }, {})
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "4",
         "snapshotId": "1",
         "attribute": "location",
         "comparison": "gt len(7)"
-    })
+    }, {})
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "4",
         "snapshotId": "1",
         "attribute": "location",
         "comparison": "eq '{2}.location'"
-    })
+    }, {})
     comparator = Comparator('0.2', 'mycontainer1', 'validator', {}, {
         "testId": "3",
         "snapshotId": "1",
         "attribute": "location.name",
         "comparison": "not exist"
-    })
+    }, {})
     comparator.validate()
     comparator = Comparator('0.3', 'mycontainer1', 'validator', {}, {
         "testId": "3",
         "snapshotId": "1",
         "attribute": "location.name",
         "comparison": "not exist"
-    })
+    }, {})
     comparator.validate()
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "1",
         "rule": "exist({1}.location)"
-    })
+    }, {})
     comparator.validate()
-    comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {})
+    comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {}, {})
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
         "testId": "4",
         "snapshotId": "1",
         "attribute": "id",
         "comparison": "gt 10"
-    })
+    }, {})
     val = comparator.validate()
     assert 'passed' == val[0]['result']
     comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {
@@ -115,7 +115,7 @@ def test_interpreter(monkeypatch):
         "snapshotId1": "1",
         "attribute": "id",
         "comparison": "gt 10"
-    })
+    }, {})
     val = comparator.validate()
     # print(type(comparator))
 
@@ -129,9 +129,9 @@ def test_interpreter_1(monkeypatch):
         "snapshotId": "1",
         "attribute": "id",
         "comparison": "gt 10"
-    })
+    }, {})
     val = comparator.validate()
-    comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {})
+    comparator = Comparator('0.1', 'mycontainer1', 'validator', {}, {}, {})
     val = comparator.validate()
 
 def atest_comparator():
