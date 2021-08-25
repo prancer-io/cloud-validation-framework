@@ -59,15 +59,39 @@ import datetime
 import atexit
 import json
 import os
+import signal
 from inspect import currentframe, getframeinfo
 from processor.helper.config.config_utils import framework_dir, config_value, framework_config, \
-    CFGFILE, get_config_data, FULL, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, CUSTOMER, SINGLETEST, container_exists
+    CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, CUSTOMER, \
+    SINGLETEST, EXCLUSION, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor import __version__
 import traceback
 from jinja2 import Environment, FileSystemLoader
 
 from processor.reporting.json_output import create_output_entry, dump_output_results
+current_progress = None
+
+def handler(signum, cf):
+    message = "%d Signal handler called with signal" % signum
+    print('Signal handler called with signal', signum)
+    filename = getframeinfo(cf).filename
+    line = cf.f_lineno
+    now = datetime.datetime.now()
+    fmtstr = '%s,%s(%s: %3d) %s' % (now.strftime('%Y-%m-%d %H:%M:%S'), str(now.microsecond)[:3],
+                                    os.path.basename(filename).replace('.py', ''), line, message)
+    print(fmtstr)
+    from processor.helper.config.rundata_utils import get_from_currentdata
+    if current_progress == 'CRAWLERSTART':
+        from processor.crawler.master_snapshot import update_crawler_run_status
+        update_crawler_run_status('Cancelled')
+    elif current_progress == 'COMPLIANCESTART':
+        dump_output_results([], get_from_currentdata('container'), test_file="", snapshot="", filesystem=False, status="Cancelled")
+    else:
+        print("Killed after completion, not updating to cancelled")
+
+    print("Exiting....received SIGTERM!....")
+    sys.exit(2)
 
 
 def set_customer(cust=None):
@@ -152,6 +176,7 @@ def validator_main(arg_vals=None, delete_rundata=True):
        2 - Exception, missing config.ini, Mongo connection failure or http connection exception,
            the tests execution could not be started or completed.
     """
+    global  current_progress
     cmd_parser = argparse.ArgumentParser("prancer", formatter_class=argparse.RawDescriptionHelpFormatter,
                                          epilog='''\
 Example: prancer collection1
@@ -209,7 +234,7 @@ Runs the prancer framework based on the configuration files available in collect
             return retval
 
     # Check the log directory and also check if it is writeable.
-    from processor.logging.log_handler import init_logger, get_logdir, default_logging, add_file_logging
+    from processor.logging.log_handler import init_logger, get_logdir
     fw_cfg = get_config_data(framework_config())
     log_writeable, logdir = get_logdir(fw_cfg, framework_dir())
     if not log_writeable:
@@ -223,7 +248,7 @@ Runs the prancer framework based on the configuration files available in collect
     logger.info("START: Argument parsing and Run Initialization. Version %s", __version__)
 
 
-    from processor.connector.snapshot import populate_container_snapshots
+    from processor.connector.snapshot import populate_container_snapshots, populate_container_exclusions
     from processor.connector.validation import run_container_validation_tests
     from processor.crawler.master_snapshot import generate_container_mastersnapshots
     try:
@@ -238,15 +263,19 @@ Runs the prancer framework based on the configuration files available in collect
         # Delete the rundata at the end of the script as per caller, default is True.
         if delete_rundata:
             atexit.register(delete_currentdata)
+
+        # Set the signal handler and a 5-second alarm
+        signal.signal(signal.SIGTERM, handler)
         init_currentdata()
 
         logger.info("Using Framework dir: %s", framework_dir())
         logger.info("Args: %s", args)
+        logger.info("Pid: %s", os.getpid())
         logger.debug("Running tests from %s.", DBVALUES[args.db])
         fs = True if args.db > DBVALUES.index(SNAPSHOT) else False
         put_in_currentdata('jsonsource', fs)
         put_in_currentdata(DBTESTS, args.db)
-        put_in_currentdata('container', args.container)
+        put_in_currentdata( 'container', args.container)
         # if args.db == DBVALUES.index(FULL):
         #     from processor.logging.log_handler import get_dblogger
         #     log_name = get_dblogger()
@@ -278,16 +307,21 @@ Runs the prancer framework based on the configuration files available in collect
             args.container = container
             args.db  = DBVALUES.index(NONE)
 
+        put_in_currentdata(EXCLUSION, populate_container_exclusions(args.container, fs))
         crawl_and_run = False
         if not args.compliance and not args.crawler:
             crawl_and_run = True
-        
+
+
         if args.crawler or crawl_and_run:
             # Generate snapshot files from here.
+            current_progress = 'CRAWLERSTART'
             generate_container_mastersnapshots(args.container, fs)
+            current_progress = 'CRAWLERCOMPLETE'
         
         if args.compliance or crawl_and_run:
-            create_output_entry(args.container, test_file="-", filesystem=False)
+            current_progress = 'COMPLIANCESTART'
+            create_output_entry(args.container, test_file="-", filesystem=True if args.db ==  0 else False)
             # Normal flow
             snapshot_status = populate_container_snapshots(args.container, fs)
             logger.debug(json.dumps(snapshot_status, indent=2))
@@ -299,6 +333,7 @@ Runs the prancer framework based on the configuration files available in collect
             check_send_notification(args.container, args.db)
             if fs:
                 dump_output_results([], args.container, test_file="", snapshot="", filesystem=fs, status="Completed")
+            current_progress = 'COMPLIANCECOMPLETE'
     except (Exception, KeyboardInterrupt) as ex:
         logger.error("Execution exception: %s", ex)
         print(traceback.format_exc())

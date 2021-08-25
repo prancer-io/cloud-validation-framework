@@ -36,8 +36,9 @@
 import json
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    get_container_snapshot_json_files, SNAPSHOT, JSONTEST,\
-    collectiontypes, get_json_files, TEST, MASTERTEST, save_json_to_file, get_field_value_with_default
+    get_container_snapshot_json_files, SNAPSHOT, JSONTEST, EXCLUSIONS, \
+    collectiontypes, get_json_files, TEST, MASTERTEST, get_container_exclusion_json, \
+    get_field_value_with_default
 from processor.helper.config.config_utils import config_value, framework_dir, SINGLETEST
 from processor.database.database import DATABASE, DBNAME, get_documents, sort_field, update_one_document
 from processor.connector.snapshot_azure import populate_azure_snapshot
@@ -353,3 +354,41 @@ def container_snapshots_database(container):
     return list(set(snapshots))
 
 
+def populate_container_exclusions(container, dbsystem=True):
+    """ Get the exclusions for the container from the source """
+    exclusions = {}
+    if dbsystem:
+        dbname = config_value(DATABASE, DBNAME)
+        collection = config_value(DATABASE, collectiontypes[EXCLUSIONS], default='exclusions')
+        qry = {'container': container}
+        docs = get_documents(collection, dbname=dbname, query=qry, _id=False)
+        if docs and len(docs):
+            exclusions = docs[0]
+    else:
+        exclusions = get_container_exclusion_json(container)
+    if 'exclusions' in exclusions and isinstance(exclusions['exclusions'], list):
+        resourceExclusions = {}
+        testExclusions = {}
+        singleExclusions = {}
+        for exclusion in exclusions['exclusions']:
+            if 'exclusionType' in exclusion and exclusion['exclusionType']:
+                if exclusion['exclusionType'] == 'single':
+                    singleExclusions[exclusion['masterTestID']] = exclusion
+                elif exclusion['exclusionType'] == 'resource':
+                    resourceExclusions[tuple(exclusion['paths'])] = exclusion
+                elif exclusion['exclusionType'] == 'test':
+                    testExclusions[exclusion['masterTestID']] = exclusion
+                else:
+                    pass
+        new_exclusions = []
+        for _, value in testExclusions.items():
+            new_exclusions.append(value)
+        for _, value in resourceExclusions.items():
+            new_exclusions.append(value)
+        for key, value in singleExclusions.items():
+            resourceKey = tuple(value['paths'])
+            if key not in testExclusions and resourceKey not in resourceExclusions:
+                new_exclusions.append(value)
+        if new_exclusions:
+            exclusions['exclusions'] = new_exclusions
+    return exclusions

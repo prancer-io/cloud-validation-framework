@@ -28,7 +28,7 @@ from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE, save_json_to_file, get_field_value_with_default,\
     make_snapshots_dir, store_snapshot
 from processor.connector.vault import get_vault_data
-from processor.helper.config.config_utils import config_value, get_test_json_dir, framework_dir, CUSTOMER
+from processor.helper.config.config_utils import config_value, get_test_json_dir, framework_dir, CUSTOMER, EXCLUSION
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 from processor.helper.httpapi.restapi_azure import json_source
@@ -305,6 +305,13 @@ def set_snapshot_data(node, items, snapshot_data):
     else:
         resource_items = items
 
+    exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
+    resourceExclusions = {}
+    for exclusion in exclusions:
+        if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
+            if 'paths' in exclusion and isinstance(exclusion['paths'], list):
+                resourceExclusions[tuple(exclusion['paths'])] = exclusion
+
     for item in resource_items:
         count += 1
         path_list = item['selfLink'].split("https://")
@@ -326,6 +333,14 @@ def set_snapshot_data(node, items, snapshot_data):
                             node['masterSnapshotId'])
 
         if not found_old_record:
+            if isinstance(path, str):
+                key = tuple([path])
+            else:
+                key = None
+            if key and key in resourceExclusions:
+                logger.warning("Excluded from resource exclusions: %s", path)
+                continue
+
             snapshot_data[node['masterSnapshotId']].append(
                 {
                     "masterSnapshotId" : [node['masterSnapshotId']],

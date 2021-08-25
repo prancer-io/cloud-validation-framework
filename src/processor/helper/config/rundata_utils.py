@@ -12,7 +12,7 @@ from processor.helper.json.json_utils import json_from_file, save_json_to_file,g
 from processor.logging.log_handler import getlogger, FWLOGFILENAME
 from processor.helper.file.file_utils import remove_file, exists_dir, mkdir_path
 
-exclude_list = ['token', 'clientSecret', 'vaulttoken','container']
+exclude_list = ['token', 'clientSecret', 'vaulttoken', 'exclusion']
 
 def get_dbtests():
     currdata = get_currentdata()

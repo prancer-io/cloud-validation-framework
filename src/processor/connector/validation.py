@@ -12,7 +12,7 @@ from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
     json_from_file, TEST, collectiontypes, SNAPSHOT, JSONTEST, MASTERTEST, get_field_value_with_default
 from processor.helper.config.config_utils import config_value, get_test_json_dir,\
-    DATABASE, DBNAME, SINGLETEST, framework_dir
+    DATABASE, DBNAME, SINGLETEST, framework_dir, EXCLUSION
 from processor.database.database import create_indexes, COLLECTION,\
     sort_field, get_documents
 from processor.reporting.json_output import dump_output_results, update_output_testname
@@ -64,8 +64,8 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
     return snapshot_data
 
 
-def run_validation_test(version, container, dbname, collection_data, testcase):
-    comparator = Comparator(version, container, dbname, collection_data, testcase)
+def run_validation_test(version, container, dbname, collection_data, testcase, excludedTestIds):
+    comparator = Comparator(version, container, dbname, collection_data, testcase, excludedTestIds)
     results = comparator.validate()
     if isinstance(results, list):
         for result in results:
@@ -139,7 +139,18 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
         current_snapshot_status = snapshot_status[test_json_data['snapshot']]
     else:
         current_snapshot_status = {}
-    
+
+    excludedTestIds = {}
+    exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
+    for exclusion in exclusions:
+        if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'single':
+            if 'masterTestID' in exclusion and exclusion['masterTestID'] \
+                    and 'paths' in exclusion and exclusion['paths']:
+                if exclusion['masterTestID'] not in excludedTestIds:
+                    excludedTestIds[exclusion['masterTestID']] = exclusion['paths']
+                else:
+                    excludedTestIds[exclusion['masterTestID']].extend(exclusion['paths'])
+
     skip = 0
     limit = 10
     dumpsize = 10
@@ -157,7 +168,7 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
             if dirpath:
                 testcase['dirpath'] = dirpath
             results = run_validation_test(version, container, dbname, collection_data,
-                                             testcase)
+                                             testcase, excludedTestIds)
             resultset.extend(results)
             if not filesystem:
                 if len(resultset) >= limit:
@@ -385,8 +396,17 @@ def run_container_validation_tests_database(container, snapshot_status=None):
 
 
 def _get_new_testcases(testcases, mastersnapshots):
+    excludedTestIds = []
+    exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
+    for exclusion in exclusions:
+        if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'test':
+            if 'masterTestID' in exclusion and exclusion['masterTestID'] and exclusion['masterTestID'] not in excludedTestIds:
+                excludedTestIds.append(exclusion['masterTestID'])
     newcases = []
     for testcase in testcases:
+        if 'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] in excludedTestIds:
+            logger.warning("Excluded from testId exclusions: %s", testcase['masterTestId'])
+            continue
         test_parser_type = testcase.get('type', None)
         if test_parser_type == 'rego':
             new_cases = _get_rego_testcase(testcase, mastersnapshots)

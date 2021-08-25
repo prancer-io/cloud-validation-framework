@@ -106,7 +106,7 @@ from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE, get_field_value_with_default, \
     make_snapshots_dir, store_snapshot
 from processor.helper.yaml.yaml_utils import yaml_from_file
-from processor.helper.config.config_utils import config_value, get_test_json_dir
+from processor.helper.config.config_utils import config_value, get_test_json_dir, EXCLUSION
 from processor.helper.config.rundata_utils import get_from_currentdata, get_dbtests
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
@@ -277,6 +277,8 @@ def _get_repo_path(connector, snapshot):
 
 def populate_custom_snapshot(snapshot, container=None):
     """ Populates the resources from git."""
+    if not container:
+        container = get_from_currentdata('container')
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     connector_data = get_from_currentdata('connector')
@@ -358,8 +360,24 @@ def populate_custom_snapshot(snapshot, container=None):
                     elif 'masterSnapshotId' in node:
                         alldata = get_all_nodes(repopath, node, snapshot, brnch, sub_data)
                         if alldata:
+                            exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
+                            resourceExclusions = {}
+                            for exclusion in exclusions:
+                                if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
+                                    if 'paths' in exclusion and isinstance(exclusion['paths'], list):
+                                        resourceExclusions[tuple(exclusion['paths'])] = exclusion
+
                             snapshot_data[node['masterSnapshotId']] = []
                             for data in alldata:
+                                if isinstance(data['path'], str):
+                                    key = tuple([data['path']])
+                                elif isinstance(data['path'], list):
+                                    key = tuple(data['path'])
+                                else:
+                                    key = None
+                                if key and key in resourceExclusions:
+                                    logger.warning("Excluded from resource exclusions: %s", data['path'])
+                                    continue
                                 snapshot_data[node['masterSnapshotId']].append(
                                     {
                                         'snapshotId': data['snapshotId'],

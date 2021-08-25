@@ -12,6 +12,7 @@ from processor.helper.config.config_utils import get_test_json_dir
 from processor.logging.log_handler import getlogger
 from bson import json_util
 
+EXCLUSION = 'Exclusion'
 SNAPSHOT = 'snapshot'
 MASTERSNAPSHOT = 'masterSnapshot'
 JSONTEST = 'test'
@@ -20,6 +21,7 @@ TEST = 'test'
 OUTPUT = 'output'
 STRUCTURE = 'structure'
 NOTIFICATIONS = 'notifications'
+EXCLUSIONS = 'exclusions'
 collectiontypes = {
     TEST: 'TEST',
     STRUCTURE: 'STRUCTURE',
@@ -27,7 +29,8 @@ collectiontypes = {
     MASTERSNAPSHOT: 'MASTERSNAPSHOT',
     MASTERTEST: 'MASTERTEST',
     OUTPUT: 'OUTPUT',
-    NOTIFICATIONS: 'NOTIFICATIONS'
+    NOTIFICATIONS: 'NOTIFICATIONS',
+    EXCLUSIONS: 'EXCLUSIONS'
 }
 logger = getlogger()
 
@@ -213,3 +216,13 @@ def get_json_files(json_dir, file_type):
             if json_data and 'fileType' in json_data and json_data['fileType'] == file_type:
                 file_list.append(filename)
     return file_list
+
+
+def get_container_exclusion_json(container):
+    """Return list of exclusion data from a exclusion file in the container."""
+    exclusion_data = {}
+    container_dir = get_container_dir(container)
+    exclusion_files = get_json_files(container_dir, EXCLUSION)
+    if exclusion_files:
+        exclusion_data = json_from_file(exclusion_files[0])
+    return exclusion_data
