@@ -93,6 +93,31 @@ def handler(signum, cf):
     print("Exiting....received SIGTERM!....")
     sys.exit(2)
 
+current_progress = None
+
+def handler(signum, cf):
+    message = "%d Signal handler called with signal" % signum
+    print('Signal handler called with signal', signum)
+    filename = getframeinfo(cf).filename
+    line = cf.f_lineno
+    now = datetime.datetime.now()
+    fmtstr = '%s,%s(%s: %3d) %s' % (now.strftime('%Y-%m-%d %H:%M:%S'), str(now.microsecond)[:3],
+                                    os.path.basename(filename).replace('.py', ''), line, message)
+    print(fmtstr)
+    from processor.helper.config.rundata_utils import get_from_currentdata
+    fs = get_from_currentdata('jsonsource')
+    if fs:
+        if current_progress == 'CRAWLERSTART':
+            from processor.crawler.master_snapshot import update_crawler_run_status
+            update_crawler_run_status('Cancelled')
+        elif current_progress == 'COMPLIANCESTART':
+            dump_output_results([], get_from_currentdata('container'), test_file="", snapshot="", filesystem=False, status="Cancelled")
+        else:
+            print("Killed after completion, not updating to cancelled")
+
+    print("Exiting....received SIGTERM!....")
+    sys.exit(2)
+
 
 def set_customer(cust=None):
     wkEnv = os.getenv('PRANCER_WK_ENV', None)
@@ -264,7 +289,6 @@ Runs the prancer framework based on the configuration files available in collect
         if delete_rundata:
             atexit.register(delete_currentdata)
 
-        # Set the signal handler and a 5-second alarm
         signal.signal(signal.SIGTERM, handler)
         init_currentdata()
 

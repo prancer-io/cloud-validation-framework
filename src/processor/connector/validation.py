@@ -352,7 +352,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
         for doc in docs:
             test_json_data = doc['json']
             if test_json_data:
-                snapshot = doc['json']['snapshot'] if 'snapshot' in doc['json'] else ''
+                snapshot = doc['json']['masterSnapshot'] if 'masterSnapshot' in doc['json'] else ''
                 test_file = doc['name'] if 'name' in doc else '-'
                 update_output_testname(test_file, snapshot, filesystem=False)
                 try:
