@@ -5,6 +5,9 @@ import os
 frameworkdir = '/tmp'
 
 
+def mock_get_from_currentdata(name):
+    return {}
+
 def mock_framework_dir():
     return frameworkdir
 
@@ -159,7 +162,7 @@ def test_run_validation_test(monkeypatch):
         "snapshotId": "1",
         "attribute": "id",
         "comparison": "gt 10"
-    })
+    }, {})
     assert result is not None
     assert type(result) is list
     assert result[0]['result'] == 'passed'
@@ -170,6 +173,7 @@ def test_run_file_validation_tests(create_temp_dir, create_temp_json, monkeypatc
     monkeypatch.setattr('processor.connector.validation.create_indexes', mock_create_indexes)
     monkeypatch.setattr('processor.connector.validation.config_value', mock_config_value)
     monkeypatch.setattr('processor.connector.validation.get_test_json_dir', mock_framework_dir)
+    monkeypatch.setattr('processor.connector.validation.get_from_currentdata', mock_get_from_currentdata)
     monkeypatch.setattr('processor.comparison.interpreter.get_documents', mock_get_documents)
     from processor.connector.validation import run_file_validation_tests
     frameworkdir = create_temp_dir()
@@ -313,6 +317,7 @@ def test_run_container_validation_tests_database(monkeypatch):
     monkeypatch.setattr('processor.connector.validation.create_indexes', mock_create_indexes)
     monkeypatch.setattr('processor.connector.validation.Comparator.validate', mock_validate)
     monkeypatch.setattr('processor.connector.validation.dump_output_results', mock_dump_output_results)
+    monkeypatch.setattr('processor.connector.validation.get_from_currentdata', mock_get_from_currentdata)
     from processor.connector.validation import run_container_validation_tests_database
     container = 'abcd'
     val = run_container_validation_tests_database(container)

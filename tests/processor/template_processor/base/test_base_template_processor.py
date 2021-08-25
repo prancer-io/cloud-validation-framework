@@ -52,6 +52,9 @@ template_processor_kwargs = {
 	}
 }
 
+def mock_get_from_currentdata(name):
+	return {}
+
 def mock_get_collection_size(collection_name):
     return 0
 

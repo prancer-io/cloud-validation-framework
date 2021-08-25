@@ -69,7 +69,7 @@ def mock_http_get_crawler_request(url, headers=None, name=""):
 
 
 def mock_get_from_currentdata(name):
-    return None
+    return {}
 
 
 def mock_http_get_request_error(url, headers=None, name=""):
