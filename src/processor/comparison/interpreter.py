@@ -259,8 +259,8 @@ class ComparatorV01:
         if toExclude:
             logger.warn('\t\tWARN: Excluded test case: %s' % testId)
             logger.warn('\t\tRESULT: SKIPPED')
-            msg = 'Excluded testcase because of testId: %s' % testId
-            results.append({'eval': 'data.rule.rulepass', 'result': 'skipped', 'message': msg})
+            # msg = 'Excluded testcase because of testId: %s' % testId
+            # results.append({'eval': 'data.rule.rulepass', 'result': 'skipped', 'message': msg})
             return results
                 
         # logger.critical('\t\tEVAL: %s', rule_expr)
