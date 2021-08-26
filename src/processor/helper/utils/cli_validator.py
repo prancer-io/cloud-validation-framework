@@ -89,6 +89,7 @@ def handler(signum, cf):
         dump_output_results([], get_from_currentdata('container'), test_file="", snapshot="", filesystem=False, status="Cancelled")
     else:
         print("Killed after completion, not updating to cancelled")
+        dump_output_results([], get_from_currentdata('container'), test_file="", snapshot="", filesystem=False, status="Cancelled")
 
     print("Exiting....received SIGTERM!....")
     sys.exit(2)
@@ -113,6 +114,7 @@ def handler(signum, cf):
         elif current_progress == 'COMPLIANCESTART':
             dump_output_results([], get_from_currentdata('container'), test_file="", snapshot="", filesystem=False, status="Cancelled")
         else:
+            dump_output_results([], get_from_currentdata('container'), test_file="", snapshot="", filesystem=False, status="Completed")
             print("Killed after completion, not updating to cancelled")
 
     print("Exiting....received SIGTERM!....")
@@ -359,6 +361,12 @@ Runs the prancer framework based on the configuration files available in collect
                 dump_output_results([], args.container, test_file="", snapshot="", filesystem=fs, status="Completed")
             current_progress = 'COMPLIANCECOMPLETE'
     except (Exception, KeyboardInterrupt) as ex:
+        if current_progress == 'CRAWLERSTART':
+            from processor.crawler.master_snapshot import update_crawler_run_status
+            update_crawler_run_status('Completed')
+        else:
+            dump_output_results([], args.container, test_file="", snapshot="", filesystem=False, status="Completed")
+
         logger.error("Execution exception: %s", ex)
         print(traceback.format_exc())
         retval = 2
