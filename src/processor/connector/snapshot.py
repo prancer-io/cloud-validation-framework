@@ -250,7 +250,7 @@ def populate_container_snapshots_database(container):
                     dump_output_results([], container, "-", snapshot, False)
                     raise e
     if not snapshots_status:
-        raise Exception("No snapshots contained for this container: %s, add and run again!...", container)
+        raise Exception("No snapshots contained for this container: %s, add and run again!..." % container)
     logger.critical("SNAPSHOTS COMPLETE:")
     return snapshots_status
 
