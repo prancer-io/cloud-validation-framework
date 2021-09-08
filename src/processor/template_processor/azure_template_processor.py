@@ -126,6 +126,7 @@ class AzureTemplateProcessor(TemplateProcessor):
                         azure_template_parser = AzureTemplateParser(template_file_path, parameter_file=self.parameter_files)
                         template_json = azure_template_parser.parse()
                         self.contentType = azure_template_parser.contentType
+                        self.resource_types = azure_template_parser.resource_types
                     except:
                         template_json = None
         return template_json

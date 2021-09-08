@@ -92,4 +92,6 @@ class AWSTemplateProcessor(TemplateProcessor):
                     aws_template_parser = AWSTemplateParser(template_file)
                 template_json = aws_template_parser.parse()
                 self.contentType = aws_template_parser.contentType
+                self.resource_types = aws_template_parser.resource_types
+
         return template_json
