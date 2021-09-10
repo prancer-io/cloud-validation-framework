@@ -17,7 +17,6 @@ def hcl_to_json(file_path):
     except Exception as e:
         error = str(e)
         error = error.split("Expected one of")[0]
-        file_path = "/".join(file_path.split("/")[1:])
         logger.error("Unspported terraform file, error while parsing file: %s , error: %s", file_path, error)
 
     return json_data
