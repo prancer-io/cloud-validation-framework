@@ -125,8 +125,17 @@ class TerraformTemplateParser(TemplateParser):
             # process variables like this: var.network_http["cidr"]
             pattern = re.compile(r'\[["|\'](.*?)["|\']\]')
             map_keys = re.findall(pattern, resource)
+            if not map_keys:
+                pattern = re.compile(r'\[(.*?)\]')
+                map_keys = re.findall(pattern, resource)
             if map_keys and len(resource.split("[")) > 1:
-                value = value.get(resource.split("[")[0])
+                res = resource.split("[")[0]
+                if res in value:
+                    value = value.get(res)
+                else:
+                    value = None
+                    is_valid = False
+                    break
                 for key in map_keys:
                     if value is None or not isinstance(value, dict):
                         is_valid = False
@@ -152,6 +161,7 @@ class TerraformTemplateParser(TemplateParser):
                     break
             else:
                 value = None
+                is_valid = False
                 break
         
         if is_valid:
@@ -420,13 +430,30 @@ class TerraformTemplateParser(TemplateParser):
             logger.debug(value)
             return []
 
+    def process_expression_parameters(self, param_str, count):
+        
+        groups = re.findall(r'([.a-zA-Z]+)[(].*[,].*[)]', param_str, re.I)
+        if groups:
+            for group in groups:
+                updated_group, _ = self.process_resource(group, count)
+                param_str.replace(group, updated_group)
+        
+        groups = re.findall(r'^[(].*[,].*[)]|.* ([(].*[)])', param_str, re.I)
+        if groups:
+            for group in groups:
+                parameter_str = re.findall("(?<=\().*(?=\))", group)[0]
+                updated_group = self.process_expression_parameters(parameter_str, count)
+                param_str.replace(group, updated_group)
+        
+        return param_str
+
     def process_resource(self, resource, count=None):
         """ 
         process the resource json and return the resource with updated values
         """
         processed = True
         new_resource = ""
-        if  isinstance(resource, list):
+        if isinstance(resource, list):
             new_resource_list = [] 
             for value in resource:
                 processed_resource, processed = self.process_resource(value, count=count)
@@ -593,6 +620,18 @@ class TerraformTemplateParser(TemplateParser):
                         continue
 
                     parameter_str = m.group(0)
+                    parameter_str = self.process_expression_parameters(parameter_str, count)
+                    
+                    string_params = {}
+                    groups = re.findall(r'\".*?\"', parameter_str, re.I)
+                    if groups:
+                        i = 0
+                        for group in groups:
+                            updated_group, _ = self.process_resource(groups[i], count)
+                            string_params["group%s" % (str(i))] = updated_group
+                            parameter_str = parameter_str.replace(group, "group%s" % (str(i)))
+                            i+=1
+                    
                     # params = re.findall(r"[a-zA-Z0-9.()\[\]_*\"]+|(?:(?![a-zA-Z0-9.()\[\]_*\"]).)+", parameter_str)
                     params = re.findall(r"[a-zA-Z0-9.()\[\],-_*\"\'\{\$\}]+|(?:(?![ a-zA-Z0-9.()\[\]_*\"\'\{\$\}]).)+", parameter_str)
 
@@ -600,6 +639,8 @@ class TerraformTemplateParser(TemplateParser):
                         new_parameter_list = []
                         process_function = True
                         for param in params:
+                            if param in string_params:
+                                param = str(string_params[param])
                             processed_param, processed = self.process_resource("${" + param.strip() + "}", count=count)
                             if isinstance(processed_param, str) and (re.findall(r".*\(.*\)", processed_param) or re.findall(r"\${([^}]*)}", processed_param)):
                                 process_function = False # parameter processing failed
