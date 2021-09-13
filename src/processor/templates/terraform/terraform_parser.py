@@ -66,23 +66,10 @@ class TerraformTemplateParser(TemplateParser):
         """
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "tf":
             json_data = hcl_to_json(file_path)
-            if (json_data and "resource" in json_data):
-                self.template_references["main_templates"].append({
-                    "main_file_path" : self.get_ralative_path(file_path)
-                })
-                return True
-            if (json_data and "module" in json_data):
-                return True
+            return True if (json_data and ("resource" in json_data or "module" in json_data)) else False
         elif len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "json":
             json_data = json_from_file(file_path, escape_chars=['$'])
-            if (json_data and "resource" in json_data):
-                self.template_references["main_templates"].append({
-                    "main_file_path" : self.get_ralative_path(file_path)
-                })
-                return True
-            if (json_data and "module" in json_data):
-                return True
-        return False
+            return True if (json_data and ("resource" in json_data or "module" in json_data)) else False
     
     def is_parameter_file(self, file_path):
         """
@@ -189,6 +176,10 @@ class TerraformTemplateParser(TemplateParser):
         """
         return the template json data
         """
+        self.template_references["main_templates"].append({
+            "main_file_path" : self.get_ralative_path(self.template_file)
+        })
+
         json_data = None
         if len(self.template_file.split(".")) > 0 and self.template_file.split(".")[-1]=="tf":
             json_data = hcl_to_json(self.template_file)
@@ -219,7 +210,7 @@ class TerraformTemplateParser(TemplateParser):
         takes full path of template or parameter file and returns the relative path by removing `temp` directory path
         """
         split_path = file_path.split("/")
-        return "/%s" % "/".join(split_path[3:])
+        return "/%s" % "/".join(split_path[3:]).replace("//","/")
 
     def generate_template_json(self):
         """
@@ -272,12 +263,6 @@ class TerraformTemplateParser(TemplateParser):
                             if not module_file_path:
                                 continue
                             
-                            self.template_references["module_templates"].append({
-                                "main_file_path" : self.get_ralative_path(self.template_file),
-                                "module_file_path" : self.get_ralative_path(module_file_path),
-                                "module_label" : key
-                            })
-
                             logger.info("Finding module : %s", module_file_path)
                             if exists_dir(module_file_path):
                                 list_of_file = os.listdir(module_file_path)
@@ -288,6 +273,11 @@ class TerraformTemplateParser(TemplateParser):
                                     if any(exclude_dir in entry for exclude_dir in self.exclude_directories):
                                         continue
                                     new_file_path = ('%s/%s' % (module_file_path, entry)).replace('//', '/')
+                                    self.template_references["module_templates"].append({
+                                        "main_file_path" : self.get_ralative_path(self.template_file),
+                                        "module_file_path" : self.get_ralative_path(new_file_path),
+                                        "module_label" : key
+                                    })
                                     if exists_file(new_file_path):
                                         if self.is_template_file(new_file_path):
                                             template_file_path =  new_file_path
