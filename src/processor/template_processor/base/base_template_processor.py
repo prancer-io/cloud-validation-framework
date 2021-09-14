@@ -58,6 +58,7 @@ class TemplateProcessor:
         self.dir_path = ""
         self.template_files = []
         self.parameter_files = []
+        self.kwargs = {}
     
     def append_exclude_directories(self, dirs):
         """
