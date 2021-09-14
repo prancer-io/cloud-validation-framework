@@ -90,5 +90,6 @@ class TerraformTemplateProcessor(TemplateProcessor):
                 self.contentType = terraform_template_parser.contentType
                 self.template_files = terraform_template_parser.template_file_list
                 self.parameter_files = terraform_template_parser.parameter_file_list
+                self.kwargs["template_parser"] = terraform_template_parser
 
         return template_json
