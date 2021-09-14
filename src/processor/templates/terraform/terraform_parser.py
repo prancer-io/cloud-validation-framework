@@ -176,6 +176,7 @@ class TerraformTemplateParser(TemplateParser):
         """
         return the template json data
         """
+        # used for terraform file remediation
         self.template_references["main_templates"].append({
             "main_file_path" : self.get_ralative_path(self.template_file)
         })
@@ -267,7 +268,7 @@ class TerraformTemplateParser(TemplateParser):
                             if exists_dir(module_file_path):
                                 list_of_file = os.listdir(module_file_path)
 
-                                template_file_path = ""
+                                template_file_path_list = []
                                 parameter_file_list = []
                                 for entry in list_of_file:
                                     if any(exclude_dir in entry for exclude_dir in self.exclude_directories):
@@ -280,39 +281,40 @@ class TerraformTemplateParser(TemplateParser):
                                     })
                                     if exists_file(new_file_path):
                                         if self.is_template_file(new_file_path):
-                                            template_file_path =  new_file_path
+                                            template_file_path_list.append(new_file_path)
                                         elif self.is_parameter_file(new_file_path):
                                             parameter_file_list.append(new_file_path)
-                                    
-                                if template_file_path and parameter_file_list:
-                                    terraform_template_parser = TerraformTemplateParser(
-                                        template_file_path,
-                                        parameter_file=parameter_file_list,
-                                        **{"default_gparams" : default_gparams, "process_module" : True })
-                                    new_template_json = terraform_template_parser.parse()
+                                
+                                if template_file_path_list and parameter_file_list:
+                                    for template_file_path in template_file_path_list:
+                                        terraform_template_parser = TerraformTemplateParser(
+                                            template_file_path,
+                                            parameter_file=parameter_file_list,
+                                            **{"default_gparams" : default_gparams, "process_module" : True })
+                                        new_template_json = terraform_template_parser.parse()
 
-                                    self.template_file_list = self.template_file_list + terraform_template_parser.template_file_list
-                                    self.parameter_file_list = self.parameter_file_list + terraform_template_parser.parameter_file_list
+                                        self.template_file_list = self.template_file_list + terraform_template_parser.template_file_list
+                                        self.parameter_file_list = self.parameter_file_list + terraform_template_parser.parameter_file_list
 
-                                    if new_template_json:
-                                        for resource, resource_item in new_template_json.items():
-                                            # set parameters from modules files to main resource file
-                                            if resource == "resource":
-                                                for resource_key, resource_value in resource_item.items():
-                                                    for resource_name, resource_properties in resource_value.items():
-                                                        if isinstance(resource_properties, dict):
-                                                            for default_key, default_value in default_gparams.items():
-                                                                if default_key not in resource_properties:
-                                                                    resource_properties[default_key] = default_value
-                                                        if isinstance(resource_properties, list):
-                                                            for resource_property in resource_properties:
+                                        if new_template_json:
+                                            for resource, resource_item in new_template_json.items():
+                                                # set parameters from modules files to main resource file
+                                                if resource == "resource":
+                                                    for resource_key, resource_value in resource_item.items():
+                                                        for resource_name, resource_properties in resource_value.items():
+                                                            if isinstance(resource_properties, dict):
                                                                 for default_key, default_value in default_gparams.items():
-                                                                    if default_key not in resource_property:
-                                                                        resource_property[default_key] = default_value
-                                            if resource not in new_resources:
-                                                new_resources[resource] = [resource_item]
-                                            else:
-                                                new_resources[resource].append(resource_item)
+                                                                    if default_key not in resource_properties:
+                                                                        resource_properties[default_key] = default_value
+                                                            if isinstance(resource_properties, list):
+                                                                for resource_property in resource_properties:
+                                                                    for default_key, default_value in default_gparams.items():
+                                                                        if default_key not in resource_property:
+                                                                            resource_property[default_key] = default_value
+                                                if resource not in new_resources:
+                                                    new_resources[resource] = [resource_item]
+                                                else:
+                                                    new_resources[resource].append(resource_item)
                             else:
                                 logger.error("module does not exist : %s ", value["source"])
                             
