@@ -24,6 +24,7 @@ curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/
 - **Param:**
 ```
 - container: <container name>
+- exclusionType: [test, resource, single], otherwise ignored and all are sent.
 ```
 
 **Response:**
@@ -80,6 +81,7 @@ curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/
 ```
 - container: <container name>
 - exclusions: [{"exclusionType": "resource", "paths": ["<resource path>"]}, {}]
+            valid exclusionTypes are "resource", "test", "single"
 ```
 
 **Response:**
