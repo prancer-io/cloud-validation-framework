@@ -495,8 +495,14 @@ class TerraformTemplateParser(TemplateParser):
                         del process_resource["count"]
                         self.count = i
                         for key, value in process_resource.items():
-                            processed_resource, processed = self.process_resource(value, count=i)
-                            new_resource_dict[key] = processed_resource
+                            if key == "dynamic" and value and isinstance(value, list) and isinstance(value[0], dict):
+                                processed_resource, processed = self.process_resource({ "dynamic" : value }, count=i)
+                                if processed_resource and isinstance(processed_resource, dict):
+                                    for res, val in processed_resource.items():
+                                        new_resource_dict[res] = val
+                            else:
+                                processed_resource, processed = self.process_resource(value, count=i)
+                                new_resource_dict[key] = processed_resource
                         new_resource_list.append(new_resource_dict)
                     self.count = None
                     new_resource = new_resource_list
