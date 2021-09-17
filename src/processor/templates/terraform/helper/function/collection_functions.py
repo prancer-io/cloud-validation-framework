@@ -55,7 +55,7 @@ def index(ele_list, value):
 
 def lookup(json_data, find_key, default=None):
     "retrieves the value of a single element from a map. If the given key does not exist, return the default value."
-    return json_data.get(find_key, default)
+    return json_data.get(find_key, default) if json_data and isinstance(json_data, dict) else default
 
 def contains(ele_list, search_ele):
     "check element contains in a list or not"
