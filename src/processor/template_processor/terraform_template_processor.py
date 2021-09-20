@@ -53,7 +53,6 @@ class TerraformTemplateProcessor(TemplateProcessor):
             )
 
         paths = parameter_files + [("%s/%s" % (file_path, template_file)).replace("//", "/")]
-        
         template_json = self.process_template(paths)
         for resource_type in self.resource_types:
             if resource_type in self.processed_templates:
@@ -66,13 +65,14 @@ class TerraformTemplateProcessor(TemplateProcessor):
                     "paths" : paths,
                     "status" : "active" if template_json else "inactive"
                 }]
-        
+        	
         if not self.resource_type or self.resource_type in self.resource_types:
             generated_template_file_list.append({
                 "paths" : paths,
                 "status" : "active" if template_json else "inactive",
                 "validate" : self.node['validate'] if 'validate' in self.node else True
-            })
+            })	
+
 
     def process_template(self, paths):
         """
@@ -98,5 +98,6 @@ class TerraformTemplateProcessor(TemplateProcessor):
                 self.template_files = terraform_template_parser.template_file_list
                 self.parameter_files = terraform_template_parser.parameter_file_list
                 self.resource_types = terraform_template_parser.resource_types
+                self.kwargs["template_parser"] = terraform_template_parser
 
         return template_json

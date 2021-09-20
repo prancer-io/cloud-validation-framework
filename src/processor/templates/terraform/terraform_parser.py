@@ -55,6 +55,10 @@ class TerraformTemplateParser(TemplateParser):
         self.parameter_file_list = self.parameter_file if self.parameter_file else []
         self.connector_data = kwargs.get("connector_data", False)
         self.exclude_directories = [".git"]
+        self.template_references = {
+            "main_templates" : [],
+            "module_templates" : []
+        }
 
     def is_template_file(self, file_path):
         """
@@ -66,7 +70,6 @@ class TerraformTemplateParser(TemplateParser):
         elif len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "json":
             json_data = json_from_file(file_path, escape_chars=['$'])
             return True if (json_data and ("resource" in json_data or "module" in json_data)) else False
-        return False
     
     def is_parameter_file(self, file_path):
         """
@@ -125,8 +128,17 @@ class TerraformTemplateParser(TemplateParser):
             # process variables like this: var.network_http["cidr"]
             pattern = re.compile(r'\[["|\'](.*?)["|\']\]')
             map_keys = re.findall(pattern, resource)
+            if not map_keys:
+                pattern = re.compile(r'\[(.*?)\]')
+                map_keys = re.findall(pattern, resource)
             if map_keys and len(resource.split("[")) > 1:
-                value = value.get(resource.split("[")[0])
+                res = resource.split("[")[0]
+                if res in value:
+                    value = value.get(res)
+                else:
+                    value = None
+                    is_valid = False
+                    break
                 for key in map_keys:
                     if value is None or not isinstance(value, dict):
                         is_valid = False
@@ -152,6 +164,7 @@ class TerraformTemplateParser(TemplateParser):
                     break
             else:
                 value = None
+                is_valid = False
                 break
         
         if is_valid:
@@ -163,6 +176,11 @@ class TerraformTemplateParser(TemplateParser):
         """
         return the template json data
         """
+        # used for terraform file remediation
+        self.template_references["main_templates"].append({
+            "main_file_path" : self.get_ralative_path(self.template_file)
+        })
+
         json_data = None
         if len(self.template_file.split(".")) > 0 and self.template_file.split(".")[-1]=="tf":
             json_data = hcl_to_json(self.template_file)
@@ -187,6 +205,13 @@ class TerraformTemplateParser(TemplateParser):
                     splited_list = parameter.split(".")
                     parameter_json_list.append({'.'.join(splited_list[len(splited_list)-2:]) : json_data})
         return parameter_json_list
+    
+    def get_ralative_path(self, file_path):
+        """
+        takes full path of template or parameter file and returns the relative path by removing `temp` directory path
+        """
+        split_path = file_path.split("/")
+        return "/%s" % "/".join(split_path[3:]).replace("//","/")
 
     def generate_template_json(self):
         """
@@ -238,52 +263,58 @@ class TerraformTemplateParser(TemplateParser):
 
                             if not module_file_path:
                                 continue
-
+                            
                             logger.info("Finding module : %s", module_file_path)
                             if exists_dir(module_file_path):
                                 list_of_file = os.listdir(module_file_path)
 
-                                template_file_path = ""
+                                template_file_path_list = []
                                 parameter_file_list = []
                                 for entry in list_of_file:
                                     if any(exclude_dir in entry for exclude_dir in self.exclude_directories):
                                         continue
                                     new_file_path = ('%s/%s' % (module_file_path, entry)).replace('//', '/')
+                                    self.template_references["module_templates"].append({
+                                        "main_file_path" : self.get_ralative_path(self.template_file),
+                                        "module_file_path" : self.get_ralative_path(new_file_path),
+                                        "module_label" : key
+                                    })
                                     if exists_file(new_file_path):
                                         if self.is_template_file(new_file_path):
-                                            template_file_path =  new_file_path
+                                            template_file_path_list.append(new_file_path)
                                         elif self.is_parameter_file(new_file_path):
                                             parameter_file_list.append(new_file_path)
-                                    
-                                if template_file_path and parameter_file_list:
-                                    terraform_template_parser = TerraformTemplateParser(
-                                        template_file_path,
-                                        parameter_file=parameter_file_list,
-                                        **{"default_gparams" : default_gparams, "process_module" : True })
-                                    new_template_json = terraform_template_parser.parse()
+                                
+                                if template_file_path_list and parameter_file_list:
+                                    for template_file_path in template_file_path_list:
+                                        terraform_template_parser = TerraformTemplateParser(
+                                            template_file_path,
+                                            parameter_file=parameter_file_list,
+                                            **{"default_gparams" : default_gparams, "process_module" : True })
+                                        new_template_json = terraform_template_parser.parse()
 
-                                    self.template_file_list = self.template_file_list + terraform_template_parser.template_file_list
-                                    self.parameter_file_list = self.parameter_file_list + terraform_template_parser.parameter_file_list
+                                        self.template_file_list = self.template_file_list + terraform_template_parser.template_file_list
+                                        self.parameter_file_list = self.parameter_file_list + terraform_template_parser.parameter_file_list
 
-                                    if new_template_json:
-                                        for resource, resource_item in new_template_json.items():
-                                            # set parameters from modules files to main resource file
-                                            if resource == "resource":
-                                                for resource_key, resource_value in resource_item.items():
-                                                    for resource_name, resource_properties in resource_value.items():
-                                                        if isinstance(resource_properties, dict):
-                                                            for default_key, default_value in default_gparams.items():
-                                                                if default_key not in resource_properties:
-                                                                    resource_properties[default_key] = default_value
-                                                        if isinstance(resource_properties, list):
-                                                            for resource_property in resource_properties:
+                                        if new_template_json:
+                                            for resource, resource_item in new_template_json.items():
+                                                # set parameters from modules files to main resource file
+                                                if resource == "resource":
+                                                    for resource_key, resource_value in resource_item.items():
+                                                        for resource_name, resource_properties in resource_value.items():
+                                                            if isinstance(resource_properties, dict):
                                                                 for default_key, default_value in default_gparams.items():
-                                                                    if default_key not in resource_property:
-                                                                        resource_property[default_key] = default_value
-                                            if resource not in new_resources:
-                                                new_resources[resource] = [resource_item]
-                                            else:
-                                                new_resources[resource].append(resource_item)
+                                                                    if default_key not in resource_properties:
+                                                                        resource_properties[default_key] = default_value
+                                                            if isinstance(resource_properties, list):
+                                                                for resource_property in resource_properties:
+                                                                    for default_key, default_value in default_gparams.items():
+                                                                        if default_key not in resource_property:
+                                                                            resource_property[default_key] = default_value
+                                                if resource not in new_resources:
+                                                    new_resources[resource] = [resource_item]
+                                                else:
+                                                    new_resources[resource].append(resource_item)
                             else:
                                 logger.error("module does not exist : %s ", value["source"])
                             
@@ -422,13 +453,30 @@ class TerraformTemplateParser(TemplateParser):
             logger.debug(value)
             return []
 
+    def process_expression_parameters(self, param_str, count):
+        
+        groups = re.findall(r'([.a-zA-Z]+)[(].*[,].*[)]', param_str, re.I)
+        if groups:
+            for group in groups:
+                updated_group, _ = self.process_resource(group, count)
+                param_str.replace(group, updated_group)
+        
+        groups = re.findall(r'^[(].*[,].*[)]|.* ([(].*[)])', param_str, re.I)
+        if groups:
+            for group in groups:
+                parameter_str = re.findall("(?<=\().*(?=\))", group)[0]
+                updated_group = self.process_expression_parameters(parameter_str, count)
+                param_str.replace(group, updated_group)
+        
+        return param_str
+
     def process_resource(self, resource, count=None):
         """ 
         process the resource json and return the resource with updated values
         """
         processed = True
         new_resource = ""
-        if  isinstance(resource, list):
+        if isinstance(resource, list):
             new_resource_list = [] 
             for value in resource:
                 processed_resource, processed = self.process_resource(value, count=count)
@@ -449,8 +497,14 @@ class TerraformTemplateParser(TemplateParser):
                         del process_resource["count"]
                         self.count = i
                         for key, value in process_resource.items():
-                            processed_resource, processed = self.process_resource(value, count=i)
-                            new_resource_dict[key] = processed_resource
+                            if key == "dynamic" and value and isinstance(value, list) and isinstance(value[0], dict):
+                                processed_resource, processed = self.process_resource({ "dynamic" : value }, count=i)
+                                if processed_resource and isinstance(processed_resource, dict):
+                                    for res, val in processed_resource.items():
+                                        new_resource_dict[res] = val
+                            else:
+                                processed_resource, processed = self.process_resource(value, count=i)
+                                new_resource_dict[key] = processed_resource
                         new_resource_list.append(new_resource_dict)
                     self.count = None
                     new_resource = new_resource_list
@@ -595,6 +649,18 @@ class TerraformTemplateParser(TemplateParser):
                         continue
 
                     parameter_str = m.group(0)
+                    parameter_str = self.process_expression_parameters(parameter_str, count)
+                    
+                    string_params = {}
+                    groups = re.findall(r'\".*?\"', parameter_str, re.I)
+                    if groups:
+                        i = 0
+                        for group in groups:
+                            updated_group, _ = self.process_resource(groups[i], count)
+                            string_params["group%s" % (str(i))] = updated_group
+                            parameter_str = parameter_str.replace(group, "group%s" % (str(i)))
+                            i+=1
+                    
                     # params = re.findall(r"[a-zA-Z0-9.()\[\]_*\"]+|(?:(?![a-zA-Z0-9.()\[\]_*\"]).)+", parameter_str)
                     params = re.findall(r"[a-zA-Z0-9.()\[\],-_*\"\'\{\$\}]+|(?:(?![ a-zA-Z0-9.()\[\]_*\"\'\{\$\}]).)+", parameter_str)
 
@@ -602,6 +668,8 @@ class TerraformTemplateParser(TemplateParser):
                         new_parameter_list = []
                         process_function = True
                         for param in params:
+                            if param in string_params:
+                                param = str(string_params[param])
                             processed_param, processed = self.process_resource("${" + param.strip() + "}", count=count)
                             if isinstance(processed_param, str) and (re.findall(r".*\(.*\)", processed_param) or re.findall(r"\${([^}]*)}", processed_param)):
                                 process_function = False # parameter processing failed
