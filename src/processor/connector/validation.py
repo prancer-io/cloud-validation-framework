@@ -408,7 +408,7 @@ def _get_new_testcases(testcases, mastersnapshots):
             logger.warning("Excluded from testId exclusions: %s", testcase['masterTestId'])
             continue
         test_parser_type = testcase.get('type', None)
-        if test_parser_type == 'rego':
+        if test_parser_type == 'rego' or test_parser_type == 'python':
             new_cases = _get_rego_testcase(testcase, mastersnapshots)
             newcases.extend(new_cases)
         else:
