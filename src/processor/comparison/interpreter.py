@@ -178,8 +178,9 @@ def import_from(module, name):
 def import_module(module):
     try:
         module = __import__(module)
+        return module
     except:
-        return
+        return False
 
 class Comparator:
     """
@@ -461,12 +462,23 @@ class ComparatorV01:
 
         if inputjson:
             test_rule = self.rule
-            rule_matched=re.match(r'^file\((.*)\)$', test_rule, re.I)
+            rule_matched = re.match(r'^file\((.*)\)$', test_rule, re.I)
+            if rule_matched:
+                rego_file_name = self.rego_rule_filename(rule_matched.groups()[0], self.container)
+                if not rego_file_name:
+                    python_testcase = "processor.comparison.rules.%s.%s"%(self.snapshots[0]["type"],rule_matched.groups()[0].split(".")[0])
+                    module = import_module(python_testcase)
+                    if not module:
+                        self.log_compliance_info(testId)
+                        logger.info('\t\tERROR: %s missing', rule_matched.groups()[0])
+                        logger.warning('\t\tRESULT: SKIPPED')
+                        return results
+                else:            
+                    python_testcase = rule_matched.groups()[0].split(".")[0]
             
             if isinstance(rule_expr, list):
                 for rule in rule_expr:
                     function_name = rule["eval"].rsplit(".", 1)[-1] if "eval" in rule else ""
-                    python_testcase = rule_matched.groups()[0].split(".")[0]
                     evalmessage = rule['message'].rsplit('.', 1)[-1] if "message" in rule else ""
                     test_function = import_from(python_testcase, function_name)
                     if not test_function:
