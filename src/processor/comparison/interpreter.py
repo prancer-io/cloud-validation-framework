@@ -504,14 +504,19 @@ class ComparatorV01:
                         self.log_result(result)
                         
                     if result["issue"] == True or result["issue"] == False:
-                        results.append({
+                        json_result = {
                             'eval': rule["eval"], 
                             'result': result["result"], 
                             'message': result[evalmessage] if not result and evalmessage in results else "",
                             'id' : rule.get("id"),
                             'remediation_description' : rule.get("remediationDescription"),
                             'remediation_function' : rule.get("remediationFunction"),
-                        })
+                        }
+
+                        if result.get("errors"):
+                            json_result["errors"] = result.get("errors",[])
+
+                        results.append(json_result)
                             
         else:
             results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
@@ -758,8 +763,6 @@ class ComparatorV01:
             
             elif self.type == "python":
                 results = self.process_python_test_case()
-                logger.info(results)
-                logger.info(results)
                 result_val = []
                 connector_data = self.get_connector_data()
                 for result in results:
