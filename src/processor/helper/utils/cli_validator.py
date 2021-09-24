@@ -338,6 +338,7 @@ Runs the prancer framework based on the configuration files available in collect
         if not args.compliance and not args.crawler:
             crawl_and_run = True
 
+        put_in_currentdata("crawl_and_run", crawl_and_run)
 
         if args.crawler or crawl_and_run:
             # Generate snapshot files from here.

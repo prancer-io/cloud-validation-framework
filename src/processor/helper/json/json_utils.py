@@ -94,9 +94,9 @@ def json_from_file(jsonfile, escape_chars=None, object_pairs_hook=OrderedDict):
                 with open(jsonfile, 'r', encoding='utf-8-sig') as infile:
                     file_data = infile.read()
             
-            jsondata = commentjson.loads(file_data, object_pairs_hook=object_pairs_hook)
+            # jsondata = commentjson.loads(file_data, object_pairs_hook=object_pairs_hook)
 
-            # jsondata = json.loads(file_data, object_pairs_hook=object_pairs_hook)
+            jsondata = json.loads(file_data, object_pairs_hook=object_pairs_hook)
     except Exception as ex:
         logger.debug('Failed to load json from file: %s, exception: %s', jsonfile, ex)
     return jsondata
@@ -222,7 +222,15 @@ def get_container_exclusion_json(container):
     """Return list of exclusion data from a exclusion file in the container."""
     exclusion_data = {}
     container_dir = get_container_dir(container)
+    logger.info("container_dir")
+    logger.info("------------------")
+    logger.info(container_dir)
     exclusion_files = get_json_files(container_dir, EXCLUSION)
     if exclusion_files:
         exclusion_data = json_from_file(exclusion_files[0])
     return exclusion_data
+
+
+if __name__ == "__main__":
+    json_data = json_from_file("/home/swan-13/Documents/project/prancer/repo-github/cloud-validation-framework/realm/validation/aws-iac-demo/master-snapshot_gen.json")
+    print(json.dumps(json_data, indent=2))    

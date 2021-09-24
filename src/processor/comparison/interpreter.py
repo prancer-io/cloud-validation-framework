@@ -263,13 +263,6 @@ class ComparatorV01:
             # results.append({'eval': 'data.rule.rulepass', 'result': 'skipped', 'message': msg})
             return results
 
-        if self.snapshots:
-            resourceType = self.snapshots[0].get('resourceType')
-            resourceTypes = self.testcase.get('resourceTypes', [])
-            if resourceType and resourceTypes and resourceType not in resourceTypes:
-                self.log_compliance_info(testId)
-                logger.warning('\t\tRESULT: SKIPPED')
-                return results
                             
         # logger.critical('\t\tEVAL: %s', rule_expr)
         opa_exe = opa_binary()        
@@ -484,7 +477,7 @@ class ComparatorV01:
                     'collection': docs[0]['collection'],
                     'type': docs[0].get("node", {}).get('type'),
                     'region' : docs[0].get('region', ""),
-                    'resourceType' : docs[0].get("node", {}).get('resourceType'),
+                    'resourceTypes' : docs[0].get("node", {}).get('resourceTypes', []),
                 }
                 if 'paths' in docs[0]:
                     snapshot['paths'] = docs[0]['paths']
@@ -508,7 +501,7 @@ class ComparatorV01:
                             'collection': json_data['collection'],
                             'type': json_data.get("node", {}).get('type'),
                             'region' : json_data.get('region', ""),
-                            'resourceType' : json_data.get("node", {}).get('resourceType'),
+                            'resourceTypes' : json_data.get("node", {}).get('resourceTypes', []),
                         }
                         if 'paths' in json_data:
                             snapshot_val['paths'] = json_data['paths']

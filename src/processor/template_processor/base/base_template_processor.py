@@ -105,7 +105,8 @@ class TemplateProcessor:
             "node": self.node,
             "snapshotId": self.node['snapshotId'],
             "collection": collection.replace('.', '').lower(),
-            "json": self.processed_template
+            "json": self.processed_template,
+            "resourceTypes" : self.node["resourceTypes"]
         }
         if self.resource_type:
             db_record["resourceType"] = self.resource_type
@@ -231,6 +232,7 @@ class TemplateProcessor:
         process the snapshot and returns the updated `snapshot_data` which is require for run the test
         """
         try:
+            crawl_and_run = get_from_currentdata("crawl_and_run")
             if self.node["type"] == "helmChart" and not self.helm_binary():
                 logger.error("HELM binary not found!")
                 return self.snapshot_data
@@ -256,17 +258,18 @@ class TemplateProcessor:
                 if not exists_file('%s/%s' % (helm_dir,self.paths[0].rpartition("/")[-1])):
                     self.process_helm_chart(helm_dir)
 
-            path_key = ", ".join(self.paths)	
-            if path_key in self.processed_templates:	
-                self.processed_template = self.processed_templates[path_key].get("json")	
-            else:	
-                self.processed_template = self.process_template(self.paths)	
-                self.processed_templates[path_key] = {	
-                    "json" : self.processed_template	
-                }	
-                
+            found_template = False
+            if crawl_and_run and self.processed_templates:
+                # Avoid re-run of same template file when running the crawler and compliance both
+                for resource_type, processed_template_list in self.processed_templates.items():
+                    for processed_template in processed_template_list:
+                        if processed_template.get("paths") == self.paths:
+                            found_template = True
+                            self.processed_template = processed_template.get("json")
 
-            self.processed_template = self.process_template(self.paths)
+            if not found_template:
+                self.processed_template = self.process_template(self.paths)
+
             if self.processed_template:
                 status = self.store_data_record()
                 if status:
@@ -286,11 +289,10 @@ class TemplateProcessor:
         """
         nodes = []
         collection = get_field_value(self.node, 'collection')
-        test_user = get_field_value(self.snapshot, 'testUser')
-        source = get_field_value(self.snapshot, 'source')
         master_snapshot_id = get_field_value(self.node, 'masterSnapshotId')
         
         for template_node in generated_template_file_list:
+            template_node['resourceTypes'] = list(set(template_node['resourceTypes']))
             count = count + 1
             node_dict = {
                 "snapshotId": '%s%s' % (master_snapshot_id, str(count)),
@@ -298,7 +300,8 @@ class TemplateProcessor:
                 "collection": collection,
                 "paths": template_node["paths"],
                 "status": template_node['status'],
-                "validate": template_node['validate']
+                "validate": template_node['validate'],
+                "resourceTypes" : [self.resource_type] if self.resource_type else template_node['resourceTypes']
             }
             nodes.append(node_dict)
         return nodes, count
@@ -313,32 +316,34 @@ class TemplateProcessor:
                 parameter_file
             ]
             
-            template_json = self.process_template(paths)
+            template_paths = [	
+                ("%s/%s" % (file_path, template_file)).replace("//", "/"),	
+                ("%s/%s" % (file_path, parameter_file)).replace("//", "/")	
+            ]
+            
+            self.processed_template = self.process_template(paths)
+            
+            processed_resource_types = []
             for resource_type in self.resource_types:	
-                if resource_type in self.processed_templates:
-                    self.processed_templates[resource_type].append({	
-                        "paths" : [	
-                            ("%s/%s" % (file_path, template_file)).replace("//", "/"),	
-                            ("%s/%s" % (file_path, parameter_file)).replace("//", "/")	
-                        ],	
-                        "status" : "active" if template_json else "inactive"	
-                    })	
-                else:	
-                    self.processed_templates[resource_type] = [{	
-                        "paths" : [	
-                            ("%s/%s" % (file_path, template_file)).replace("//", "/"),	
-                            ("%s/%s" % (file_path, parameter_file)).replace("//", "/")	
-                        ],	
-                        "status" : "active" if template_json else "inactive"	
-                    }]
+                if resource_type not in processed_resource_types:
+                    processed_resource_types.append(resource_type)
+                    if resource_type in self.processed_templates:
+                        self.processed_templates[resource_type].append({	
+                            "paths" : template_paths,	
+                            "status" : "active" if self.processed_template else "inactive",
+                            "json" : self.processed_template
+                        })
+                    else:
+                        self.processed_templates[resource_type] = [{
+                            "paths" : template_paths,
+                            "status" : "active" if self.processed_template else "inactive",
+                            "json" : self.processed_template
+                        }]
                     
-            if not self.resource_type or self.resource_type in self.resource_types:	
+            if not self.resource_type or self.resource_type in self.resource_types:
                 generated_template_file_list.append({
-                    "paths" : [
-                        ("%s/%s" % (file_path, template_file)).replace("//", "/"),
-                        ("%s/%s" % (file_path, parameter_file)).replace("//", "/")
-                    ],
-                    "status" : "active" if template_json else "inactive",
+                    "paths" : template_paths,
+                    "status" : "active" if self.processed_template else "inactive",
                     "validate" : self.node['validate'] if 'validate' in self.node else True
                 })
 
@@ -412,6 +417,7 @@ class TemplateProcessor:
                 generated_template_file_list = []
                 if template_file_list:
                     for template_file in template_file_list:
+                        self.resource_types = []
                         if template_file in self.exclude_paths:
                             logger.warning("Excluded from resource exclusions: %s", template_file)
                             continue
@@ -422,30 +428,35 @@ class TemplateProcessor:
                             paths = [
                                 template_file
                             ]
-                            template_json = self.process_template(paths)
-                            for resource_type in self.resource_types:	
-                                if resource_type in self.processed_templates:	
-                                    self.processed_templates[resource_type].append({	
-                                        "paths" : [	
-                                            ("%s/%s" % (file_path, template_file)).replace("//", "/")	
-                                        ],	
-                                        "status" : "active" if template_json else "inactive"	
-                                    })	
-                                else:	
-                                    self.processed_templates[resource_type] = [{	
-                                        "paths" : [	
-                                            ("%s/%s" % (file_path, template_file)).replace("//", "/")	
-                                        ],	
-                                        "status" : "active" if template_json else "inactive"	
-                                    }]
+                            self.processed_template = self.process_template(paths)
+                            
+                            template_paths = [	
+                                ("%s/%s" % (file_path, template_file)).replace("//", "/")	
+                            ]
+                            
+                            processed_resource_types = []
+                            for resource_type in self.resource_types:
+                                if resource_type not in processed_resource_types:
+                                    processed_resource_types.append(resource_type)
+                                    if resource_type in self.processed_templates:
+                                        self.processed_templates[resource_type].append({	
+                                            "paths" :  template_paths,
+                                            "status" : "active" if self.processed_template else "inactive",
+                                            "json" : self.processed_template
+                                        })
+                                    else:
+                                        self.processed_templates[resource_type] = [{	
+                                            "paths" :  template_paths,
+                                            "status" : "active" if self.processed_template else "inactive",
+                                            "json" : self.processed_template
+                                        }]
                                     
                             if not self.resource_type or self.resource_type in self.resource_types:
                                 generated_template_file_list.append({
-                                    "paths" : [
-                                        ("%s/%s" % (file_path, template_file)).replace("//", "/")
-                                    ],
-                                    "status" : "active" if template_json else "inactive",
-                                    "validate" : node['validate'] if 'validate' in node else True
+                                    "paths" : template_paths,
+                                    "status" : "active" if self.processed_template else "inactive",
+                                    "validate" : node['validate'] if 'validate' in node else True,
+                                    "resourceTypes" : self.resource_types
                                 })
 
                     nodes, count = self.create_node_record(generated_template_file_list, count)
