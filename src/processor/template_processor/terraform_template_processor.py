@@ -76,7 +76,8 @@ class TerraformTemplateProcessor(TemplateProcessor):
             generated_template_file_list.append({
                 "paths" : paths,
                 "status" : "active" if self.processed_template else "inactive",
-                "validate" : self.node['validate'] if 'validate' in self.node else True
+                "validate" : self.node['validate'] if 'validate' in self.node else True,
+                "resourceTypes" : self.resource_types
             })
         
         logger.info("Processing completed %s \n"% file_path)

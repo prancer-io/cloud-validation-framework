@@ -61,7 +61,7 @@ import json
 import os
 import signal
 from inspect import currentframe, getframeinfo
-from processor.helper.config.config_utils import framework_dir, config_value, framework_config, \
+from processor.helper.config.config_utils import COMPLIANCE, CRAWL, CRAWL_AND_COMPLIANCE, framework_dir, config_value, framework_config, \
     CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, CUSTOMER, \
     SINGLETEST, EXCLUSION, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
@@ -337,17 +337,20 @@ Runs the prancer framework based on the configuration files available in collect
         crawl_and_run = False
         if not args.compliance and not args.crawler:
             crawl_and_run = True
-
-        put_in_currentdata("crawl_and_run", crawl_and_run)
+            put_in_currentdata("run_type", CRAWL_AND_COMPLIANCE)
 
         if args.crawler or crawl_and_run:
             # Generate snapshot files from here.
             current_progress = 'CRAWLERSTART'
+            if not crawl_and_run:
+                put_in_currentdata("run_type", CRAWL)
             generate_container_mastersnapshots(args.container, fs)
             current_progress = 'CRAWLERCOMPLETE'
         
         if args.compliance or crawl_and_run:
             current_progress = 'COMPLIANCESTART'
+            if not crawl_and_run:
+                put_in_currentdata("run_type", COMPLIANCE)
             create_output_entry(args.container, test_file="-", filesystem=True if args.db ==  0 else False)
             # Normal flow
             snapshot_status = populate_container_snapshots(args.container, fs)

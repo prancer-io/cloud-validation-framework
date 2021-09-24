@@ -7,7 +7,7 @@ import pymongo
 import hcl
 import traceback
 from yaml.loader import FullLoader
-from processor.helper.config.config_utils import config_value, EXCLUSION
+from processor.helper.config.config_utils import CRAWL_AND_COMPLIANCE, config_value, EXCLUSION
 from processor.helper.config.rundata_utils import get_dbtests,  get_from_currentdata
 from processor.logging.log_handler import getlogger
 from processor.database.database import insert_one_document, COLLECTION, DATABASE, DBNAME, \
@@ -232,7 +232,7 @@ class TemplateProcessor:
         process the snapshot and returns the updated `snapshot_data` which is require for run the test
         """
         try:
-            crawl_and_run = get_from_currentdata("crawl_and_run")
+            run_type = get_from_currentdata("run_type")
             if self.node["type"] == "helmChart" and not self.helm_binary():
                 logger.error("HELM binary not found!")
                 return self.snapshot_data
@@ -259,7 +259,7 @@ class TemplateProcessor:
                     self.process_helm_chart(helm_dir)
 
             found_template = False
-            if crawl_and_run and self.processed_templates:
+            if run_type == CRAWL_AND_COMPLIANCE and self.processed_templates:
                 # Avoid re-run of same template file when running the crawler and compliance both
                 for resource_type, processed_template_list in self.processed_templates.items():
                     for processed_template in processed_template_list:
@@ -344,7 +344,8 @@ class TemplateProcessor:
                 generated_template_file_list.append({
                     "paths" : template_paths,
                     "status" : "active" if self.processed_template else "inactive",
-                    "validate" : self.node['validate'] if 'validate' in self.node else True
+                    "validate" : self.node['validate'] if 'validate' in self.node else True,
+                    "resourceTypes" : self.resource_types
                 })
 
     def populate_sub_directory_snapshot(self, file_path, base_dir_path, sub_dir_path, snapshot, dbname, node, snapshot_data, count):
@@ -526,9 +527,6 @@ class TemplateProcessor:
                     if exists_dir(self.dir_path):
                         path = path.rstrip("/")
                         count = self.populate_sub_directory_snapshot(path, self.dir_path, "", self.snapshot, self.dbname, self.node, self.snapshot_data, count)
-                        # list_of_file = os.listdir(self.dir_path)
-                        # for entry in list_of_file:
-                        #     count = self.populate_sub_directory_snapshot(path, self.dir_path, entry, self.snapshot, self.dbname, self.node, self.snapshot_data, count)
                     else:
                         logger.error("Invalid path : directory does not exist : " + self.dir_path)
             else:

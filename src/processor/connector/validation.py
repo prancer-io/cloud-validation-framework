@@ -450,7 +450,7 @@ def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map):
             snapshot_resource_types = snapshot_resource_map.get(s_id, [])
             testcase_resource_types = testcase.get('resourceTypes', [])
             
-            if testcase_resource_types and not any(resource_type in snapshot_resource_types for resource_type in testcase_resource_types):
+            if testcase_resource_types and all(resource_type not in snapshot_resource_types for resource_type in testcase_resource_types):
                 continue
 
             new_testcase = copy.copy(testcase)
