@@ -58,18 +58,18 @@ def secret_finder(snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE=None, EXCLUDE_RE=
                                     nested_resource)
                                 if normalized_entropy > 0.965:
                                     errors.append({
-                                        "leaked_password_path": "Resources/"+resource.get("type")+"/" + "/".join([str(path) for path in path]),
+                                        "leaked_password_path": "Resources/"+resource.get("Type")+"/" + "/".join([str(path) for path in path]),
                                     })
                                     issue_found = True
                                     logger.warning("Leaked Password at:%s\nvalue:%s" % (
-                                        "Resources/"+resource.get("type")+"/" + "/".join([str(path) for path in path]), nested_resource))
+                                        "Resources/"+resource.get("Type")+"/" + "/".join([str(path) for path in path]), nested_resource))
                             else:
                                 issue_found = True
                                 errors.append({
-                                    "leaked_password_path": "Resources/"+resource.get("type")+"/" + "/".join([str(path) for path in path]),
+                                    "leaked_password_path": "Resources/"+resource.get("Type")+"/" + "/".join([str(path) for path in path]),
                                 })
                                 logger.warning("Leaked Password at:%s\nvalue:%s" % (
-                                    "Resources/"+resource.get("type")+"/" + "/".join([str(path) for path in path]), nested_resource))
+                                    "Resources/"+resource.get("Type")+"/" + "/".join([str(path) for path in path]), nested_resource))
 
         output["issue"] = True if issue_found else False
 
