@@ -4,6 +4,9 @@ import collections
 import traceback
 import math
 
+from processor.logging.log_handler import getlogger
+logger = getlogger()
+
 
 def shannon_entropy(data):
     if not data:
@@ -37,7 +40,7 @@ def get_paths(source):
 
 def secret_finder(snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE=None, EXCLUDE_RE=None, shannon_entropy_password=False):
     output = {}
-    entropy_list = []
+    errors = []
     try:
         issue_found = False
         skipped = True
@@ -54,33 +57,25 @@ def secret_finder(snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE=None, EXCLUDE_RE=
                                 _, normalized_entropy = shannon_entropy(
                                     nested_resource)
                                 if normalized_entropy > 0.965:
-                                    entropy_list.append({
-                                        "path": "resources/"+resource.get("type")+"/" + "/".join([str(path) for path in path]),
-                                        "value": nested_resource
+                                    errors.append({
+                                        "leaked_password_path": "resources/"+resource.get("type")+"/" + "/".join([str(path) for path in path]),
                                     })
                                     issue_found = True
-                                    print("\n\n")
-                                    print("Resource Type:",
-                                          resource.get("type"))
-                                    print("Path to leaked password:", "resources/"+resource.get(
-                                        "type")+"/" + "/".join([str(path) for path in path]))
-                                    print("leaked password:", nested_resource)
-                                    print("\n")
-                                else:
-                                    print(normalized_entropy, nested_resource)
+                                    logger.warning("Leaked Password at:%s\nvalue:%s" % (
+                                        "resources/"+resource.get("type")+"/" + "/".join([str(path) for path in path]), nested_resource))
                             else:
                                 issue_found = True
-                                print("\n\n")
-                                print("Resource Type:", resource.get("type"))
-                                print("Path to leaked password:", "resources/"+resource.get(
-                                    "type")+"/" + "/".join([str(path) for path in path]))
-                                print("leaked password:", nested_resource)
-                                print("\n")
+                                errors.append({
+                                    "leaked_password_path": "resources/"+resource.get("type")+"/" + "/".join([str(path) for path in path]),
+                                })
+                                logger.warning("Leaked Password at:%s\nvalue:%s" % (
+                                    "resources/"+resource.get("type")+"/" + "/".join([str(path) for path in path]), nested_resource))
 
         output["issue"] = True if issue_found else False
 
-        if entropy_list:
-            output["entropy_password"] = entropy_list
+        if errors:
+            output["errors"] = errors
+
         output["skipped"] = skipped
         return output
     except Exception as ex:
@@ -154,17 +149,3 @@ def entropy_password(generated_snapshot: dict) -> dict:
     else:
         output["entropy_password_err"] = ""
     return output
-
-
-if __name__ == '__main__':
-
-    generated_snapshot_path = "snapshot_google.json"
-    with open(generated_snapshot_path, "r") as snapshot:
-        generated_snapshot = json.load(snapshot)
-
-    output = google_password_leak(generated_snapshot)
-    print("\n\n", output)
-    output = entropy_password(generated_snapshot)
-    # print(output)
-    for password in output.get("entropy_password", []):
-        print(password)
