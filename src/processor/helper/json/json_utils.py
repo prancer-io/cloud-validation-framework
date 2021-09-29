@@ -4,7 +4,6 @@ import re
 import json
 import time
 import glob
-from processor.helper.json import commentjson
 from json.decoder import JSONDecodeError
 from collections import OrderedDict
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
@@ -94,8 +93,6 @@ def json_from_file(jsonfile, escape_chars=None, object_pairs_hook=OrderedDict):
                 with open(jsonfile, 'r', encoding='utf-8-sig') as infile:
                     file_data = infile.read()
             
-            # jsondata = commentjson.loads(file_data, object_pairs_hook=object_pairs_hook)
-
             jsondata = json.loads(file_data, object_pairs_hook=object_pairs_hook)
     except Exception as ex:
         logger.debug('Failed to load json from file: %s, exception: %s', jsonfile, ex)
@@ -222,9 +219,6 @@ def get_container_exclusion_json(container):
     """Return list of exclusion data from a exclusion file in the container."""
     exclusion_data = {}
     container_dir = get_container_dir(container)
-    logger.info("container_dir")
-    logger.info("------------------")
-    logger.info(container_dir)
     exclusion_files = get_json_files(container_dir, EXCLUSION)
     if exclusion_files:
         exclusion_data = json_from_file(exclusion_files[0])

@@ -205,12 +205,19 @@ class TemplateProcessor:
         
     def helm_binary(self):
         helm_exe = config_value('HELM','helmexe')
-        if not helm_exe:
+        if helm_exe:
             try:
-                subprocess.Popen(['helm', "version"], stdout=subprocess.DEVNULL)
-                helm_exe = "helm"
+                subprocess.Popen([helm_exe, "version"], stdout=subprocess.DEVNULL)
             except FileNotFoundError:
                 helm_exe = None
+            
+        if not helm_exe:
+            helm_exe = "helm"
+            try:
+                subprocess.Popen([helm_exe, "version"], stdout=subprocess.DEVNULL)
+            except FileNotFoundError:
+                helm_exe = None
+        
         return helm_exe
    
     def break_multiple_yaml_file(self,new_file_path):
