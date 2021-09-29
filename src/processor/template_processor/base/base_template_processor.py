@@ -106,7 +106,7 @@ class TemplateProcessor:
             "snapshotId": self.node['snapshotId'],
             "collection": collection.replace('.', '').lower(),
             "json": self.processed_template,
-            "resourceTypes" : self.node["resourceTypes"]
+            "resourceTypes" : self.node.get("resourceTypes", [])
         }
         if self.resource_type:
             db_record["resourceType"] = self.resource_type
@@ -299,7 +299,7 @@ class TemplateProcessor:
         master_snapshot_id = get_field_value(self.node, 'masterSnapshotId')
         
         for template_node in generated_template_file_list:
-            template_node['resourceTypes'] = list(set(template_node['resourceTypes']))
+            template_node['resourceTypes'] = list(set(template_node.get('resourceTypes', [])))
             count = count + 1
             node_dict = {
                 "snapshotId": '%s%s' % (master_snapshot_id, str(count)),
@@ -308,7 +308,7 @@ class TemplateProcessor:
                 "paths": template_node["paths"],
                 "status": template_node['status'],
                 "validate": template_node['validate'],
-                "resourceTypes" : [self.resource_type] if self.resource_type else template_node['resourceTypes']
+                "resourceTypes" : [self.resource_type] if self.resource_type else template_node.get('resourceTypes', [])
             }
             nodes.append(node_dict)
         return nodes, count
