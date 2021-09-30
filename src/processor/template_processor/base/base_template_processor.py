@@ -7,12 +7,12 @@ import pymongo
 import hcl
 import traceback
 from yaml.loader import FullLoader
-from processor.helper.config.config_utils import config_value, EXCLUSION
+from processor.helper.config.config_utils import CRAWL_AND_COMPLIANCE, config_value, EXCLUSION
 from processor.helper.config.rundata_utils import get_dbtests,  get_from_currentdata
 from processor.logging.log_handler import getlogger
 from processor.database.database import insert_one_document, COLLECTION, DATABASE, DBNAME, \
     get_collection_size, create_indexes
-from processor.helper.json.json_utils import get_field_value, store_snapshot, make_snapshots_dir
+from processor.helper.json.json_utils import get_field_value, store_snapshot, make_snapshots_dir, get_field_value_with_default
 from processor.helper.yaml.yaml_utils import is_multiple_yaml_file,multiple_yaml_from_file,save_yaml_to_file,\
     is_multiple_yaml_convertion,is_helm_chart_convertion,MultipleConvertionKey,HelmChartConvertionKey\
     
@@ -20,6 +20,16 @@ from processor.templates.helm.helm_parser import HelmTemplateParser
 from processor.helper.file.file_utils import exists_file, exists_dir
 
 logger = getlogger()
+PROCESSED_TEMPLATES = None
+def get_processed_templates():
+    global PROCESSED_TEMPLATES
+    if PROCESSED_TEMPLATES:
+        return PROCESSED_TEMPLATES
+    PROCESSED_TEMPLATES = {}
+    return PROCESSED_TEMPLATES
+def set_processed_templates(templates):
+    global PROCESSED_TEMPLATES
+    PROCESSED_TEMPLATES = templates
 
 class TemplateProcessor:
     """
@@ -58,6 +68,9 @@ class TemplateProcessor:
         self.dir_path = ""
         self.template_files = []
         self.parameter_files = []
+        self.resource_type = None
+        self.resource_types = []
+        self.processed_templates = get_processed_templates()
         self.kwargs = {}
     
     def append_exclude_directories(self, dirs):
@@ -92,8 +105,11 @@ class TemplateProcessor:
             "node": self.node,
             "snapshotId": self.node['snapshotId'],
             "collection": collection.replace('.', '').lower(),
-            "json": self.processed_template
+            "json": self.processed_template,
+            "resourceTypes" : self.node.get("resourceTypes", [])
         }
+        if self.resource_type:
+            db_record["resourceType"] = self.resource_type
         return db_record
     
     def store_data_record(self):
@@ -189,12 +205,19 @@ class TemplateProcessor:
         
     def helm_binary(self):
         helm_exe = config_value('HELM','helmexe')
-        if not helm_exe:
+        if helm_exe:
             try:
-                subprocess.Popen(['helm', "version"], stdout=subprocess.DEVNULL)
-                helm_exe = "helm"
+                subprocess.Popen([helm_exe, "version"], stdout=subprocess.DEVNULL)
             except FileNotFoundError:
                 helm_exe = None
+            
+        if not helm_exe:
+            helm_exe = "helm"
+            try:
+                subprocess.Popen([helm_exe, "version"], stdout=subprocess.DEVNULL)
+            except FileNotFoundError:
+                helm_exe = None
+        
         return helm_exe
    
     def break_multiple_yaml_file(self,new_file_path):
@@ -216,6 +239,7 @@ class TemplateProcessor:
         process the snapshot and returns the updated `snapshot_data` which is require for run the test
         """
         try:
+            run_type = get_from_currentdata("run_type")
             if self.node["type"] == "helmChart" and not self.helm_binary():
                 logger.error("HELM binary not found!")
                 return self.snapshot_data
@@ -241,7 +265,18 @@ class TemplateProcessor:
                 if not exists_file('%s/%s' % (helm_dir,self.paths[0].rpartition("/")[-1])):
                     self.process_helm_chart(helm_dir)
 
-            self.processed_template = self.process_template(self.paths)
+            found_template = False
+            if run_type == CRAWL_AND_COMPLIANCE and self.processed_templates:
+                # Avoid re-run of same template file when running the crawler and compliance both
+                for resource_type, processed_template_list in self.processed_templates.items():
+                    for processed_template in processed_template_list:
+                        if processed_template.get("paths") == self.paths:
+                            found_template = True
+                            self.processed_template = processed_template.get("json")
+
+            if not found_template:
+                self.processed_template = self.process_template(self.paths)
+
             if self.processed_template:
                 status = self.store_data_record()
                 if status:
@@ -261,11 +296,10 @@ class TemplateProcessor:
         """
         nodes = []
         collection = get_field_value(self.node, 'collection')
-        test_user = get_field_value(self.snapshot, 'testUser')
-        source = get_field_value(self.snapshot, 'source')
         master_snapshot_id = get_field_value(self.node, 'masterSnapshotId')
         
         for template_node in generated_template_file_list:
+            template_node['resourceTypes'] = list(set(template_node.get('resourceTypes', [])))
             count = count + 1
             node_dict = {
                 "snapshotId": '%s%s' % (master_snapshot_id, str(count)),
@@ -273,7 +307,8 @@ class TemplateProcessor:
                 "collection": collection,
                 "paths": template_node["paths"],
                 "status": template_node['status'],
-                "validate": template_node['validate']
+                "validate": template_node['validate'],
+                "resourceTypes" : [self.resource_type] if self.resource_type else template_node.get('resourceTypes', [])
             }
             nodes.append(node_dict)
         return nodes, count
@@ -287,27 +322,38 @@ class TemplateProcessor:
                 template_file,
                 parameter_file
             ]
-            template_json = self.process_template(paths)
-            if template_json:
+            
+            template_paths = [	
+                ("%s/%s" % (file_path, template_file)).replace("//", "/"),	
+                ("%s/%s" % (file_path, parameter_file)).replace("//", "/")	
+            ]
+            
+            self.processed_template = self.process_template(paths)
+            
+            processed_resource_types = []
+            for resource_type in self.resource_types:	
+                if resource_type not in processed_resource_types:
+                    processed_resource_types.append(resource_type)
+                    if resource_type in self.processed_templates:
+                        self.processed_templates[resource_type].append({	
+                            "paths" : template_paths,	
+                            "status" : "active" if self.processed_template else "inactive",
+                            "json" : self.processed_template
+                        })
+                    else:
+                        self.processed_templates[resource_type] = [{
+                            "paths" : template_paths,
+                            "status" : "active" if self.processed_template else "inactive",
+                            "json" : self.processed_template
+                        }]
+                    
+            if not self.resource_type or self.resource_type in self.resource_types:
                 generated_template_file_list.append({
-                    "paths" : [
-                        ("%s/%s" % (file_path, template_file)).replace("//", "/"),
-                        ("%s/%s" % (file_path, parameter_file)).replace("//", "/")
-                    ],
-                    "status" : "active",
-                    "validate" : self.node['validate'] if 'validate' in self.node else True
+                    "paths" : template_paths,
+                    "status" : "active" if self.processed_template else "inactive",
+                    "validate" : self.node['validate'] if 'validate' in self.node else True,
+                    "resourceTypes" : self.resource_types
                 })
-            else:
-                generated_template_file_list.append({
-                    "paths" : [
-                        ("%s/%s" % (file_path, template_file)).replace("//", "/"),
-                        ("%s/%s" % (file_path, parameter_file)).replace("//", "/")
-                    ],
-                    "status" : "inactive",
-                    "validate" : self.node['validate'] if 'validate' in self.node else True
-                })
-
-
 
     def populate_sub_directory_snapshot(self, file_path, base_dir_path, sub_dir_path, snapshot, dbname, node, snapshot_data, count):
         """
@@ -379,6 +425,7 @@ class TemplateProcessor:
                 generated_template_file_list = []
                 if template_file_list:
                     for template_file in template_file_list:
+                        self.resource_types = []
                         if template_file in self.exclude_paths:
                             logger.warning("Excluded from resource exclusions: %s", template_file)
                             continue
@@ -389,22 +436,35 @@ class TemplateProcessor:
                             paths = [
                                 template_file
                             ]
-                            template_json = self.process_template(paths)
-                            if template_json:
+                            self.processed_template = self.process_template(paths)
+                            
+                            template_paths = [	
+                                ("%s/%s" % (file_path, template_file)).replace("//", "/")	
+                            ]
+                            
+                            processed_resource_types = []
+                            for resource_type in self.resource_types:
+                                if resource_type not in processed_resource_types:
+                                    processed_resource_types.append(resource_type)
+                                    if resource_type in self.processed_templates:
+                                        self.processed_templates[resource_type].append({	
+                                            "paths" :  template_paths,
+                                            "status" : "active" if self.processed_template else "inactive",
+                                            "json" : self.processed_template
+                                        })
+                                    else:
+                                        self.processed_templates[resource_type] = [{	
+                                            "paths" :  template_paths,
+                                            "status" : "active" if self.processed_template else "inactive",
+                                            "json" : self.processed_template
+                                        }]
+                                    
+                            if not self.resource_type or self.resource_type in self.resource_types:
                                 generated_template_file_list.append({
-                                    "paths" : [
-                                        ("%s/%s" % (file_path, template_file)).replace("//", "/")
-                                    ],
-                                    "status" : "active",
-                                    "validate" : node['validate'] if 'validate' in node else True
-                                })
-                            else:
-                                generated_template_file_list.append({
-                                    "paths" : [
-                                        ("%s/%s" % (file_path, template_file)).replace("//", "/")
-                                    ],
-                                    "status" : "inactive",
-                                    "validate" : node['validate'] if 'validate' in node else True
+                                    "paths" : template_paths,
+                                    "status" : "active" if self.processed_template else "inactive",
+                                    "validate" : node['validate'] if 'validate' in node else True,
+                                    "resourceTypes" : self.resource_types
                                 })
 
                     nodes, count = self.create_node_record(generated_template_file_list, count)
@@ -425,36 +485,60 @@ class TemplateProcessor:
             root_dir_path = self.repopath 
 
         self.paths = get_field_value(self.node, 'paths')
+        self.resource_type = get_field_value_with_default(self.node, 'resourceType', "").lower()
 
-        exclude = self.node.get('exclude')
-        if exclude and isinstance(exclude, dict):
-            self.exclude_paths += exclude.get("paths", [])
-            self.exclude_regex += exclude.get("regex", [])
-
-        exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
-        for exclusion in exclusions:
-            if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
-                for path in exclusion['paths']:
-                    if path not in self.exclude_paths:
-                        self.exclude_paths.append(path)
-
-        if self.node["type"] == "helmChart" and not self.helm_binary():
-            logger.error("HELM binary not found!")
-            return self.snapshot_data
-
-        if self.paths and isinstance(self.paths, list):
+        if len(self.processed_templates) > 0:
             count = 0
-            for path in self.paths:
-                self.dir_path = str('%s/%s' % (root_dir_path, path)).replace('//', '/')
-                if exists_dir(self.dir_path):
-                    path = path.rstrip("/")
-                    count = self.populate_sub_directory_snapshot(path, self.dir_path, "", self.snapshot, self.dbname, self.node, self.snapshot_data, count)
-                    # list_of_file = os.listdir(self.dir_path)
-                    # for entry in list_of_file:
-                    #     count = self.populate_sub_directory_snapshot(path, self.dir_path, entry, self.snapshot, self.dbname, self.node, self.snapshot_data, count)
-                else:
-                    logger.error("Invalid path : directory does not exist : " + self.dir_path)
+            generated_template_file_list = []
+            if self.resource_type:
+                for processed_template in self.processed_templates.get(self.resource_type, []):
+                    generated_template_file_list.append({
+                        "paths" : processed_template.get("paths"),
+                        "status" : processed_template.get("status"),
+                        "validate" : self.node['validate'] if 'validate' in self.node else True
+                    })
+            else:
+                for resource_type, processed_template_list in self.processed_templates.items():
+                    for processed_template in processed_template_list:
+                        generated_template_file_list.append({
+                            "paths" : processed_template.get("paths"),
+                            "status" : processed_template.get("status"),
+                            "validate" : self.node['validate'] if 'validate' in self.node else True
+                        })
+            
+            nodes, count = self.create_node_record(generated_template_file_list, count)	
+            if self.node['masterSnapshotId'] not in self.snapshot_data or not isinstance(self.snapshot_data[self.node['masterSnapshotId']], list):	
+                self.snapshot_data[self.node['masterSnapshotId']] = []	
+            self.snapshot_data[self.node['masterSnapshotId']] = self.snapshot_data[self.node['masterSnapshotId']] + nodes	
         else:
-            logger.error("\t\tERROR: Invalid json : `paths` is not a list or is not exist in master snapshot")    
-        
+            exclude = self.node.get('exclude')
+            if exclude and isinstance(exclude, dict):
+                self.exclude_paths += exclude.get("paths", [])
+                self.exclude_regex += exclude.get("regex", [])
+
+            exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
+            for exclusion in exclusions:
+                if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
+                    for path in exclusion['paths']:
+                        if path not in self.exclude_paths:
+                            self.exclude_paths.append(path)
+
+            if self.node["type"] == "helmChart" and not self.helm_binary():
+                logger.error("HELM binary not found!")
+                return self.snapshot_data
+
+            if self.paths and isinstance(self.paths, list):
+                count = 0
+                for path in self.paths:
+                    self.dir_path = str('%s/%s' % (root_dir_path, path)).replace('//', '/')
+                    if exists_dir(self.dir_path):
+                        path = path.rstrip("/")
+                        count = self.populate_sub_directory_snapshot(path, self.dir_path, "", self.snapshot, self.dbname, self.node, self.snapshot_data, count)
+                    else:
+                        logger.error("Invalid path : directory does not exist : " + self.dir_path)
+            else:
+                logger.error("\t\tERROR: Invalid json : `paths` is not a list or is not exist in master snapshot")
+            
+            set_processed_templates(self.processed_templates)	
+            
         return self.snapshot_data

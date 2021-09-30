@@ -27,6 +27,7 @@ class TemplateParser:
         self.gparams = {}
         self.template_json = {}
         self.contentType = 'json'
+        self.resource_types = []
 
     def get_template(self):
         """

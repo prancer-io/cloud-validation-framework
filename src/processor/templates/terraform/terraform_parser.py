@@ -363,12 +363,14 @@ class TerraformTemplateParser(TemplateParser):
                             for name, properties in processed_resource.items():
                                 if isinstance(properties, list):
                                     for property in properties:
+                                        self.resource_types.append(resource_name.lower())
                                         resources.append({
                                             "type" : resource_name,
                                             "name" : name,
                                             "properties" : property
                                         })    
                                 else:
+                                    self.resource_types.append(resource_name.lower())
                                     resources.append({
                                         "type" : resource_name,
                                         "name" : name,

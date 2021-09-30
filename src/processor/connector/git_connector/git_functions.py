@@ -7,6 +7,23 @@ import tempfile
 import requests
 import json
 
+CLONE_REPOS = []
+
+def set_clone_repo(git_cmd, repo, clone_dir):
+    global CLONE_REPOS
+    CLONE_REPOS.append({
+        "git_command" : git_cmd,
+        "repo" : repo,
+        "clonedir" : clone_dir
+    })
+
+def check_clone_repos(git_cmd):
+    global CLONE_REPOS
+    for repo in CLONE_REPOS:
+        if repo.get("git_command") == git_cmd:
+            return repo.get("repo"), repo.get("clonedir")
+    return None, None
+
 class GithubFunctions:
 
     def __init__(self):
@@ -67,14 +84,22 @@ class GithubFunctions:
         kwargs = {
             "depth" : 1
         }
+        git_command = "git clone %s" % source_repo
+        
         if branch_name:
             kwargs["branch"] = branch_name
-            
-        self.repo = Repo.clone_from(
-            source_repo,
-            clone_path,
-            **kwargs
-        )
+            git_command += " --branch %s" % branch_name
+        
+        repo, _ = check_clone_repos(git_cmd=git_command)
+        if repo:
+            self.repo = repo
+        else:
+            self.repo = Repo.clone_from(
+                source_repo,
+                clone_path,
+                **kwargs
+            )
+            set_clone_repo(git_command, self.repo, None)
         return self.repo
     
     def checkout_branch(self, branch_name):

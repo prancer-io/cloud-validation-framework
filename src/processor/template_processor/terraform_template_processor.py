@@ -45,7 +45,6 @@ class TerraformTemplateProcessor(TemplateProcessor):
         process template and parameter files and returns the generated template file list
         """
         paths = parameter_file_list + [template_file]
-        template_json = self.process_template(paths)
 
         parameter_files = []
         for parameter_file in parameter_file_list:
@@ -54,18 +53,35 @@ class TerraformTemplateProcessor(TemplateProcessor):
             )
 
         paths = parameter_files + [("%s/%s" % (file_path, template_file)).replace("//", "/")]
-        if template_json:
+        self.processed_template = self.process_template(paths)
+
+        processed_resource_types = []
+        for resource_type in self.resource_types:
+            if resource_type not in processed_resource_types:
+                processed_resource_types.append(resource_type)
+                if resource_type in self.processed_templates:
+                    self.processed_templates[resource_type].append({
+                        "paths" : paths,
+                        "status" : "active" if self.processed_template else "inactive",
+                        "json" : self.processed_template
+                    })
+                else:
+                    self.processed_templates[resource_type] = [{
+                        "paths" : paths,
+                        "status" : "active" if self.processed_template else "inactive",
+                        "json" : self.processed_template
+                    }]
+        	
+        if not self.resource_type or self.resource_type in self.resource_types:
             generated_template_file_list.append({
                 "paths" : paths,
-                "status" : "active",
-                "validate" : self.node['validate'] if 'validate' in self.node else True
+                "status" : "active" if self.processed_template else "inactive",
+                "validate" : self.node['validate'] if 'validate' in self.node else True,
+                "resourceTypes" : self.resource_types
             })
-        else:
-            generated_template_file_list.append({
-                "paths" : paths,
-                "status" : "inactive",
-                "validate" : self.node['validate'] if 'validate' in self.node else True
-            })
+        
+        logger.info("Processing completed %s \n"% file_path)
+
 
     def process_template(self, paths):
         """
@@ -90,6 +106,7 @@ class TerraformTemplateProcessor(TemplateProcessor):
                 self.contentType = terraform_template_parser.contentType
                 self.template_files = terraform_template_parser.template_file_list
                 self.parameter_files = terraform_template_parser.parameter_file_list
+                self.resource_types = terraform_template_parser.resource_types
                 self.kwargs["template_parser"] = terraform_template_parser
 
         return template_json

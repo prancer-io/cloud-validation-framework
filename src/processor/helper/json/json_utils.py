@@ -4,7 +4,6 @@ import re
 import json
 import time
 import glob
-from processor.helper.json import commentjson
 from json.decoder import JSONDecodeError
 from collections import OrderedDict
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
@@ -94,9 +93,7 @@ def json_from_file(jsonfile, escape_chars=None, object_pairs_hook=OrderedDict):
                 with open(jsonfile, 'r', encoding='utf-8-sig') as infile:
                     file_data = infile.read()
             
-            jsondata = commentjson.loads(file_data, object_pairs_hook=object_pairs_hook)
-
-            # jsondata = json.loads(file_data, object_pairs_hook=object_pairs_hook)
+            jsondata = json.loads(file_data, object_pairs_hook=object_pairs_hook)
     except Exception as ex:
         logger.debug('Failed to load json from file: %s, exception: %s', jsonfile, ex)
     return jsondata
@@ -226,3 +223,8 @@ def get_container_exclusion_json(container):
     if exclusion_files:
         exclusion_data = json_from_file(exclusion_files[0])
     return exclusion_data
+
+
+if __name__ == "__main__":
+    json_data = json_from_file("/home/swan-13/Documents/project/prancer/repo-github/cloud-validation-framework/realm/validation/aws-iac-demo/master-snapshot_gen.json")
+    print(json.dumps(json_data, indent=2))    

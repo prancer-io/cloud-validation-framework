@@ -1,4 +1,5 @@
 
+import re
 from processor.connector.git_connector.git_processor import git_clone_dir
 from processor.logging.log_handler import getlogger
 
@@ -31,12 +32,22 @@ class ModuleParser:
             return self.module_file_path
         
         internal_dir = None
-        if ".git//" in self.source:
-            splited_url = self.source.split(".git//")
+        branch = None
+        exmatch = re.search(r'.*\?ref=(.*)$', self.source, re.I)
+        if exmatch:
+            branch = exmatch.group(1)
+            
+        if re.search(r'\.git.*\/\/', self.source, re.I):
+            splited_url = re.compile("\.git.*\/\/").split(self.source)
             git_url, internal_dir = splited_url[0], splited_url[1]
+            internal_dir = internal_dir.split("?")[0]
             self.source = git_url + ".git"
         
-        repopath, _ = git_clone_dir(self.connector_data, giturl=self.source, clone_specific_branch=False)
+        if branch:
+            repopath, _ = git_clone_dir(self.connector_data, giturl=self.source, branch=branch, clone_specific_branch=True)
+        else:
+            repopath, _ = git_clone_dir(self.connector_data, giturl=self.source, clone_specific_branch=False)
+            
         if not repopath:
             return self.module_file_path
         
@@ -47,9 +58,15 @@ class ModuleParser:
 
     def process_github(self):
         internal_dir = None
-        if ".git//" in self.source:
-            splited_url = self.source.split(".git//")
+        branch = None
+        exmatch = re.search(r'.*\?ref=(.*)$', self.source, re.I)
+        if exmatch:
+            branch = exmatch.group(1)
+        if re.search(r'\.git.*\/\/', self.source, re.I):
+            # splited_url = self.source.split(".git//")
+            splited_url = re.compile("\.git.*\/\/").split(self.source)
             git_url, internal_dir = splited_url[0], splited_url[1]
+            internal_dir = internal_dir.split("?")[0]
             self.source = git_url + ".git"
         
         if self.source.startswith('git'):
@@ -59,7 +76,11 @@ class ModuleParser:
         
         self.source = "https://github.com" + repo_path[-1]
         
-        repopath, _ = git_clone_dir(self.connector_data, giturl=self.source, clone_specific_branch=False)
+        if branch:
+            repopath, _ = git_clone_dir(self.connector_data, giturl=self.source, branch=branch, clone_specific_branch=True)
+        else:
+            repopath, _ = git_clone_dir(self.connector_data, giturl=self.source, clone_specific_branch=False)
+
         if internal_dir:
             repopath = ("%s/%s" % (repopath, internal_dir)).replace("//","/")
         self.module_file_path = repopath

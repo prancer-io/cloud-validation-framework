@@ -4,7 +4,7 @@ import tempfile
 import urllib.parse
 import stat
 from subprocess import Popen, PIPE
-from processor.connector.git_connector.git_functions import GithubFunctions
+from processor.connector.git_connector.git_functions import GithubFunctions, check_clone_repos, set_clone_repo
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor.helper.json.json_utils import get_field_value, get_field_value_with_default
 from processor.logging.log_handler import getlogger
@@ -78,6 +78,7 @@ def get_git_pwd(key='GIT_PWD'):
     return git_pwd
 
 def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=True):
+    global CLONE_REPOS
     clonedir = None
     repopath = tempfile.mkdtemp()
     subdir = False
@@ -198,11 +199,16 @@ def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=Tru
             git_cmd = '%s --branch %s' % (git_cmd, branch)
         
         if git_cmd:
+            re_path, cln_dir = check_clone_repos(git_cmd=git_cmd.replace(repopath, ""))
+            if re_path and cln_dir:
+                return re_path, cln_dir
             error_result, result = run_subprocess_cmd(git_cmd)
             checkdir = '%s/tmpclone' % repopath if subdir else repopath
             clonedir = checkdir if exists_dir('%s/.git' % checkdir) else None
             if not exists_dir(clonedir):
                 logger.error("No valid data provided for connect to git : %s", error_result)
+            else:
+                set_clone_repo(git_cmd.replace(repopath, ""), repopath, clonedir)
         if 'GIT_SSH_COMMAND' in os.environ:
             os.environ.pop('GIT_SSH_COMMAND')
     return repopath, clonedir
