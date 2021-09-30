@@ -131,7 +131,7 @@ def test_populate_all_template_snapshot(monkeypatch):
 				],
 				"status": "active",
 				"validate": True,
-    			'resourceTypes': ['aws::ec2::securitygroup', 'aws::ec2::instance']
+    			'resourceTypes': ['aws::ec2::securitygroup']
 			}
 		]
 	}

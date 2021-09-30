@@ -38,13 +38,6 @@ Parameters:
     Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
 Resources:
-  EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: !Ref 'InstanceType'
-      SecurityGroups: [!Ref 'InstanceSecurityGroup']
-      KeyName: !Ref 'KeyName'
-      ImageId: !Ref 'LatestAmiId'
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -54,16 +47,3 @@ Resources:
         FromPort: 22
         ToPort: 22
         CidrIp: !Ref 'SSHLocation'
-Outputs:
-  InstanceId:
-    Description: InstanceId of the newly created EC2 instance
-    Value: !Ref 'EC2Instance'
-  AZ:
-    Description: Availability Zone of the newly created EC2 instance
-    Value: !GetAtt [EC2Instance, AvailabilityZone]
-  PublicDNS:
-    Description: Public DNSName of the newly created EC2 instance
-    Value: !GetAtt [EC2Instance, PublicDnsName]
-  PublicIP:
-    Description: Public IP address of the newly created EC2 instance
-    Value: !GetAtt [EC2Instance, PublicIp]
