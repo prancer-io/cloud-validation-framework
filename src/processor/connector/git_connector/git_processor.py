@@ -199,7 +199,7 @@ def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=Tru
             git_cmd = '%s --branch %s' % (git_cmd, branch)
         
         if git_cmd:
-            re_path, cln_dir = check_clone_repos(git_cmd=git_cmd)
+            re_path, cln_dir = check_clone_repos(git_cmd=git_cmd.replace(repopath, ""))
             if re_path and cln_dir:
                 return re_path, cln_dir
             error_result, result = run_subprocess_cmd(git_cmd)
@@ -208,7 +208,7 @@ def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=Tru
             if not exists_dir(clonedir):
                 logger.error("No valid data provided for connect to git : %s", error_result)
             else:
-                set_clone_repo(git_cmd, repopath, clonedir)
+                set_clone_repo(git_cmd.replace(repopath, ""), repopath, clonedir)
         if 'GIT_SSH_COMMAND' in os.environ:
             os.environ.pop('GIT_SSH_COMMAND')
     return repopath, clonedir
