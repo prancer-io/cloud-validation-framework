@@ -4,7 +4,7 @@ from processor.helper.json.json_utils import json_from_file
 from processor.template_processor.base.base_template_processor import TemplateProcessor
 from processor.templates.aws.aws_parser import AWSTemplateParser, allowed_extensions
 from processor.helper.file.file_utils import exists_file
-from cfn_flip import flip, to_yaml, to_json
+from cfn_flip import to_json
 
 logger = getlogger()
 
@@ -92,4 +92,6 @@ class AWSTemplateProcessor(TemplateProcessor):
                     aws_template_parser = AWSTemplateParser(template_file)
                 template_json = aws_template_parser.parse()
                 self.contentType = aws_template_parser.contentType
+                self.resource_types = aws_template_parser.resource_types
+
         return template_json

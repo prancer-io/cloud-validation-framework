@@ -21,9 +21,7 @@ from processor.connector.populate_json import pull_json_data
 
 logger = getlogger()
 
-
-def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesystem=True):
-    snapshot_data = {}
+def get_snapshot_file(snapshot_file, container, dbname, filesystem):
     snapshot_json_data = {}
     if filesystem:
         file_name = '%s.json' % snapshot_file if snapshot_file and not \
@@ -39,11 +37,16 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
         logger.info('Number of Snapshot Documents: %s', len(docs))
         if docs and len(docs):
             snapshot_json_data = docs[0]['json']
-            if "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data \
-                and snapshot_json_data["connector"] and snapshot_json_data["remoteFile"]:
-                _, pull_response = pull_json_data(snapshot_json_data)
-                if not pull_response:
-                    return snapshot_data
+    return snapshot_json_data
+
+def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesystem=True):
+    snapshot_data = {}
+    snapshot_json_data = get_snapshot_file(snapshot_file, container, dbname, filesystem)
+    if snapshot_json_data and "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data \
+        and snapshot_json_data["connector"] and snapshot_json_data["remoteFile"]:
+            _, pull_response = pull_json_data(snapshot_json_data)
+            if not pull_response:
+                return snapshot_data
 
     snapshots = get_field_value(snapshot_json_data, 'snapshots')
     if not snapshots:
@@ -252,7 +255,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
         testsets = get_field_value_with_default(test_json_data, 'testSet', [])
         for testset in testsets:
             testcases = get_field_value_with_default(testset, 'cases', [])
-            testset['cases'] = _get_new_testcases(testcases, mastersnapshots)
+            testset['cases'] = _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, filesystem=True)
         # print(json.dumps(test_json_data, indent=2))
         singletest = get_from_currentdata(SINGLETEST)
         if singletest:
@@ -373,7 +376,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                     testsets = get_field_value_with_default(test_json_data, 'testSet', [])
                     for testset in testsets:
                         testcases = get_field_value_with_default(testset, 'cases', [])
-                        testset['cases'] = _get_new_testcases(testcases, mastersnapshots)
+                        testset['cases'] = _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbname, False)
                     # print(json.dumps(test_json_data, indent=2))
                     resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
                     if resultset:
@@ -395,13 +398,21 @@ def run_container_validation_tests_database(container, snapshot_status=None):
     return finalresult
 
 
-def _get_new_testcases(testcases, mastersnapshots):
+def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbname=None, filesystem=True):
     excludedTestIds = []
     exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
     for exclusion in exclusions:
         if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'test':
             if 'masterTestID' in exclusion and exclusion['masterTestID'] and exclusion['masterTestID'] not in excludedTestIds:
                 excludedTestIds.append(exclusion['masterTestID'])
+    
+    snapshot_json_data = get_snapshot_file(snapshot_key, container, dbname, filesystem)
+    snapshots = snapshot_json_data.get("snapshots")
+    snapshot_resource_map = {}
+    for snapshot in snapshots:
+        for node in snapshot["nodes"]:
+            snapshot_resource_map[node.get("snapshotId")] = node.get("resourceTypes", [])
+    
     newcases = []
     for testcase in testcases:
         if 'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] in excludedTestIds:
@@ -409,7 +420,7 @@ def _get_new_testcases(testcases, mastersnapshots):
             continue
         test_parser_type = testcase.get('type', None)
         if test_parser_type == 'rego' or test_parser_type == 'python':
-            new_cases = _get_rego_testcase(testcase, mastersnapshots)
+            new_cases = _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map)
             newcases.extend(new_cases)
         else:
             rule_str = get_field_value_with_default(testcase, 'rule', '')
@@ -430,24 +441,27 @@ def _get_new_testcases(testcases, mastersnapshots):
                     newcases.append(new_testcase)
     return newcases
 
-def _get_rego_testcase(testcase, mastersnapshots):
-    is_first = True
+def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map):
     newcases = []
     ms_ids = testcase.get('masterSnapshotId')
-    service = ms_ids[0].split('_')[1]
+    # service = ms_ids[0].split('_')[1]
     for ms_id in ms_ids:
         for s_id in mastersnapshots[ms_id]:
-            # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
-            # if not detail_method or detail_method == snapshots_details_map[s_id]:
+            snapshot_resource_types = snapshot_resource_map.get(s_id, [])
+            testcase_resource_types = testcase.get('resourceTypes', [])
+            
+            if testcase_resource_types and all(resource_type not in snapshot_resource_types for resource_type in testcase_resource_types):
+                continue
+
             new_testcase = copy.copy(testcase)
-            if service not in ms_id:
-                if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
-                    [newcase['snapshotId'].append(s_id) for newcase in newcases]
-                else:
-                    new_cases = copy.deepcopy(newcases)
-                    [new_case['snapshotId'].pop(-1) and new_case['snapshotId'].append(s_id) for new_case in new_cases]
-                    newcases.extend(new_cases)
-                continue    
+            # if service not in ms_id:
+            #     if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
+            #         [newcase['snapshotId'].append(s_id) for newcase in newcases]
+            #     else:
+            #         new_cases = copy.deepcopy(newcases)
+            #         [new_case['snapshotId'].pop(-1) and new_case['snapshotId'].append(s_id) for new_case in new_cases]
+            #         newcases.extend(new_cases)
+            #     continue    
             new_testcase['snapshotId'] = [s_id]
             newcases.append(new_testcase)
     return newcases

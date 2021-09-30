@@ -82,6 +82,9 @@ def mock_process_template(self, paths):
         "resources" : []
     }
 
+def mock_get_processed_templates():
+    return {}
+
 def test_populate_template_snapshot_true(monkeypatch):
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.get_collection_size', mock_get_collection_size)
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.create_indexes', mock_create_indexes)
@@ -105,6 +108,7 @@ def test_populate_all_template_snapshot(monkeypatch):
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.create_indexes', mock_create_indexes)
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.insert_one_document', mock_insert_one_document)
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.TemplateProcessor.process_template', mock_process_template)
+	monkeypatch.setattr('processor.template_processor.base.base_template_processor.get_processed_templates', mock_get_processed_templates)
 	from processor.template_processor.google_template_processor import GoogleTemplateProcessor
 	monkeypatch.setattr('processor.template_processor.base.base_template_processor.get_from_currentdata', mock_get_from_currentdata)
 
@@ -122,6 +126,7 @@ def test_populate_all_template_snapshot(monkeypatch):
 				"paths": ["/sample/cloudbuild.yaml"],
 				"status": "active",
 				"validate": True,
+    			'resourceTypes': []
 			}
 		]
 	}

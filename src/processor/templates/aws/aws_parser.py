@@ -94,6 +94,8 @@ class AWSTemplateParser(TemplateParser):
                 new_resources = []
                 for key, resource in template_json['Resources'].items():
                     new_resource = self.process_resource(resource)
+                    if "Type" in new_resource:
+                        self.resource_types.append(new_resource.get("Type").lower())
                     new_resource["Name"] = key
                     new_resources.append(new_resource)
                     gen_template_json['Resources'] = new_resources

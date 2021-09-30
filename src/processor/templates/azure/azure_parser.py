@@ -73,9 +73,13 @@ class AzureTemplateParser(TemplateParser):
                     if is_copy:
                         for resourc in copy_resources:
                             new_resource = self.process_resource(resourc)
+                            if "type" in new_resource:
+                                self.resource_types.append(new_resource.get("type").lower())
                             new_resources.append(new_resource)
                     else:
                         new_resource = self.process_resource(resource)
+                        if "type" in new_resource:
+                            self.resource_types.append(new_resource.get("type").lower())
                         new_resources.append(new_resource)
                     # print('%s Original Resource %s' % (stars, stars))
                     # print(json.dumps(resource, indent=2))

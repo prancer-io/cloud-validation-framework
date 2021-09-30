@@ -51,4 +51,5 @@ class GoogleTemplateProcessor(TemplateProcessor):
                 google_template_parser = GoogleTemplateParser(template_file_path)
                 template_json = google_template_parser.parse()
                 self.contentType = google_template_parser.contentType
+                self.resource_types = google_template_parser.resource_types
         return template_json

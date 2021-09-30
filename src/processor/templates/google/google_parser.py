@@ -84,6 +84,9 @@ class GoogleTemplateParser(TemplateParser):
                     new_resources = new_resources + processed_resources
                 
                 if not self.python_import:
+                    for resource in new_resources:
+                        if resource.get("type"):
+                            self.resource_types.append(resource.get("type").lower())
                     gen_template_json['resources'] = new_resources
                 else:
                     gen_template_json = None     
