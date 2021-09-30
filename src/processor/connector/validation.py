@@ -42,7 +42,7 @@ def get_snapshot_file(snapshot_file, container, dbname, filesystem):
 def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesystem=True):
     snapshot_data = {}
     snapshot_json_data = get_snapshot_file(snapshot_file, container, dbname, filesystem)
-    if "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data \
+    if snapshot_json_data and "connector" in snapshot_json_data and "remoteFile" in snapshot_json_data \
         and snapshot_json_data["connector"] and snapshot_json_data["remoteFile"]:
             _, pull_response = pull_json_data(snapshot_json_data)
             if not pull_response:
