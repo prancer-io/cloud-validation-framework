@@ -8,6 +8,7 @@ import requests
 import json
 
 CLONE_REPOS = []
+GITHUB_URL = "https://api.github.com/"
 
 def set_clone_repo(git_cmd, repo, clone_dir):
     global CLONE_REPOS
@@ -27,7 +28,7 @@ def check_clone_repos(git_cmd):
 class GithubFunctions:
 
     def __init__(self):
-        self.base_url = "https://api.github.com/"
+        self.base_url = GITHUB_URL
         self.user = None
         self.repo = None
         self.access_token = None
