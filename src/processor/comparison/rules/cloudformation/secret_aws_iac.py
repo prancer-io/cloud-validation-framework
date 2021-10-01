@@ -52,6 +52,10 @@ def secret_finder(snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE=None, EXCLUDE_RE=
                     nested_resource = resource
                     for key in path:
                         nested_resource = nested_resource[key]
+                        
+                        if isinstance(nested_resource, (int, float, complex, bool)):
+                            nested_resource = str(nested_resource)
+                        
                         if isinstance(nested_resource, str) and re.match(PASSWORD_VALUE_RE, nested_resource) and (re.match(PASSWORD_KEY_RE, str(key), re.I) if PASSWORD_KEY_RE else True) and (not(re.match(EXCLUDE_RE, str(nested_resource))) if EXCLUDE_RE else True):
                             if shannon_entropy_password:
                                 _, normalized_entropy = shannon_entropy(
@@ -138,7 +142,7 @@ def entropy_password(generated_snapshot: dict) -> dict:
         generated_snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE=None, EXCLUDE_RE=combined_exclude_regex, shannon_entropy_password=True)
 
     if output["issue"] == True:
-        output["entropy_password_err"] = "There is a possibility that secure password is exposed"
+        output["entropy_password_err"] = "There is a possibility that Random secure password is exposed"
 
     elif output["issue"] == None:
         output["entropy_password_err"] = output["err"]
