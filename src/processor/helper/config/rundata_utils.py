@@ -131,6 +131,13 @@ def delete_currentdata():
         cdir = get_container_dir(container)
         shutil.rmtree('%s/snapshots' % cdir)
 
+    cleaning_repos = get_from_currentdata("CLEANING_REPOS")
+    if cleaning_repos:
+        for repo in cleaning_repos:
+            if repo and os.path.exists(repo):
+                shutil.rmtree(repo)
+        delete_from_currentdata("CLEANING_REPOS")
+
     logger.info("END: Completed the run and cleaning up.")
     runctx = get_currentdata()
     runctx['end'] = int(time.time() * 1000)

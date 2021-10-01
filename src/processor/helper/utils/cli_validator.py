@@ -302,6 +302,7 @@ Runs the prancer framework based on the configuration files available in collect
         put_in_currentdata('jsonsource', fs)
         put_in_currentdata(DBTESTS, args.db)
         put_in_currentdata( 'container', args.container)
+        put_in_currentdata("CLEANING_REPOS", [])
         # if args.db == DBVALUES.index(FULL):
         #     from processor.logging.log_handler import get_dblogger
         #     log_name = get_dblogger()
