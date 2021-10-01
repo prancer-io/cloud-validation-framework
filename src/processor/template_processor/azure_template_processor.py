@@ -95,7 +95,7 @@ class AzureTemplateProcessor(TemplateProcessor):
                 logger.info("Fetching data : %s ", json_file)
                 json_data = json_from_file(json_file_path)
                 if not json_data:
-                    logger.error("Invalid path or json")
+                    logger.error("Invalid template file path %s, or file does not contains the valid json format." % json_file)
                     return template_json
                 elif "$schema" not in json_data:
                     logger.error(
