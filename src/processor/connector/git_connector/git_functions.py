@@ -8,6 +8,7 @@ import requests
 import json
 
 CLONE_REPOS = []
+GITHUB_URL = "https://api.github.com/"
 
 def set_clone_repo(git_cmd, repo, clone_dir):
     global CLONE_REPOS
@@ -27,7 +28,7 @@ def check_clone_repos(git_cmd):
 class GithubFunctions:
 
     def __init__(self):
-        self.base_url = "https://api.github.com/"
+        self.base_url = GITHUB_URL
         self.user = None
         self.repo = None
         self.access_token = None
@@ -84,22 +85,15 @@ class GithubFunctions:
         kwargs = {
             "depth" : 1
         }
-        git_command = "git clone %s" % source_repo
         
         if branch_name:
             kwargs["branch"] = branch_name
-            git_command += " --branch %s" % branch_name
         
-        repo, _ = check_clone_repos(git_cmd=git_command)
-        if repo:
-            self.repo = repo
-        else:
-            self.repo = Repo.clone_from(
-                source_repo,
-                clone_path,
-                **kwargs
-            )
-            set_clone_repo(git_command, self.repo, None)
+        self.repo = Repo.clone_from(
+            source_repo,
+            clone_path,
+            **kwargs
+        )
         return self.repo
     
     def checkout_branch(self, branch_name):

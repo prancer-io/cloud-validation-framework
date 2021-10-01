@@ -107,7 +107,7 @@ from processor.helper.json.json_utils import get_field_value, json_from_file,\
     make_snapshots_dir, store_snapshot
 from processor.helper.yaml.yaml_utils import yaml_from_file
 from processor.helper.config.config_utils import config_value, get_test_json_dir, EXCLUSION
-from processor.helper.config.rundata_utils import get_from_currentdata, get_dbtests
+from processor.helper.config.rundata_utils import get_from_currentdata, get_dbtests, put_in_currentdata
 from processor.database.database import insert_one_document, sort_field, get_documents,\
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 from processor.helper.httpapi.restapi_azure import json_source
@@ -387,7 +387,8 @@ def populate_custom_snapshot(snapshot, container=None):
                         logger.debug('Type: %s', type(alldata))
         if baserepo and os.path.exists(baserepo):
             # logger.info('\t\tCLEANING Repo: %s', baserepo)
-            shutil.rmtree(baserepo)
+            put_in_currentdata("CLEANING_REPOS", baserepo)
+            # shutil.rmtree(baserepo)
     return snapshot_data
 
 
