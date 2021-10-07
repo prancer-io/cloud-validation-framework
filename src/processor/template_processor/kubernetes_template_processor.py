@@ -46,6 +46,9 @@ class KubernetesTemplateProcessor(TemplateProcessor):
             if template_file_path and exists_file(template_file_path):
                 kubernetes_template_parser = KubernetesTemplateParser(template_file_path) 
                 template_json = kubernetes_template_parser.parse(template_file_path)
-                self.contentType = kubernetes_template_parser.contentType
+                if template_json:
+                    self.contentType = kubernetes_template_parser.contentType
+                    if template_json.get("kind"):
+                        self.resource_types = [template_json.get("kind").lower()]
                 
         return template_json
