@@ -162,7 +162,7 @@ def test_run_validation_test(monkeypatch):
         "snapshotId": "1",
         "attribute": "id",
         "comparison": "gt 10"
-    }, {})
+    }, {}, {})
     assert result is not None
     assert type(result) is list
     assert result[0]['result'] == 'passed'

@@ -523,6 +523,13 @@ class TemplateProcessor:
                         if path not in self.exclude_paths:
                             self.exclude_paths.append(path)
 
+            includeSnapshotConfig = get_from_currentdata("INCLUDESNAPSHOTS")
+            includeSnapshots = get_from_currentdata("SNAPHSHOTIDS")
+            if includeSnapshotConfig:
+                if self.node['masterSnapshotId'] not in includeSnapshots:
+                    return self.snapshot_data
+
+
             if self.node["type"] == "helmChart" and not self.helm_binary():
                 logger.error("HELM binary not found!")
                 return self.snapshot_data

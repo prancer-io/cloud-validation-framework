@@ -358,14 +358,26 @@ def populate_custom_snapshot(snapshot, container=None):
                             node['status'] = 'inactive'
                         logger.debug('Type: %s', type(data))
                     elif 'masterSnapshotId' in node:
+                        includeSnapshotConfig = get_from_currentdata("INCLUDESNAPSHOTS")
+                        includeSnapshots = get_from_currentdata("SNAPHSHOTIDS")
+                        ignoreExclusion = False
+                        ignoreNode = False
+                        if includeSnapshotConfig:
+                            if node['masterSnapshotId'] in includeSnapshots:
+                                ignoreExclusion = True
+                                ignoreNode = False
+                            else:
+                                ignoreNode  = True
                         alldata = get_all_nodes(repopath, node, snapshot, brnch, sub_data)
                         if alldata:
                             exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
+
                             resourceExclusions = {}
-                            for exclusion in exclusions:
-                                if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
-                                    if 'paths' in exclusion and isinstance(exclusion['paths'], list):
-                                        resourceExclusions[tuple(exclusion['paths'])] = exclusion
+                            if not ignoreExclusion:
+                                for exclusion in exclusions:
+                                    if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
+                                        if 'paths' in exclusion and isinstance(exclusion['paths'], list):
+                                            resourceExclusions[tuple(exclusion['paths'])] = exclusion
 
                             snapshot_data[node['masterSnapshotId']] = []
                             for data in alldata:
@@ -378,12 +390,13 @@ def populate_custom_snapshot(snapshot, container=None):
                                 if key and key in resourceExclusions:
                                     logger.warning("Excluded from resource exclusions: %s", data['path'])
                                     continue
-                                snapshot_data[node['masterSnapshotId']].append(
-                                    {
-                                        'snapshotId': data['snapshotId'],
-                                        'path': data['path'],
-                                        'validate': validate
-                                    })
+                                if not ignoreNode:
+                                    snapshot_data[node['masterSnapshotId']].append(
+                                        {
+                                            'snapshotId': data['snapshotId'],
+                                            'path': data['path'],
+                                            'validate': validate
+                                        })
                         logger.debug('Type: %s', type(alldata))
         if baserepo and os.path.exists(baserepo):
             # logger.info('\t\tCLEANING Repo: %s', baserepo)

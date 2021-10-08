@@ -225,6 +225,9 @@ Runs the prancer framework based on the configuration files available in collect
     cmd_parser.add_argument('--branch', action='store', default=None, help='specify the name of the branch to populate snapshots, for the filesystem connector')
     cmd_parser.add_argument('--file', action='store', default=None, help='single file run')
     cmd_parser.add_argument('--iac', action='store', default=None, help='iac types')
+    cmd_parser.add_argument('--file_content', action='store', default=None, help='file content run')
+    cmd_parser.add_argument('--mastertestid', action='store', default="", help='test Ids to run')
+    cmd_parser.add_argument('--mastersnapshotid', action='store', default="", help='snapshot Ids to run')
     args = cmd_parser.parse_args(arg_vals)
 
     retval = 2
@@ -276,7 +279,7 @@ Runs the prancer framework based on the configuration files available in collect
 
 
     from processor.connector.snapshot import populate_container_snapshots, populate_container_exclusions
-    from processor.connector.validation import run_container_validation_tests
+    from processor.connector.validation import run_container_validation_tests, run_filecontent_validation
     from processor.crawler.master_snapshot import generate_container_mastersnapshots
     try:
         from processor_enterprise.notifications.notification import check_send_notification
@@ -303,6 +306,19 @@ Runs the prancer framework based on the configuration files available in collect
         put_in_currentdata(DBTESTS, args.db)
         put_in_currentdata( 'container', args.container)
         put_in_currentdata("CLEANING_REPOS", [])
+        if args.mastersnapshotid:
+            put_in_currentdata("INCLUDESNAPSHOTS", True)
+            put_in_currentdata("SNAPHSHOTIDS", args.mastersnapshotid.split(','))
+        else:
+            put_in_currentdata("INCLUDESNAPSHOTS", False)
+            put_in_currentdata("SNAPHSHOTIDS", [])
+        if args.mastertestid:
+            put_in_currentdata("INCLUDETESTS", True)
+            put_in_currentdata("TESTIDS", args.mastertestid.split(','))
+        else:
+            put_in_currentdata("INCLUDETESTS", False)
+            put_in_currentdata("TESTIDS", [])
+        
         # if args.db == DBVALUES.index(FULL):
         #     from processor.logging.log_handler import get_dblogger
         #     log_name = get_dblogger()
@@ -335,6 +351,18 @@ Runs the prancer framework based on the configuration files available in collect
             args.db  = DBVALUES.index(NONE)
 
         put_in_currentdata(EXCLUSION, populate_container_exclusions(args.container, fs))
+
+        if args.file_content:
+            current_progress = 'COMPLIANCESTART'
+            create_output_entry(args.container, test_file="-", filesystem=True if args.db == 0 else False)
+            snapshot_status = populate_container_snapshots(args.container, fs)
+            status = run_filecontent_validation(args.container, snapshot_status, args.testIds.split(',') if args.testIds else [])
+            retval = 0 if status else 1
+            if fs:
+                dump_output_results([], args.container, test_file="", snapshot="", filesystem=fs, status="Completed")
+            current_progress = 'COMPLIANCECOMPLETE'
+            return retval
+
         crawl_and_run = False
         if not args.compliance and not args.crawler:
             crawl_and_run = True

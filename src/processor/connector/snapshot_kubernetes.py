@@ -459,12 +459,24 @@ def generate_crawler_snapshot(snapshot,node,snapshot_data):
     resource_items = []
     resource_items=get_lits(snapshot=snapshot,node=node)
 
+    includeSnapshotConfig = get_from_currentdata("INCLUDESNAPSHOTS")
+    includeSnapshots = get_from_currentdata("SNAPHSHOTIDS")
+    ignoreExclusion = False
+    ignoreNode = False
+    if includeSnapshotConfig:
+        if node['masterSnapshotId'] in includeSnapshots:
+            ignoreExclusion = True
+            ignoreNode = False
+        else:
+            ignoreNode  = True
+
     exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
     resourceExclusions = {}
-    for exclusion in exclusions:
-        if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
-            if 'paths' in exclusion and isinstance(exclusion['paths'], list):
-                resourceExclusions[tuple(exclusion['paths'])] = exclusion
+    if not ignoreExclusion:
+        for exclusion in exclusions:
+            if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
+                if 'paths' in exclusion and isinstance(exclusion['paths'], list):
+                    resourceExclusions[tuple(exclusion['paths'])] = exclusion
 
     snapshot_data[node['masterSnapshotId']] = []
     for index,resource_namespaced_item in enumerate(resource_items) :
@@ -477,15 +489,16 @@ def generate_crawler_snapshot(snapshot,node,snapshot_data):
         if key and key in resourceExclusions:
             logger.warning("Excluded from resource exclusions: %s", resource_namespaced_item['paths'])
             continue
-        snapshot_data[node['masterSnapshotId']].append({
-                        "masterSnapshotId" : [node['masterSnapshotId']],
-                        "snapshotId": '%s%s_%s' % (node['masterSnapshotId'],resource_namespaced_item['namespace'], str(index)),
-                        "type": node_type,
-                        "collection": node['collection'],
-                        "paths": resource_namespaced_item['paths'],
-                        "status" : "active",
-                        "validate" : node['validate'] if 'validate' in node else True
-                    })
+        if not ignoreNode:
+            snapshot_data[node['masterSnapshotId']].append({
+                            "masterSnapshotId" : [node['masterSnapshotId']],
+                            "snapshotId": '%s%s_%s' % (node['masterSnapshotId'],resource_namespaced_item['namespace'], str(index)),
+                            "type": node_type,
+                            "collection": node['collection'],
+                            "paths": resource_namespaced_item['paths'],
+                            "status" : "active",
+                            "validate" : node['validate'] if 'validate' in node else True
+                        })
     return snapshot_data
 
 
