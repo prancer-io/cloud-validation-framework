@@ -48,6 +48,7 @@ nav:
     - AWS resources: limitations/aws-limitations.md
     - AWS CloudFormation templates: limitations/aws-cloudformation-template-limitations.md
     - Azure ARM templates: limitations/azure-arm-templates-limitations.md
+    - Terraform templates: limitations/terraform-template-limitations.md
     - Json: limitations/json-limitations.md
   - Enterprise edition:
     - Features: enterprise/basics.md
