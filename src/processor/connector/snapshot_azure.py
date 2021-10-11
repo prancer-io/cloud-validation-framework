@@ -271,12 +271,23 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                 alldata = get_all_nodes(
                     token, sub_name, sub_id, node, snapshot_user, snapshot_source)
                 if alldata:
+                    includeSnapshotConfig = get_from_currentdata("INCLUDESNAPSHOTS")
+                    includeSnapshots = get_from_currentdata("SNAPHSHOTIDS")
+                    ignoreExclusion = False
+                    ignoreNode = False
+                    if includeSnapshotConfig:
+                        if node['masterSnapshotId'] in includeSnapshots:
+                            ignoreExclusion = True
+                            ignoreNode = False
+                        else:
+                            ignoreNode  = True
                     exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
                     resourceExclusions = {}
-                    for exclusion in exclusions:
-                        if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
-                            if 'paths' in exclusion and isinstance(exclusion['paths'], list):
-                                resourceExclusions[tuple(exclusion['paths'])] = exclusion
+                    if not ignoreExclusion:
+                        for exclusion in exclusions:
+                            if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'resource':
+                                if 'paths' in exclusion and isinstance(exclusion['paths'], list):
+                                    resourceExclusions[tuple(exclusion['paths'])] = exclusion
 
                     snapshot_data[node['masterSnapshotId']] = []
                     for data in alldata:
@@ -305,14 +316,15 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                             if key and key in resourceExclusions:
                                 logger.warning("Excluded from resource exclusions: %s", data['path'])
                                 continue
-                            snapshot_data[node['masterSnapshotId']].append(
-                                {
-                                    'masterSnapshotId': [node['masterSnapshotId']],
-                                    'snapshotId': data['snapshotId'],
-                                    'path': data['path'],
-                                    'validate': validate,
-                                    'status': 'active'
-                                })
+                            if not ignoreNode:
+                                snapshot_data[node['masterSnapshotId']].append(
+                                    {
+                                        'masterSnapshotId': [node['masterSnapshotId']],
+                                        'snapshotId': data['snapshotId'],
+                                        'path': data['path'],
+                                        'validate': validate,
+                                        'status': 'active'
+                                    })
                     # snapshot_data[node['masterSnapshotId']] = True
                 logger.debug('Type: %s', type(alldata))
         delete_from_currentdata('resources')

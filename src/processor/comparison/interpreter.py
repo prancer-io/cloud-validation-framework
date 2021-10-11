@@ -190,19 +190,19 @@ class Comparator:
     Call the factory method to create the comparator object.
     """
 
-    def __init__(self, version, container, dbname, collection_data, testcase, excludedTestIds):
+    def __init__(self, version, container, dbname, collection_data, testcase, excludedTestIds, includeTests):
         self.comparator = self._factory_method(version, container, dbname, collection_data,
-                                               testcase, excludedTestIds)
+                                               testcase, excludedTestIds, includeTests)
 
     @staticmethod
-    def _factory_method(version, container, dbname, collection_data, testcase, excludedTestIds):
+    def _factory_method(version, container, dbname, collection_data, testcase, excludedTestIds, includeTests):
         version_val = version_str(version)
         if version_val == COMPARATOR_V0_1:
-            return ComparatorV01(container, dbname, collection_data, testcase, excludedTestIds)
+            return ComparatorV01(container, dbname, collection_data, testcase, excludedTestIds, includeTests)
         elif version_val == COMPARATOR_V0_2:
-            return ComparatorV02(container, dbname, collection_data, testcase, excludedTestIds)
+            return ComparatorV02(container, dbname, collection_data, testcase, excludedTestIds, includeTests)
         else:
-            return ComparatorV01(container, dbname, collection_data, testcase, excludedTestIds)
+            return ComparatorV01(container, dbname, collection_data, testcase, excludedTestIds, includeTests)
 
     def validate(self):
         return self.comparator.validate()
@@ -211,12 +211,13 @@ class Comparator:
 class ComparatorV01:
     """Override the validate method to return to run comparator"""
 
-    def __init__(self, container, dbname, collection_data, testcase, excludedTestIds):
+    def __init__(self, container, dbname, collection_data, testcase, excludedTestIds, includeTests):
         self.container = container
         self.dbname = dbname
         self.collection_data = collection_data
         self.testcase = testcase
         self.excludedTestIds = excludedTestIds
+        self.includeTests = includeTests
         loperand = get_field_value(testcase, 'attribute')
         value = get_field_value(testcase, 'comparison')
         rule = get_field_value(testcase, 'rule')
@@ -581,9 +582,12 @@ class ComparatorV01:
 
     def exclude_test_case(self, doc, testId, isMasterTest=False):
         toExclude = False
-        if isMasterTest and testId and testId in self.excludedTestIds:
-            path = doc['paths'][0]
-            toExclude = True if path in self.excludedTestIds[testId] else False
+        if isMasterTest and testId:
+            if testId in self.includeTests:
+                toExclude = False
+            elif testId in self.excludedTestIds:
+                path = doc['paths'][0]
+                toExclude = True if path in self.excludedTestIds[testId] else False
         return toExclude
         pass
 
@@ -819,8 +823,8 @@ class ComparatorV02(ComparatorV01):
     """
     Override the validate method to run the comparisons
     """
-    def __init__(self, container, dbname, collection_data, testcase, excludedTestIds):
-        ComparatorV01.__init__(self, container, dbname, collection_data, testcase, excludedTestIds)
+    def __init__(self, container, dbname, collection_data, testcase, excludedTestIds, includeTests):
+        ComparatorV01.__init__(self, container, dbname, collection_data, testcase, excludedTestIds, includeTests)
 
     def validate(self):
         return ComparatorV01.validate(self)
