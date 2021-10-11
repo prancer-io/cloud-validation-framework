@@ -100,7 +100,7 @@ def password_leak(generated_snapshot: dict) -> dict:
         generated_snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE, EXCLUDE_RE=EXCLUDE_REGEX)
 
     if output["issue"] == True:
-        output["password_leak_err"] = "There is a possibility that secure password is exposed"
+        output["password_leak_err"] = "Ensure no hardcoded password set in the template"
 
     elif output["issue"] == None:
         output["password_leak_err"] = output["err"]
@@ -199,7 +199,7 @@ def al_access_key_id(generated_snapshot: dict) -> dict:
     output = secret_finder(
         generated_snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE)
     if output["issue"] == True:
-        output["al_access_key_id_err"] = "There is a possibility that Aws access key id is exposed"
+        output["al_access_key_id_err"] = "There is a possibility that AWS secret access key has leaked"
 
     elif output["issue"] == None:
         output["al_access_key_id_err"] = output["err"]
