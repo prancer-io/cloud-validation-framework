@@ -67,8 +67,8 @@ def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesys
     return snapshot_data
 
 
-def run_validation_test(version, container, dbname, collection_data, testcase, excludedTestIds):
-    comparator = Comparator(version, container, dbname, collection_data, testcase, excludedTestIds)
+def run_validation_test(version, container, dbname, collection_data, testcase, excludedTestIds, includeTests):
+    comparator = Comparator(version, container, dbname, collection_data, testcase, excludedTestIds, includeTests)
     results = comparator.validate()
     if isinstance(results, list):
         for result in results:
@@ -143,16 +143,27 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
     else:
         current_snapshot_status = {}
 
+    includeTestConfig = get_from_currentdata("INCLUDETESTS")
+    includeTests = []
+    if includeTestConfig:
+        includeTests = get_from_currentdata("TESTIDS")
     excludedTestIds = {}
     exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
     for exclusion in exclusions:
         if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'single':
             if 'masterTestID' in exclusion and exclusion['masterTestID'] \
                     and 'paths' in exclusion and exclusion['paths']:
-                if exclusion['masterTestID'] not in excludedTestIds:
-                    excludedTestIds[exclusion['masterTestID']] = exclusion['paths']
+                toAdd = False
+                if includeTestConfig:
+                    if exclusion['masterTestID'] not in includeTests:
+                        toAdd = True
                 else:
-                    excludedTestIds[exclusion['masterTestID']].extend(exclusion['paths'])
+                    toAdd =  True
+                if toAdd:
+                    if exclusion['masterTestID'] not in excludedTestIds:
+                        excludedTestIds[exclusion['masterTestID']] = exclusion['paths']
+                    else:
+                        excludedTestIds[exclusion['masterTestID']].extend(exclusion['paths'])
 
     skip = 0
     limit = 10
@@ -171,7 +182,7 @@ def run_json_validation_tests(test_json_data, container, filesystem=True, snapsh
             if dirpath:
                 testcase['dirpath'] = dirpath
             results = run_validation_test(version, container, dbname, collection_data,
-                                             testcase, excludedTestIds)
+                                             testcase, excludedTestIds, includeTests)
             resultset.extend(results)
             if not filesystem:
                 if len(resultset) >= limit:
@@ -286,6 +297,66 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
     logger.critical("VALIDATION COMPLETE:")
     return finalresult
 
+def run_filecontent_validation(container, snapshot_status=None, testIds=None):
+    logger.info("FILE CONTENT VALIDATION:")
+    logger.info("\tCollection: %s,  Type: FILESYSTEM", container)
+    reporting_path = config_value('REPORTING', 'reportOutputFolder')
+    json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
+    logger.info('\tLOCATION: %s', json_dir)
+    test_files = get_json_files(json_dir, MASTERTEST)
+    if not test_files:
+        logger.error("ERROR: No `test` or `mastertest` file found. collection should contain either `test` or `mastertest` file")
+        return False
+
+    finalresult = True
+    for test_file in test_files:
+        logger.info('\tCOLLECTION: %s', test_file)
+        # logger.info("*" * 50)
+        # logger.info("validator tests: %s", test_file)
+        dirpath = None
+        test_json_data = json_from_file(test_file)
+        if not test_json_data:
+            logger.info("Test file %s looks to be empty, next!...", test_file)
+            continue
+        snapshot_key = '%s_gen' % test_json_data['masterSnapshot']
+        test_json_data['snapshot'] = snapshot_key
+        mastersnapshots = defaultdict(list)
+        snapshot_data = snapshot_status[snapshot_key] if snapshot_key in snapshot_status else {}
+        for snapshot_id, mastersnapshot_id in snapshot_data.items():
+            if isinstance(mastersnapshot_id, list):
+                for master_snapshot_id in mastersnapshot_id:
+                    mastersnapshots[master_snapshot_id].append(snapshot_id)
+            elif isinstance(mastersnapshot_id, str):
+                mastersnapshots[mastersnapshot_id].append(snapshot_id)
+        testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+        for testset in testsets:
+            testcases = get_field_value_with_default(testset, 'cases', [])
+            if testIds:
+                newTestcases = []
+                for testcase in testcases:
+                    if testcase['masterTestId'] in testIds:
+                        newTestcases.append(testcase)
+                testcases = newTestcases
+            # testset['cases'] = _get_new_testcases(testcases, mastersnapshots)
+            testset['cases'] = _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, filesystem=True)
+
+
+        resultset = run_json_validation_tests(test_json_data, container, filesystem=True, snapshot_status=snapshot_status)
+        if test_json_data.get('testSet') and not resultset:
+            logger.error('\tERROR: Testset does not contains any testcases or all testcases are skipped due to invalid rules.')
+        elif resultset:
+            snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
+            dump_output_results(resultset, container, test_file, snapshot, True)
+            for result in resultset:
+                if 'result' in result:
+                    if not re.match(r'passed', result['result'], re.I):
+                        finalresult = False
+                        break
+        else:
+            logger.error('\tERROR: No mastertest Documents found!')
+            finalresult = False
+    logger.critical("VALIDATION COMPLETE:")
+    return finalresult
 
 def _get_snapshot_type_map(container):
     dbname = config_value(DATABASE, DBNAME)
@@ -399,12 +470,19 @@ def run_container_validation_tests_database(container, snapshot_status=None):
 
 
 def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbname=None, filesystem=True):
+    includeTestConfig = get_from_currentdata("INCLUDETESTS")
+    includeTests = get_from_currentdata("TESTIDS")
+
     excludedTestIds = []
     exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
     for exclusion in exclusions:
         if 'exclusionType' in exclusion and exclusion['exclusionType'] and exclusion['exclusionType'] == 'test':
             if 'masterTestID' in exclusion and exclusion['masterTestID'] and exclusion['masterTestID'] not in excludedTestIds:
-                excludedTestIds.append(exclusion['masterTestID'])
+                if includeTestConfig:
+                    if exclusion['masterTestID'] not in includeTests:
+                        excludedTestIds.append(exclusion['masterTestID'])
+                else:
+                    excludedTestIds.append(exclusion['masterTestID'])
     
     snapshot_json_data = get_snapshot_file(snapshot_key, container, dbname, filesystem)
     snapshots = snapshot_json_data.get("snapshots")
@@ -418,6 +496,9 @@ def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbna
         if 'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] in excludedTestIds:
             logger.warning("Excluded from testId exclusions: %s", testcase['masterTestId'])
             continue
+        if includeTestConfig:
+            if 'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] not in includeTests:
+                continue
         test_parser_type = testcase.get('type', None)
         if test_parser_type == 'rego' or test_parser_type == 'python':
             new_cases = _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map)
