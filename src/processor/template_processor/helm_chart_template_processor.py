@@ -47,6 +47,10 @@ class HelmChartTemplateProcessor(TemplateProcessor):
             self.template_file = template_file_path
             if template_file_path:
                 template_json = yaml_from_file(file_path,loader=FullLoader)
+                if template_json:
+                    self.contentType = 'yaml'
+                    if template_json.get("kind"):
+                        self.resource_types = [template_json.get("kind").lower()]
                 self.contentType = 'yaml'
         return template_json
         

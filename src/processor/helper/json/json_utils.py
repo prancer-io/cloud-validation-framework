@@ -69,6 +69,16 @@ def json_from_string(json_str):
         logger.debug('Failed to load json data: %s', json_str)
     return None
 
+def remove_comments(string):
+    pattern = r"(\".*?\"|\'.*?\')|(/\*.*?\*/|//[^\r\n]*$)"
+    regex = re.compile(pattern, re.MULTILINE|re.DOTALL)
+    def _replacer(match):
+        if match.group(2) is not None:
+            return ""
+        else:
+            return match.group(1)
+    return regex.sub(_replacer, string)
+
 
 def json_from_file(jsonfile, escape_chars=None, object_pairs_hook=OrderedDict):
     """ Get json data from the file."""
@@ -87,11 +97,13 @@ def json_from_file(jsonfile, escape_chars=None, object_pairs_hook=OrderedDict):
                 for escape_char in escape_chars:
                     file_data = file_data.replace(escape_char, '\\\%s' % escape_char)
             
+            file_data = remove_comments(file_data)    
             try:
                 jsondata = json.loads(file_data, object_pairs_hook=object_pairs_hook)
             except JSONDecodeError:
                 with open(jsonfile, 'r', encoding='utf-8-sig') as infile:
                     file_data = infile.read()
+                    file_data = remove_comments(file_data)
             
             jsondata = json.loads(file_data, object_pairs_hook=object_pairs_hook)
     except Exception as ex:
@@ -226,5 +238,5 @@ def get_container_exclusion_json(container):
 
 
 if __name__ == "__main__":
-    json_data = json_from_file("/home/swan-13/Documents/project/prancer/repo-github/cloud-validation-framework/realm/validation/aws-iac-demo/master-snapshot_gen.json")
+    json_data = json_from_file("/home/swan-13/Documents/project/prancer/repo-github/cloud-validation-framework/realm/gitConnector.json")
     print(json.dumps(json_data, indent=2))    

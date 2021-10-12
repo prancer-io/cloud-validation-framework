@@ -98,7 +98,7 @@ def aws_password_leak(generated_snapshot: dict) -> dict:
         generated_snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE)
 
     if output["issue"] == True:
-        output["aws_password_leak_err"] = "There is a possibility that secure password is exposed"
+        output["aws_password_leak_err"] = "Ensure no hardcoded password set in the template"
 
     elif output["issue"] == None:
         output["aws_password_leak_err"] = output["err"]
@@ -142,7 +142,7 @@ def entropy_password(generated_snapshot: dict) -> dict:
         generated_snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE=None, EXCLUDE_RE=combined_exclude_regex, shannon_entropy_password=True)
 
     if output["issue"] == True:
-        output["entropy_password_err"] = "There is a possibility that Random secure password is exposed"
+        output["entropy_password_err"] = "There is a possibility that a value might contains a secret string or password"
 
     elif output["issue"] == None:
         output["entropy_password_err"] = output["err"]
