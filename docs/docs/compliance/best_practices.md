@@ -41,7 +41,7 @@ aws_issue["s3_accesslog"] {
 }
 ```
 
-## 3. Send failed resource path in issue metadata
+## 4. Send failed resource path in issue metadata
 
 `source_path contains same logic of the issue with extra field on metadata, which sends path of failed resource.`
 
@@ -57,7 +57,7 @@ source_path[{"s3_accesslog": metadata}] {
 ```
 
 
-## 4. Update the evalution variable value to `true` or `false`
+## 5. Update the evalution variable value to `true` or `false`
 
 ```
 s3_accesslog {
@@ -71,7 +71,7 @@ s3_accesslog = false {
 }
 ```
 
-## 5. Set the proper error message
+## 6. Set the proper error message
 
 ```
 s3_accesslog_err = "AWS Access logging not enabled on S3 buckets" {
@@ -81,7 +81,7 @@ s3_accesslog_err = "AWS Access logging not enabled on S3 buckets" {
 }
 ```
 
-## 6. Define the Metadata
+## 7. Define the Metadata
 
 ```
 s3_accesslog_metadata := {
