@@ -4,6 +4,7 @@ from logging.handlers import RotatingFileHandler
 import datetime
 import time
 import os
+import json
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 
@@ -86,9 +87,9 @@ class DefaultLoggingHandler(logging.StreamHandler):
         output to the stream.
         """
         try:
-            msg = self.format(record)
+            log_msg = self.format(record)
             stream = self.stream
-            stream.write(msg)
+            stream.write(log_msg)
             stream.write(self.terminator)
             self.flush()
         except UnicodeEncodeError:
@@ -114,8 +115,37 @@ class DefaultFileHandler(logging.FileHandler):
             self.stream = self._open()
         DefaultLoggingHandler.emit(self, record)
 
+        # try:
+        #     log_msg = self.format(record)
+        #     db_record = {
+        #         "timestamp": int(time.time() * 1000),
+        #         "level": record.levelname,
+        #         "module": record.module,
+        #         "line": record.lineno,
+        #         "asctime": record.asctime,
+        #         "msg": log_msg,
+        #         "log_type": getattr(record, "type", "DEFAULT")
+        #     }
+        #     msg = json.dumps(db_record)
+        #     stream = self.stream
+        #     stream.write(msg)
+        #     stream.write(self.terminator)
+        #     self.flush()
+        # except UnicodeEncodeError:
+        #     msg = self.format(record)
+        #     stream = self.stream
+        #     stream.write(str(msg.encode('utf-8')))
+        #     stream.write(self.terminator)
+        #     self.flush()
+        # except Exception:
+        #     self.handleError(record)
+
 
 class DefaultRoutingFileHandler(RotatingFileHandler):
+
+    def __init__(self, dbargs, filename, maxBytes=0, backupCount=0):
+        self.isjson = True if dbargs == 3 else False
+        RotatingFileHandler.__init__(self, filename, maxBytes=maxBytes, backupCount=backupCount)
 
     def emit(self, record):
         """
@@ -127,7 +157,33 @@ class DefaultRoutingFileHandler(RotatingFileHandler):
         try:
             if self.shouldRollover(record):
                 self.doRollover()
-            DefaultFileHandler.emit(self, record)
+            if self.stream is None:
+                self.stream = self._open()
+            # DefaultFileHandler.emit(self, record)
+            stream = self.stream
+            if self.isjson:
+                log_msg = self.format(record)
+                db_record = {
+                    "timestamp": int(time.time() * 1000),
+                    "level": record.levelname,
+                    "module": record.module,
+                    "line": record.lineno,
+                    "asctime": record.asctime,
+                    "msg": log_msg,
+                    "log_type": getattr(record, "type", "DEFAULT")
+                }
+                msg = json.dumps(db_record)
+            else:
+                msg = self.format(record)
+            stream.write(msg)
+            stream.write(self.terminator)
+            self.flush()
+        except UnicodeEncodeError:
+            msg = self.format(record)
+            stream = self.stream
+            stream.write(str(msg.encode('utf-8')))
+            stream.write(self.terminator)
+            self.flush()
         except Exception:
             self.handleError(record)
 
@@ -315,7 +371,7 @@ def default_logging(fwconfigfile=None):
     return logger
 
 
-def add_file_logging(fwconfigfile):
+def add_file_logging(fwconfigfile, dbargs):
     """ Add file logging to the basic logging"""
     global FWLOGGER, FWLOGFILENAME
     log_config = ini_logging_config(fwconfigfile)
@@ -327,6 +383,7 @@ def add_file_logging(fwconfigfile):
     if not FWLOGGER:
         FWLOGGER = default_logging()
     handler = DefaultRoutingFileHandler(
+        dbargs,
         FWLOGFILENAME,
         maxBytes=1024 * 1024 * log_config['size'],
         backupCount=log_config['backups']
@@ -341,7 +398,7 @@ def add_db_logging(fwconfigfile, dburl, dbargs):
     global FWLOGGER, dbhandler
     log_config = ini_logging_config(fwconfigfile)
     unittest = os.getenv('UNITTEST', "false")
-    if log_config['db'] and unittest != "true" and dbargs and dburl:
+    if log_config['db'] and unittest != "true" and dbargs in [1,2] and dburl:
         if not FWLOGGER:
             FWLOGGER = default_logging()
         dblogformat = get_logformat(log_config['level'])
@@ -362,10 +419,10 @@ def getlogger(fw_cfg=None):
 def logging_fw(fwconfigfile, dbargs, refresh_logger=False):
     """Framework file logging"""
     global FWLOGGER
-    if FWLOGGER and (dbhandler and dbargs == 'FULL') and not refresh_logger:
+    if FWLOGGER and (dbhandler and dbargs == 2) and not refresh_logger:
         return FWLOGGER
     FWLOGGER = default_logging(fwconfigfile)
-    add_file_logging(fwconfigfile)
+    add_file_logging(fwconfigfile, dbargs)
     unittest = os.getenv('UNITTEST', "false")
     if unittest != "true":
         from processor.logging.dburl_kv import get_dburl

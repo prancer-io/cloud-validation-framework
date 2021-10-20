@@ -470,6 +470,8 @@ def run_container_validation_tests_database(container, snapshot_status=None):
 
 
 def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbname=None, filesystem=True):
+    onlysnapshots = get_from_currentdata("ONLYSNAPSHOTS")
+    onlysnapshotsIds = get_from_currentdata("ONLYSNAPSHOTIDS")
     includeTestConfig = get_from_currentdata("INCLUDETESTS")
     includeTests = get_from_currentdata("TESTIDS")
 
@@ -499,6 +501,7 @@ def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbna
         if includeTestConfig:
             if 'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] not in includeTests:
                 continue
+
         test_parser_type = testcase.get('type', None)
         if test_parser_type == 'rego' or test_parser_type == 'python':
             new_cases = _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map)
@@ -511,18 +514,25 @@ def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbna
                 for s_id in mastersnapshots[ms_id]:
                     # new_rule_str = re.sub('{%s}' % ms_id, '{%s}' % s_id, rule_str)
                     # if not detail_method or detail_method == snapshots_details_map[s_id]:
-                    new_rule_str = rule_str.replace('{%s}' % ms_id, '{%s}' % s_id)
-                    new_testcase = {
-                        'title': testcase.get('title') if testcase.get('title') else "", 
-                        'description': testcase.get('description') if testcase.get('description') else "", 
-                        'rule': new_rule_str, 
-                        'testId': testcase['masterTestId'],
-                        'status' : get_field_value_with_default(testcase, 'status', "enable")
-                    }
-                    newcases.append(new_testcase)
+                    toAdd = True
+                    if onlysnapshots:
+                        if s_id not in onlysnapshotsIds:
+                            toAdd = False
+                    if toAdd:
+                        new_rule_str = rule_str.replace('{%s}' % ms_id, '{%s}' % s_id)
+                        new_testcase = {
+                            'title': testcase.get('title') if testcase.get('title') else "",
+                            'description': testcase.get('description') if testcase.get('description') else "",
+                            'rule': new_rule_str,
+                            'testId': testcase['masterTestId'],
+                            'status' : get_field_value_with_default(testcase, 'status', "enable")
+                        }
+                        newcases.append(new_testcase)
     return newcases
 
 def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map):
+    onlysnapshots = get_from_currentdata("ONLYSNAPSHOTS")
+    onlysnapshotsIds = get_from_currentdata("ONLYSNAPSHOTIDS")
     newcases = []
     ms_ids = testcase.get('masterSnapshotId')
     # service = ms_ids[0].split('_')[1]
@@ -534,17 +544,22 @@ def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map):
             if testcase_resource_types and all(resource_type not in snapshot_resource_types for resource_type in testcase_resource_types):
                 continue
 
-            new_testcase = copy.copy(testcase)
-            # if service not in ms_id:
-            #     if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
-            #         [newcase['snapshotId'].append(s_id) for newcase in newcases]
-            #     else:
-            #         new_cases = copy.deepcopy(newcases)
-            #         [new_case['snapshotId'].pop(-1) and new_case['snapshotId'].append(s_id) for new_case in new_cases]
-            #         newcases.extend(new_cases)
-            #     continue    
-            new_testcase['snapshotId'] = [s_id]
-            newcases.append(new_testcase)
+            toAdd = True
+            if onlysnapshots:
+                if s_id not in onlysnapshotsIds:
+                    toAdd = False
+            if toAdd:
+                new_testcase = copy.copy(testcase)
+                # if service not in ms_id:
+                #     if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
+                #         [newcase['snapshotId'].append(s_id) for newcase in newcases]
+                #     else:
+                #         new_cases = copy.deepcopy(newcases)
+                #         [new_case['snapshotId'].pop(-1) and new_case['snapshotId'].append(s_id) for new_case in new_cases]
+                #         newcases.extend(new_cases)
+                #     continue
+                new_testcase['snapshotId'] = [s_id]
+                newcases.append(new_testcase)
     return newcases
 
 
