@@ -146,7 +146,7 @@ class DefaultRoutingFileHandler(RotatingFileHandler):
     def __init__(self, dbargs, filename, mode='a', maxBytes=0, backupCount=0,
                  encoding=None, delay=False, errors=None):
         self.isjson = True if dbargs == 3 else False
-        RotatingFileHandler.__init__(self, filename, mode, maxBytes, backupCount,encoding, delay, errors)
+        super().__init__(filename, mode, maxBytes, backupCount,encoding, delay, errors)
 
     def emit(self, record):
         """
