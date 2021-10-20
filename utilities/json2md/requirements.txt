@@ -1,0 +1,3 @@
+pandas
+jinja2
+tabulate
