@@ -143,10 +143,9 @@ class DefaultFileHandler(logging.FileHandler):
 
 class DefaultRoutingFileHandler(RotatingFileHandler):
 
-    def __init__(self, dbargs, filename, mode='a', maxBytes=0, backupCount=0,
-                 encoding=None, delay=False, errors=None):
+    def __init__(self, dbargs, filename, maxBytes=0, backupCount=0):
         self.isjson = True if dbargs == 3 else False
-        super().__init__(filename, mode, maxBytes, backupCount,encoding, delay, errors)
+        RotatingFileHandler.__init__(self, filename, maxBytes=maxBytes, backupCount=backupCount)
 
     def emit(self, record):
         """
