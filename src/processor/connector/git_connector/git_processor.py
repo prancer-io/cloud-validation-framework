@@ -107,6 +107,10 @@ def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=Tru
             if accessToken:
                 logger.info("AccessToken: %s" % accessToken)
                 pwd = get_field_value(connector, 'httpsPassword')
+                isremote = get_from_currentdata('remote')
+                if isremote:
+                    gittoken = get_from_currentdata('gittoken')
+                    pwd = gittoken if gittoken else None
                 pwd = pwd if pwd else get_git_pwd(key=accessToken)
                 if not pwd:
                     pwd = get_pwd_from_vault(accessToken)
@@ -114,6 +118,7 @@ def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=Tru
                         logger.info("Git access token from vault: %s", '*' * len(pwd))
                 if pwd:
                     gh = GithubFunctions()
+                    gh.set_base_url(giturl)
                     gh.set_access_token(pwd)
                     _ = gh.populate_user()
                     rpo = gh.clone_repo(giturl, repopath, branch)

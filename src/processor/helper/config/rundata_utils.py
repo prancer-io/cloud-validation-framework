@@ -12,7 +12,7 @@ from processor.helper.json.json_utils import json_from_file, save_json_to_file,g
 from processor.logging.log_handler import getlogger, FWLOGFILENAME
 from processor.helper.file.file_utils import remove_file, exists_dir, mkdir_path
 
-exclude_list = ['token', 'clientSecret', 'vaulttoken', 'exclusion']
+exclude_list = ['token', 'clientSecret', 'vaulttoken', 'exclusion', 'apitoken', 'gittoken', 'outputpath']
 
 def get_dbtests():
     currdata = get_currentdata()
@@ -146,10 +146,15 @@ def delete_currentdata():
         runctx['duration'] = '%d seconds' % int((runctx['end'] - runctx['start'])/1000)
         runctx['start'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runctx['start']/1000))
     runctx['end'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runctx['end']/1000))
-    for field in exclude_list:
-        if field in runctx:
-            del runctx[field]
-    logger.critical("\033[92m Run Stats: %s\033[00m" % json.dumps(runctx, indent=2))
+    newdata = {}
+    for k,v in runctx.items():
+        if k not in exclude_list:
+            newdata[k] = v
+    logger.critical("\033[92m Run Stats: %s\033[00m" % json.dumps(newdata, indent=2))
+    if runctx['remote']:
+        from processor.helper.utils.compliance_utils import upload_compliance_results
+        logger.info("Uploading data....")
+        upload_compliance_results(runctx['container'], runctx['outputpath'], runctx['env'], runctx['company'], runctx['apitoken'])
     run_file = framework_currentdata()
     remove_file(run_file)
 
