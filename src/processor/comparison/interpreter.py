@@ -492,20 +492,9 @@ class ComparatorV01:
 
                     if result["issue"] == True:
                         result["result"] = "failed"
-                    
-                    if result["issue"] == False:
-                        result["result"] = "passed"
-                    
-                            
-                    if result["issue"] == None:
-                        logger.error("\t\tERROR: have problem in running test")
-                        logger.error(result[evalmessage])
-
-                    else:
+                        
                         self.log_compliance_info(testId)
                         self.log_result(result)
-                        
-                    if result["issue"] == True or result["issue"] == False:
                         json_result = {
                             'eval': rule["eval"], 
                             'result': result["result"], 
@@ -519,7 +508,15 @@ class ComparatorV01:
                             json_result["errors"] = result.get("errors",[])
 
                         results.append(json_result)
-                            
+                    
+                    elif result["issue"] == False:
+                        self.log_compliance_info(testId)
+                        logger.warning('\t\tRESULT: SKIPPED')
+                    
+                    elif result["issue"] == None:
+                        logger.error("\t\tERROR: have problem in running test")
+                        logger.error(result[evalmessage])
+
         else:
             results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
             self.log_result(results[-1])
