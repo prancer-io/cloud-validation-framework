@@ -48,6 +48,7 @@ nav:
     - AWS resources: limitations/aws-limitations.md
     - AWS CloudFormation templates: limitations/aws-cloudformation-template-limitations.md
     - Azure ARM templates: limitations/azure-arm-templates-limitations.md
+    - Terraform templates: limitations/terraform-template-limitations.md
     - Json: limitations/json-limitations.md
   - Enterprise edition:
     - Features: enterprise/basics.md
@@ -66,13 +67,3 @@ nav:
     - tags: api/tags.md
     - users: api/users.md
     - wizard: api/wizard.md
-  - Connector Tutorials:
-    - AWS - Security group monitoring: tutorials/connectors/aws/01-security-group.md
-    - AWS - Testing values in CloudFormation templates: tutorials/connectors/aws/02-testing-values-in-cloudformation-templates.md
-    - Azure - Security group monitoring: tutorials/connectors/azure/01-security-group.md
-    - Azure - Testing values in an ARM templates: tutorials/connectors/azure/02-testing-values-in-an-arm-templates.md
-  - CI/CD Tutorials:
-    - AWS CodeBuild - Basic CI/CD integration: tutorials/cicd/codebuild/01-basic-setup.md
-    - Jenkins - Basic CI/CD integration: tutorials/cicd/jenkins/01-basic-setup.md
-    - Travis - Basic CI/CD integration: tutorials/cicd/travis/01-basic-setup.md
-    - Docker - Basic image creation and usage: tutorials/cicd/docker/01-build-a-docker-image-and-use.md

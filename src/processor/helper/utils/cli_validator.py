@@ -62,7 +62,7 @@ import os
 import signal
 from inspect import currentframe, getframeinfo
 from processor.helper.config.config_utils import COMPLIANCE, CRAWL, CRAWL_AND_COMPLIANCE, framework_dir, config_value, framework_config, \
-    CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, CUSTOMER, \
+    CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, REMOTE, CUSTOMER, \
     SINGLETEST, EXCLUSION, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor import __version__
@@ -212,10 +212,11 @@ Runs the prancer framework based on the configuration files available in collect
     cmd_parser.add_argument('-v','--version', action='version', version=("Prancer %s" % __version__) , help='Show prancer version')
     cmd_parser.add_argument('container', metavar='collection', action='store', nargs='?', default='',
                             help='The name of the folder which contains the collection of files related to one scenario')
-    cmd_parser.add_argument('--db', action='store', default=None, choices=['NONE', 'SNAPSHOT', 'FULL'],
+    cmd_parser.add_argument('--db', action='store', default=None, choices=['NONE', 'SNAPSHOT', 'FULL', 'REMOTE'],
                             help='''NONE - Database will not be used, all the files reside on file system,
                             SNAPSHOT - Resource snapshots will be stored in db, everything else will be on file system,
-                            FULL - tests, configurations, outputs and snapshots will be stored in the database''')
+                            FULL - tests, configurations, outputs and snapshots will be stored in the database
+                            REMOTE - tests, configurations, outputs and snapshots will be downloaded from the API server and run as NONE mode.''')
     cmd_parser.add_argument('--crawler', action='store_true', default=False,
                             help='Crawls and generates snapshot files only')
     cmd_parser.add_argument('--test', action='store', default=None, help='Run a single test in NODB mode')
@@ -227,7 +228,17 @@ Runs the prancer framework based on the configuration files available in collect
     cmd_parser.add_argument('--iac', action='store', default=None, help='iac types')
     cmd_parser.add_argument('--file_content', action='store', default=None, help='file content run')
     cmd_parser.add_argument('--mastertestid', action='store', default="", help='test Ids to run')
-    cmd_parser.add_argument('--mastersnapshotid', action='store', default="", help='snapshot Ids to run')
+    cmd_parser.add_argument('--mastersnapshotid', action='store', default="", help='mastersnapshot Ids to run')
+    cmd_parser.add_argument('--snapshotid', action='store', default="", help='snapshot Ids to run')
+    cmd_parser.add_argument('--env', action='store', default='PROD', choices=['DEV', 'QA', 'PROD', 'LOCAL'],
+                            help='''DEV - API server is in dev environment,
+                            QA - API server is in qa environment,
+                            PROD - API server is in prod environment
+                            LOCAL - API server is in local environment.''')
+    cmd_parser.add_argument('--apitoken', action='store', default=None, help='API token to access the server.')
+    cmd_parser.add_argument('--gittoken', action='store', default=None, help='github/enterprise/internal github API token to access repositories.')
+    cmd_parser.add_argument('--company', action='store', default=None, help='company of the API server')
+
     args = cmd_parser.parse_args(arg_vals)
 
     retval = 2
@@ -238,6 +249,42 @@ Runs the prancer framework based on the configuration files available in collect
 
     if args.customer:
         set_customer(args.customer)
+
+    args.remote = False
+    args.opath = None
+    if args.db and args.db.upper() == REMOTE:
+        from processor.helper.utils.compliance_utils import create_container_compliance, get_api_server, \
+            get_collection_api
+        from processor.helper.httpapi.http_utils import http_get_request, http_post_request
+        remoteValid = False
+        if not args.gittoken:
+            args.gittoken = os.environ['GITTOKEN'] if 'GITTOKEN' in os.environ else None
+        if not args.apitoken:
+            args.apitoken = os.environ['APITOKEN'] if 'APITOKEN' in os.environ else None
+        if args.apitoken and args.gittoken:
+            apiserver = get_api_server(args.env, args.company)
+            if apiserver:
+                collectionUri = get_collection_api(apiserver, args.container)
+                hdrs = {
+                    "Authorization": "Bearer %s" % args.apitoken,
+                    "Content-Type": "application/json"
+                }
+                status, data = http_get_request(collectionUri, headers=hdrs)
+                if status and isinstance(status, int) and status == 200:
+                    if 'data' in data:
+                        collectionData = data['data']
+                        opath = create_container_compliance(args.container, collectionData)
+                        if opath:
+                            remoteValid = True
+                            args.remote = True
+                            args.opath = opath
+                            args.db = NONE
+        if not remoteValid:
+            msg = "Check the remote configuration viz env, apitoken, gittoken, company, exiting!....."
+            console_log(msg, currentframe())
+            return retval
+    # return retval
+
     if args.db:
         if args.db.upper() in DBVALUES:
             args.db = DBVALUES.index(args.db.upper())
@@ -273,7 +320,7 @@ Runs the prancer framework based on the configuration files available in collect
 
     # Alls well from this point, check container exists in the directory configured
     retval = 0
-    logger = init_logger(args.db, framework_config())
+    logger = init_logger(DBVALUES.index(REMOTE) if args.remote else args.db, framework_config())
     # logger = add_file_logging(config_ini)
     logger.info("START: Argument parsing and Run Initialization. Version %s", __version__)
 
@@ -305,6 +352,14 @@ Runs the prancer framework based on the configuration files available in collect
         put_in_currentdata('jsonsource', fs)
         put_in_currentdata(DBTESTS, args.db)
         put_in_currentdata( 'container', args.container)
+        put_in_currentdata( 'remote', args.remote)
+        if args.remote:
+            put_in_currentdata( 'env', args.env)
+            put_in_currentdata( 'apitoken', args.apitoken)
+            put_in_currentdata( 'gittoken', args.gittoken)
+            put_in_currentdata( 'company', args.company)
+            put_in_currentdata( 'outputpath', args.opath)
+
         put_in_currentdata("CLEANING_REPOS", [])
         if args.mastersnapshotid:
             put_in_currentdata("INCLUDESNAPSHOTS", True)
@@ -318,6 +373,12 @@ Runs the prancer framework based on the configuration files available in collect
         else:
             put_in_currentdata("INCLUDETESTS", False)
             put_in_currentdata("TESTIDS", [])
+        if args.snapshotid:
+            put_in_currentdata("ONLYSNAPSHOTS", True)
+            put_in_currentdata("ONLYSNAPSHOTIDS", args.snapshotid.split(','))
+        else:
+            put_in_currentdata("ONLYSNAPSHOTS", False)
+            put_in_currentdata("ONLYSNAPSHOTIDS", [])
         
         # if args.db == DBVALUES.index(FULL):
         #     from processor.logging.log_handler import get_dblogger
@@ -390,6 +451,7 @@ Runs the prancer framework based on the configuration files available in collect
             else:
                 retval = 1
             check_send_notification(args.container, args.db)
+
             if fs:
                 dump_output_results([], args.container, test_file="", snapshot="", filesystem=fs, status="Completed")
             current_progress = 'COMPLIANCECOMPLETE'
@@ -403,6 +465,10 @@ Runs the prancer framework based on the configuration files available in collect
         logger.error("Execution exception: %s", ex)
         print(traceback.format_exc())
         retval = 2
+
+    # if args.remote:
+    #     from processor.helper.utils.compliance_utils import upload_compliance_results
+    #     upload_compliance_results(args.container, args.opath, args.env, args.company, args.apitoken)
     return retval
 
 
