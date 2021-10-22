@@ -44,6 +44,7 @@ def init_currentdata():
     run_data = {
         'start': started,
         'end': started,
+        'remote': False,
         'errors': [],
         'host': socket.gethostname(),
         'timestamp': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
