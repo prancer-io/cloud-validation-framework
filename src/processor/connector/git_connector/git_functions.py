@@ -1,6 +1,7 @@
 from git import exc
 from datetime import datetime
 from git import Repo
+import urllib.parse
 import time
 import re
 import tempfile
@@ -32,7 +33,11 @@ class GithubFunctions:
         self.user = None
         self.repo = None
         self.access_token = None
-    
+
+    def set_base_url(self, base_url):
+        """ set base url for enterprise github"""
+        self.base_url = base_url
+
     def set_access_token(self, access_token):
         """ get headers """
         self.access_token = access_token
@@ -46,7 +51,13 @@ class GithubFunctions:
 
     def populate_user(self):
         """ get user object from access token """
-        api_url = self.base_url + "user"
+        giturl = urllib.parse.unquote(self.base_url)
+        urlval = urllib.parse.urlparse(giturl)
+        if urlval.netloc.endswith('github.com'):
+            api_url = GITHUB_URL + "user"
+        else:
+            api_url = urlval.scheme + "://" + urlval.netloc + "/api/v3/user"
+        # api_url = self.base_url + "user"
         response = requests.get(api_url, headers=self.get_headers())
         if response.status_code == 200:
             self.user = response.json()
@@ -71,20 +82,26 @@ class GithubFunctions:
     
     def clone_repo(self, source_repo, clone_path, branch_name=None):
         """ clone repository at provided path """
-        
-        if source_repo.startswith('git'):
-            repo_path = source_repo.replace(':', '/').split("github.com")
-        else:
-            repo_path = source_repo.split("github.com")
-        
-        if self.user and self.access_token and self.user.get("login"):
-            source_repo = "https://" + self.user.get("login") + ":" + self.access_token +"@github.com" + repo_path[-1]
-        else:
-            source_repo = "https://github.com" + repo_path[-1]
 
-        kwargs = {
-            "depth" : 1
-        }
+        giturl = urllib.parse.unquote(source_repo)
+        urlval = urllib.parse.urlparse(giturl)
+        if urlval.netloc.endswith('github.com'):
+            if source_repo.startswith('git'):
+                repo_path = source_repo.replace(':', '/').split("github.com")
+            else:
+                repo_path = source_repo.split("github.com")
+        
+            if self.user and self.access_token and self.user.get("login"):
+                source_repo = "https://" + self.user.get("login") + ":" + self.access_token +"@github.com" + repo_path[-1]
+            else:
+                source_repo = "https://github.com" + repo_path[-1]
+        else:
+            if self.user and self.access_token and self.user.get("login"):
+                source_repo = urlval.scheme + "://" + self.user.get("login") + ":" + self.access_token + "@" + urlval.netloc + urlval.path
+            else:
+                source_repo = urlval.scheme + "://" + urlval.netloc + urlval.path
+
+        kwargs = {"depth": 1}
         
         if branch_name:
             kwargs["branch"] = branch_name
@@ -92,6 +109,7 @@ class GithubFunctions:
         self.repo = Repo.clone_from(
             source_repo,
             clone_path,
+            env={'GIT_SSL_NO_VERIFY': '1'},
             **kwargs
         )
         return self.repo
@@ -132,6 +150,12 @@ if __name__ == '__main__':
         clonedir = tempfile.mkdtemp()
         gh = GithubFunctions()
         gh.set_access_token(tk)
+        urlval = urllib.parse.urlparse(repoUrl)
+        if urlval.netloc.endswith('github.com'):
+            baseurl = 'https://api.github.com/'
+        else:
+            baseurl = urlval.scheme + "://" + urlval.netloc + "/api/v3/"
+        gh.set_base_url(baseurl)
         usr = gh.populate_user()
         rpo = gh.clone_repo(repoUrl, clonedir, 'master')
         if rpo:

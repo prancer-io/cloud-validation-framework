@@ -230,12 +230,13 @@ Runs the prancer framework based on the configuration files available in collect
     cmd_parser.add_argument('--mastertestid', action='store', default="", help='test Ids to run')
     cmd_parser.add_argument('--mastersnapshotid', action='store', default="", help='mastersnapshot Ids to run')
     cmd_parser.add_argument('--snapshotid', action='store', default="", help='snapshot Ids to run')
-    cmd_parser.add_argument('--server', action='store', default='LOCAL', choices=['DEV', 'QA', 'PROD', 'LOCAL'],
-                            help='''DEV - API server is in a dev environment,
-                            QA - API server is in a qa environment,
-                            PROD - API server is in a prod environment
-                            LOCAL - API server is in a local environment.''')
+    cmd_parser.add_argument('--env', action='store', default='PROD', choices=['DEV', 'QA', 'PROD', 'LOCAL'],
+                            help='''DEV - API server is in dev environment,
+                            QA - API server is in qa environment,
+                            PROD - API server is in prod environment
+                            LOCAL - API server is in local environment.''')
     cmd_parser.add_argument('--apitoken', action='store', default=None, help='API token to access the server.')
+    cmd_parser.add_argument('--gittoken', action='store', default=None, help='github/enterprise/internal github API token to access repositories.')
     cmd_parser.add_argument('--company', action='store', default=None, help='company of the API server')
 
     args = cmd_parser.parse_args(arg_vals)
@@ -256,10 +257,12 @@ Runs the prancer framework based on the configuration files available in collect
             get_collection_api
         from processor.helper.httpapi.http_utils import http_get_request, http_post_request
         remoteValid = False
+        if not args.gittoken:
+            args.gittoken = os.environ['GITTOKEN'] if 'GITTOKEN' in os.environ else None
         if not args.apitoken:
             args.apitoken = os.environ['APITOKEN'] if 'APITOKEN' in os.environ else None
-        if args.apitoken:
-            apiserver = get_api_server(args.server, args.company)
+        if args.apitoken and args.gittoken:
+            apiserver = get_api_server(args.env, args.company)
             if apiserver:
                 collectionUri = get_collection_api(apiserver, args.container)
                 hdrs = {
@@ -277,7 +280,7 @@ Runs the prancer framework based on the configuration files available in collect
                             args.opath = opath
                             args.db = NONE
         if not remoteValid:
-            msg = "Check the remote configuration, exiting!....."
+            msg = "Check the remote configuration viz env, apitoken, gittoken, company, exiting!....."
             console_log(msg, currentframe())
             return retval
     # return retval
@@ -349,6 +352,14 @@ Runs the prancer framework based on the configuration files available in collect
         put_in_currentdata('jsonsource', fs)
         put_in_currentdata(DBTESTS, args.db)
         put_in_currentdata( 'container', args.container)
+        put_in_currentdata( 'remote', args.remote)
+        if args.remote:
+            put_in_currentdata( 'env', args.env)
+            put_in_currentdata( 'apitoken', args.apitoken)
+            put_in_currentdata( 'gittoken', args.gittoken)
+            put_in_currentdata( 'company', args.company)
+            put_in_currentdata( 'outputpath', args.opath)
+
         put_in_currentdata("CLEANING_REPOS", [])
         if args.mastersnapshotid:
             put_in_currentdata("INCLUDESNAPSHOTS", True)
@@ -455,9 +466,9 @@ Runs the prancer framework based on the configuration files available in collect
         print(traceback.format_exc())
         retval = 2
 
-    if args.remote:
-        from processor.helper.utils.compliance_utils import upload_compliance_results
-        upload_compliance_results(args.container, args.opath, args.server, args.company, args.apitoken)
+    # if args.remote:
+    #     from processor.helper.utils.compliance_utils import upload_compliance_results
+    #     upload_compliance_results(args.container, args.opath, args.env, args.company, args.apitoken)
     return retval
 
 

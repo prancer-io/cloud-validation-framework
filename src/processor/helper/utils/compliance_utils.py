@@ -4,7 +4,7 @@ import requests
 import urllib.parse
 from processor.helper.json.json_utils import save_json_to_file, json_from_file
 from processor.helper.config.config_utils import config_value, framework_dir
-from processor.helper.file.file_utils import mkdir_path, remove_file
+from processor.helper.file.file_utils import mkdir_path, remove_file, exists_file
 from processor.logging.log_handler import getlogger
 
 LOCAL='LOCAL'
@@ -102,7 +102,7 @@ def upload_compliance_results_multipart(container, opath, server, company, apito
         if resp.status_code == 200:
             logger.info(resp.json())
 
-def read_in_chunks(file_object, chunk_size=32768):
+def read_in_chunks(file_object, chunk_size=65536):
     while True:
         data = file_object.read(chunk_size)
         if not data:
@@ -170,7 +170,9 @@ def upload_compliance_results(container, opath, server, company, apitoken):
         hdrs = {
             "Authorization": "Bearer %s" % apitoken
         }
-        upload_file(container, fname, name[-1], collectionUri, logs[0], 'log', hdrs)
-        upload_file(container, opath, oname[-1], collectionUri, logs[0], 'output', hdrs)
-        if snapshot and snapshotpath:
+        if exists_file(fname):
+            upload_file(container, fname, name[-1], collectionUri, logs[0], 'log', hdrs)
+        if exists_file(opath):
+            upload_file(container, opath, oname[-1], collectionUri, logs[0], 'output', hdrs)
+        if snapshot and snapshotpath and exists_file(snapshotpath):
             upload_file(container, snapshotpath, snapshot, collectionUri, logs[0], 'snapshot', hdrs)
