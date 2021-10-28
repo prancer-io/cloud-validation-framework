@@ -100,6 +100,8 @@ class TerraformTemplateProcessor(TemplateProcessor):
                 if self.is_parameter_file(file_path):
                     parameter_file_list.append(file_path)
 
+            parameter_file_list = sorted(parameter_file_list, key=lambda x: x.split(".")[-1])
+
             if template_file_path:
                 terraform_template_parser = TerraformTemplateParser(template_file_path, parameter_file=parameter_file_list, connector_data=self.connector_data)
                 template_json = terraform_template_parser.parse()
