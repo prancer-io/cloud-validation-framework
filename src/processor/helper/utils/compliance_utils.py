@@ -53,11 +53,14 @@ def get_collection_api(apiserver, collection=None):
 
 def create_container_compliance(container, data):
     """ Create mastersnapshot, mastertest and connectors for the container in the framework directory"""
-    strFolder = config_value('AZURE', 'azureStructureFolder')
-    strpath = '%s/%s' % (framework_dir(), strFolder)
-    mkdir_path(strpath)
     validFolder = config_value('TESTS', 'containerFolder')
     validpath = '%s/%s/%s' % (framework_dir(), validFolder, container)
+    strFolder = config_value('AZURE', 'azureStructureFolder')
+    if strFolder:
+        strpath = '%s/%s' % (framework_dir(), strFolder)
+        mkdir_path(strpath)
+    else:
+        strpath = '%s/%s/..' % (framework_dir(), validFolder)
     shutil.rmtree(validpath, ignore_errors=True)
     mkdir_path(validpath)
     outputpath = None
