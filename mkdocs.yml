@@ -44,6 +44,8 @@ nav:
     - Rule syntax: tests/syntax.md
     - OPA Integration: tests/opa.md
     - Test ouput files: tests/outputs.md
+  - Exclusions:
+    - Exclusion file: exclusions/exclusion.md
   - Limitations & workarounds:
     - AWS resources: limitations/aws-limitations.md
     - AWS CloudFormation templates: limitations/aws-cloudformation-template-limitations.md

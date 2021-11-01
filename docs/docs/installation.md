@@ -33,7 +33,7 @@ To test that everything works fine, run the following command:
 
 If you see something like:
 
-    Prancer 1.1.0
+    Prancer 2.0.5
 
 Then it means everything worked fine.
 
@@ -51,7 +51,7 @@ First, you need to know to which version you want to upgrade. You can browse dif
 The command to upgrade is:
     pip3 install -U prancer-basic==<latest-version>
 
-For example, if you want to upgrade to version `1.1.0`, you should run:
-    pip3 install -U prancer-basic==1.1.0
+For example, if you want to upgrade to version `2.0.5`, you should run:
+    pip3 install -U prancer-basic==2.0.5
 
     
