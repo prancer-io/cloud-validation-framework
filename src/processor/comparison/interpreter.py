@@ -12,7 +12,7 @@ import re
 import pymongo
 import subprocess
 from processor.helper.json.json_utils import get_field_value, json_from_file, save_json_to_file
-from processor.helper.config.config_utils import get_test_json_dir, parsebool, config_value, SINGLETEST, generateid
+from processor.helper.config.config_utils import get_test_json_dir, parsebool, config_value, generateid
 from processor.helper.file.file_utils import exists_file, exists_dir, remove_file
 from processor.database.database import COLLECTION, get_documents
 from processor.comparison.comparison_functions import equality,\
@@ -641,9 +641,9 @@ class ComparatorV01:
                         else:
                             snapshot_val['path'] = json_data['path']
 
-                        singletest = get_from_currentdata(SINGLETEST)
-                        if singletest:
-                            snapshot_val['json'] = doc
+                        # singletest = get_from_currentdata(SINGLETEST)
+                        # if singletest:
+                        #     snapshot_val['json'] = doc
                         self.snapshots.append(snapshot_val)
         return tobeExcluded, doc
 

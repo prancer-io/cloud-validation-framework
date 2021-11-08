@@ -281,13 +281,15 @@ def populate_custom_snapshot(snapshot, container=None):
         container = get_from_currentdata('container')
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
-    connector_data = get_from_currentdata('connector')
-    if connector_data:
-        sub_data = get_custom_data(connector_data)
-        if not sub_data:
-            logger.error("No connector data found in '%s'", connector_data)
-    else:
-        sub_data = get_custom_data(snapshot_source)
+    # connector_data = get_from_currentdata('connector')
+    # if connector_data:
+    #     sub_data = get_custom_data(connector_data)
+    #     if not sub_data:
+    #         logger.error("No connector data found in '%s'", connector_data)
+    # else:
+    #     sub_data = get_custom_data(snapshot_source)
+    # Removed connector argument from prancer command line.
+    sub_data = get_custom_data(snapshot_source)
     snapshot_nodes = get_field_value(snapshot, 'nodes')
     snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and sub_data and snapshot_nodes:

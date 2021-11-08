@@ -3,12 +3,12 @@ import re
 import pymongo
 import json
 from processor.database.database import COLLECTION, get_documents
-from processor.logging.log_handler import getlogger, init_logger
+from processor.logging.log_handler import getlogger
 from processor.comparison.comparisonantlr.compare_types import EQ, NEQ, GT, GTE, LT, LTE
 from processor.comparison.comparisonantlr.compare_types import compare_none, compare_int,\
     compare_float, compare_boolean, compare_str, compare_list, compare_in
-from processor.helper.config.rundata_utils import get_dbtests, get_from_currentdata
-from processor.helper.config.config_utils import get_test_json_dir, SINGLETEST
+from processor.helper.config.rundata_utils import get_dbtests
+from processor.helper.config.config_utils import get_test_json_dir
 from processor.helper.file.file_utils import exists_file, exists_dir
 from processor.helper.json.json_utils import json_from_file
 
@@ -183,9 +183,9 @@ class RuleInterpreter:
                             snapshot_val['paths'] = json_data['paths']
                         else:
                             snapshot_val['path'] = json_data['path']
-                        singletest = get_from_currentdata(SINGLETEST)
-                        if singletest:
-                            snapshot_val['json'] = doc
+                        # singletest = get_from_currentdata(SINGLETEST)
+                        # if singletest:
+                        #     snapshot_val['json'] = doc
                         self.snapshots.append(snapshot_val)
         return doc
 

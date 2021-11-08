@@ -39,7 +39,7 @@ from processor.helper.json.json_utils import get_field_value, json_from_file,\
     get_container_snapshot_json_files, SNAPSHOT, JSONTEST, EXCLUSIONS, \
     collectiontypes, get_json_files, TEST, MASTERTEST, get_container_exclusion_json, \
     get_field_value_with_default
-from processor.helper.config.config_utils import config_value, framework_dir, SINGLETEST
+from processor.helper.config.config_utils import config_value, framework_dir
 from processor.database.database import DATABASE, DBNAME, get_documents, sort_field, update_one_document
 from processor.connector.snapshot_azure import populate_azure_snapshot
 from processor.connector.snapshot_custom import populate_custom_snapshot, get_custom_data
@@ -156,8 +156,9 @@ def populate_container_snapshots(container, dbsystem=True):
     else:
         if refactor_flag and refactor_flag == 'true':
             from processor.connector.snapshot_fs import FSSnapshot
-            singletest = get_from_currentdata(SINGLETEST)
-            fssnapshot = FSSnapshot(container, snapshot_refactored_fns, singletest)
+            # singletest = get_from_currentdata(SINGLETEST)
+            # fssnapshot = FSSnapshot(container, snapshot_refactored_fns, singletest)
+            fssnapshot = FSSnapshot(container, snapshot_refactored_fns)
             return fssnapshot.get_snapshots()
         else:
             return populate_container_snapshots_filesystem(container)
@@ -268,7 +269,7 @@ def container_snapshots_filesystem(container):
     reporting_path = config_value('REPORTING', 'reportOutputFolder')
     json_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
     # logger.info(json_dir)
-    singletest = get_from_currentdata(SINGLETEST)
+    # singletest = get_from_currentdata(SINGLETEST)
     test_files = get_json_files(json_dir, JSONTEST)
     # logger.info('\n'.join(test_files))
     for test_file in test_files:
@@ -277,16 +278,18 @@ def container_snapshots_filesystem(container):
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             if snapshot:
                 file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
-                if singletest:
-                    testsets = get_field_value_with_default(test_json_data, 'testSet', [])
-                    for testset in testsets:
-                        for testcase in testset['cases']:
-                            if ('testId' in testcase and testcase['testId'] == singletest) or \
-                                    ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
-                                if file_name not in snapshots:
-                                    snapshots.append(file_name)
-                else:
-                    snapshots.append(file_name)
+                # Removed singletest command line option
+                snapshots.append(file_name)
+                # if singletest:
+                #     testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+                #     for testset in testsets:
+                #         for testcase in testset['cases']:
+                #             if ('testId' in testcase and testcase['testId'] == singletest) or \
+                #                     ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
+                #                 if file_name not in snapshots:
+                #                     snapshots.append(file_name)
+                # else:
+                #     snapshots.append(file_name)
 
     test_files = get_json_files(json_dir, MASTERTEST)
     logger.info('\n'.join(test_files))
@@ -298,16 +301,17 @@ def container_snapshots_filesystem(container):
                 file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
                 parts = file_name.split('.')
                 file_name = '%s_gen.%s' % (parts[0], parts[-1])
-                if singletest:
-                    testsets = get_field_value_with_default(test_json_data, 'testSet', [])
-                    for testset in testsets:
-                        for testcase in testset['cases']:
-                            if ('testId' in testcase and testcase['testId'] == singletest) or \
-                                    ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
-                                if file_name not in snapshots:
-                                    snapshots.append(file_name)
-                else:
-                    snapshots.append(file_name)
+                snapshots.append(file_name)
+                # if singletest:
+                #     testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+                #     for testset in testsets:
+                #         for testcase in testset['cases']:
+                #             if ('testId' in testcase and testcase['testId'] == singletest) or \
+                #                     ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
+                #                 if file_name not in snapshots:
+                #                     snapshots.append(file_name)
+                # else:
+                #     snapshots.append(file_name)
     return list(set(snapshots))
 
 

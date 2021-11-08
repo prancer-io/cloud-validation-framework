@@ -90,9 +90,11 @@ def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=Tru
                 return repopath, clonedir
         
         if not branch and clone_specific_branch:
-            branch = get_from_currentdata('branch')
-            if not branch:
-                branch = get_field_value_with_default(connector, 'branchName', 'master')
+            # Removed command line option for branch
+            branch = get_field_value_with_default(connector, 'branchName', 'master')
+            # branch = get_from_currentdata('branch')
+            # if not branch:
+            #     branch = get_field_value_with_default(connector, 'branchName', 'master')
 
         isprivate = get_field_value(connector, 'private')
         isprivate = True if isprivate is None or not isinstance(isprivate, bool) else isprivate
