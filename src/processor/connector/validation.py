@@ -12,7 +12,7 @@ from processor.comparison.interpreter import Comparator
 from processor.helper.json.json_utils import get_field_value, get_json_files,\
     json_from_file, TEST, collectiontypes, SNAPSHOT, JSONTEST, MASTERTEST, get_field_value_with_default
 from processor.helper.config.config_utils import config_value, get_test_json_dir,\
-    DATABASE, DBNAME, SINGLETEST, framework_dir, EXCLUSION
+    DATABASE, DBNAME, framework_dir, EXCLUSION
 from processor.database.database import create_indexes, COLLECTION,\
     sort_field, get_documents
 from processor.reporting.json_output import dump_output_results, update_output_testname
@@ -92,24 +92,25 @@ def run_file_validation_tests(test_file, container, filesystem=True, snapshot_st
         if not pull_response:
             return {}
 
-    singletest = get_from_currentdata(SINGLETEST)
-    if singletest:
-        testsets = get_field_value_with_default(test_json_data, 'testSet', [])
-        for testset in testsets:
-            newtestcases = []
-            for testcase in testset['cases']:
-                if ('testId' in testcase and testcase['testId'] == singletest) or \
-                        ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
-                    newtestcases.append(testcase)
-            testset['cases'] = newtestcases
+    # singletest = get_from_currentdata(SINGLETEST)
+    # if singletest:
+    #     testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+    #     for testset in testsets:
+    #         newtestcases = []
+    #         for testcase in testset['cases']:
+    #             if ('testId' in testcase and testcase['testId'] == singletest) or \
+    #                     ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
+    #                 newtestcases.append(testcase)
+    #         testset['cases'] = newtestcases
     resultset = run_json_validation_tests(test_json_data, container, filesystem, snapshot_status, dirpath=dirpath)
     finalresult = True
     if resultset:
         snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
-        if singletest:
-            print(json.dumps(resultset, indent=2))
-        else:
-            dump_output_results(resultset, container, test_file, snapshot, filesystem)
+        # if singletest:
+        #     print(json.dumps(resultset, indent=2))
+        # else:
+        #     dump_output_results(resultset, container, test_file, snapshot, filesystem)
+        dump_output_results(resultset, container, test_file, snapshot, filesystem)
         for result in resultset:
             if 'result' in result:
                 if not re.match(r'passed', result['result'], re.I):
@@ -268,24 +269,25 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
             testcases = get_field_value_with_default(testset, 'cases', [])
             testset['cases'] = _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, filesystem=True)
         # print(json.dumps(test_json_data, indent=2))
-        singletest = get_from_currentdata(SINGLETEST)
-        if singletest:
-            for testset in testsets:
-                newtestcases = []
-                for testcase in testset['cases']:
-                    if ('testId' in testcase and  testcase['testId'] == singletest) or \
-                            ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
-                        newtestcases.append(testcase)
-                testset['cases'] = newtestcases
+        # singletest = get_from_currentdata(SINGLETEST)
+        # if singletest:
+        #     for testset in testsets:
+        #         newtestcases = []
+        #         for testcase in testset['cases']:
+        #             if ('testId' in testcase and  testcase['testId'] == singletest) or \
+        #                     ('masterTestId' in testcase and testcase['masterTestId'] == singletest):
+        #                 newtestcases.append(testcase)
+        #         testset['cases'] = newtestcases
         resultset = run_json_validation_tests(test_json_data, container, True, snapshot_status, dirpath=dirpath)
         if test_json_data.get('testSet') and not resultset:
             logger.error('\tERROR: Testset does not contains any testcases or all testcases are skipped due to invalid rules.')
         elif resultset:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
-            if singletest:
-                print(json.dumps(resultset, indent=2))
-            else:
-                dump_output_results(resultset, container, test_file, snapshot, True)
+            # if singletest:
+            #     print(json.dumps(resultset, indent=2))
+            # else:
+            #     dump_output_results(resultset, container, test_file, snapshot, True)
+            dump_output_results(resultset, container, test_file, snapshot, True)
             for result in resultset:
                 if 'result' in result:
                     if not re.match(r'passed', result['result'], re.I):
@@ -297,7 +299,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
     logger.critical("VALIDATION COMPLETE:")
     return finalresult
 
-def run_filecontent_validation(container, snapshot_status=None, testIds=None):
+def run_filecontent_validation(container, snapshot_status=None):
     logger.info("FILE CONTENT VALIDATION:")
     logger.info("\tCollection: %s,  Type: FILESYSTEM", container)
     reporting_path = config_value('REPORTING', 'reportOutputFolder')
@@ -331,12 +333,12 @@ def run_filecontent_validation(container, snapshot_status=None, testIds=None):
         testsets = get_field_value_with_default(test_json_data, 'testSet', [])
         for testset in testsets:
             testcases = get_field_value_with_default(testset, 'cases', [])
-            if testIds:
-                newTestcases = []
-                for testcase in testcases:
-                    if testcase['masterTestId'] in testIds:
-                        newTestcases.append(testcase)
-                testcases = newTestcases
+            # if testIds:
+            #     newTestcases = []
+            #     for testcase in testcases:
+            #         if testcase['masterTestId'] in testIds:
+            #             newTestcases.append(testcase)
+            #     testcases = newTestcases
             # testset['cases'] = _get_new_testcases(testcases, mastersnapshots)
             testset['cases'] = _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, filesystem=True)
 

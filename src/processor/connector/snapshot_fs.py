@@ -18,10 +18,10 @@ class FSSnapshot(Snapshot):
     """
     Filesystem snapshot utilities.
     """
-    def __init__(self, container, snapshot_refactored_fns, singleTest=None):
+    def __init__(self, container, snapshot_refactored_fns):
         """ Default isDb is false, singletest shall be set to the test that needs to be run."""
         super().__init__(container, snapshot_refactored_fns)
-        self.singleTest = singleTest
+        # self.singleTest = singleTest
         reporting_path = config_value('REPORTING', 'reportOutputFolder')
         self.container_dir = '%s/%s/%s' % (framework_dir(), reporting_path, container)
 
@@ -64,16 +64,17 @@ class FSSnapshot(Snapshot):
                     file_name = snapshot if snapshot.endswith('.json') else '%s.json' % snapshot
                     if replace:
                         file_name = file_name.replace('.json', '_gen.json')
-                    if self.singleTest:
-                        testsets = get_field_value_with_default(test_json_data, 'testSet', [])
-                        for testset in testsets:
-                            for testcase in testset['cases']:
-                                if ('testId' in testcase and testcase['testId'] == self.singleTest) or \
-                                        ('masterTestId' in testcase and testcase['masterTestId'] == self.singleTest):
-                                    if file_name not in snapshots:
-                                        snapshots.append(file_name)
-                    else:
                         snapshots.append(file_name)
+                    # if self.singleTest:
+                    #     testsets = get_field_value_with_default(test_json_data, 'testSet', [])
+                    #     for testset in testsets:
+                    #         for testcase in testset['cases']:
+                    #             if ('testId' in testcase and testcase['testId'] == self.singleTest) or \
+                    #                     ('masterTestId' in testcase and testcase['masterTestId'] == self.singleTest):
+                    #                 if file_name not in snapshots:
+                    #                     snapshots.append(file_name)
+                    # else:
+                    #     snapshots.append(file_name)
         return snapshots
 
     def store_data_node(self, data):
