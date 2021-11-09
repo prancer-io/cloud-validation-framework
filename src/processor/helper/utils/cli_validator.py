@@ -206,8 +206,31 @@ def validator_main(arg_vals=None, delete_rundata=True):
     global  current_progress
     cmd_parser = argparse.ArgumentParser("prancer", formatter_class=argparse.RawDescriptionHelpFormatter,
                                          epilog='''\
-Example: prancer collection1
-Runs the prancer framework based on the configuration files available in collection1 folder
+Example: prancer <collection>
+Runs the prancer framework based on the configuration files available in collection folder
+
+Example 2 : prancer --db NONE <collection>
+Run prancer in the --db NONE mode
+
+Example 3 : prancer --db NONE --crawler <collection>
+Run prancer in the --db NONE mode and just crawling
+
+Example 4 : prancer --db NONE --compliance <collection>
+Run prancer in the --db NONE mode and just compliance
+
+Example 5: prancer --db NONE --file-content /tmp/deploy.yaml <collection>
+Run prancer for a single file
+
+Example 6: prancer --db NONE --mastertestid TEST_S3_14 <collection>
+           prancer --db NONE --mastertestid TEST_S3_14,TEST_EC2_1 <collection>
+Run prancer for a list of master test ids
+
+Example 7: prancer --db NONE --mastersnapshotid CFR_TEMPLATE_SNAPSHOT <collection>
+           prancer --db NONE --mastersnapshotid CFR_TEMPLATE_SNAPSHOT,EC2_TEMPLATE_SNAPSHOT <collection>
+Run prancer for a list of master snapshots
+
+Example 8: prancer --db NONE --snapshotid K8S_TEMPLATE_SNAPSHOT7,K8S_TEMPLATE_SNAPSHOT6 <collection>
+Run prancer for a list of snapshots
                                          ''')
     cmd_parser.add_argument('-v','--version', action='version', version=("Prancer %s" % __version__) , help='Show prancer version')
     cmd_parser.add_argument('container', metavar='collection', action='store', nargs='?', default='',
@@ -216,28 +239,28 @@ Runs the prancer framework based on the configuration files available in collect
                             help='''NONE - Database will not be used, all the files reside on file system,
                             SNAPSHOT - Resource snapshots will be stored in db, everything else will be on file system,
                             FULL - tests, configurations, outputs and snapshots will be stored in the database
-                            REMOTE - tests, configurations, outputs and snapshots will be downloaded from the API server and run as NONE mode.''')
+                            REMOTE - Connect to Prancer Enterprise solution to get the configuration files and send the results back.''')
     cmd_parser.add_argument('--crawler', action='store_true', default=False,
-                            help='Crawls and generates snapshot files only')
-    cmd_parser.add_argument('--test', action='store', default=None, help='Run a single test in NODB mode')
-    cmd_parser.add_argument('--compliance', action='store_true', default=False, help='Run only compliance on snapshot file')
-    cmd_parser.add_argument('--customer', action='store', default=None, help='customer name for config')
-    cmd_parser.add_argument('--connector', action='store', default=None, help='specify the name of the connector which you want to run from the collection')
-    cmd_parser.add_argument('--branch', action='store', default=None, help='specify the name of the branch to populate snapshots, for the filesystem connector')
-    cmd_parser.add_argument('--file', action='store', default=None, help='single file run')
-    cmd_parser.add_argument('--iac', action='store', default=None, help='iac types')
-    cmd_parser.add_argument('--file_content', action='store', default=None, help='file content run')
-    cmd_parser.add_argument('--mastertestid', action='store', default="", help='test Ids to run')
-    cmd_parser.add_argument('--mastersnapshotid', action='store', default="", help='mastersnapshot Ids to run')
-    cmd_parser.add_argument('--snapshotid', action='store', default="", help='snapshot Ids to run')
+                            help='Crawls the target environment and generates snapshot configuration file')
+    # cmd_parser.add_argument('--test', action='store', default=None, help='Run a single test in NODB mode')
+    cmd_parser.add_argument('--compliance', action='store_true', default=False, help='Run only compliance tests based on the available snapshot configuration file')
+    # cmd_parser.add_argument('--customer', action='store', default=None)
+    # cmd_parser.add_argument('--connector', action='store', default=None)
+    # cmd_parser.add_argument('--branch', action='store', default=None)
+    # cmd_parser.add_argument('--file', action='store', default=None, help='single file run')
+    # cmd_parser.add_argument('--iac', action='store', default=None, help='iac types')
+    cmd_parser.add_argument('--file_content', action='store', default=None)
+    cmd_parser.add_argument('--mastertestid', action='store', default="", help='Run the framework only for the master test Ids mentioned here')
+    cmd_parser.add_argument('--mastersnapshotid', action='store', default="", help='Run the framework only for the master snapshot Ids mentioned here')
+    cmd_parser.add_argument('--snapshotid', action='store', default="", help='Run the framework only for the snapshot Ids mentioned here')
     cmd_parser.add_argument('--env', action='store', default='PROD', choices=['DEV', 'QA', 'PROD', 'LOCAL'],
                             help='''DEV - API server is in dev environment,
                             QA - API server is in qa environment,
                             PROD - API server is in prod environment
                             LOCAL - API server is in local environment.''')
-    cmd_parser.add_argument('--apitoken', action='store', default=None, help='API token to access the server.')
-    cmd_parser.add_argument('--gittoken', action='store', default=None, help='github/enterprise/internal github API token to access repositories.')
-    cmd_parser.add_argument('--company', action='store', default=None, help='company of the API server')
+    cmd_parser.add_argument('--apitoken', action='store', default=None, help='API token to access prancer saas solution. (This argument is needed only when the --db is REMOTE).')
+    cmd_parser.add_argument('--gittoken', action='store', default=None, help='github/enterprise/internal github API token to access repositories. (This argument is optional only when the --db is REMOTE)')
+    cmd_parser.add_argument('--company', action='store', default=None, help='company name of the prancer saas solution (This argument is needed only when the --db is REMOTE)')
 
     args = cmd_parser.parse_args(arg_vals)
 
@@ -247,8 +270,8 @@ Runs the prancer framework based on the configuration files available in collect
     if cfg_error:
         return retval
 
-    if args.customer:
-        set_customer(args.customer)
+    # if args.customer:
+    #     set_customer(args.customer)
 
     args.remote = False
     args.opath = None
@@ -283,7 +306,6 @@ Runs the prancer framework based on the configuration files available in collect
             msg = "Check the remote configuration viz env, apitoken, gittoken, company, exiting!....."
             console_log(msg, currentframe())
             return retval
-    # return retval
 
     if args.db:
         if args.db.upper() in DBVALUES:
@@ -297,8 +319,8 @@ Runs the prancer framework based on the configuration files available in collect
         else:
             args.db = DBVALUES.index(SNAPSHOT)
 
-    if args.test:
-        args.db = DBVALUES.index(NONE)
+    # if args.test:
+    #     args.db = DBVALUES.index(NONE)
 
     # Check if we want to run in NO DATABASE MODE
     if args.db:
@@ -387,17 +409,21 @@ Runs the prancer framework based on the configuration files available in collect
         #         pid = open('/tmp/pid_%s' % os.getpid(), 'w')
         #         pid.write(log_name)
         #         pid.close()
-        if args.customer:
-            put_in_currentdata(CUSTOMER, args.customer)
-        if args.test:
-            put_in_currentdata(SINGLETEST, args.test)
-        else:
-            put_in_currentdata(SINGLETEST, False)
-        if args.connector:
-            put_in_currentdata("connector", args.connector)
-        if args.branch:
-            put_in_currentdata("branch", args.branch)
-        if not args.db and not args.file:
+
+        # if args.customer:
+        #     put_in_currentdata(CUSTOMER, args.customer)
+
+        # if args.test:
+        #     put_in_currentdata(SINGLETEST, args.test)
+        # else:
+        #     put_in_currentdata(SINGLETEST, False)
+        # if args.connector:
+        #     put_in_currentdata("connector", args.connector)
+        # if args.branch:
+        #     put_in_currentdata("branch", args.branch)
+
+        # if not args.db and not args.file:
+        if not args.db:
             retval = 0 if container_exists(args.container) else 2
             if retval:
                 logger.critical("Container(%s) is not present in Framework dir: %s",
@@ -405,11 +431,11 @@ Runs the prancer framework based on the configuration files available in collect
                 # TODO: Log the path the framework looked for.
                 return retval
 
-        if args.file and args.iac:
-            container = generate_file_container(args.file, args.iac)
-            # container = generate_file_container("mydata/deploy.yaml", 'cloudformation')
-            args.container = container
-            args.db  = DBVALUES.index(NONE)
+        # if args.file and args.iac:
+        #     container = generate_file_container(args.file, args.iac)
+        #     # container = generate_file_container("mydata/deploy.yaml", 'cloudformation')
+        #     args.container = container
+        #     args.db  = DBVALUES.index(NONE)
 
         put_in_currentdata(EXCLUSION, populate_container_exclusions(args.container, fs))
 
@@ -417,7 +443,7 @@ Runs the prancer framework based on the configuration files available in collect
             current_progress = 'COMPLIANCESTART'
             create_output_entry(args.container, test_file="-", filesystem=True if args.db == 0 else False)
             snapshot_status = populate_container_snapshots(args.container, fs)
-            status = run_filecontent_validation(args.container, snapshot_status, args.testIds.split(',') if args.testIds else [])
+            status = run_filecontent_validation(args.container, snapshot_status)
             retval = 0 if status else 1
             if fs:
                 dump_output_results([], args.container, test_file="", snapshot="", filesystem=fs, status="Completed")
