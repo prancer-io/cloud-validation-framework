@@ -50,7 +50,7 @@ prancer scenario-arm-pass --db=NONE
 ## 4) Run Specific compliance on all resources
 
 ```
-prancer scenario-arm-pass --db=NONE --mastertestid `mastertestid_of_master_compliance_test` --mastersnapshotid `generated_mastersnapshotid`
+prancer scenario-arm-pass --db=NONE --mastertestid `mastertestid_of_master_compliance_test`
 ```
 
 | Parameters | Description |
