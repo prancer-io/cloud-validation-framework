@@ -26,7 +26,8 @@ Working with **Prancer** itself is a straightforward activity and needs only a f
 3. Create collections
 4. Use existing `snapshot configuration` files
 5. Use existing `test` files based on available compliance
-6. Run the tests
+6. Add optional exclusions to skip tests based on resources, tests or combination of both
+7. Run the tests
 
 Some of these steps are more involved than others, but the general workflow is straightforward and simple to understand to keep the learning curve as simple as possible.
 

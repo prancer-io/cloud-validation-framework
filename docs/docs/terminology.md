@@ -57,6 +57,7 @@ A **project** is a set of configuration files that can be committed to a version
 * Connector configuration
 * Snapshot configuration
 * Test file
+* Optional Exclusion file for specific resource, or a specific test or a combination of both.
 
 These files should follow your development project that would usually contain **infrastructure as code** files such as:
 
