@@ -571,6 +571,12 @@ class TerraformTemplateParser(TemplateParser):
             # exmatch = re.findall(pattern, resource)
             parsed_string = self.parse_string(resource)
 
+            if re.match(r"^\{.*\}$", parsed_string.strip().replace("\n", "")):
+                json_data = json_from_string(re.sub(r"\n", "", parsed_string).replace("\\",""))
+                if json_data:
+                    parsed_string, processed = self.process_resource(json_data, count=count)
+                    return parsed_string, True
+
             new_resource = copy.deepcopy(parsed_string)
             exmatch = re.search(r'\${([^}]*)}', new_resource, re.I)
             if exmatch:
