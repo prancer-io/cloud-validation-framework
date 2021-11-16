@@ -20,6 +20,8 @@ SERVERS = {
     PROD: 'portal'
 }
 COLLECTIONAPI = 'vs/container/'
+VALIDATIONAPI = 'validate/accesstoken/'
+
 logger = getlogger()
 
 def get_company_prefix(company):
@@ -41,6 +43,11 @@ def get_api_server(server, company):
                     apiserver = 'https://%s.prancer.io/%s/api/' % (SERVERS[server], company_prefix)
     return apiserver
 
+def get_validate_token_api(apiserver):
+    validationApi = None
+    if apiserver:
+        validationApi = apiserver + VALIDATIONAPI
+    return validationApi
 
 def get_collection_api(apiserver, collection=None):
     collectionApi = None
