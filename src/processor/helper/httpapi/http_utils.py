@@ -109,3 +109,16 @@ def http_post_request(url, mapdata, headers=None, json_type=False, name='HTTP PO
     urlreq = request.Request(url, data=postdata, headers=myhdrs,
                              method='POST')
     return urlopen_request(urlreq, name)
+
+
+def http_json_post_request(url, mapdata, headers=None, name='HTTP POST:'):
+    """Post method sends and accepts JSON format"""
+    logger.info("%s %s  .......", name, url)
+    if not url:
+        return None, None
+    myhdrs = get_request_headers(headers)
+    postdata = json.dumps(mapdata)
+    logger.debug('%s: data: %s', name, postdata)
+    urlreq = request.Request(url, data=postdata.encode(), headers=myhdrs,
+                             method='POST')
+    return urlopen_request(urlreq, name)
