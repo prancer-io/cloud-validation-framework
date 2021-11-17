@@ -85,7 +85,7 @@ prancer scenario-arm-pass --compliance --db=NONE
 
 ```
 prancer scenario-arm-pass --db=NONE
-prancer scenario-arm-pass --crawler --compiance --db=NONE
+prancer scenario-arm-pass --crawler --compliance --db=NONE
 ```
 
 | Parameters | Description |

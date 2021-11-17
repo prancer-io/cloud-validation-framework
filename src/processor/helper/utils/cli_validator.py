@@ -242,13 +242,7 @@ Run prancer for a list of snapshots
                             REMOTE - Connect to Prancer Enterprise solution to get the configuration files and send the results back.''')
     cmd_parser.add_argument('--crawler', action='store_true', default=False,
                             help='Crawls the target environment and generates snapshot configuration file')
-    # cmd_parser.add_argument('--test', action='store', default=None, help='Run a single test in NODB mode')
     cmd_parser.add_argument('--compliance', action='store_true', default=False, help='Run only compliance tests based on the available snapshot configuration file')
-    # cmd_parser.add_argument('--customer', action='store', default=None)
-    # cmd_parser.add_argument('--connector', action='store', default=None)
-    # cmd_parser.add_argument('--branch', action='store', default=None)
-    # cmd_parser.add_argument('--file', action='store', default=None, help='single file run')
-    # cmd_parser.add_argument('--iac', action='store', default=None, help='iac types')
     cmd_parser.add_argument('--file_content', action='store', default=None)
     cmd_parser.add_argument('--mastertestid', action='store', default="", help='Run the framework only for the master test Ids mentioned here')
     cmd_parser.add_argument('--mastersnapshotid', action='store', default="", help='Run the framework only for the master snapshot Ids mentioned here')
@@ -270,14 +264,11 @@ Run prancer for a list of snapshots
     if cfg_error:
         return retval
 
-    # if args.customer:
-    #     set_customer(args.customer)
-
     args.remote = False
     args.opath = None
     if args.db and args.db.upper() == REMOTE:
         from processor.helper.utils.compliance_utils import create_container_compliance, get_api_server, \
-            get_collection_api, get_validate_token_api
+            get_collection_api, get_validate_token_api, get_company_prefix
         from processor.helper.httpapi.http_utils import http_get_request, http_json_post_request
         remoteValid = False
         if not args.gittoken:
@@ -291,7 +282,7 @@ Run prancer for a list of snapshots
                 if validationUri:
                     postdata = {
                         "token": args.apitoken,
-                        "customer_id": "customer118"
+                        "customer_id": get_company_prefix(args.company)
                     }
                     hdrs = {
                         "Content-Type": "application/json"
@@ -330,9 +321,6 @@ Run prancer for a list of snapshots
             args.db = DBVALUES.index(nodb.upper())
         else:
             args.db = DBVALUES.index(SNAPSHOT)
-
-    # if args.test:
-    #     args.db = DBVALUES.index(NONE)
 
     # Check if we want to run in NO DATABASE MODE
     if args.db:
