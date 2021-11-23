@@ -13,7 +13,8 @@ class AzureCrawler(BaseCrawler):
         self.special_resource_types = {
             "Microsoft.Sql/servers/securityAlertPolicies" : self.crawl_server_security_alert_policies,
             "Microsoft.Sql/servers/auditingSettings" : self.crawl_server_audit_settings,
-            "Microsoft.Authorization/roleDefinitions": self.crawl_role_definitions
+            "Microsoft.Authorization/roleDefinitions": self.crawl_role_definitions,
+            "Microsoft.KeyVault/vaults/secrets": self.crawl_keyvault_secrets
         }
     
     def check_for_special_crawl(self, resource_type):
@@ -74,3 +75,22 @@ class AzureCrawler(BaseCrawler):
         if version:
             url = 'https://management.azure.com/subscriptions/%s/providers/%s?api-version=%s' % (self.subscription_id, resource_type, version)
             self.call_azure_api(url)
+
+
+    def crawl_keyvault_secrets(self, resource_type):
+        """
+        crawl "Microsoft.KeyVault/vaults/secrets" resource type
+        """
+        version = self.get_version_of_resource_type(resource_type)
+        if version:
+            for resource in self.resources:
+                if resource['type'] == "Microsoft.KeyVault/vaults":
+                    hdrs = {
+                        'Authorization': 'Bearer %s' % self.token
+                    }
+                    url = 'https://management.azure.com%s/secrets?api-version=%s' % (resource['id'], version)
+                    status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
+                    if status and isinstance(status, int) and status == 200:
+                        for resource in data.get("value", []):
+                            put_in_currentdata('resources', resource)
+                        self.resources += data.get("value", [])
