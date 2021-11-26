@@ -93,7 +93,7 @@ class TerraformTemplateProcessor(TemplateProcessor):
             parameter_file_list = []
             
             new_dir_path = self.dir_path
-            if len(paths) != 1:
+            if len(paths) != 1 and not self.folder_path:
                 new_dir_path = "/".join(self.dir_path.split("/")[:3])
             for path in paths:
                 file_path = '%s/%s' % (new_dir_path, path)
