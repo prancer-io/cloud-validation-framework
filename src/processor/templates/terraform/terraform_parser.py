@@ -297,8 +297,9 @@ class TerraformTemplateParser(TemplateParser):
                                         self.template_file_list = self.template_file_list + terraform_template_parser.template_file_list
                                         self.parameter_file_list = self.parameter_file_list + terraform_template_parser.parameter_file_list
 
-                                        for out_key, out_value in terraform_template_parser.outputs.items():
-                                            self.module_params["module"][key][out_key] = out_value
+                                        # TO DO: Update module peram
+                                        # for out_key, out_value in terraform_template_parser.outputs.items():
+                                        #     self.module_params["module"][key][out_key] = out_value
                                         
                                         if new_template_json:
                                             for resource, resource_item in new_template_json.items():
@@ -430,7 +431,8 @@ class TerraformTemplateParser(TemplateParser):
         
         try:
             if resource.startswith('[') and resource.endswith(']'):
-                list_data = ast.literal_eval(resource)
+                update_resource, processed = self.process_resource(resource[1:-1], count=count)
+                list_data = ast.literal_eval("[" + str(update_resource) + "]")
                 resource, processed = self.process_resource(list_data, count=count)
                 return True, resource
         except:
@@ -440,6 +442,8 @@ class TerraformTemplateParser(TemplateParser):
     
     def parse_string(self, resource):
         if resource.startswith('"') and resource.endswith('"'):
+            resource = resource[1:-1]
+        elif resource.startswith("'") and resource.endswith("'"):
             resource = resource[1:-1]
         return resource
 
@@ -598,19 +602,33 @@ class TerraformTemplateParser(TemplateParser):
                     return parsed_string, True
 
             new_resource = copy.deepcopy(parsed_string)
-            all_exmatch = re.findall(r'\${([^}$]*)}', new_resource)
-            if all_exmatch:
-                if len(all_exmatch) > 1:
+            match_full = re.match(r'^\$\{([^}$]*)\}$', new_resource)
+            if match_full:
+                matched_str = new_resource[2:-1]
+            else:
+                expression_parameter = False
+                for func in expression_list:
+                    m = re.match(func['expression'], new_resource)
+                    if m:
+                        expression_parameter = True
+                    
+                all_exmatch = re.findall(r'\${([^}$]*)}', new_resource)
+                if all_exmatch and not expression_parameter:
                     for exmatch in all_exmatch:
                         processed_param, processed = self.process_resource("${" + copy.deepcopy(exmatch).strip() + "}", count=count)
                         parsed_string = parsed_string.replace("${" + exmatch + "}", str(processed_param))
                     new_resource = copy.deepcopy(parsed_string)
                     matched_str = parsed_string
                 else:
-                    matched_str = all_exmatch[0]
-            else:
-                matched_str = parsed_string
+                    matched_str = parsed_string
 
+            exmatch = re.search(r'\${([^}]*)}', matched_str, re.I)
+            if exmatch:
+                match_values = re.search(r'(?<=\{).*(?=\})', matched_str, re.I)
+                if match_values:
+                    matched_str = match_values.group(0)
+                else:
+                    matched_str = exmatch.group(0)[2:-1]
             matched_str = matched_str.strip()
             matched_str = self.parse_string(matched_str)
 
