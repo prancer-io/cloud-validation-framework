@@ -1,8 +1,10 @@
 """
    Common file for running validations.
 """
+from datetime import datetime
 import json
 import re
+from time import time
 import pymongo
 import copy 
 
@@ -72,6 +74,7 @@ def run_validation_test(version, container, dbname, collection_data, testcase, e
     results = comparator.validate()
     if isinstance(results, list):
         for result in results:
+            result["result_id"] = "%s_%s" % (re.sub(r"(?=[-_\s\.]).", "", container).lower(), str(int(datetime.now().timestamp())))
             result.update(testcase)
         return results
     else:
