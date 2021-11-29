@@ -508,10 +508,12 @@ class ComparatorV01:
                             json_result["errors"] = result.get("errors",[])
 
                         results.append(json_result)
-                    
+
                     elif result["issue"] == False:
-                        self.log_compliance_info(testId)
-                        logger.warning('\t\tRESULT: SKIPPED')
+                        if logger.level == logging.DEBUG:
+                            self.log_compliance_info(testId)
+                            logger.info('\t\tERROR: %s missing', rule_matched.groups()[0])
+                            logger.warning('\t\tRESULT: SKIPPED')
                     
                     elif result["issue"] == None:
                         logger.error("\t\tERROR: have problem in running test")

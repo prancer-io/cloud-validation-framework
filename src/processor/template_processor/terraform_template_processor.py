@@ -92,8 +92,11 @@ class TerraformTemplateProcessor(TemplateProcessor):
             template_file_path = ""
             parameter_file_list = []
             
+            new_dir_path = self.dir_path
+            if len(paths) != 1 and not self.folder_path:
+                new_dir_path = "/".join(self.dir_path.split("/")[:3])
             for path in paths:
-                file_path = '%s/%s' % (self.dir_path, path)
+                file_path = '%s/%s' % (new_dir_path, path)
                 logger.info("Fetching data : %s ", path)
                 if self.is_template_file(file_path):
                     template_file_path = file_path

@@ -72,6 +72,7 @@ class TemplateProcessor:
         self.resource_types = []
         self.processed_templates = get_processed_templates()
         self.kwargs = {}
+        self.folder_path = False
     
     def append_exclude_directories(self, dirs):
         """
@@ -246,7 +247,9 @@ class TemplateProcessor:
             
             self.dir_path = get_field_value(self.connector_data, 'folderPath')
             if not self.dir_path:
-                self.dir_path = self.repopath 
+                self.dir_path = self.repopath
+            else:
+                self.folder_path = True
 
             self.paths = get_field_value(self.node, 'paths')
             if not self.paths or not isinstance(self.paths, list):
@@ -482,7 +485,9 @@ class TemplateProcessor:
         """
         root_dir_path = get_field_value(self.connector_data, 'folderPath')
         if not root_dir_path:
-            root_dir_path = self.repopath 
+            root_dir_path = self.repopath
+        else:
+            self.folder_path = True
 
         self.paths = get_field_value(self.node, 'paths')
         self.resource_type = get_field_value_with_default(self.node, 'resourceType', "").lower()
