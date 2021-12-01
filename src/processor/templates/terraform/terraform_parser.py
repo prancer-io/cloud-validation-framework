@@ -60,6 +60,7 @@ class TerraformTemplateParser(TemplateParser):
             "module_templates" : []
         }
         self.outputs = {}
+        self.skip_key_to_process = ["compiletime_identity"]
 
     def is_template_file(self, file_path):
         """
@@ -311,11 +312,13 @@ class TerraformTemplateParser(TemplateParser):
                                                                 for default_key, default_value in default_gparams.items():
                                                                     if default_key not in resource_properties:
                                                                         resource_properties[default_key] = default_value
+                                                                resource_properties["compiletime_identity"] = "module.%s" % key
                                                             if isinstance(resource_properties, list):
                                                                 for resource_property in resource_properties:
                                                                     for default_key, default_value in default_gparams.items():
                                                                         if default_key not in resource_property:
                                                                             resource_property[default_key] = default_value
+                                                                    resource_property["compiletime_identity"] = "module.%s" % key
                                                 if resource not in new_resources:
                                                     new_resources[resource] = [resource_item]
                                                 else:
@@ -331,6 +334,14 @@ class TerraformTemplateParser(TemplateParser):
                 for data_item in template_json['data']:
                     for data_key, data_value in data_item.items():
                         processed_data, processed = self.process_resource(data_value, count=self.count)
+                        if processed and isinstance(processed_data, dict):
+                            for processed_key, processed_value in processed_data.items():
+                                if isinstance(processed_value, dict):
+                                    processed_value["compiletime_identity"] = "data.%s.%s" % (data_key, processed_key)
+                                if isinstance(processed_value, list):
+                                    for resource_property in processed_value:
+                                        resource_property["compiletime_identity"] = "data.%s.%s" % (data_key, processed_key)
+                            
                         self.gdata[data_key] = processed_data
                         data_resource[data_key] = processed_data
                 gen_template_json['data'] = data_resource
@@ -372,6 +383,7 @@ class TerraformTemplateParser(TemplateParser):
                                 if isinstance(properties, list):
                                     for property in properties:
                                         self.resource_types.append(resource_name.lower())
+                                        property["compiletime_identity"] = "%s.%s" % (resource_name.lower(), name)
                                         resources.append({
                                             "type" : resource_name,
                                             "name" : name,
@@ -379,6 +391,7 @@ class TerraformTemplateParser(TemplateParser):
                                         })    
                                 else:
                                     self.resource_types.append(resource_name.lower())
+                                    properties["compiletime_identity"] = "%s.%s" % (resource_name.lower(), name)
                                     resources.append({
                                         "type" : resource_name,
                                         "name" : name,
@@ -538,6 +551,9 @@ class TerraformTemplateParser(TemplateParser):
                         new_resource[key] = processed_resource
             else:
                 for key, values in resource.items():
+                    if key in self.skip_key_to_process:
+                        new_resource[key] = values
+                        continue
                     # if key == "dynamic" and isinstance(value, dict):
                     if key == "dynamic" and values and isinstance(values, list) and isinstance(values[0], dict):
                         for value in values:
