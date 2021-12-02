@@ -1,5 +1,10 @@
+import re
 from typing import Tuple
-from processor.database.database import get_documents, find_and_update_document
+from processor.database.database import (
+    get_documents,
+    find_and_update_document,
+    insert_one_document,
+)
 from processor.helper.config.config_utils import DATABASE, DBNAME, config_value
 from processor.logging.log_handler import getlogger
 
@@ -29,8 +34,22 @@ def update_collection_config(container: str, updated_json: dict) -> bool:
     dbname = config_value(DATABASE, DBNAME)
     collection = "structures"
     query = {"type": "collection_configuration", "container": container}
-    updated = find_and_update_document(collection, query, dbname, updated_json)
+    updated_json = {"$set": updated_json}
+    updated = find_and_update_document(collection, dbname, query, updated_json)
     return updated
+
+
+def create_collection_config(container: str, configuration: dict):
+    dbname = config_value(DATABASE, DBNAME)
+    collection = "structures"
+    structure = {
+        "type": "collection_configuration",
+        "collection": collection,
+        "container": container,
+        "json": {"configuration": configuration},
+    }
+    doc_id_str = insert_one_document(structure, collection, dbname, False)
+    return doc_id_str
 
 
 def get_master_collection_config() -> dict:
