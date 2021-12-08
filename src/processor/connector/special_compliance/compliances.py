@@ -21,7 +21,9 @@ COMPLIANCES = [{
     "tags":[
         {
             "cloud":"git",
-            "compliance":[],
+            "compliance":[
+                "Best Practice"
+            ],
             "service":[
                 "common"
             ]
