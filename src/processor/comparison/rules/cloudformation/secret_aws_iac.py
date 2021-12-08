@@ -90,7 +90,7 @@ def secret_finder(snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE=None, EXCLUDE_RE=
         return output
 
 
-def aws_password_leak(generated_snapshot: dict) -> dict:
+def aws_password_leak(generated_snapshot: dict, kwargs={}) -> dict:
 
     PASSWORD_KEY_RE = r".*(?i)password"
     PASSWORD_VALUE_RE = r'^(?!.*\$\{.*\}.*)(?=(?=.*[a-z][A-Z])|(?=.*[A-Z][a-z])|(?=.*[a-z][0-9])|(?=.*[0-9][a-z])|(?=.*[0-9][A-Z])|(?=.*[A-Z][0-9]))(.*[\^$*.\[\]{}\(\)?\-"!@\#%&\/,><\’:;|_~`]?)\S{8,99}$'
@@ -109,7 +109,7 @@ def aws_password_leak(generated_snapshot: dict) -> dict:
     return output
 
 
-def entropy_password(generated_snapshot: dict) -> dict:
+def entropy_password(generated_snapshot: dict, kwargs={}) -> dict:
 
     PASSWORD_VALUE_RE = r'^(?!.*\$\{.*\}.*)(?=(?=.*[a-z][A-Z])|(?=.*[A-Z][a-z])|(?=.*[a-z][0-9])|(?=.*[0-9][a-z])|(?=.*[0-9][A-Z])|(?=.*[A-Z][0-9]))(?=.*[^A-Za-z0-9])\S{8,99}$'
     EXCLUDE_CONTAINS = ['iotfleethub', 'zib', 'accesspointpolicy', 'hostedzone', 'launchtemplate', 'firehose', 'ce', 'clientcertificate', 'dns', 'list', 'customresource', 'ephemeral', 'repositoryassociation', 'flowoutput', 'assignment', 'yib', 'firewall', 'missionprofile', 'connection', 's3objectlambda', 'permissionset', 'replicationset', 'usertogroupaddition', 'networkinsightsanalysis', 'managedpolicy', 'alexa', 'dynamodb', 'deploymentgroup', 'map', 'resourcedefinition', 'firewalldomainlist', 'networkacl', 'querydefinition', 'crawler', 'conditional', 'gamesessionqueue', 'portfolio', 'xray', 'customergatewayassociation', 'autonomous', 'dbproxytargetgroup', 'functionconfiguration', 'distribution', 'imagerecipe', 'locationefs', 'clientvpnauthorizationrule', 'deliverystream', 'routetable', 'domainconfiguration', 'maintenancewindowtarget', 'task', 'githubrepository', 'instance', 'nodegroup', 'management', 'routecalculator', 'applicationcloudwatchloggingoption', 'elasticsearch', 'schemaversionmetadata', 'pca', 'connectordefinition', 'server', 'eip', 'gatewayroute', 'filesystem', 'dbcluster', 'loggroup', 'custommetric', 'destination', 'profilepermission', 'eib', 'unit', 'distributionconfiguration', 'opensearchservice', 'function', 'border', 'skill', 'step', 'resolverruleassociation', 'ask', 'image', 'backupvault', 'dbproxy', 'cmk', 'subscriptiondefinitionversion', 'schedule', 'analytics', 'dimension', 'idp', 'tagoption', 'datasync', 'elasticbeanstalk', 'recipe', 'compositealarm', 'transitgatewayroutetableassociation', 'usageplankey', 'virtualcluster', 'networkinterface', 'ram', 'stepfunctions', 'registry', 'volume', 'elasticloadbalancingv2', 'clustercapacityproviderassociations', 'store', 'clientvpnendpoint', 'robotapplicationversion', 'apigatewayv2', 'access', 'elasticloadbalancing', 'subscription', 'glue', 'notebookinstancelifecycleconfig', 'ami-', 'signer', 'domain', 'domainname', 'metricstream', 'launchconfiguration', 'codestarnotifications', 'securitygroup', 'mib', 'wafv2', 'autoscalingplans', 'reportgroup', 'cloudfrontoriginaccessidentity', 'pib', 'macro', 'streamingdistribution', 'clustersecuritygroup', 'permission', 'cloudformation', 'ssmcontacts', 'locationobjectstorage', 'manager', 'sdb', 'multiregionaccesspointpolicy', 'healthcheck', 'yobibyte', 'codestarconnections', 'coredefinitionversion', 'account', 'resourcedefaultversion', 'fsx', 'graphqlschema', 'tracker', 'configurationaggregator', 'securityconfiguration', 'license', 'lookup', 'waitconditionhandle', 'configurationtemplate', 'scalingpolicy', 'imageversion', 'inspector', 'iot1click', 'rds', 'routeresponse', 'theme', 'timestream', 'slackchannelconfiguration', 'pebibyte', 'accesskey', 'appmesh', 'protocol', 'athena', 'environment', 'certificateauthorityactivation', 'parametergroup', 'farm', 'greengrassv2', 'robot', 'primarytaskset', 'codestar', 'httpnamespace', 'virtualmfadevice', 'mta', 'moduledefaultversion', 'file', 'ipset', 'trafficmirrorsession', 'streamconsumer', 'qldb', 'resourceshare', 'activity', 'fms', 'replicakey', 'usageplan', 'certificateauthority', 'insightrule', 'resourcecollection', 'launchroleconstraint', 'oidcprovider', 'acmpca', 'placementgroup', 'workgroup', 'origin', 'publickey', 'trafficmirrorfilter', 'appstream', 'replicationconfiguration', 'waitcondition', 'configurationrecorder', 'ecr', 'representational', 'token', 'topicruledestination', 'tagoptionassociation', 'userpooldomain', 'configrule', 'assessmenttarget', 'vpc', 'kibibyte', 'table', 'devopsguru', 'schemaversion', 'notificationchannel', 'notebookinstance', 'basepathmapping', 'vpngateway', 'notificationrule', 'trail', 'accountauditconfiguration', 'codeartifact', 'databrew', 'hub', 'mediaconnect', 'datacatalog', 'groupversion', 'devicedefinitionversion', 'certificate', 'robotapplication', 'bucket', 'flowentitlement', 'transfer', 'secretsmanager', 'service', 'thing', 'amazonmq', 'assessment', 'apimapping', 'trackerconsumer', 'publisher', 'trafficmirrortarget', 'filter', 'opsworkscm', 'resolver', 'cachepolicy', 'samlprovider', 'app', 'example', 'budgets', 'link', 'gameservergroup', 'mobile', 'firewallpolicy', 'globalnetwork', 'devicedefinition', 'portfolioproductassociation', 'apidestination', 'cloudfront', 'dbparametergroup', 'archive', 'virtualservice', 'workteam', 'private', 'subscriptiondefinition', 'replicationgroup', 'sse', 'ecs', 'replicationtask', 'ledger', 'datasource', 'resolverrule', 'alert', 'container', 'simulator', 'originrequestpolicy', 'compute', 'group', 'documentationpart', 'msk', 'virtualization', 'userpoolriskconfigurationattachment', 'single', 'aurora', 'publictypeversion', 'mwaa', 'storedquery', 'mounttarget', 'exbibyte', 'cloud', 'networkmanager', 'analyzer', 'endpointgroup', 'dbinstance', 'listener', 'loggingconfiguration', 'description', 'webaclassociation', 'build', 'lambda', 'costcategory', 'vgw', 'sourcecredential', 'mitigationaction', 'rulegroup', 'sqs', 'eventschemas', 'modelexplainabilityjobdefinition', 'route53', 'sagemaker', 'federated', 'configurationassociation', 'customactiontype', 'lookoutmetrics', 'sizeconstraintset', 'workflow', 'identifiers', 'endpoint', 'natgateway', 'chatbot', 'neptune', 'block', 'kib', 'authorizer', 'variable', 'mfa', 'frauddetector', 'coderepository', 'flow', 'opsworks', 'configurationprofile', 'functiondefinitionversion', 'streams', 'sso', 'localgatewayroute', 'taskset', 'capacityreservation', 'instanceprofile', 'input', 'wafregional', 'wam', 'dbproxyendpoint', 'environmentec2', 'lifecyclehook', 'memberinvitation', 'regexpatternset', 'instancefleetconfig', 'docdb', 'graphqlapi', 'subscriptionfilter', 'waf', 'iotanalytics', 'stacksetconstraint', 'layerversionpermission', 'site', 'virtual', 'sns', 'detective', 'eventinvokeconfig', 'resolverendpoint', 'ssmincidents', 'webhook', 'patchbaseline', 'subnet', 'userpoolidentityprovider', 'notification', 'default', 'userpoolusertogroupattachment', 'microsoftad', 'apigatewaymanagedoverrides', 'hostedconfigurationversion', 'application', 'secret', 'virtualnode', 'bucketpolicy', 'resourcegroup', 'rotationschedule', 'clustersubnetgroup', 'userpoolresourceserver', 'repository', 'association', 'dbsubnetgroup', 'kinesis', 'logloop', 'state', 'threatintelset', 'fleetmetric', 'mesh', 'cognito', 'acceptedportfolioshare', 'provisioningtemplate', 'groundstation', 'acl', 'transitgatewaymulticastdomain', 'configuration', 'appconfig', 'dataflowendpointgroup', 'quicksight', 'cloudhub', 'master', 'ec2fleet', 'iot', 'analysis', 'scalabletarget', 'logs', 'flowvpcinterface', 'stackfleetassociation', 'cassandra', 'tib', 'subnetgroup', 'apigateway', 'transitgatewaypeeringattachment', 'transitgatewayvpcattachment', 'user', 'mediaconvert', 'backupplan', 'attributegroupassociation',
@@ -153,7 +153,7 @@ def entropy_password(generated_snapshot: dict) -> dict:
     return output
 
 
-def gl_aws_secrets(generated_snapshot: dict) -> dict:
+def gl_aws_secrets(generated_snapshot: dict, kwargs={}) -> dict:
 
     PASSWORD_KEY_RE = r"^(?i)aws_?(secret)?_?(access)?_?key$"
     PASSWORD_VALUE_RE = r"^[A-Za-z0-9/\\+=]{40}$"
@@ -172,7 +172,7 @@ def gl_aws_secrets(generated_snapshot: dict) -> dict:
     return output
 
 
-def gl_aws_account(generated_snapshot: dict) -> dict:
+def gl_aws_account(generated_snapshot: dict, kwargs={}) -> dict:
 
     PASSWORD_KEY_RE = r"^(?i)aws_?(account)_?(id)$"
     PASSWORD_VALUE_RE = r"^[0-9]{12}$"
@@ -191,7 +191,7 @@ def gl_aws_account(generated_snapshot: dict) -> dict:
     return output
 
 
-def al_access_key_id(generated_snapshot: dict) -> dict:
+def al_access_key_id(generated_snapshot: dict, kwargs={}) -> dict:
     PASSWORD_KEY_RE = r"^(?i)aws_?(access)_?(key)_?(id)_?$"
     PASSWORD_VALUE_RE = r"^(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}"
     output = secret_finder(
@@ -207,7 +207,7 @@ def al_access_key_id(generated_snapshot: dict) -> dict:
     return output
 
 
-def al_mws(generated_snapshot: dict) -> dict:
+def al_mws(generated_snapshot: dict, kwargs={}) -> dict:
     PASSWORD_VALUE_RE = r"(?i)amzn\.mws\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
     output = secret_finder(generated_snapshot, PASSWORD_VALUE_RE)
 

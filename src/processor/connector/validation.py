@@ -20,6 +20,7 @@ from processor.database.database import create_indexes, COLLECTION,\
 from processor.reporting.json_output import dump_output_results, update_output_testname
 from processor.helper.config.rundata_utils import get_dbtests, get_from_currentdata
 from processor.connector.populate_json import pull_json_data
+from processor.connector.special_compliance.compliances import COMPLIANCES
 
 logger = getlogger()
 
@@ -452,6 +453,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                     testsets = get_field_value_with_default(test_json_data, 'testSet', [])
                     for testset in testsets:
                         testcases = get_field_value_with_default(testset, 'cases', [])
+                        testcases += COMPLIANCES
                         testset['cases'] = _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbname, False)
                     # print(json.dumps(test_json_data, indent=2))
                     resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
@@ -542,31 +544,48 @@ def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map):
     ms_ids = testcase.get('masterSnapshotId')
     # service = ms_ids[0].split('_')[1]
     for ms_id in ms_ids:
-        for s_id in mastersnapshots[ms_id]:
-            snapshot_resource_types = snapshot_resource_map.get(s_id, [])
-            testcase_resource_types = testcase.get('resourceTypes', [])
-            
-            if testcase_resource_types and all(resource_type not in snapshot_resource_types for resource_type in testcase_resource_types):
-                continue
+        if ms_id == "ALL":
+            for ms_id, s_ids in mastersnapshots.items():
+                for s_id in s_ids:
+                    snapshot_resource_types = snapshot_resource_map.get(s_id, [])
+                    testcase_resource_types = testcase.get('resourceTypes', [])
+                    
+                    if testcase_resource_types and all(resource_type not in snapshot_resource_types for resource_type in testcase_resource_types):
+                        continue
 
-            toAdd = True
-            if onlysnapshots:
-                if s_id not in onlysnapshotsIds:
-                    toAdd = False
-            if toAdd:
-                new_testcase = copy.copy(testcase)
-                # if service not in ms_id:
-                #     if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
-                #         [newcase['snapshotId'].append(s_id) for newcase in newcases]
-                #     else:
-                #         new_cases = copy.deepcopy(newcases)
-                #         [new_case['snapshotId'].pop(-1) and new_case['snapshotId'].append(s_id) for new_case in new_cases]
-                #         newcases.extend(new_cases)
-                #     continue
-                new_testcase['snapshotId'] = [s_id]
-                newcases.append(new_testcase)
+                    toAdd = True
+                    if onlysnapshots:
+                        if s_id not in onlysnapshotsIds:
+                            toAdd = False
+                    if toAdd:
+                        new_testcase = copy.copy(testcase)
+                        new_testcase['snapshotId'] = [s_id]
+                        newcases.append(new_testcase)
+        else:
+            for s_id in mastersnapshots[ms_id]:
+                snapshot_resource_types = snapshot_resource_map.get(s_id, [])
+                testcase_resource_types = testcase.get('resourceTypes', [])
+                
+                if testcase_resource_types and all(resource_type not in snapshot_resource_types for resource_type in testcase_resource_types):
+                    continue
+
+                toAdd = True
+                if onlysnapshots:
+                    if s_id not in onlysnapshotsIds:
+                        toAdd = False
+                if toAdd:
+                    new_testcase = copy.copy(testcase)
+                    # if service not in ms_id:
+                    #     if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
+                    #         [newcase['snapshotId'].append(s_id) for newcase in newcases]
+                    #     else:
+                    #         new_cases = copy.deepcopy(newcases)
+                    #         [new_case['snapshotId'].pop(-1) and new_case['snapshotId'].append(s_id) for new_case in new_cases]
+                    #         newcases.extend(new_cases)
+                    #     continue
+                    new_testcase['snapshotId'] = [s_id]
+                    newcases.append(new_testcase)
     return newcases
-
 
 def container_snapshots_filesystem(container):
     """Get snapshot list used in test files from the filesystem."""
