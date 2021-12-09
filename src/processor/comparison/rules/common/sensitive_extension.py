@@ -4,7 +4,7 @@ logger = getlogger()
 def sensitive_extensions(generated_snapshot, kwargs={}):
     paths = kwargs.get("paths", [])
     sensitive_extension_list = [
-        ".pfx", ".p12", ".cer", ".crt", ".crl", ".csr", ".der", ".p7b", ".p7r", ".spc"
+        ".pfx", ".p12", ".cer", ".crt", ".crl", ".csr", ".der", ".p7b", ".p7r", ".spc", ".pem"
     ]
     output = {}
     for path in paths:

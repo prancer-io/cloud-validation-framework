@@ -189,7 +189,7 @@ class TemplateProcessor:
         Check wether file_path contains sensitive extension or not
         """
         sensitive_extension_list = [
-            ".pfx", ".p12", ".cer", ".crt", ".crl", ".csr", ".der", ".p7b", ".p7r", ".spc"
+            ".pfx", ".p12", ".cer", ".crt", ".crl", ".csr", ".der", ".p7b", ".p7r", ".spc", ".pem",
         ]
         for extension in sensitive_extension_list:
             if str(file_path).lower().endswith(extension):
