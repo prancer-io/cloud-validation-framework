@@ -9,6 +9,8 @@ from processor.template_processor.helm_chart_template_processor import HelmChart
 from processor.template_processor.ack_processor import AckTemplateProcessor
 from processor.template_processor.aso_processor import AsoTemplateProcessor
 from processor.template_processor.kcc_processor import KccTemplateProcessor
+from processor.template_processor.base.base_template_processor import TemplateProcessor
+
 TEMPLATE_NODE_TYPES = {
     "cloudformation": AWSTemplateProcessor,
     "arm" : AzureTemplateProcessor,
@@ -20,5 +22,6 @@ TEMPLATE_NODE_TYPES = {
     "helmChart" : HelmChartTemplateProcessor,
     "ack" : AckTemplateProcessor, # AWS Controllers for Kubernetes
     "aso" : AsoTemplateProcessor, # Azure Service Operator
-    "kcc" : KccTemplateProcessor # GCP Kubernetes Config Connector
+    "kcc" : KccTemplateProcessor, # GCP Kubernetes Config Connector
+    "common" : TemplateProcessor # TemplateProcessor
 }
