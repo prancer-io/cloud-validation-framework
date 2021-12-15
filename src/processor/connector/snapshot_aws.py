@@ -206,7 +206,11 @@ def _get_resources_from_list_function(response, method):
     elif method == 'describe_load_balancers':
         return [x['LoadBalancerName'] for x in response['LoadBalancerDescriptions']]
     elif method == 'list_certificates':
-        return [x['CertificateArn'] for x in response['CertificateSummaryList']]        
+        return [x['CertificateArn'] for x in response['CertificateSummaryList']]     
+    elif method == 'list_backup_vaults':
+        return [x['BackupVaultName'] for x in response['BackupVaultList']]
+    elif method == 'list_servers':
+        return [x['ServerId'] for x in response['Servers']]          
     elif method == 'list_stacks':
         return [x['StackName'] for x in response['StackSummaries']]        
     elif method == 'list_trails':
@@ -399,7 +403,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         }
     elif client_str == "ec2" and function_name == "describe_subnets":
         try:
-            subnetid = existing_json['Reservations'][0]['Instances'][0]['SubnetId']
+            subnetid = existing_json['Snapshots'][0]['SnapshotId']
         except:
             subnetid = ""
         return {
@@ -450,10 +454,22 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'TrailName': resource_id
         }
+    elif client_str == "cloudtrail" and function_name == "get_trail_status":
+        return {
+            'Name': resource_id
+        }
+    elif client_str == "backup" and function_name in ["describe_backup_vault", "get_backup_vault_access_policy"]:
+        return {
+            'BackupVaultName': resource_id
+        }
+    elif client_str == "transfer" and function_name == "describe_server":
+        return {
+            'ServerId': resource_id
+        }
     elif client_str == "apigateway" and function_name in ["get_rest_api",\
         "get_documentation_parts", "get_documentation_versions",\
         "get_gateway_responses", "get_models", "get_request_validators",\
-        "get_resources", "get_stages"]:
+        "get_resources", "get_stages", "get_authorizers"]:
         return {
             'restApiId': resource_id
         }
