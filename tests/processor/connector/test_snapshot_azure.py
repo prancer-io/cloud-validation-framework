@@ -131,7 +131,7 @@ def test_get_node_happy(monkeypatch):
     assert True == isinstance(ret, dict)
     ret = get_node('abcd', 'devtest', 'xyz', data, 'abc', 'azureStructure')
     assert True == isinstance(ret, dict)
-    assert {'a': 'b'} == ret['json']
+    assert {'resources': [{'a': 'b'}]} == ret['json']
 
 
 def test_get_node_error(monkeypatch):
@@ -148,7 +148,7 @@ def test_get_node_error(monkeypatch):
     assert True == isinstance(ret, dict)
     ret = get_node('abcd', 'sub', 'xyz', data, 'abc', 'azureStructure')
     assert True == isinstance(ret, dict)
-    assert {} == ret['json']
+    assert {"resources": []} == ret['json']
 
 
 def test_populate_azure_snapshot(monkeypatch):
