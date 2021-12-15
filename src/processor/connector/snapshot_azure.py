@@ -144,7 +144,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         "masterSnapshotId": None,
         "collection": collection.replace('.', '').lower(),
         "region" : "",
-        "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
+        "json": {"resources": []}  # Refactor when node is absent it should None, when empty object put it as {}
     }
     version = get_version_for_type(node)
     if sub_id and token and node and node['path'] and version:
@@ -162,8 +162,10 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
         # logger.info('Get Id status: %s', status)
         if status and isinstance(status, int) and status == 200:
-            db_record['json'] = data
-            db_record['region'] = db_record['json'].get("location")
+            # db_record['json'] = data
+            # db_record['region'] = db_record['json'].get("location")
+            db_record['json']['resources'].append(data)
+            db_record['region'] = data.get("location")
             data_str = json.dumps(data)
             db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
         else:
