@@ -25,3 +25,4 @@ Jinja2==2.11.3
 ruamel.yaml==0.16.12
 kubernetes==12.0.1
 lark-parser==0.10.1
+json-source-map==1.0.1

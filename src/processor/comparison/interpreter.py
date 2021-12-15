@@ -11,6 +11,7 @@ import os
 import re
 import pymongo
 import subprocess
+from json_source_map import calculate
 from processor.helper.json.json_utils import get_field_value, json_from_file, save_json_to_file
 from processor.helper.config.config_utils import get_test_json_dir, parsebool, config_value, generateid
 from processor.helper.file.file_utils import exists_file, exists_dir, remove_file
@@ -51,6 +52,75 @@ class MyConsoleErrorListener(ErrorListener):
         logger.debug("******line " + str(line) + ":" + str(column) + " " + msg)
 
 ConsoleErrorListener.INSTANCE = MyConsoleErrorListener()
+
+
+def get_line_numbers(resultFile, inputJson, fieldName='aws_issue'):
+    result = json.loads(open(resultFile).read())
+    data = json.loads(open(inputJson).read())
+
+    refData = calculate(open(inputJson).read())
+
+    aws_issues = result['result'][0]['expressions'][0]['value']['aws_issue']
+    num_aws_issues = len(aws_issues)
+
+    linekeys = {}
+    for aws_issue in aws_issues:
+        try:
+            key = list(aws_issue.keys())[0]
+            for path in aws_issue[key]['resource_path']:
+                # path = aws_issue[key]['resource_path'][0]
+
+                for i in range(len(path), 0, -1):
+                    valparts = path[0:i]
+                    val = '/' + '/'.join([str(fld) for fld in valparts])
+                    if val in refData:
+                        print('%s ===>  %d' % (val, refData[val].value_start.line))
+                        if key in linekeys:
+                            linekeys[key].append(refData[val].value_start.line)
+                        else:
+                            linekeys[key] = [refData[val].value_start.line]
+                        break
+                    else:
+                        print('Missing: %s' % val)
+
+            # val = '/' + '/'.join([str(fld) for fld in path])
+            # if val in refData:
+            #     print('%s ===>  %d' % (val, refData[val].value_start.line))
+            # else:
+            #     print('Missing: %s' % val)
+        except:
+            print('Exception')
+
+    print('#' * 25)
+    aws_attribute_absence = result['result'][0]['expressions'][0]['value']['aws_attribute_absence']
+    num_aws_absence = len(aws_attribute_absence)
+    for aws_absence in aws_attribute_absence:
+        try:
+            # print(aws_absence)
+            key = list(aws_absence.keys())[0]
+            for path in aws_absence[key]['resource_path']:
+                # path = aws_absence[key]['resource_path'][0]
+                # print(path)
+                for i in range(len(path)-1, 0, -1):
+                    valparts = path[0:i]
+                    val = '/' + '/'.join([str(fld) for fld in valparts])
+                    # print(val)
+                    if val in refData:
+                        line = refData[val].value_start.line +  1
+                        # print('%s ===>  %d' % (val, line))
+                        if key in linekeys:
+                            if line not in linekeys[key]:
+                                linekeys[key].append(line)
+                        else:
+                            linekeys[key] = [line]
+                        break
+                    else:
+                        print('Missing: %s' % val)
+
+        except:
+            print('Exception')
+
+    return linekeys
 
 
 def version_str(version):
@@ -338,13 +408,17 @@ class ComparatorV01:
 
                 resultval = json_from_file('/tmp/a_%s.json' % tid)
                 if resultval and "errors" in resultval and resultval["errors"]:
+                    linekeys = get_line_numbers('/tmp/a_%s.json' % tid, '/tmp/input_%s.json' % tid)
+                    line = 1
                     if isinstance(rule_expr, list):
+                        if rule_expr[-1] in linekeys:
+                            line = linekeys[rule_expr[-1]][0]
                         if rule_expr[0] and "eval" in rule_expr[0]:
-                            results.append({'eval': rule_expr[0].get("eval"), 'result': "failed", 'message': ''})
+                            results.append({'eval': rule_expr[0].get("eval"), 'result': "failed", 'message': '', 'line': line})
                         else:
-                            results.append({'eval': "data.rule", 'result': "failed", 'message': ''})
+                            results.append({'eval': "data.rule", 'result': "failed", 'message': '', 'line': line})
                     else:
-                        results.append({'eval': rule_expr, 'result': "failed", 'message': ''})
+                        results.append({'eval': rule_expr, 'result': "failed", 'message': '', 'line': line})
                     self.log_compliance_info(testId)
                     logger.critical('\t\tTITLE: %s', self.testcase.get('title', ""))
                     logger.critical('\t\tDESCRIPTION: %s', self.testcase.get('description', ""))
@@ -359,6 +433,10 @@ class ComparatorV01:
                         for val in rule_expr:
                             if 'eval' in val: 
                                 evalfield = val['eval'].rsplit('.', 1)[-1]
+                                linekeys = get_line_numbers('/tmp/a_%s.json' % tid, '/tmp/input_%s.json' % tid)
+                                line = 1
+                                if evalfield in linekeys:
+                                    line = linekeys[evalfield][0]
                                 evalmessage = val['message'].rsplit('.', 1)[-1] if "message" in val else ""
                                 if evalfield in resultdict:
                                     if isinstance(resultdict[evalfield], bool):
@@ -380,6 +458,7 @@ class ComparatorV01:
                                     'eval': val["eval"], 
                                     'result': "passed" if result else "failed", 
                                     'message': msg,
+                                    'line': line,
                                     'id' : val.get("id"),
                                     'remediation_description' : val.get("remediationDescription"),
                                     'remediation_function' : val.get("remediationFunction"),
