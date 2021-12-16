@@ -38,6 +38,8 @@ from processor.connector.arn_parser import arnparse
 logger = getlogger()
 _valid_service_names = Session().get_available_services()
 
+logger.info("============available service name===============")
+logger.info(_valid_service_names)
 
 def _validate_client_name(client_name):
     """
@@ -193,6 +195,8 @@ def _get_resources_from_list_function(response, method):
     Fetches the resources id from different responses
     and returns a list of responses.
     """
+    logger.info("===============list function response==============")
+    logger.info(response)
     if method == 'list_buckets':
         return [x['Name'] for x in response['Buckets']]
     elif method == 'describe_instances':
@@ -235,7 +239,12 @@ def _get_resources_from_list_function(response, method):
     elif method == 'list_task_definitions':
         return response.get('taskDefinitionArns')
     elif method == 'list_clusters':
-        return response.get("clusters")
+        clusters = []
+        clusters.extend(response.get("clusters", []))
+        clusters.extend(response.get("Clusters", []))
+        clusters.extend([cluster["ClusterArn"] for cluster in response.get("ClusterInfoList",[])])
+        logger.info("*****************%s", clusters)
+        return clusters
     elif method == 'describe_replication_groups':
         return [x.get('ReplicationGroupId') for x in response['ReplicationGroups']]
     elif method == 'list_streams':
@@ -313,12 +322,14 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 else:
                     resource_arn = arn_string %(awsclient.meta._service_model.service_name,
                         awsclient.meta.region_name, each_resource)
+
                 for each_method_str in detail_methods:
                     each_method = getattr(awsclient, each_method_str, None)
                     if each_method and callable(each_method):
                         type_list.append(each_method_str)
                 db_record = copy.deepcopy(d_record)
                 db_record['detailMethods'] = type_list
+                logger.info("==========storing in database%s", resource_arn)
                 db_record['arn'] = resource_arn
                 db_records.append(db_record)
 
@@ -352,6 +363,11 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     arn = arnparse(arn_str)
     client_str = arn.service
     resource_id = arn.resource
+
+    logger.info("===================getting function kwargs=====================")
+    logger.info("client_str====%s", client_str)
+    logger.info("function_name====%s", function_name)
+    logger.info("resource_id====%s==>%s", type(resource_id),resource_id)
     if client_str == "s3":
         return {'Bucket' : resource_id}
     elif client_str == "rds" and function_name in ["describe_db_instances",\
@@ -403,7 +419,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         }
     elif client_str == "ec2" and function_name == "describe_subnets":
         try:
-            subnetid = existing_json['Snapshots'][0]['SnapshotId']
+            subnetid = existing_json['Reservations'][0]['Instances'][0]['SubnetId']
         except:
             subnetid = ""
         return {
@@ -574,6 +590,23 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return{
             'DBSnapshotIdentifier': resource_id
         }
+    elif client_str=='emr' and function_name in ['describe_cluster']:
+        return{
+            'ClusterId': resource_id
+        }
+    elif client_str=='emr' and function_name in ['describe_security_configuration']:
+        return{
+            'Name': resource_id
+        }
+    elif client_str=='sqs' and function_name in ['get_queue_attributes']:
+        return{
+            'QueueUrl': resource_id,
+            'AttributeNames':['All']
+        }
+    elif client_str=='kafka' and function_name in ['describe_cluster']:
+        return{
+            'ClusterArn': arn_str
+        }
     else:
         return {}
 
@@ -709,7 +742,7 @@ def populate_aws_snapshot(snapshot, container=None):
                     client_str, aws_region = _get_aws_client_data_from_node(node,
                         default_client=connector_client_str, default_region=region)
                     if not _validate_client_name(client_str):
-                        logger.error("Invalid Client Name")
+                        logger.error("Invalid Client Name %s", client_str)
                         return snapshot_data
                     if aws_region:
                         all_regions = [aws_region]
