@@ -1,4 +1,5 @@
 import re
+import time
 from typing import Tuple
 from processor.database.database import (
     get_documents,
@@ -46,6 +47,7 @@ def create_collection_config(container: str, configuration: dict):
         "type": "collection_configuration",
         "collection": collection,
         "container": container,
+        "timestamp": int(time.time() * 1000),
         "json": {"configuration": configuration},
     }
     doc_id_str = insert_one_document(structure, collection, dbname, False)
