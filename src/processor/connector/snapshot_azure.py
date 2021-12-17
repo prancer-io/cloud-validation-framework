@@ -124,7 +124,7 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         logger.info('Get requires valid subscription, token and path.!')
     return db_records
 
-def get_node(token, sub_name, sub_id, node, user, snapshot_source):
+def get_node(token, sub_name, sub_id, node, user, snapshot_source, resource_array=False):
     """ Fetch node from azure portal using rest API."""
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
@@ -144,7 +144,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         "masterSnapshotId": None,
         "collection": collection.replace('.', '').lower(),
         "region" : "",
-        "json": {"resources": []}  # Refactor when node is absent it should None, when empty object put it as {}
+        "json": {"resources": []}  if resource_array else {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
     version = get_version_for_type(node)
     if sub_id and token and node and node['path'] and version:
@@ -162,9 +162,10 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
         # logger.info('Get Id status: %s', status)
         if status and isinstance(status, int) and status == 200:
-            # db_record['json'] = data
-            # db_record['region'] = db_record['json'].get("location")
-            db_record['json']['resources'].append(data)
+            if resource_array:
+                db_record['json']['resources'].append(data)
+            else:
+                db_record['json'] = data
             db_record['region'] = data.get("location")
             data_str = json.dumps(data)
             db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
@@ -180,6 +181,8 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
 
 def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     """ Populates the resources from azure."""
+    resource_array_env = os.getenv("RESOURCE_ARRAY", None)
+    resource_array = True if resource_array_env and resource_array_env.lower() == 'true' else False
     dbname = config_value('MONGODB', 'dbname')
     snapshot_source = get_field_value(snapshot, 'source')
     snapshot_user = get_field_value(snapshot, 'testUser')
@@ -229,7 +232,7 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
         for node in snapshot_nodes:
             validate = node['validate'] if 'validate' in node else True
             if 'path' in  node:
-                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
+                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source, resource_array)
                 if data:
                     if validate:
                         if get_dbtests():
