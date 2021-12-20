@@ -279,6 +279,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get('EventSubscriptionArn').split(':')[-1] for x in response['EventSubscriptionsList']]
     elif method == 'describe_db_snapshots':
         return [x.get('DBSnapshotIdentifier') for x in response['DBSnapshots']]
+    elif method == 'list_web_acls':
+        return [x.get("Name") for x in response['WebACLs']]
     else:
         return []
 
@@ -354,6 +356,10 @@ def _get_list_function_kwargs(service, function_name):
             'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE', \
             'REVIEW_IN_PROGRESS', 'IMPORT_IN_PROGRESS', 'IMPORT_COMPLETE', 'IMPORT_ROLLBACK_IN_PROGRESS', \
             'IMPORT_ROLLBACK_FAILED', 'IMPORT_ROLLBACK_COMPLETE']
+        }
+    if service == "wafv2":
+        return {
+            "Scope": "REGIONAL"
         }
     else:
         return {}
@@ -546,6 +552,10 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'ClusterIdentifier': resource_id
         }
+    elif client_str == "redshift" and function_name == "describe_cluster_parameters":
+        return {
+            'ParameterGroupName': existing_json["ClusterParameterGroups"][0]["ParameterGroupName"]
+        }
     elif client_str == "sns" and function_name == "get_topic_attributes":
         return {
             'TopicArn': arn_str
@@ -606,6 +616,16 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     elif client_str=='kafka' and function_name in ['describe_cluster']:
         return{
             'ClusterArn': arn_str
+        }
+    elif client_str=='wafv2' and function_name in ['list_web_acls']:
+        return {
+            "Scope": "REGIONAL"
+        }
+    elif client_str=='wafv2' and function_name in ['get_web_acl']:
+        return{
+            'Scope': "REGIONAL",
+            'Name': existing_json["WebACLs"][0]["Name"],
+            'Id': existing_json["WebACLs"][0]["Id"]
         }
     else:
         return {}
