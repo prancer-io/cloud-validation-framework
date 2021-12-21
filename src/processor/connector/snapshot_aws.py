@@ -255,6 +255,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get('ClusterIdentifier',"") for x in response['Clusters']]
     elif method == 'list_topics':
         return [x.get('TopicArn',"") for x in response['Topics']]
+    elif method == 'list_subscriptions':
+        return [x.get('SubscriptionArn',"") for x in response['Subscriptions']]
     elif method == 'list_queues':
         return response.get("QueueUrls")  
     elif method == 'list_domain_names':
@@ -383,7 +385,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         }
     elif client_str == "ec2" and function_name == "describe_instance_attribute":
         return {
-            'Attribute': 'instanceType',
+            'Attribute': 'instanceType'|'kernel'|'ramdisk'|'userData'|'disableApiTermination'|'instanceInitiatedShutdownBehavior'|'rootDeviceName'|'blockDeviceMapping'|'productCodes'|'sourceDestCheck'|'groupSet'|'ebsOptimized'|'sriovNetSupport'|'enaSupport'|'enclaveOptions',
             'InstanceId': resource_id
         }
     elif client_str == "ec2" and function_name in ["describe_instances", "monitor_instances"]:
@@ -559,6 +561,10 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     elif client_str == "sns" and function_name == "get_topic_attributes":
         return {
             'TopicArn': arn_str
+        }
+    elif client_str == "sns" and function_name == "get_subscription_attributes":
+        return {
+            'SubscriptionArn': arn_str
         }
     elif client_str == "sqs" and function_name == "get_queue_attributes":
         return {
