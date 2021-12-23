@@ -283,6 +283,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get('DBSnapshotIdentifier') for x in response['DBSnapshots']]
     elif method == 'list_web_acls':
         return [x.get("Name") for x in response['WebACLs']]
+    elif method == 'describe_repositories':
+        return [x.get("repositoryName") for x in response['repositories']]
     else:
         return []
 
@@ -632,6 +634,14 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
             'Scope': "REGIONAL",
             'Name': existing_json["WebACLs"][0]["Name"],
             'Id': existing_json["WebACLs"][0]["Id"]
+        }
+    elif client_str=='ecr' and function_name in ['describe_repositories']:
+        return {
+            "repositoryNames": [resource_id]
+        }
+    elif client_str=='ecr' and function_name in ['get_lifecycle_policy']:
+        return {
+            "repositoryName": resource_id
         }
     else:
         return {}
