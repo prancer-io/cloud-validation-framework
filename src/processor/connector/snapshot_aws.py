@@ -181,7 +181,7 @@ def get_node(awsclient, node, snapshot_source, snapshot):
                     if data:
                         json_to_put.update(data) 
                 except Exception as ex:
-                    logger.info('Describe function exception: %s', ex)
+                    logger.error('Describe function exception: %s', ex)
                     db_record['error'] = 'Describe function exception: %s' % ex
             else:
                 logger.info('Invalid function exception: %s', str(function_to_call))
@@ -235,13 +235,13 @@ def _get_resources_from_list_function(response, method):
         return response.get("TableNames")
     elif method == 'list_backups':
         return [x.get('BackupArn',"") for x in response['BackupSummaries']]
-        return response.get("TableNames")
     elif method == 'list_task_definitions':
         return response.get('taskDefinitionArns')
     elif method == 'list_clusters':
         clusters = []
         clusters.extend(response.get("clusters", []))
         clusters.extend(response.get("Clusters", []))
+        clusters.extend(response.get("clusterArns", []))
         clusters.extend([cluster["ClusterArn"] for cluster in response.get("ClusterInfoList",[])])
         logger.info("*****************%s", clusters)
         return clusters
@@ -319,6 +319,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 response = list_function(**list_kwargs)
                 list_of_resources = _get_resources_from_list_function(response, list_function_name)
             except Exception as ex:
+                logger.error("exception in list function: %s", ex)
                 list_of_resources = []
             detail_methods = get_field_value(node, 'detailMethods')
             for each_resource in list_of_resources:
@@ -377,6 +378,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     logger.info("===================getting function kwargs=====================")
     logger.info("client_str====%s", client_str)
     logger.info("function_name====%s", function_name)
+    logger.info("arn_str====%s", arn_str)
     logger.info("resource_id====%s==>%s", type(resource_id),resource_id)
     if client_str == "s3":
         return {'Bucket' : resource_id}
@@ -531,6 +533,14 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     elif client_str == "ecs" and function_name == "describe_task_definition":
         return {
             'taskDefinition': resource_id
+        }
+    elif client_str == "ecs" and function_name == "describe_clusters":
+        return {
+            'clusters': [arn_str]
+        }
+    elif client_str == "ecs" and function_name == "describe_services":
+        return {
+            'services': [arn_str]
         }
     elif client_str == "eks" and function_name == "describe_cluster":
         return {
