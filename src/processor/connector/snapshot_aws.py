@@ -207,6 +207,12 @@ def _get_resources_from_list_function(response, method):
         return final_list
     elif method == 'describe_db_instances':
         return [x['DBInstanceIdentifier'] for x in response['DBInstances']]
+    elif method == 'describe_db_clusters':
+        return [x['DBClusterIdentifier'] for x in response['DBClusters']]
+    elif method == 'describe_db_parameter_groups':
+        return [x['DBParameterGroupName'] for x in response['DBParameterGroups']]
+    elif method == 'describe_global_clusters':
+        return [x['GlobalClusterIdentifier'] for x in response['GlobalClusters']]
     elif method == 'describe_load_balancers':
         return [x['LoadBalancerName'] for x in response['LoadBalancerDescriptions']]
     elif method == 'list_certificates':
@@ -386,6 +392,18 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         "describe_db_snapshots"]:
         return {
             'DBInstanceIdentifier': resource_id
+        }
+    elif client_str == "rds" and function_name in ["describe_db_clusters"]:
+        return {
+            'DBClusterIdentifier': resource_id
+        }
+    elif client_str == "rds" and function_name in ["describe_db_parameters"]:
+        return {
+            'DBParameterGroupName': resource_id
+        }
+    elif client_str == "rds" and function_name in ["describe_global_clusters"]:
+        return {
+            'GlobalClusterIdentifier': resource_id
         }
     elif client_str == "ec2" and function_name == "describe_instance_attribute":
         return {
