@@ -258,7 +258,9 @@ def _get_resources_from_list_function(response, method):
     elif method == 'list_functions':
         return [x.get('FunctionName',"") for x in response['Functions']]
     elif method == 'describe_clusters':
-        return [x.get('ClusterIdentifier',"") for x in response['Clusters']]
+        clusters = []
+        clusters.extend([x.get('ClusterIdentifier', x.get("ClusterName", "")) for x in response['Clusters']])
+        return clusters
     elif method == 'list_topics':
         return [x.get('TopicArn',"") for x in response['Topics']]
     elif method == 'list_subscriptions':
@@ -291,6 +293,14 @@ def _get_resources_from_list_function(response, method):
         return [x.get("Name") for x in response['WebACLs']]
     elif method == 'describe_repositories':
         return [x.get("repositoryName") for x in response['repositories']]
+    elif method == 'list_ledgers':
+        return [x.get("Name") for x in response['Ledgers']]
+    elif method == 'describe_db_cluster_parameter_groups':
+        return [x.get("DBClusterParameterGroupName") for x in response['DBClusterParameterGroups']]
+    elif method == 'list_work_groups':
+        return [x.get("Name") for x in response['WorkGroups']]
+    elif method == 'list_databases':
+        return [x.get("DatabaseName") for x in response['Databases']]
     else:
         return []
 
@@ -671,6 +681,22 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             "repositoryName": resource_id
         }
+    elif client_str == "dax" and function_name == "describe_clusters":
+        return {
+            'ClusterNames': [resource_id]
+        }
+    elif client_str == "qldb" and function_name == "describe_ledger":
+        return {
+            'Name': resource_id
+        }
+    elif client_str == "docdb" and function_name == "describe_db_cluster_parameters":
+        return {
+            'DBClusterParameterGroupName': resource_id
+        }
+    elif client_str == "athena" and function_name == "get_work_group":
+        return {
+            'WorkGroup': resource_id
+        }
     else:
         return {}
 
@@ -760,7 +786,7 @@ def populate_aws_snapshot(snapshot, container=None):
                     client_str, aws_region = _get_aws_client_data_from_node(node,
                         default_client=connector_client_str, default_region=region)
                     if not _validate_client_name(client_str):
-                        logger.error("Invalid Client Name")
+                        logger.error("Invalid Client Name: %s", client_str)
                         return snapshot_data
                     try:
                         awsclient = client(client_str.lower(), aws_access_key_id=access_key,
