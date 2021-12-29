@@ -181,7 +181,7 @@ def get_node(awsclient, node, snapshot_source, snapshot):
                     if data:
                         json_to_put.update(data) 
                 except Exception as ex:
-                    logger.info('Describe function exception: %s', ex)
+                    logger.error('Describe function exception: %s', ex)
                     db_record['error'] = 'Describe function exception: %s' % ex
             else:
                 logger.info('Invalid function exception: %s', str(function_to_call))
@@ -207,6 +207,12 @@ def _get_resources_from_list_function(response, method):
         return final_list
     elif method == 'describe_db_instances':
         return [x['DBInstanceIdentifier'] for x in response['DBInstances']]
+    elif method == 'describe_db_clusters':
+        return [x['DBClusterIdentifier'] for x in response['DBClusters']]
+    elif method == 'describe_db_parameter_groups':
+        return [x['DBParameterGroupName'] for x in response['DBParameterGroups']]
+    elif method == 'describe_global_clusters':
+        return [x['GlobalClusterIdentifier'] for x in response['GlobalClusters']]
     elif method == 'describe_load_balancers':
         return [x['LoadBalancerName'] for x in response['LoadBalancerDescriptions']]
     elif method == 'list_certificates':
@@ -235,13 +241,13 @@ def _get_resources_from_list_function(response, method):
         return response.get("TableNames")
     elif method == 'list_backups':
         return [x.get('BackupArn',"") for x in response['BackupSummaries']]
-        return response.get("TableNames")
     elif method == 'list_task_definitions':
         return response.get('taskDefinitionArns')
     elif method == 'list_clusters':
         clusters = []
         clusters.extend(response.get("clusters", []))
         clusters.extend(response.get("Clusters", []))
+        clusters.extend(response.get("clusterArns", []))
         clusters.extend([cluster["ClusterArn"] for cluster in response.get("ClusterInfoList",[])])
         logger.info("*****************%s", clusters)
         return clusters
@@ -252,7 +258,9 @@ def _get_resources_from_list_function(response, method):
     elif method == 'list_functions':
         return [x.get('FunctionName',"") for x in response['Functions']]
     elif method == 'describe_clusters':
-        return [x.get('ClusterIdentifier',"") for x in response['Clusters']]
+        clusters = []
+        clusters.extend([x.get('ClusterIdentifier', x.get("ClusterName", "")) for x in response['Clusters']])
+        return clusters
     elif method == 'list_topics':
         return [x.get('TopicArn',"") for x in response['Topics']]
     elif method == 'list_subscriptions':
@@ -285,6 +293,14 @@ def _get_resources_from_list_function(response, method):
         return [x.get("Name") for x in response['WebACLs']]
     elif method == 'describe_repositories':
         return [x.get("repositoryName") for x in response['repositories']]
+    elif method == 'list_ledgers':
+        return [x.get("Name") for x in response['Ledgers']]
+    elif method == 'describe_db_cluster_parameter_groups':
+        return [x.get("DBClusterParameterGroupName") for x in response['DBClusterParameterGroups']]
+    elif method == 'list_work_groups':
+        return [x.get("Name") for x in response['WorkGroups']]
+    elif method == 'list_databases':
+        return [x.get("DatabaseName") for x in response['Databases']]
     else:
         return []
 
@@ -319,6 +335,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 response = list_function(**list_kwargs)
                 list_of_resources = _get_resources_from_list_function(response, list_function_name)
             except Exception as ex:
+                logger.error("exception in list function: %s", ex)
                 list_of_resources = []
             detail_methods = get_field_value(node, 'detailMethods')
             for each_resource in list_of_resources:
@@ -377,6 +394,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     logger.info("===================getting function kwargs=====================")
     logger.info("client_str====%s", client_str)
     logger.info("function_name====%s", function_name)
+    logger.info("arn_str====%s", arn_str)
     logger.info("resource_id====%s==>%s", type(resource_id),resource_id)
     if client_str == "s3":
         return {'Bucket' : resource_id}
@@ -384,6 +402,18 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         "describe_db_snapshots"]:
         return {
             'DBInstanceIdentifier': resource_id
+        }
+    elif client_str == "rds" and function_name in ["describe_db_clusters"]:
+        return {
+            'DBClusterIdentifier': resource_id
+        }
+    elif client_str == "rds" and function_name in ["describe_db_parameters"]:
+        return {
+            'DBParameterGroupName': resource_id
+        }
+    elif client_str == "rds" and function_name in ["describe_global_clusters"]:
+        return {
+            'GlobalClusterIdentifier': resource_id
         }
     elif client_str == "ec2" and function_name == "describe_instance_attribute":
         return {
@@ -532,6 +562,14 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'taskDefinition': resource_id
         }
+    elif client_str == "ecs" and function_name == "describe_clusters":
+        return {
+            'clusters': [arn_str]
+        }
+    elif client_str == "ecs" and function_name == "describe_services":
+        return {
+            'services': [arn_str]
+        }
     elif client_str == "eks" and function_name == "describe_cluster":
         return {
             'name': resource_id
@@ -643,6 +681,22 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             "repositoryName": resource_id
         }
+    elif client_str == "dax" and function_name == "describe_clusters":
+        return {
+            'ClusterNames': [resource_id]
+        }
+    elif client_str == "qldb" and function_name == "describe_ledger":
+        return {
+            'Name': resource_id
+        }
+    elif client_str == "docdb" and function_name == "describe_db_cluster_parameters":
+        return {
+            'DBClusterParameterGroupName': resource_id
+        }
+    elif client_str == "athena" and function_name == "get_work_group":
+        return {
+            'WorkGroup': resource_id
+        }
     else:
         return {}
 
@@ -732,7 +786,7 @@ def populate_aws_snapshot(snapshot, container=None):
                     client_str, aws_region = _get_aws_client_data_from_node(node,
                         default_client=connector_client_str, default_region=region)
                     if not _validate_client_name(client_str):
-                        logger.error("Invalid Client Name")
+                        logger.error("Invalid Client Name: %s", client_str)
                         return snapshot_data
                     try:
                         awsclient = client(client_str.lower(), aws_access_key_id=access_key,

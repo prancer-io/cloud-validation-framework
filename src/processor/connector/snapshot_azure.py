@@ -112,7 +112,7 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         resources = azure_crawler.check_for_special_crawl(nodetype)
         if resources:
             for idx, value in enumerate(resources):
-                if nodetype in value['type']:
+                if nodetype.lower() == value.get('type', "").lower():
                     db_record = copy.deepcopy(d_record)
                     db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(idx))
                     db_record['path'] = value['id']
