@@ -301,6 +301,10 @@ def _get_resources_from_list_function(response, method):
         return [x.get("Name") for x in response['WorkGroups']]
     elif method == 'list_databases':
         return [x.get("DatabaseName") for x in response['Databases']]
+    elif method == 'describe_endpoints':
+        return [x.get("EndpointIdentifier") for x in response['Endpoints']]
+    elif method == 'describe_security_groups':
+        return [x.get("GroupId") for x in response['SecurityGroups']]
     else:
         return []
 
@@ -441,13 +445,8 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
             'VolumeIds': [volumeid]
         }
     elif client_str == "ec2" and function_name == "describe_security_groups":
-        try:
-            groups = existing_json['Reservations'][0]['Instances'][0]['SecurityGroups']
-            groupsidlist = [x['GroupId'] for x in groups]
-        except:
-            groupsidlist = []
         return {
-            'GroupIds': groupsidlist
+            'GroupIds': [resource_id]
         }
     elif client_str == "ec2" and function_name == "describe_vpcs":
         try:
@@ -550,7 +549,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'KeyId': resource_id
         }
-    elif client_str == "dynamodb" and function_name == "describe_table":
+    elif client_str == "dynamodb" and function_name in ["describe_table", "describe_continuous_backups", "describe_kinesis_streaming_destination"]:
         return {
             'TableName': resource_id
         }
