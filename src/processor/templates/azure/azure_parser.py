@@ -24,7 +24,8 @@ class AzureTemplateParser(TemplateParser):
             "variables": self.handle_variables,
             "concat": self.handle_concat,
             "equals": self.handle_equals,
-            "length": lambda x: (True, len(x))
+            "length": lambda x: (True, len(x)),
+            "resourceId": self.handle_resource_id,
         }
     
     def generate_template_json(self):
@@ -228,7 +229,7 @@ class AzureTemplateParser(TemplateParser):
             logger.warning("%s does not exist" % val)
         return True, val
 
-    def handle_concat(self, concat_expr):
+    def handle_concat(self, concat_expr, concat_by=""):
         # values = concat_expr.split(',')
         values = self.my_split(concat_expr)
         if values:
@@ -247,8 +248,11 @@ class AzureTemplateParser(TemplateParser):
                 else:
                     updated_values.append(value.strip().replace("'", ""))
             # print(updated_values)
-            return(success, ''.join(str(value) for value in updated_values) if success else concat_expr)
+            return(success, concat_by.join(str(value) for value in updated_values))
         return False, concat_expr
+
+    def handle_resource_id(self, concat_expr):
+        return self.handle_concat(concat_expr, "/")
 
     def handle_equals(self, equals_expr):
         values = equals_expr.split(',')
