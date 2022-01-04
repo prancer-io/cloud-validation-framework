@@ -248,7 +248,7 @@ class AzureTemplateParser(TemplateParser):
                 else:
                     updated_values.append(value.strip().replace("'", ""))
             # print(updated_values)
-            return(success, concat_by.join(str(value) for value in updated_values))
+            return(success, concat_by.join(str(value) for value in updated_values) if success else concat_expr)
         return False, concat_expr
 
     def handle_resource_id(self, concat_expr):
