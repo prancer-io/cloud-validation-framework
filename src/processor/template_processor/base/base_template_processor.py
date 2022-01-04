@@ -107,7 +107,7 @@ class TemplateProcessor:
             "snapshotId": self.node['snapshotId'],
             "collection": collection.replace('.', '').lower(),
             "json": self.processed_template,
-            "resourceTypes" : self.node.get("resourceTypes", [])
+            # "resourceTypes" : self.node.get("resourceTypes", [])
         }
         if self.resource_type:
             db_record["resourceType"] = self.resource_type
@@ -297,6 +297,7 @@ class TemplateProcessor:
 
                 if not found_template:
                     self.processed_template = self.process_template(self.paths)
+                    self.resource_types = list(set(self.resource_types))
             
                 if self.processed_template:
                     status = self.store_data_record()
@@ -357,6 +358,7 @@ class TemplateProcessor:
             ]
             
             self.processed_template = self.process_template(paths)
+            self.resource_types = list(set(self.resource_types))
             
             processed_resource_types = []
             for resource_type in self.resource_types:	
@@ -469,6 +471,7 @@ class TemplateProcessor:
                                 template_file
                             ]
                             self.processed_template = self.process_template(paths)
+                            self.resource_types = list(set(self.resource_types))
                             
                             template_paths = [	
                                 ("%s/%s" % (file_path, template_file)).replace("//", "/")	
