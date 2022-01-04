@@ -55,6 +55,8 @@ class TerraformTemplateProcessor(TemplateProcessor):
         paths = parameter_files + [("%s/%s" % (file_path, template_file)).replace("//", "/")]
         self.processed_template = self.process_template(paths)
 
+        self.resource_types = list(set(self.resource_types))
+
         processed_resource_types = []
         for resource_type in self.resource_types:
             if resource_type not in processed_resource_types:
