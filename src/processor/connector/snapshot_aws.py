@@ -301,6 +301,42 @@ def _get_resources_from_list_function(response, method):
         return [x.get("Name") for x in response['WorkGroups']]
     elif method == 'list_databases':
         return [x.get("DatabaseName") for x in response['Databases']]
+    elif method == 'describe_endpoints':
+        return [x.get("EndpointIdentifier") for x in response['Endpoints']]
+    elif method == 'describe_security_groups':
+        return [x.get("GroupId") for x in response['SecurityGroups']]
+    elif method == 'list_secrets':
+        return [x.get("Name") for x in response['SecretList']]
+    elif method == 'describe_log_groups':
+        return [x.get("logGroupName") for x in response['logGroups']]
+    elif method == 'describe_workspaces':
+        return [x.get("WorkspaceId") for x in response['Workspaces']]
+    elif method == 'get_data_catalog_encryption_settings':
+        return [""]
+    elif method == 'get_security_configurations':
+        return [x.get("Name") for x in response['SecurityConfigurations']]
+    elif method == 'describe_launch_configurations':
+        return [x.get("LaunchConfigurationName") for x in response['LaunchConfigurations']]
+    elif method == 'describe_auto_scaling_groups':
+        return [x.get("AutoScalingGroupName") for x in response['AutoScalingGroups']]
+    elif method == 'describe_configuration_aggregators':
+        return [x.get("ConfigurationAggregatorName") for x in response['ConfigurationAggregators']]
+    elif method == 'describe_configuration_recorders':
+        return [x.get("name") for x in response['ConfigurationRecorders']]
+    elif method == 'list_streams':
+        return response["StreamNames"]
+    elif method == 'list_brokers':
+        return [x.get("BrokerId") for x in response['BrokerSummaries']]
+    elif method == 'list_hosted_zones':
+        return [x.get("Id") for x in response['HostedZones']]
+    elif method == 'list_notebook_instances':
+        return [x.get("NotebookInstanceName") for x in response['NotebookInstances']]
+    elif method == 'list_projects':
+        return response["projects"]
+    elif method == 'list_pipelines':
+        return [x.get("name") for x in response['pipelines']]
+    elif method == 'list_applications':
+        return response["applications"]
     else:
         return []
 
@@ -355,6 +391,8 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 logger.info("==========storing in database%s", resource_arn)
                 db_record['arn'] = resource_arn
                 db_records.append(db_record)
+        else:
+            logger.warning("list_function %s is not callable", list_function)
 
     return db_records
 
@@ -441,13 +479,8 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
             'VolumeIds': [volumeid]
         }
     elif client_str == "ec2" and function_name == "describe_security_groups":
-        try:
-            groups = existing_json['Reservations'][0]['Instances'][0]['SecurityGroups']
-            groupsidlist = [x['GroupId'] for x in groups]
-        except:
-            groupsidlist = []
         return {
-            'GroupIds': groupsidlist
+            'GroupIds': [resource_id]
         }
     elif client_str == "ec2" and function_name == "describe_vpcs":
         try:
@@ -550,7 +583,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'KeyId': resource_id
         }
-    elif client_str == "dynamodb" and function_name == "describe_table":
+    elif client_str == "dynamodb" and function_name in ["describe_table", "describe_continuous_backups", "describe_kinesis_streaming_destination"]:
         return {
             'TableName': resource_id
         }
@@ -696,6 +729,62 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     elif client_str == "athena" and function_name == "get_work_group":
         return {
             'WorkGroup': resource_id
+        }
+    elif client_str == "logs" and function_name == "describe_log_groups":
+        return {
+            'logGroupNamePrefix': resource_id
+        }
+    elif client_str == "workspaces" and function_name == "describe_workspaces":
+        return {
+            'WorkspaceIds': [resource_id]
+        }
+    elif client_str == "glue" and function_name == "get_security_configuration":
+        return {
+            'Name': resource_id
+        }
+    elif client_str == "autoscaling" and function_name == "describe_launch_configurations":
+        return {
+            'LaunchConfigurationNames': [resource_id]
+        }
+    elif client_str == "autoscaling" and function_name == "describe_auto_scaling_groups":
+        return {
+            'AutoScalingGroupNames': [resource_id]
+        }
+    elif client_str == "config" and function_name == "describe_configuration_aggregators":
+        return {
+            'ConfigurationAggregatorNames': [resource_id]
+        }
+    elif client_str == "config" and function_name == "describe_configuration_recorders":
+        return {
+            'ConfigurationRecorderNames': [resource_id]
+        }
+    elif client_str == "kinesis" and function_name == "describe_stream":
+        return {
+            'StreamName': resource_id
+        }
+    elif client_str == "mq" and function_name == "describe_broker":
+        return {
+            'BrokerId': resource_id
+        }
+    elif client_str == "route53" and function_name == "list_resource_record_sets":
+        return {
+            'HostedZoneId': resource_id
+        }
+    elif client_str == "sagemaker" and function_name == "describe_notebook_instance":
+        return {
+            'NotebookInstanceName': resource_id
+        }
+    elif client_str == "codebuild" and function_name == "batch_get_projects":
+        return {
+            'names': [resource_id]
+        }
+    elif client_str == "codepipeline" and function_name == "get_pipeline":
+        return {
+            'name': resource_id
+        }
+    elif client_str == "codedeploy" and function_name == "batch_get_applications":
+        return {
+            'applicationNames': [resource_id]
         }
     else:
         return {}
@@ -853,6 +942,7 @@ def populate_aws_snapshot(snapshot, container=None):
                         logger.info(awsclient)
                         if awsclient:
                             all_data = get_all_nodes(awsclient, node, snapshot, sub_data)
+                            logger.info("all_data: %s", all_data)
                             if all_data:
                                 for data in all_data:
                                     snapshot_data[node['masterSnapshotId']].append(
