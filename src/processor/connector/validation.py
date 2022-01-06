@@ -502,12 +502,45 @@ def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbna
     
     newcases = []
     for testcase in testcases:
-        if 'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] in excludedTestIds:
-            logger.warning("Excluded from testId exclusions: %s", testcase['masterTestId'])
-            continue
+        if excludedTestIds:
+            # Check if masterTestID is present in exclusion list.
+            if  'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] in excludedTestIds:
+                logger.warning("Excluded from testId exclusions: %s", testcase['masterTestId'])
+                continue
+            # Check if any complianceID is present in the exclusion list. Only that complianceID will be removed and
+            # the rest to be run.
+            # If there is only complianceID in the testcase (i.e only one eval in the evals list) and that is part of
+            # exclusion list, then the testcase is excluded.
+            if 'evals' in testcase and testcase['evals'] and isinstance(testcase['evals'], list):
+                found = False
+                evalsTobeRemoved = []
+                for eval in testcase['evals']:
+                    if eval['id'] in excludedTestIds:
+                        found = True
+                        evalsTobeRemoved.append(eval['id'])
+                if found:
+                    newEvals = []
+                    for eval in testcase['evals']:
+                        if eval['id'] not in evalsTobeRemoved:
+                            newEvals.append(eval)
+                    logger.warning("Excluded from testId exclusions: %s with these complianceIds: %s",
+                                   testcase['masterTestId'], ','.join(evalsTobeRemoved))
+                    if newEvals: # More than one evals was present and one of them was removed.
+                        testcase['evals'] = newEvals
+                    else:  # There was only one eval, that was removed, so whole testcase will be remove as no eval is present.
+                        continue
         if includeTestConfig:
             if 'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] not in includeTests:
-                continue
+                # MasterTestID is not present in includeTests, check if any complianceID is present in includeTests
+                if 'evals' in testcase and testcase['evals'] and isinstance(testcase['evals'], list):
+                    evalsTobeAdded = []
+                    for eval in testcase['evals']:
+                        if eval['id'] in includeTests:
+                            evalsTobeAdded.append(eval)
+                    if evalsTobeAdded:
+                        testcase['evals'] = evalsTobeAdded
+                    else:
+                        continue
 
         test_parser_type = testcase.get('type', None)
         if test_parser_type == 'rego' or test_parser_type == 'python':
