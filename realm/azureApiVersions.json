@@ -4761,9 +4761,6 @@
   }, 
   "Microsoft.Web/sites": {
     "version": "2018-11-01"
-  },
-  "Microsoft.Web/sites/config": {
-    "version": "2021-02-01"
   }, 
   "Microsoft.ClassicCompute/domainNames/slots/roles": {
     "version": "2016-11-01"
@@ -4836,5 +4833,8 @@
   }, 
   "Microsoft.Sql/locations/privateEndpointConnectionAzureAsyncOperation": {
     "version": "2018-06-01-preview"
+  },
+  "Microsoft.Web/sites/config": {
+    "version": "2021-02-01"
   }
 }
