@@ -223,7 +223,7 @@ Run prancer for a single file
 
 Example 6: prancer --db NONE --mastertestid TEST_S3_14 <collection>
            prancer --db NONE --mastertestid TEST_S3_14,TEST_EC2_1 <collection>
-Run prancer for a list of master test ids
+Run prancer for a list of master test ids or compliance ids
 
 Example 7: prancer --db NONE --mastersnapshotid CFR_TEMPLATE_SNAPSHOT <collection>
            prancer --db NONE --mastersnapshotid CFR_TEMPLATE_SNAPSHOT,EC2_TEMPLATE_SNAPSHOT <collection>
@@ -244,7 +244,7 @@ Run prancer for a list of snapshots
                             help='Crawls the target environment and generates snapshot configuration file')
     cmd_parser.add_argument('--compliance', action='store_true', default=False, help='Run only compliance tests based on the available snapshot configuration file')
     cmd_parser.add_argument('--file_content', action='store', default=None)
-    cmd_parser.add_argument('--mastertestid', action='store', default="", help='Run the framework only for the master test Ids mentioned here')
+    cmd_parser.add_argument('--mastertestid', action='store', default="", help='Run the framework only for the master test Ids or compliance Ids mentioned here')
     cmd_parser.add_argument('--mastersnapshotid', action='store', default="", help='Run the framework only for the master snapshot Ids mentioned here')
     cmd_parser.add_argument('--snapshotid', action='store', default="", help='Run the framework only for the snapshot Ids mentioned here')
     cmd_parser.add_argument('--env', action='store', default='PROD', choices=['DEV', 'QA', 'PROD', 'LOCAL'],

@@ -589,9 +589,19 @@ class ComparatorV01:
             elif testId in self.excludedTestIds:
                 path = doc['paths'][0]
                 toExclude = True if path in self.excludedTestIds[testId] else False
+            else:
+                if 'evals' in self.testcase and self.testcase['evals']:
+                    found = False
+                    for eval in self.testcase['evals']:
+                        if eval['id'] in self.includeTests:
+                            found = True
+                            break
+                    if not found:
+                        for eval in self.testcase['evals']:
+                            if eval['id'] in self.excludedTestIds:
+                                path = doc['paths'][0]
+                                toExclude = True if path in self.excludedTestIds[eval['id']] else False
         return toExclude
-        pass
-
 
     def get_snaphotid_doc(self, sid, testId, isMasterTest=False):
         tobeExcluded = False

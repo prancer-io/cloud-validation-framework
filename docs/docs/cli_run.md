@@ -44,7 +44,7 @@ prancer -h
 |    | --crawler | Crawls the target environment and generates snapshot configuration file |
 |    | --compliance | Run only compliance tests based on the available snapshot configuration file |
 |    | --file_content FILE_CONTENT | The path of the file to be used as snapshost |
-|    | --mastertestid MASTERTESTID | Run the framework only for the master test Ids mentioned here |
+|    | --mastertestid MASTERTESTID | Run the framework only for the master test Ids or compliance Ids mentioned here |
 |    | --mastersnapshotid MASTERSNAPSHOTID | Run the framework only for the master snapshot Ids mentioned here |
 |    | --snapshotid SNAPSHOTID | Run the framework only for the snapshot Ids mentioned here |
 |    | --env {DEV,QA,PROD,LOCAL} | DEV - API server is in dev environment<br />QA - API server is in qa environment<br />PROD - API server is in prod environment<br />LOCAL - API server is in local environment. |
@@ -120,7 +120,7 @@ prancer --db NONE --mastertestid TEST_S3_14,TEST_EC2_1 <collection>
 |------------|-------------|
 | collection |  Name of the collection on which you want to run the compliance. |
 | --db None | It defines that the prancer have to find the collection of snapshot and mastertest files from local filesystem. |
-| --mastertestid TEST_S3_14|  The compliance is run only the specified masterTestID or comma separated masterTestIDs. |
+| --mastertestid TEST_S3_14|  The compliance is run only the specified masterTestID or comma separated masterTestIDs or compliance Ids. |
 
 
 6) Run compliance for one(or more) of the specific masterSnapshotIDs.
