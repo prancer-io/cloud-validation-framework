@@ -38,9 +38,6 @@ from processor.connector.arn_parser import arnparse
 logger = getlogger()
 _valid_service_names = Session().get_available_services()
 
-logger.info("============available service name===============")
-logger.info(_valid_service_names)
-
 def _validate_client_name(client_name):
     """
     A private function to validate whether a given client provided
