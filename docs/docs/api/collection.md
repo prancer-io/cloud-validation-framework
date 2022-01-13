@@ -15,73 +15,92 @@ curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bea
 - **URL:** https://portal.prancer.io/api/collection/list
 - **Method:** GET
 - **Header:**
+
 ```
     - content-type: application/json
     - Authorization: Bearer <JWT Bearer Token>
 ```
+
 - **Param:**
+
 ```
-- No Parameters
+- detail= <show details of collection>
+- search= <search by collection name>
 ```
 
 **Response:**
+
+`detail=true`
+
 ```
 {
     "data": {
         "results": [
             {
-                "collection": "default_container",
                 "connectors": [
-                    "default_connector"
-                ]
-            },
+                    {
+                        "name": "aws_test_1_connector_aws",
+                        "type": "filesystem"
+                    },
+                    {
+                        "name": "git_prancer-liquware_connector",
+                        "type": "filesystem"
+                    }
+                ],
+                "containerId": 105,
+                "masterSnapshots": [
+                    {
+                        "name": "mastersnapshot_aws_test_1"
+                    }
+                ],
+                "masterTests": [
+                    {
+                        "name": "mastertest_aws_test_1"
+                    }
+                ],
+                "name": "aws_test_1",
+                "others": [],
+                "snapshots": [],
+                "status": "active",
+                "tests": []
+            }
+        ]
+    },
+    "error": "",
+    "message": "",
+    "metadata": {
+        "count": 1,
+        "current_page": 1,
+        "next_index": 1,
+        "total": 63
+    },
+    "status": 200
+}
+```
+
+`detail=false`
+
+```
+{
+    "data": {
+        "results": [
             {
-                "collection": "google_crawler_demo",
+                "collection": "aws_test_2",
                 "connectors": [
-                    "googleCrawlerStructure"
-                ]
-            },
-            {
-                "collection": "aws_crawler_demo",
-                "connectors": [
-                    "aws_structure"
-                ]
-            },
-            {
-                "collection": "azure_demo",
-                "connectors": []
-            },
-            {
-                "collection": "azure_crawler_demo",
-                "connectors": [
-                    "azure_structure",
-                    "azure_crawler_structure"
-                ]
-            },
-            {
-                "collection": "git_google_demo_db",
-                "connectors": [
-                    "git_connector",
-                    "googleCrawlerStructure"
-                ]
-            },
-            {
-                "collection": "google_iac_demo",
-                "connectors": [
-                    "google_template_structure"
-                ]
-            },
-            {
-                "collection": "aws_iac_demo",
-                "connectors": [
-                    "aws_template_structure"
+                    "aws_test_2_connector_aws",
+                    "git_prancer-liquware_connector"
                 ]
             }
         ]
     },
     "error": "",
     "message": "",
-    "metadata": {},
+    "metadata": {
+        "count": 1,
+        "current_page": 1,
+        "next_index": 1,
+        "total": 62
+    },
     "status": 200
 }
 ```
@@ -89,6 +108,7 @@ curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bea
 
 **Collection - get by name of the collection**
 ---
+
 - This API is to check if a collection exists.
 
 **CURL Sample**
@@ -99,16 +119,20 @@ curl -H "space-id:101"  -H 'authorization: Bearer <JWT Bearer Token>' -X GET "ht
 - **URL:** https://portal.prancer.io/api/collection
 - **Method:** GET
 - **Header:**
+
 ```
     - content-type: application/json
     - Authorization: Bearer <JWT Bearer Token>
 ```
+
 - **Param:**
+
 ```
 - collection: <name of the collection>
 ```
 
 **Response:**
+
 ```
 {
   "data":{
@@ -138,7 +162,9 @@ curl -X GET https://portal.prancer.io/customer1/api/database/collection -H 'auth
     - content-type: application/json
     - Authorization: Bearer <JWT Bearer Token>
 ```
+
 - **Param:**
+
 ```
 - No Parameters
 ```
