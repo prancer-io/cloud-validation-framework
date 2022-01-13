@@ -83,6 +83,7 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
     # version = get_version_for_type(node)
+    version = node.get("version")
     # if sub_id and token and node and version:
     nodetype = None
     if node and 'type' in node and node['type']:
@@ -108,7 +109,7 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
                 put_in_currentdata('errors', data)
                 logger.info("Get Id returned invalid status: %s", status)
         
-        azure_crawler = AzureCrawler(resources, token=token, apiversions=get_api_versions(), subscription_id=sub_id)
+        azure_crawler = AzureCrawler(resources, token=token, apiversions=get_api_versions(), subscription_id=sub_id, version=version)
         resources = azure_crawler.check_for_special_crawl(nodetype)
         if resources:
             for idx, value in enumerate(resources):
@@ -146,7 +147,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         "region" : "",
         "json": {"resources": []}  # Refactor when node is absent it should None, when empty object put it as {}
     }
-    version = get_version_for_type(node)
+    version = node["version"] if node.get("version") else get_version_for_type(node)
     if sub_id and token and node and node['path'] and version:
         hdrs = {
             'Authorization': 'Bearer %s' % token
