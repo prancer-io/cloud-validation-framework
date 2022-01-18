@@ -275,8 +275,8 @@ curl -X POST https://portal.prancer.io/customer1/api/manage/config -H 'authoriza
 - **Data:**
 
 ```
-- resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest">
-- resource_name - <Name of the resource>
+- resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_config">
+- resource_name - <Name of the resource><for collection config use "collection_config">
 - container_name - <Name of the container>
 - data - <Updated data>
 ```
