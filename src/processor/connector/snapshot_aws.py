@@ -340,6 +340,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get("name") for x in response['pipelines']]
     elif method == 'list_applications':
         return response["applications"]
+    elif method == 'list_policies':
+        return [x.get("Arn") for x in response['Policies']]
     else:
         return []
 
@@ -391,7 +393,6 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                         type_list.append(each_method_str)
                 db_record = copy.deepcopy(d_record)
                 db_record['detailMethods'] = type_list
-                logger.info("==========storing in database%s", resource_arn)
                 db_record['arn'] = resource_arn
                 db_record['type'] = node.get('type', "")
                 db_records.append(db_record)
@@ -589,15 +590,18 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         return {
             'HostedZoneId': resource_id
         }
-    elif client_str == "iam" and function_name in ["get_user", "list_ssh_public_keys", \
-        "get_account_summary", "get_account_password_policy", "list_attached_user_policies"]:
+    
+    elif client_str == "iam" and function_name == "get_policy":
         return {
-            'UserName': resource_id
+            'PolicyArn': arn_str
         }
-    elif client_str == "iam" and function_name == "get_role":
+    
+    elif client_str == "iam" and function_name == "get_policy_version":
         return {
-            'RoleName': resource_id
+            'PolicyArn': arn_str,
+            "VersionId": existing_json["Policy"]["DefaultVersionId"]
         }
+    
     elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key",]:
         return {
             'KeyId': resource_id
@@ -962,7 +966,6 @@ def populate_aws_snapshot(snapshot, container=None):
                         logger.info(awsclient)
                         if awsclient:
                             all_data = get_all_nodes(awsclient, node, snapshot, sub_data)
-                            logger.info("all_data: %s", all_data)
                             if all_data:
                                 for data in all_data:
                                     node_data = {
