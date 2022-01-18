@@ -4833,5 +4833,8 @@
   }, 
   "Microsoft.Sql/locations/privateEndpointConnectionAzureAsyncOperation": {
     "version": "2018-06-01-preview"
+  },
+  "Microsoft.Web/sites/config": {
+    "version": "2021-02-01"
   }
 }

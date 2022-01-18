@@ -9,12 +9,14 @@ class AzureCrawler(BaseCrawler):
         self.token = kwargs.get("token")
         self.apiversions = kwargs.get("apiversions")
         self.subscription_id = kwargs.get("subscription_id")
+        self.version = kwargs.get("version")
 
         self.special_resource_types = {
-            "Microsoft.Sql/servers/securityAlertPolicies" : self.crawl_server_security_alert_policies,
-            "Microsoft.Sql/servers/auditingSettings" : self.crawl_server_audit_settings,
+            # "Microsoft.Sql/servers/securityAlertPolicies" : self.crawl_server_security_alert_policies,
+            # "Microsoft.Sql/servers/auditingSettings" : self.crawl_server_audit_settings,
             "Microsoft.Authorization/roleDefinitions": self.crawl_role_definitions,
-            "Microsoft.KeyVault/vaults/secrets": self.crawl_keyvault_secrets
+            # "Microsoft.KeyVault/vaults/secrets": self.crawl_keyvault_secrets,
+            # "Microsoft.Web/sites/config": self.crawl_website_config
         }
     
     def check_for_special_crawl(self, resource_type):
@@ -25,15 +27,16 @@ class AzureCrawler(BaseCrawler):
         if resource_type in self.special_resource_types:
             crawl_function = self.special_resource_types.get(resource_type)
             crawl_function(resource_type)
+        else:
+            self.crawl_child_resources(resource_type)
         return self.resources
     
     def get_version_of_resource_type(self, resource_type):
         """Url version of the resource."""
-        version = None
-        if self.apiversions:
+        if not self.version and self.apiversions:
             if resource_type in self.apiversions:
-                version = self.apiversions[resource_type]['version']
-        return version
+                self.version = self.apiversions[resource_type]['version']
+        return self.version
     
     def call_azure_api(self, url):
         hdrs = {
@@ -44,6 +47,21 @@ class AzureCrawler(BaseCrawler):
             for resource in data.get("value", []):
                 put_in_currentdata('resources', resource)
             self.resources += data.get("value", [])
+            
+    def crawl_child_resources(self, child_resource_type):
+        """
+        crawl child resources
+        """
+        version = self.get_version_of_resource_type(child_resource_type)
+        child_resource_type_list = child_resource_type.split("/")
+        child_resource = child_resource_type_list[-1]
+        main_resource = "/".join(child_resource_type_list[:-1])
+        if version:
+            for resource in self.resources:
+                if resource.get("type") == main_resource:
+                    url = 'https://management.azure.com%s/%s?api-version=%s' % (resource.get("id"), child_resource, version)
+                    self.call_azure_api(url)
+        return self.resources
 
     def crawl_server_security_alert_policies(self, resource_type):
         """
@@ -94,3 +112,22 @@ class AzureCrawler(BaseCrawler):
                         for resource in data.get("value", []):
                             put_in_currentdata('resources', resource)
                         self.resources += data.get("value", [])
+
+    def crawl_website_config(self, resource_type):
+        """
+        crawl "Microsoft.Web/sites/config" resource type
+        """
+        version = self.get_version_of_resource_type(resource_type)
+        if version:
+            for resource in self.resources:
+                if resource['type'] == "Microsoft.Web/sites":
+                    hdrs = {
+                        'Authorization': 'Bearer %s' % self.token
+                    }
+                    url = 'https://management.azure.com%s/config?api-version=%s' % (resource['id'], version)
+                    status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
+                    if status and isinstance(status, int) and status == 200:
+                        for resource in data.get("value", []):
+                            if resource.get("type") == "Microsoft.Web/sites/config":
+                                put_in_currentdata('resources', resource)
+                                self.resources.append(resource)

@@ -38,9 +38,6 @@ from processor.connector.arn_parser import arnparse
 logger = getlogger()
 _valid_service_names = Session().get_available_services()
 
-logger.info("============available service name===============")
-logger.info(_valid_service_names)
-
 def _validate_client_name(client_name):
     """
     A private function to validate whether a given client provided
@@ -968,18 +965,19 @@ def populate_aws_snapshot(snapshot, container=None):
                             logger.info("all_data: %s", all_data)
                             if all_data:
                                 for data in all_data:
-                                    snapshot_data[node['masterSnapshotId']].append(
-                                        {
-                                            'snapshotId': '%s%s' % (node['masterSnapshotId'], str(count)),
-                                            'validate': validate,
-                                            'detailMethods': data['detailMethods'],
-                                            'structure': 'aws',
-                                            'masterSnapshotId': node['masterSnapshotId'],
-                                            'collection': data['collection'],
-                                            'arn' : data['arn'],
-                                            'status' : 'active',
-                                            'type' : data["type"]
-                                        })
+                                    node_data = {
+                                        'snapshotId': '%s%s' % (node['masterSnapshotId'], str(count)),
+                                        'validate': validate,
+                                        'detailMethods': data['detailMethods'],
+                                        'structure': 'aws',
+                                        'masterSnapshotId': node['masterSnapshotId'],
+                                        'collection': data['collection'],
+                                        'arn' : data['arn'],
+                                        'status' : 'active'
+                                    }
+                                    if node.get("type"):
+                                        node_data["type"] = node.get("type")
+                                    snapshot_data[node['masterSnapshotId']].append(node_data)
                                     count += 1
             if mastercode:
                 snapshot_data = eliminate_duplicate_snapshots(snapshot_data)
