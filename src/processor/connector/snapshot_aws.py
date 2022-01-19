@@ -394,7 +394,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 db_record = copy.deepcopy(d_record)
                 db_record['detailMethods'] = type_list
                 db_record['arn'] = resource_arn
-                db_record['type'] = node.get('type', "")
+                db_record['boto_type'] = node.get('boto_type', "")
                 db_records.append(db_record)
         else:
             logger.warning("list_function %s is not callable", list_function)
@@ -434,7 +434,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
     client_str = arn.service
     node = kwargs.get("node", {})
     if node:
-        client_str = node.get("type", client_str)
+        client_str = node.get("boto_type", client_str)
     resource_id = arn.resource
 
     logger.info("===================getting function kwargs=====================")
@@ -835,7 +835,7 @@ def _get_aws_client_data_from_node(node, default_client=None, default_region=Non
         aws_region = default_region
     aws_region = aws_region or default_region
     client_str = client_str or default_client
-    client_str = node.get("type", client_str)
+    client_str = node.get("boto_type", client_str)
     return client_str, aws_region
 
 
@@ -978,8 +978,8 @@ def populate_aws_snapshot(snapshot, container=None):
                                         'arn' : data['arn'],
                                         'status' : 'active'
                                     }
-                                    if node.get("type"):
-                                        node_data["type"] = node.get("type")
+                                    if node.get("boto_type"):
+                                        node_data["boto_type"] = node.get("boto_type")
                                     snapshot_data[node['masterSnapshotId']].append(node_data)
                                     count += 1
             if mastercode:
