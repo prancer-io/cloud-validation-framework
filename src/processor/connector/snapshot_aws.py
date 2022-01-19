@@ -172,7 +172,8 @@ def get_node(awsclient, node, snapshot_source, snapshot):
         for each_method_str in detail_methods:
             function_to_call = getattr(awsclient, each_method_str, None)
             if function_to_call and callable(function_to_call):
-                params = _get_function_kwargs(arn_str, each_method_str, json_to_put)
+                kwargs = {"node": node}
+                params = _get_function_kwargs(arn_str, each_method_str, json_to_put, kwargs)
                 try:
                     data = function_to_call(**params)
                     if data:
@@ -210,8 +211,13 @@ def _get_resources_from_list_function(response, method):
         return [x['DBParameterGroupName'] for x in response['DBParameterGroups']]
     elif method == 'describe_global_clusters':
         return [x['GlobalClusterIdentifier'] for x in response['GlobalClusters']]
+    elif method == 'describe_target_groups':
+        return [x['TargetGroupArn'] for x in response['TargetGroups']]
     elif method == 'describe_load_balancers':
-        return [x['LoadBalancerName'] for x in response['LoadBalancerDescriptions']]
+        if "LoadBalancerDescriptions" in response.keys():
+            return [x.get('LoadBalancerName') for x in response.get('LoadBalancerDescriptions', [])]
+        elif "LoadBalancers" in response.keys():
+            return [x.get('LoadBalancerArn') for x in response.get('LoadBalancers', [])]
     elif method == 'list_certificates':
         return [x['CertificateArn'] for x in response['CertificateSummaryList']]     
     elif method == 'list_backup_vaults':
@@ -334,6 +340,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get("name") for x in response['pipelines']]
     elif method == 'list_applications':
         return response["applications"]
+    elif method == 'list_policies':
+        return [x.get("Arn") for x in response['Policies']]
     else:
         return []
 
@@ -385,8 +393,8 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                         type_list.append(each_method_str)
                 db_record = copy.deepcopy(d_record)
                 db_record['detailMethods'] = type_list
-                logger.info("==========storing in database%s", resource_arn)
                 db_record['arn'] = resource_arn
+                db_record['boto_type'] = node.get('boto_type', "")
                 db_records.append(db_record)
         else:
             logger.warning("list_function %s is not callable", list_function)
@@ -420,10 +428,13 @@ def _get_list_function_kwargs(service, function_name):
     else:
         return {}
 
-def _get_function_kwargs(arn_str, function_name, existing_json):
+def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
     """Fetches the correct keyword arguments for different detail functions"""
     arn = arnparse(arn_str)
     client_str = arn.service
+    node = kwargs.get("node", {})
+    if node:
+        client_str = node.get("boto_type", client_str)
     resource_id = arn.resource
 
     logger.info("===================getting function kwargs=====================")
@@ -512,14 +523,26 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
             'SnapshotId': snapshot_id,
             'Attribute' : 'createVolumePermission'
         }
-    elif client_str == "elb" and function_name == "describe_load_balancers":
+    elif client_str == "elbv2" and function_name == "describe_load_balancers":
         return {
-            'LoadBalancerNames': [resource_id]
+            'LoadBalancerArns': [arn_str]
         }
-    elif client_str == "elb" and function_name in ["describe_load_balancers", "describe_load_balancer_attributes",\
+    elif client_str == "elbv2" and function_name == "describe_listeners":
+        return {
+            'LoadBalancerArn': arn_str
+        }
+    elif client_str == "elbv2" and function_name == "describe_target_groups":
+        return {
+            'TargetGroupArns': [arn_str]
+        }
+    elif client_str == "elb" and function_name in ["describe_load_balancer_attributes",\
         "describe_load_balancer_policies"]:
         return {
             'LoadBalancerName': resource_id
+        }
+    elif client_str == "elb" and function_name in ["describe_load_balancers"]:
+        return {
+            'LoadBalancerNames': [resource_id]
         }
     elif client_str == "acm" and function_name == "describe_certificate":
         return {
@@ -567,15 +590,18 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'HostedZoneId': resource_id
         }
-    elif client_str == "iam" and function_name in ["get_user", "list_ssh_public_keys", \
-        "get_account_summary", "get_account_password_policy", "list_attached_user_policies"]:
+    
+    elif client_str == "iam" and function_name == "get_policy":
         return {
-            'UserName': resource_id
+            'PolicyArn': arn_str
         }
-    elif client_str == "iam" and function_name == "get_role":
+    
+    elif client_str == "iam" and function_name == "get_policy_version":
         return {
-            'RoleName': resource_id
+            'PolicyArn': arn_str,
+            "VersionId": existing_json["Policy"]["DefaultVersionId"]
         }
+    
     elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key",]:
         return {
             'KeyId': resource_id
@@ -809,6 +835,7 @@ def _get_aws_client_data_from_node(node, default_client=None, default_region=Non
         aws_region = default_region
     aws_region = aws_region or default_region
     client_str = client_str or default_client
+    client_str = node.get("boto_type", client_str)
     return client_str, aws_region
 
 
@@ -939,7 +966,6 @@ def populate_aws_snapshot(snapshot, container=None):
                         logger.info(awsclient)
                         if awsclient:
                             all_data = get_all_nodes(awsclient, node, snapshot, sub_data)
-                            logger.info("all_data: %s", all_data)
                             if all_data:
                                 for data in all_data:
                                     node_data = {
@@ -952,8 +978,8 @@ def populate_aws_snapshot(snapshot, container=None):
                                         'arn' : data['arn'],
                                         'status' : 'active'
                                     }
-                                    if node.get("type"):
-                                        node_data["type"] = node.get("type")
+                                    if node.get("boto_type"):
+                                        node_data["boto_type"] = node.get("boto_type")
                                     snapshot_data[node['masterSnapshotId']].append(node_data)
                                     count += 1
             if mastercode:
