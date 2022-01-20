@@ -295,12 +295,28 @@ class ComparatorV01:
             if inputjson is None:
                 logger.info('\t\tERROR: Missing snapshot')
         else:
-            ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
+            # ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
+            # logger.info("ms_id")
+            # logger.info(ms_id)
+            
+            snapshot_json = {}
+            self.snapshots = []
             for sid in self.testcase['snapshotId']:
+                master_snap_id = ""
+                for master_snapshot_id in self.testcase['masterSnapshotId']:
+                    if sid.startswith(master_snapshot_id):
+                        master_snap_id = master_snapshot_id
+                        break
                 toExclude, snapshot_doc = self.get_snaphotid_doc(sid, testId, isMasterTest)
                 if toExclude:
                     logger.error('Excluded testcase because of testId: %s' % testId)
-                inputjson.update({ms_id[sid]: snapshot_doc})
+                else:
+                    if master_snap_id in snapshot_json:
+                        snapshot_json[master_snap_id].append(snapshot_doc)
+                    else:
+                        snapshot_json[master_snap_id] = [snapshot_doc]        
+            inputjson.update(snapshot_json)
+
         results = []
         if inputjson:
             save_json_to_file(inputjson, '/tmp/input_%s.json' % tid)
