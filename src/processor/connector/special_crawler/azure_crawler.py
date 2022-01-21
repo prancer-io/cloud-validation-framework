@@ -54,13 +54,14 @@ class AzureCrawler(BaseCrawler):
         """
         version = self.get_version_of_resource_type(child_resource_type)
         child_resource_type_list = child_resource_type.split("/")
-        child_resource = child_resource_type_list[-1]
-        main_resource = "/".join(child_resource_type_list[:-1])
-        if version:
-            for resource in self.resources:
-                if resource.get("type") == main_resource:
-                    url = 'https://management.azure.com%s/%s?api-version=%s' % (resource.get("id"), child_resource, version)
-                    self.call_azure_api(url)
+        if len(child_resource_type_list) > 2:
+            child_resource = "/".join(child_resource_type_list[2:])
+            main_resource = "/".join(child_resource_type_list[:2])
+            if version:
+                for resource in self.resources:
+                    if resource.get("type") == main_resource:
+                        url = 'https://management.azure.com%s/%s?api-version=%s' % (resource.get("id"), child_resource, version)
+                        self.call_azure_api(url)
         return self.resources
 
     def crawl_server_security_alert_policies(self, resource_type):

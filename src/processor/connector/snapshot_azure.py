@@ -125,11 +125,10 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         logger.info('Get requires valid subscription, token and path.!')
     return db_records
 
-def get_node(token, sub_name, sub_id, node, user, snapshot_source):
+def get_node(token, sub_name, sub_id, node, user, snapshot_source, db_records):
     """ Fetch node from azure portal using rest API."""
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
-    db_records = []
     db_record = {
         "structure": "azure",
         "reference": sub_name,
@@ -147,6 +146,17 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         "region" : "",
         "json": {"resources": []}  # Refactor when node is absent it should None, when empty object put it as {}
     }
+    
+    parent_resource_json = {}
+    child_resource_type_list = node.get('type', "").split("/")
+    if len(child_resource_type_list) > 2:
+        child_resource_type = "/".join(child_resource_type_list[2:])
+        main_resource_type = "/".join(child_resource_type_list[:2])
+        if main_resource_type in db_records:
+            for main_resource in db_records[main_resource_type]:
+                if "%s/" % main_resource.get("id") in node["path"]:
+                    parent_resource_json = main_resource
+            
     version = node["version"] if node.get("version") else get_version_for_type(node)
     if sub_id and token and node and node['path'] and version:
         hdrs = {
@@ -163,6 +173,14 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
         # logger.info('Get Id status: %s', status)
         if status and isinstance(status, int) and status == 200:
+            if parent_resource_json:
+                db_record['json']['resources'].append(parent_resource_json)
+            
+            if node.get('type'):
+                if node.get('type') in db_records:
+                    db_records[node.get('type')].append(data)
+                else:
+                    db_records[node.get('type')] = [data]
             db_record['json']['resources'].append(data)
             db_record['region'] = data.get("location")
             data_str = json.dumps(data)
@@ -225,10 +243,11 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     # snapshot_nodes = get_field_value(snapshot, 'nodes')
     # snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and token and snapshot_nodes:
+        db_records = {}
         for node in snapshot_nodes:
             validate = node['validate'] if 'validate' in node else True
             if 'path' in  node:
-                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
+                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source, db_records)
                 if data:
                     if validate:
                         if get_dbtests():
