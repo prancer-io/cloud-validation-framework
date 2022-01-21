@@ -12,11 +12,8 @@ class AzureCrawler(BaseCrawler):
         self.version = kwargs.get("version")
 
         self.special_resource_types = {
-            # "Microsoft.Sql/servers/securityAlertPolicies" : self.crawl_server_security_alert_policies,
-            # "Microsoft.Sql/servers/auditingSettings" : self.crawl_server_audit_settings,
             "Microsoft.Authorization/roleDefinitions": self.crawl_role_definitions,
-            # "Microsoft.KeyVault/vaults/secrets": self.crawl_keyvault_secrets,
-            # "Microsoft.Web/sites/config": self.crawl_website_config
+            "Microsoft.Storage/storageAccounts/blobServices/containers": self.crawl_blobservice_containers,
         }
     
     def check_for_special_crawl(self, resource_type):
@@ -54,36 +51,15 @@ class AzureCrawler(BaseCrawler):
         """
         version = self.get_version_of_resource_type(child_resource_type)
         child_resource_type_list = child_resource_type.split("/")
-        child_resource = child_resource_type_list[-1]
-        main_resource = "/".join(child_resource_type_list[:-1])
-        if version:
-            for resource in self.resources:
-                if resource.get("type") == main_resource:
-                    url = 'https://management.azure.com%s/%s?api-version=%s' % (resource.get("id"), child_resource, version)
-                    self.call_azure_api(url)
+        if len(child_resource_type_list) > 2:
+            child_resource = "/".join(child_resource_type_list[2:])
+            main_resource = "/".join(child_resource_type_list[:2])
+            if version:
+                for resource in self.resources:
+                    if resource.get("type") == main_resource:
+                        url = 'https://management.azure.com%s/%s?api-version=%s' % (resource.get("id"), child_resource, version)
+                        self.call_azure_api(url)
         return self.resources
-
-    def crawl_server_security_alert_policies(self, resource_type):
-        """
-        crawl "Microsoft.Sql/servers/securityAlertPolicies" resource type
-        """
-        version = self.get_version_of_resource_type(resource_type)
-        if version:
-            for resource in self.resources:
-                if resource.get("type") == "Microsoft.Sql/servers":
-                    url = 'https://management.azure.com%s/%s?api-version=%s' % (resource.get("id"), "securityAlertPolicies", version)
-                    self.call_azure_api(url)
-
-    def crawl_server_audit_settings(self, resource_type):
-        """
-        crawl "Microsoft.Sql/servers/auditingSettings" resource type
-        """
-        version = self.get_version_of_resource_type(resource_type)
-        if version:
-            for resource in self.resources:
-                if resource.get("type") == "Microsoft.Sql/servers":
-                    url = 'https://management.azure.com%s/%s?api-version=%s' % (resource.get("id"), "auditingSettings", version)
-                    self.call_azure_api(url)
     
     def crawl_role_definitions(self, resource_type):
         """
@@ -94,40 +70,20 @@ class AzureCrawler(BaseCrawler):
             url = 'https://management.azure.com/subscriptions/%s/providers/%s?api-version=%s' % (self.subscription_id, resource_type, version)
             self.call_azure_api(url)
 
-
-    def crawl_keyvault_secrets(self, resource_type):
+    def crawl_blobservice_containers(self, resource_type):
         """
-        crawl "Microsoft.KeyVault/vaults/secrets" resource type
-        """
+        crawl "Microsoft.Storage/storageAccounts/blobServices/containers" resource type
+        """        
         version = self.get_version_of_resource_type(resource_type)
         if version:
             for resource in self.resources:
-                if resource['type'] == "Microsoft.KeyVault/vaults":
+                if resource['type'] == "Microsoft.Storage/storageAccounts":
                     hdrs = {
                         'Authorization': 'Bearer %s' % self.token
                     }
-                    url = 'https://management.azure.com%s/secrets?api-version=%s' % (resource['id'], version)
+                    url = 'https://management.azure.com%s/blobServices/default/containers?api-version=%s' % (resource['id'], version)
                     status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
                     if status and isinstance(status, int) and status == 200:
                         for resource in data.get("value", []):
                             put_in_currentdata('resources', resource)
                         self.resources += data.get("value", [])
-
-    def crawl_website_config(self, resource_type):
-        """
-        crawl "Microsoft.Web/sites/config" resource type
-        """
-        version = self.get_version_of_resource_type(resource_type)
-        if version:
-            for resource in self.resources:
-                if resource['type'] == "Microsoft.Web/sites":
-                    hdrs = {
-                        'Authorization': 'Bearer %s' % self.token
-                    }
-                    url = 'https://management.azure.com%s/config?api-version=%s' % (resource['id'], version)
-                    status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
-                    if status and isinstance(status, int) and status == 200:
-                        for resource in data.get("value", []):
-                            if resource.get("type") == "Microsoft.Web/sites/config":
-                                put_in_currentdata('resources', resource)
-                                self.resources.append(resource)

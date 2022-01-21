@@ -125,11 +125,10 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         logger.info('Get requires valid subscription, token and path.!')
     return db_records
 
-def get_node(token, sub_name, sub_id, node, user, snapshot_source):
+def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_records):
     """ Fetch node from azure portal using rest API."""
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
-    db_records = []
     db_record = {
         "structure": "azure",
         "reference": sub_name,
@@ -147,6 +146,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         "region" : "",
         "json": {"resources": []}  # Refactor when node is absent it should None, when empty object put it as {}
     }
+            
     version = node["version"] if node.get("version") else get_version_for_type(node)
     if sub_id and token and node and node['path'] and version:
         hdrs = {
@@ -163,6 +163,17 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
         # logger.info('Get Id status: %s', status)
         if status and isinstance(status, int) and status == 200:
+            
+            parent_resource_json = {}
+            child_resource_type_list = node.get('type', "").split("/")
+            if len(child_resource_type_list) > 2:
+                child_resource_type = "/".join(child_resource_type_list[2:])
+                main_resource_type = "/".join(child_resource_type_list[:2])
+                for all_data_record in all_data_records:
+                    if all_data_record["json"]["resources"][0].get("type") == main_resource_type:
+                        if "%s/" % all_data_record["json"]["resources"][0].get("id") in node["path"]:
+                            all_data_record["json"]["resources"].append(data)
+            
             db_record['json']['resources'].append(data)
             db_record['region'] = data.get("location")
             data_str = json.dumps(data)
@@ -225,38 +236,40 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     # snapshot_nodes = get_field_value(snapshot, 'nodes')
     # snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and token and snapshot_nodes:
+        all_data_records = []
         for node in snapshot_nodes:
             validate = node['validate'] if 'validate' in node else True
             if 'path' in  node:
-                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
+                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source, all_data_records)
                 if data:
                     if validate:
-                        if get_dbtests():
-                            if get_collection_size(data['collection']) == 0:
-                                # Creating indexes for collection
-                                create_indexes(
-                                    data['collection'], 
-                                    config_value(DATABASE, DBNAME), 
-                                    [
-                                        ('snapshotId', pymongo.ASCENDING),
-                                        ('timestamp', pymongo.DESCENDING)
-                                    ]
-                                )
+                        all_data_records.append(data)
+                        # if get_dbtests():
+                        #     if get_collection_size(data['collection']) == 0:
+                        #         # Creating indexes for collection
+                        #         create_indexes(
+                        #             data['collection'], 
+                        #             config_value(DATABASE, DBNAME), 
+                        #             [
+                        #                 ('snapshotId', pymongo.ASCENDING),
+                        #                 ('timestamp', pymongo.DESCENDING)
+                        #             ]
+                        #         )
 
-                                create_indexes(
-                                    data['collection'], 
-                                    config_value(DATABASE, DBNAME), 
-                                    [
-                                        ('_id', pymongo.DESCENDING),
-                                        ('timestamp', pymongo.DESCENDING),
-                                        ('snapshotId', pymongo.ASCENDING)
-                                    ]
-                                )
-                            insert_one_document(data, data['collection'], dbname, check_keys=False)
-                        else:
-                            snapshot_dir = make_snapshots_dir(container)
-                            if snapshot_dir:
-                                store_snapshot(snapshot_dir, data)
+                        #         create_indexes(
+                        #             data['collection'], 
+                        #             config_value(DATABASE, DBNAME), 
+                        #             [
+                        #                 ('_id', pymongo.DESCENDING),
+                        #                 ('timestamp', pymongo.DESCENDING),
+                        #                 ('snapshotId', pymongo.ASCENDING)
+                        #             ]
+                        #         )
+                        #     insert_one_document(data, data['collection'], dbname, check_keys=False)
+                        # else:
+                        #     snapshot_dir = make_snapshots_dir(container)
+                        #     if snapshot_dir:
+                        #         store_snapshot(snapshot_dir, data)
                         if 'masterSnapshotId' in node:
                             snapshot_data[node['snapshotId']] = node['masterSnapshotId']
                         else:
@@ -328,6 +341,35 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                                     })
                     # snapshot_data[node['masterSnapshotId']] = True
                 logger.debug('Type: %s', type(alldata))
+        
+        for data in all_data_records:
+            if get_dbtests():
+                if get_collection_size(data['collection']) == 0:
+                    # Creating indexes for collection
+                    create_indexes(
+                        data['collection'], 
+                        config_value(DATABASE, DBNAME), 
+                        [
+                            ('snapshotId', pymongo.ASCENDING),
+                            ('timestamp', pymongo.DESCENDING)
+                        ]
+                    )
+
+                    create_indexes(
+                        data['collection'], 
+                        config_value(DATABASE, DBNAME), 
+                        [
+                            ('_id', pymongo.DESCENDING),
+                            ('timestamp', pymongo.DESCENDING),
+                            ('snapshotId', pymongo.ASCENDING)
+                        ]
+                    )
+                insert_one_document(data, data['collection'], dbname, check_keys=False)
+            else:
+                snapshot_dir = make_snapshots_dir(container)
+                if snapshot_dir:
+                    store_snapshot(snapshot_dir, data)
+        
         delete_from_currentdata('resources')
         delete_from_currentdata('clientId')
         delete_from_currentdata('client_secret')
