@@ -500,6 +500,7 @@ def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbna
         for node in snapshot["nodes"]:
             snapshot_resource_map[node.get("snapshotId")] = node.get("resourceTypes", [])
     
+    snapshot_testcases_map = {}
     newcases = []
     for testcase in testcases:
         if excludedTestIds:
@@ -544,7 +545,7 @@ def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbna
 
         test_parser_type = testcase.get('type', None)
         if test_parser_type == 'rego' or test_parser_type == 'python':
-            new_cases = _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map)
+            new_cases = _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map, snapshot_testcases_map)
             newcases.extend(new_cases)
         else:
             rule_str = get_field_value_with_default(testcase, 'rule', '')
@@ -570,7 +571,7 @@ def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbna
                         newcases.append(new_testcase)
     return newcases
 
-def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map):
+def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map, snapshot_testcases_map):
     onlysnapshots = get_from_currentdata("ONLYSNAPSHOTS")
     onlysnapshotsIds = get_from_currentdata("ONLYSNAPSHOTIDS")
     newcases = []
@@ -608,6 +609,43 @@ def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map):
                         toAdd = False
                 if toAdd:
                     new_testcase = copy.copy(testcase)
+                    
+                    testId = None
+                    snapshot_ids = []
+                    if new_testcase.get("masterTestId"):
+                        testId = new_testcase.get("masterTestId")
+                        snapshot_ids = new_testcase.get("masterSnapshotId")
+                        if new_testcase.get("masterTestId") in snapshot_testcases_map and \
+                            s_id in snapshot_testcases_map[new_testcase.get("masterTestId")]:
+                            continue
+                    else:
+                        continue
+                    
+                    testcase_snapshot_ids = []
+                    if len(snapshot_ids) > 1:
+                        count = 0
+                        parent_mastersnapshot_id = snapshot_ids[0]
+                        child_mastersnapshot_ids = snapshot_ids[1:]
+                        if parent_mastersnapshot_id in mastersnapshots and isinstance(mastersnapshots[parent_mastersnapshot_id], list):
+                            for parent_snapshot_id in mastersnapshots[parent_mastersnapshot_id]:
+                                new_testcase = copy.copy(testcase)
+                                temp_testcase_snapshot_ids = [parent_snapshot_id]
+                                for master_snapshot_id in child_mastersnapshot_ids:
+                                    if master_snapshot_id in mastersnapshots and isinstance(mastersnapshots[master_snapshot_id], list):
+                                        temp_testcase_snapshot_ids += mastersnapshots[master_snapshot_id]
+                                new_testcase['snapshotId'] = temp_testcase_snapshot_ids
+                                testcase_snapshot_ids += temp_testcase_snapshot_ids
+                                newcases.append(new_testcase)
+                    else:
+                        testcase_snapshot_ids = [s_id]
+                        new_testcase['snapshotId'] = testcase_snapshot_ids
+                        newcases.append(new_testcase)
+                        
+                    if testId in snapshot_testcases_map:
+                        snapshot_testcases_map[testId] += list(set(testcase_snapshot_ids))
+                    else:
+                        snapshot_testcases_map[testId] = list(set(testcase_snapshot_ids))
+
                     # if service not in ms_id:
                     #     if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
                     #         [newcase['snapshotId'].append(s_id) for newcase in newcases]
@@ -616,8 +654,6 @@ def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map):
                     #         [new_case['snapshotId'].pop(-1) and new_case['snapshotId'].append(s_id) for new_case in new_cases]
                     #         newcases.extend(new_cases)
                     #     continue
-                    new_testcase['snapshotId'] = [s_id]
-                    newcases.append(new_testcase)
     return newcases
 
 def container_snapshots_filesystem(container):
