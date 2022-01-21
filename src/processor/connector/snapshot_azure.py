@@ -125,7 +125,7 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         logger.info('Get requires valid subscription, token and path.!')
     return db_records
 
-def get_node(token, sub_name, sub_id, node, user, snapshot_source, db_records_map, all_data_records):
+def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_records):
     """ Fetch node from azure portal using rest API."""
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
@@ -174,14 +174,6 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, db_records_ma
                         if "%s/" % all_data_record["json"]["resources"][0].get("id") in node["path"]:
                             all_data_record["json"]["resources"].append(data)
             
-            # if parent_resource_json:
-            #     db_record['json']['resources'].append(parent_resource_json)
-            
-            # if node.get('type'):
-            #     if node.get('type') in db_records_map:
-            #         db_records_map[node.get('type')].append(data)
-            #     else:
-            #         db_records_map[node.get('type')] = [data]
             db_record['json']['resources'].append(data)
             db_record['region'] = data.get("location")
             data_str = json.dumps(data)
@@ -244,12 +236,11 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     # snapshot_nodes = get_field_value(snapshot, 'nodes')
     # snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and token and snapshot_nodes:
-        db_records_map = {}
         all_data_records = []
         for node in snapshot_nodes:
             validate = node['validate'] if 'validate' in node else True
             if 'path' in  node:
-                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source, db_records_map, all_data_records)
+                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source, all_data_records)
                 if data:
                     if validate:
                         all_data_records.append(data)
