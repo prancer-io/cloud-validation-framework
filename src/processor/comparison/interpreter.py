@@ -311,11 +311,16 @@ class ComparatorV01:
                 if toExclude:
                     logger.error('Excluded testcase because of testId: %s' % testId)
                 else:
-                    if master_snap_id in snapshot_json:
-                        snapshot_json[master_snap_id].append(snapshot_doc)
+                    if inputjson.get("resources") and isinstance(inputjson.get("resources"), list) \
+                        and snapshot_doc and snapshot_doc.get("resources") and isinstance(snapshot_doc.get("resources"), list):
+                        inputjson["resources"] += snapshot_doc.get("resources")
                     else:
-                        snapshot_json[master_snap_id] = [snapshot_doc]        
-            inputjson.update(snapshot_json)
+                        inputjson.update(snapshot_doc)
+            #         if master_snap_id in snapshot_json:
+            #             snapshot_json[master_snap_id].append(snapshot_doc)
+            #         else:
+            #             snapshot_json[master_snap_id] = [snapshot_doc]        
+            # inputjson.update(snapshot_json)
 
         results = []
         if inputjson:
