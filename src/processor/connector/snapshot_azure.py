@@ -6,8 +6,7 @@ import requests
 import copy
 import hashlib
 import time
-from urllib import request
-from importlib_metadata import re
+import re
 import pymongo
 import os
 from processor.connector.special_crawler.azure_crawler import AzureCrawler
