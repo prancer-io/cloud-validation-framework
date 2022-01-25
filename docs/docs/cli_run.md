@@ -1,10 +1,11 @@
 # Run Prancer CLI
-
-Here are the examples to run crawler and compliance in different ways.
+Prancer CLI provides different arguments for the configuration of the run. On this page, we are reviewing all the available arguments for Prancer CLI.
+We are providing different examples of running the Crawler and Compliance of Prancer Framework. 
+To start, make sure you have installed Prancer CLI and clone the Hello World application.
 
 - Clone this repository, [https://github.com/prancer-io/prancer-hello-world](https://github.com/prancer-io/prancer-hello-world)
 - Check the `config.ini file`, here you can see the value of `containerFolder` in `TESTS` section is `./validation/`.
-It means all the testcases are stored inside the `validation` directory.
+It means all the test cases are stored inside the `validation` directory.
 
 Run the prancer help
 
