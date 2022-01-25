@@ -376,7 +376,6 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 response = list_function(**list_kwargs)
                 list_of_resources = _get_resources_from_list_function(response, list_function_name)
             except Exception as ex:
-                logger.error("exception in list function: %s", ex)
                 list_of_resources = []
             detail_methods = get_field_value(node, 'detailMethods')
             for each_resource in list_of_resources:
