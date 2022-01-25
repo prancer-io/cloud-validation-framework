@@ -204,7 +204,7 @@ curl -X GET https://portal.prancer.io/customer1/api/database/collection -H 'auth
 **Get Collection manage config items**
 ---
 
-- This API is for get getting json data of config item like connector, snapshot, mastersnapshot, test, and mastertest
+- This API is for get getting json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
 
 **CURL Sample**
 ```
@@ -222,7 +222,7 @@ curl -X GET https://portal.prancer.io/customer1/api/manage/config -H 'authorizat
 - **Param:**
 
 ```
-- resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest">
+- resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuaration">
 - resource_name - <Name of the resource>
 - container_name - <Name of the container>
 ```
@@ -230,23 +230,22 @@ curl -X GET https://portal.prancer.io/customer1/api/manage/config -H 'authorizat
 **Response:**
 ```
 {
-    "data": [
-        {
-            "json": {
-                "autoRemediate": true,
-                "branchName": "sensitive_extension",
-                "companyName": "prancer",
-                "fileType": "structure",
-                "gitProvider": "https://github.com/prancer-io/prancer-cloudy.git",
-                "httpsUser": "vatsalgit5118",
-                "private": false,
-                "type": "filesystem",
-                "username": "vatsalgit5118"
-            },
-            "name": "aws_iac_structure"
-        }
-    ],
+    "data": {
+        "json": {
+            "autoRemediate": true,
+            "branchName": "sensitive_extension",
+            "companyName": "prancer",
+            "fileType": "structure",
+            "gitProvider": "https://github.com/prancer-io/prancer-cloudy.git",
+            "httpsUser": "vatsalgit5118",
+            "private": false,
+            "type": "filesystem",
+            "username": "vatsalgit5118"
+        },
+        "name": "aws_iac_structure"
+    },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -257,7 +256,7 @@ curl -X GET https://portal.prancer.io/customer1/api/manage/config -H 'authorizat
 **Update Collection manage config items**
 ---
 
-- This API is for updating json data of config item like connector, snapshot, mastersnapshot, test, and mastertest
+- This API is for updating json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
 
 **CURL Sample**
 ```
@@ -275,8 +274,8 @@ curl -X POST https://portal.prancer.io/customer1/api/manage/config -H 'authoriza
 - **Data:**
 
 ```
-- resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_config">
-- resource_name - <Name of the resource><for collection config use "collection_config">
+- resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuaration">
+- resource_name - <Name of the resource>
 - container_name - <Name of the container>
 - data - <Updated data>
 ```
@@ -284,25 +283,76 @@ curl -X POST https://portal.prancer.io/customer1/api/manage/config -H 'authoriza
 **Response:**
 ```
 {
-    "data": [
-        {
-            "json": {
-                "autoRemediate": true,
-                "branchName": "sensitive_extension",
-                "companyName": "prancer",
-                "fileType": "structure",
-                "gitProvider": "https://github.com/prancer-io/prancer-cloudy.git",
-                "httpsUser": "vatsalgit5118",
-                "private": false,
-                "type": "filesystem",
-                "username": "vatsalgit5118"
-            },
-            "name": "aws_iac_structure"
-        }
-    ],
+    "data":{
+        "json": {
+            "autoRemediate": true,
+            "branchName": "sensitive_extension",
+            "companyName": "prancer",
+            "fileType": "structure",
+            "gitProvider": "https://github.com/prancer-io/prancer-cloudy.git",
+            "httpsUser": "vatsalgit5118",
+            "private": false,
+            "type": "filesystem",
+            "username": "vatsalgit5118"
+        },
+        "name": "aws_iac_structure"
+    },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
+}
+```
+
+
+**Upload Collection manage config files**
+---
+
+- This API is for uploading json files of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
+
+**CURL Sample**
+```
+curl -X POST https://portal.prancer.io/customer1/api/manage/config/upload/ -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** https://portal.prancer.io/customer1/api/manage/config/upload/
+- **Method:** POST
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **form:**
+
+```
+- files - <List of files: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuration">
+- container_name - <Name of the container>
+```
+
+**Response Success:**
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "All files added successfully",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**Response Error:**
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [
+        "Invalid JSON - masterSnapshot field is missing or empty"
+    ],
+    "message": "",
+    "metadata": {},
+    "status": 400
 }
 ```
