@@ -8,10 +8,10 @@
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/api/resource/search?count=3&index=0&collection=azure_crawler_demo&start_date=2020-10-26&end_date=2020-10-27' -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET 'https://portal.prancer.io/customer1/api/resource/search?count=3&index=0&collection=azure_crawler_demo&start_date=2020-10-26&end_date=2020-10-27' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/api/resource/search/
+- **URL:** https://portal.prancer.io/customer1/api/resource/search/
 - **Method:** GET
 - **Header:**
 ```
@@ -148,6 +148,7 @@ curl -X GET 'https://portal.prancer.io/api/resource/search?count=3&index=0&colle
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {
         "count": 3,
@@ -168,7 +169,7 @@ curl -X GET 'https://portal.prancer.io/api/resource/search?count=3&index=0&colle
 curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collection=azure_nist_cloud_demo&resource_path=%2Fsubscriptions%2Fd34d6562-8a12-4458-ba02-b12345f45gdd%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FnetworkSecurityGroups%2Fnsg-test-456&start_date=2021-02-20&end_date=2021-02-28' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/api/resource/dashboard
+- **URL:** https://portal.prancer.io/customer1/api/resource/dashboard
 - **Method:** GET
 - **Header:**
 ```
@@ -352,6 +353,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
         "total_test": 12
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -427,6 +429,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_pa
         "type": "Microsoft.Network/networkSecurityGroups"
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -443,7 +446,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_pa
 curl -X GET 'https://portal.prancer.io/customer1/api/resource/testcase?result_id=6036368b64b6fd6ff8a33429&test_id=AZURE_TEST_229' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/api/resource/testcase
+- **URL:** https://portal.prancer.io/customer1/api/resource/testcase
 - **Method:** GET
 - **Header:**
 ```
@@ -510,6 +513,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/testcase?result_id
         "type": "rego"
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -567,6 +571,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/configuration/drif
         }
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -581,10 +586,10 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/configuration/drif
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "collection": "azure_crawler_demo", "start_date" : "2020-10-19", "end_date" : "2020-10-20", "connector" : "aws_structure", "account_id": 155603667260, "user":"farshid_mahdavipour", "resource_type":"Microsoft.Network/networkSecurityGroups" }'
+curl -X POST https://portal.prancer.io/customer1/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "collection": "azure_crawler_demo", "start_date" : "2020-10-19", "end_date" : "2020-10-20", "connector" : "aws_structure", "account_id": 155603667260, "user":"farshid_mahdavipour", "resource_type":"Microsoft.Network/networkSecurityGroups" }'
 ```
 
-- **URL:** https://portal.prancer.io/api/resource/filter
+- **URL:** https://portal.prancer.io/customer1/api/resource/filter
 - **Method:** POST
 - **Header:**
 ```
@@ -644,6 +649,7 @@ curl -X POST https://portal.prancer.io/api/resource/filter -H 'authorization: Be
         "filter_id": "5f9804784cf7ad1bb583cece"
     },
     "error": "",
+    "error_list": [],
     "message": "Resource filter save successfully",
     "metadata": {},
     "status": 200
@@ -658,10 +664,10 @@ curl -X POST https://portal.prancer.io/api/resource/filter -H 'authorization: Be
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+curl -X GET https://portal.prancer.io/customer1/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/api/resource/filter
+- **URL:** https://portal.prancer.io/customer1/api/resource/filter
 - **Method:** GET
 - **Header:**
 ```
@@ -692,6 +698,7 @@ curl -X GET https://portal.prancer.io/api/resource/filter -H 'authorization: Bea
         }
     ],
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -705,10 +712,10 @@ curl -X GET https://portal.prancer.io/api/resource/filter -H 'authorization: Bea
 
 **CURL Sample**
 ```
-curl -X DELETE https://portal.prancer.io/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "filter_id": "5f9804784cf7ad1bb583cece" }'
+curl -X DELETE https://portal.prancer.io/customer1/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "filter_id": "5f9804784cf7ad1bb583cece" }'
 ```
 
-- **URL:** https://portal.prancer.io/api/resource/filter
+- **URL:** https://portal.prancer.io/customer1/api/resource/filter
 - **Method:** DELETE
 - **Header:**
 ```
@@ -733,6 +740,7 @@ curl -X DELETE https://portal.prancer.io/api/resource/filter -H 'authorization: 
 {
     "data": {},
     "error": "",
+    "error_list": [],
     "message": "Resource filter deleted successfully",
     "metadata": {},
     "status": 200
@@ -757,10 +765,10 @@ curl -X DELETE https://portal.prancer.io/api/resource/filter -H 'authorization: 
 
 **CURL Sample**
 ```
-curl -X GET ' https://portal.prancer.io/api/query/resources?query=Microsoft.Storage%2Fjson.properties.encryption.services.blob.keyType%3Daccount&start_date=2020-11-03&end_date=2020-11-04&count=10&index=50' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+curl -X GET ' https://portal.prancer.io/customer1/api/query/resources?query=Microsoft.Storage%2Fjson.properties.encryption.services.blob.keyType%3Daccount&start_date=2020-11-03&end_date=2020-11-04&count=10&index=50' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/api/query/resources
+- **URL:** https://portal.prancer.io/customer1/api/query/resources
 - **Method:** GET
 - **Header:**
 ```
@@ -820,6 +828,7 @@ curl -X GET ' https://portal.prancer.io/api/query/resources?query=Microsoft.Stor
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {
         "count": 10,
@@ -836,10 +845,10 @@ curl -X GET ' https://portal.prancer.io/api/query/resources?query=Microsoft.Stor
 
 **CURL Sample**
 ```
-curl -X GET ' https://portal.prancer.io/api/query/samples' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+curl -X GET ' https://portal.prancer.io/customer1/api/query/samples' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/api/query/samples
+- **URL:** https://portal.prancer.io/customer1/api/query/samples
 - **Method:** GET
 - **Header:**
 ```
@@ -934,8 +943,178 @@ curl -X GET ' https://portal.prancer.io/api/query/samples' -H 'authorization: Be
         }
     ],
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
+}
+```
+
+**Resource - exclusion create**
+---
+
+- Mark unwanted resources as excluded, so no compliance will execute on that resoruces.
+
+**CURL Sample**
+```
+curl -X POST https://portal.prancer.io/customer1/api/exclusions/resources/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "container": "azure_arm", "exclusions": [{ "exclusionType": "single", "masterTestID": "PR-AZR-ARM-AGW-001", "paths": [ "/APP_GW/appgw.azuredeploy.json", "/APP_GW/appgw.azuredeploy.parameters.json" ]}]}'
+```
+
+- **URL:** https://portal.prancer.io/customer1/api/exclusions/resources/
+- **Method:** POST
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+```
+{
+    "container": "azure_arm",
+    "exclusions": [
+        {
+            "exclusionType": "single",
+            "masterTestID": "PR-AZR-ARM-AGW-001",
+            "paths": [
+                "/APP_GW/appgw.azuredeploy.json",
+                "/APP_GW/appgw.azuredeploy.parameters.json",
+            ]
+        }
+    ]
+}
+```
+- **Explanation:**
+
+    `Required Fields`
+
+    - **container:** Name of the container
+    - **exclusions:** List of the exclusions to be added. Check the available [excelusions](exclusions/exclusion.md) for more details.
+
+**Success Response:**
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "error_list": [],
+    "message": "Added exclusion successfully.",
+    "metadata": {},
+    "status": 200,
+}
+```
+
+**Resource - exclusion get**
+---
+
+- Mark unwanted resources as excluded, so no compliance will execute on that resoruces.
+
+**CURL Sample**
+```
+curl -X GET https://portal.prancer.io/customer1/api/exclusions/resources/?container=azure_arm&count=10&index=0 -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** https://portal.prancer.io/customer1/api/exclusions/resources/
+- **Method:** GET
+- **Header:**
+```
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+```
+{
+    "container" : "azure_arm",
+    "exclusionType": "single",
+    "count": 10,
+    "index": 0
+}
+```
+- **Explanation:**
+
+    `Required Fields`
+
+    - **container:** Name of the collection to be filter.
+    - **exclusionType:** Type of the exclution to filter.
+
+    `Optional Fields`
+
+    - **index:** determines from which index have to start populating of the data.
+    - **count:** determines the number of records per page need to populate in response.
+
+**Success Response:**
+```
+{
+    "data": {
+        "container": "azure_arm",
+        "exclusions": [
+            {
+                "exclusionType": "single",
+                "masterTestID": "PR-AZR-ARM-AGW-001",
+                "paths": [
+                    "/APP_GW/appgw.azuredeploy.json",
+                    "/APP_GW/appgw.azuredeploy.parameters.json",
+                ],
+            }
+        ],
+    },
+    "error": "",
+    "error_list": [],
+    "error_list": [],
+    "message": "",
+    "metadata": {"count": 10, "current_page": 1, "next_index": -1, "total": 1},
+    "status": 200,
+}
+```
+
+**Resource - exclusion delete**
+---
+
+- Delete the exclusion
+
+**CURL Sample**
+```
+curl -X DELETE https://portal.prancer.io/customer1/api/exclusions/resources/?container=azure_arm&count=10&index=0 -H 'authorization: Bearer <JWT Bearer Token>' -d '{"container":"azure_arm","exclusions":[{"exclusionType":"single","masterTestID":"PR-AZR-ARM-AGW-001","paths":["/APP_GW/appgw.azuredeploy.json","/APP_GW/appgw.azuredeploy.parameters.json"]}]}'
+```
+
+- **URL:** https://portal.prancer.io/customer1/api/exclusions/resources/
+- **Method:** DELETE
+- **Header:**
+```
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+```
+{
+    "container": "azure_arm",
+    "exclusions": [
+        {
+            "exclusionType": "single",
+            "masterTestID": "PR-AZR-ARM-AGW-001",
+            "paths": [
+                "/APP_GW/appgw.azuredeploy.json",
+                "/APP_GW/appgw.azuredeploy.parameters.json",
+            ],
+        }
+    ],
+}
+```
+- **Explanation:**
+
+    `Required Fields`
+
+    - **container:** Name of the collection from which exclusion need to be delete.
+    - **exclusions:** List of exclusions to be delete.
+
+**Success Response:**
+```
+{
+    "data":{},
+    "error":"",
+    "error_list":[],
+    "message":"Deleted exclusion successfully.",
+    "metadata":{},
+    "status":200
 }
 ```

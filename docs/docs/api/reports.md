@@ -251,6 +251,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {
         "count": 3,

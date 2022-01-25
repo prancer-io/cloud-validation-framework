@@ -9,10 +9,10 @@
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/api/connector/list -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/customer1/api/connector/list -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/api/connector/list
+- **URL:** https://portal.prancer.io/customer1/api/connector/list
 - **Method:** GET
 - **Header:**
 ```
@@ -88,6 +88,7 @@ curl -X GET https://portal.prancer.io/api/connector/list -H 'authorization: Bear
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200

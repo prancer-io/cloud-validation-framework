@@ -52,6 +52,7 @@ curl -X POST \
         "token": "<JWT Bearer Token>"
     },
     "error": "",
+    "error_list": [],
     "message": "User Logged In Successfully",
     "metadata": {},
     "status": 200
@@ -120,6 +121,7 @@ curl -X POST \
         "token": "<JWT Bearer Token>"
     },
     "error": "",
+    "error_list": [],
     "message": "Token is Valid",
     "metadata": {},
     "status": 200
@@ -134,6 +136,7 @@ curl -X POST \
 {
   "data": {},
   "error": "",
+    "error_list": [],
   "message": "Invalid token or customer id",
   "metadata": {},
   "status": 400
@@ -177,6 +180,7 @@ curl -X GET \
         "token": <JWT Bearer Token>
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -226,6 +230,7 @@ curl -X POST \
 {
   "data": {},
   "error": "",
+  "error_list": [],
   "message": "User logged out successfully!",
   "metadata": {},
   "status": 200

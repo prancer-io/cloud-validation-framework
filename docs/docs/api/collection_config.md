@@ -40,6 +40,7 @@ curl -X GET https://portal.prancer.io/customer1/api/collection_config/?collectio
         }
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -83,6 +84,7 @@ curl -X POST https://portal.prancer.io/customer1/api/collection_config/ -H 'auth
 {
     "data": {},
     "error": "",
+    "error_list": [],
     "message": "Configuration updated",
     "metadata": {},
     "status": 200

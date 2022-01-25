@@ -3,16 +3,56 @@
 
 - Collection is the combinations of Snapshots configuration, Connectors configuration, Compliances configuration, and rego files.
 
+**Collection - create**
+---
+- Create new collection with given name
+
+**CURL Sample**
+```
+curl -X GET https://portal.prancer.io/customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** https://portal.prancer.io/customer1/api/collection
+- **Method:** POST
+- **Header:**
+
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+
+```
+{
+	"collection" : "<name of the collection>"
+}
+```
+
+**Response:**
+
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "error_list": [],
+    "message": "Collection created successfully.",
+    "metadata": {},
+    "status": 200
+}
+```
+
 **Collection - get**
 ---
 - This API is for get the list of available collections with connectors list available in each collection.
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/customer1/api/collection/list -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/api/collection/list
+- **URL:** https://portal.prancer.io/customer1/api/collection/list
 - **Method:** GET
 - **Header:**
 
@@ -24,8 +64,8 @@ curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bea
 - **Param:**
 
 ```
-- detail= <show details of collection>
-- search= <search by collection name>
+- detail: Boolean value to get full detail of the collection
+- search: <search by collection name>
 ```
 
 **Response:**
@@ -67,6 +107,7 @@ curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bea
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {
         "count": 1,
@@ -94,6 +135,7 @@ curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bea
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {
         "count": 1,
@@ -116,7 +158,7 @@ curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bea
 curl -H "space-id:101"  -H 'authorization: Bearer <JWT Bearer Token>' -X GET "https://portal.prancer.io/customer1/api/collection?collection=git_azure_customer1_1617571294420"
 ```
 
-- **URL:** https://portal.prancer.io/api/collection
+- **URL:** https://portal.prancer.io/customer1/api/collection
 - **Method:** GET
 - **Header:**
 
@@ -148,7 +190,7 @@ curl -H "space-id:101"  -H 'authorization: Bearer <JWT Bearer Token>' -X GET "ht
 
 **Database Collection - get**
 ---
-- This API is for get the list of available database collections which are set in snapshot nodes.
+- This API is for get the list of available database collections in which the actual cloud/IaC snapshot JSON file is stored.
 
 **CURL Sample**
 ```
@@ -194,6 +236,7 @@ curl -X GET https://portal.prancer.io/customer1/api/database/collection -H 'auth
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -222,9 +265,10 @@ curl -X GET https://portal.prancer.io/customer1/api/manage/config -H 'authorizat
 - **Param:**
 
 ```
-- resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuaration">
-- resource_name - <Name of the resource>
-- container_name - <Name of the container>
+Required Fields
+    - resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuaration">
+    - resource_name - <Name of the resource>
+    - container_name - <Name of the container>
 ```
 
 **Response:**
@@ -274,18 +318,13 @@ curl -X POST https://portal.prancer.io/customer1/api/manage/config -H 'authoriza
 - **Data:**
 
 ```
-- resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuaration">
-- resource_name - <Name of the resource>
-- container_name - <Name of the container>
-- data - <Updated data>
-```
-
-**Response:**
-```
 {
-    "data":{
-        "json": {
-            "autoRemediate": true,
+	"resource_type" : "connector",
+	"container_name" : "aws_iac",
+	"resource_name" : "aws_iac_structure",
+	"data" : {
+		"json": {
+            "autoRemediate": false,
             "branchName": "sensitive_extension",
             "companyName": "prancer",
             "fileType": "structure",
@@ -294,65 +333,19 @@ curl -X POST https://portal.prancer.io/customer1/api/manage/config -H 'authoriza
             "private": false,
             "type": "filesystem",
             "username": "vatsalgit5118"
-        },
-        "name": "aws_iac_structure"
-    },
-    "error": "",
-    "error_list": [],
-    "message": "",
-    "metadata": {},
-    "status": 200
+        }
+	}
 }
 ```
 
-
-**Upload Collection manage config files**
----
-
-- This API is for uploading json files of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
-
-**CURL Sample**
-```
-curl -X POST https://portal.prancer.io/customer1/api/manage/config/upload/ -H 'authorization: Bearer <JWT Bearer Token>'
-```
-
-- **URL:** https://portal.prancer.io/customer1/api/manage/config/upload/
-- **Method:** POST
-- **Header:**
-```
-    - content-type: application/json
-    - Authorization: Bearer <JWT Bearer Token>
-```
-
-- **form:**
-
-```
-- files - <List of files: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuration">
-- container_name - <Name of the container>
-```
-
-**Response Success:**
+**Response:**
 ```
 {
     "data": {},
     "error": "",
     "error_list": [],
-    "message": "All files added successfully",
+    "message": "Connector updated successsfully",
     "metadata": {},
     "status": 200
-}
-```
-
-**Response Error:**
-```
-{
-    "data": {},
-    "error": "",
-    "error_list": [
-        "Invalid JSON - masterSnapshot field is missing or empty"
-    ],
-    "message": "",
-    "metadata": {},
-    "status": 400
 }
 ```

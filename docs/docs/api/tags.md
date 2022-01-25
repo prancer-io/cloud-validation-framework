@@ -9,10 +9,10 @@
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/api/default/tags -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/customer1/api/default/tags -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/api/default/tags?provider_type=iac
+- **URL:** https://portal.prancer.io/customer1/api/default/tags?provider_type=iac
 - **Method:** GET
 - **Header:**
 ```
@@ -36,11 +36,11 @@ curl -X GET https://portal.prancer.io/api/default/tags -H 'authorization: Bearer
 {
     "data": {
         "cloud": [
-            "Azure",
-            "GCP",
-            "AWS",
+            "git",
             "Kubernetes",
-            "git"
+            "AWS",
+            "Azure",
+            "GCP"
         ],
         "compliance": [
             "CIS",
@@ -50,7 +50,8 @@ curl -X GET https://portal.prancer.io/api/default/tags -H 'authorization: Bearer
             "PCI-DSS",
             "NIST 800",
             "HITRUST",
-            "SOC 2"
+            "SOC 2",
+            "Best Practice"
         ],
         "region": {
             "AWS": [
@@ -549,24 +550,15 @@ curl -X GET https://portal.prancer.io/api/default/tags -H 'authorization: Bearer
                 "Compute",
                 "Networking",
                 "Storage",
-                "Web selected",
+                "Web",
                 "Mobile",
                 "Containers",
                 "Databases",
                 "Analytics",
-                "AI & Machine Learning",
-                "Internet of Things",
                 "Integration",
                 "Identity",
                 "Security",
-                "Developer Tools",
-                "DevOps",
-                "Management and Governance",
-                "Media",
-                "Migration",
-                "Mixed Reality",
-                "Blockchain",
-                "Hybrid"
+                "Management and Governance"
             ],
             "GCP": [
                 "Compute",
@@ -604,6 +596,8 @@ curl -X GET https://portal.prancer.io/api/default/tags -H 'authorization: Bearer
         }
     },
     "error": "",
+    "error_list": [],
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200

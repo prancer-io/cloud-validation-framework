@@ -36,6 +36,7 @@ curl -X POST https://portal.prancer.io/customer1/api/compliance/run/ -H 'authori
 {
     "data": {},
     "error": "",
+    "error_list": [],
     "message": "Compliance started running successfully.",
     "metadata": {},
     "status": 200
@@ -77,6 +78,7 @@ curl -X POST https://portal.prancer.io/customer1/api/compliance/crawler/ -H 'aut
 {
     "data": {},
     "error": "",
+    "error_list": [],
     "message": "Crawler started running successfully.",
     "metadata": {},
     "status": 200
@@ -158,6 +160,7 @@ curl -X POST \
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "Job scheduled successfully",
     "metadata": {},
     "status": 200
@@ -207,6 +210,7 @@ curl -X GET \
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -252,6 +256,7 @@ curl -X DELETE \
 {
     "data": {},
     "error": "",
+    "error_list": [],
     "message": "Job deleted successfully",
     "metadata": {},
     "status": 200

@@ -51,6 +51,7 @@ curl -X GET https://portal.prancer.io/customer1/api/user/get/ -H 'authorization:
         }
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -101,6 +102,7 @@ curl -X POST https://portal.prancer.io/customer1/api/user/tour/ -H 'authorizatio
 {
     "data": "Tour status updated successfully",
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
