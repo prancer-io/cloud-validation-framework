@@ -25,6 +25,7 @@ from processor.comparison.comparisonantlr.comparatorParser import comparatorPars
 from processor.comparison.comparisonantlr.rule_interpreter import RuleInterpreter
 from processor.helper.config.rundata_utils import get_dbtests, get_from_currentdata
 from processor.logging.log_handler import getlogger
+import traceback
 
 
 logger = getlogger()
@@ -180,6 +181,7 @@ def import_module(module):
         module = __import__(module)
         return module
     except:
+        logger.debug(traceback.format_exc())
         return False
 
 class Comparator:
@@ -293,12 +295,33 @@ class ComparatorV01:
             if inputjson is None:
                 logger.info('\t\tERROR: Missing snapshot')
         else:
-            ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
+            # ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
+            # logger.info("ms_id")
+            # logger.info(ms_id)
+            
+            snapshot_json = {}
+            self.snapshots = []
             for sid in self.testcase['snapshotId']:
+                master_snap_id = ""
+                for master_snapshot_id in self.testcase['masterSnapshotId']:
+                    if sid.startswith(master_snapshot_id):
+                        master_snap_id = master_snapshot_id
+                        break
                 toExclude, snapshot_doc = self.get_snaphotid_doc(sid, testId, isMasterTest)
                 if toExclude:
                     logger.error('Excluded testcase because of testId: %s' % testId)
-                inputjson.update({ms_id[sid]: snapshot_doc})
+                else:
+                    if inputjson.get("resources") and isinstance(inputjson.get("resources"), list) \
+                        and snapshot_doc and snapshot_doc.get("resources") and isinstance(snapshot_doc.get("resources"), list):
+                        inputjson["resources"] += snapshot_doc.get("resources")
+                    else:
+                        inputjson.update(snapshot_doc)
+            #         if master_snap_id in snapshot_json:
+            #             snapshot_json[master_snap_id].append(snapshot_doc)
+            #         else:
+            #             snapshot_json[master_snap_id] = [snapshot_doc]        
+            # inputjson.update(snapshot_json)
+
         results = []
         if inputjson:
             save_json_to_file(inputjson, '/tmp/input_%s.json' % tid)
@@ -462,64 +485,66 @@ class ComparatorV01:
                 inputjson.update({ms_id[sid]: snapshot_doc})
         results = []
 
-        if inputjson:
-            test_rule = self.rule
-            rule_matched = re.match(r'^file\((.*)\)$', test_rule, re.I)
-            if rule_matched:
-                rego_file_name = self.rego_rule_filename(rule_matched.groups()[0], self.container)
-                if not rego_file_name:
-                    python_testcase = "processor.comparison.rules.%s.%s"%(self.snapshots[0]["type"],rule_matched.groups()[0].split(".")[0])
-                    module = import_module(python_testcase)
-                    if not module:
+        test_rule = self.rule
+        rule_matched = re.match(r'^file\((.*)\)$', test_rule, re.I)
+        if rule_matched:
+            rego_file_name = self.rego_rule_filename(rule_matched.groups()[0], self.container)
+            if not rego_file_name:
+                python_testcase = "processor.comparison.rules.%s.%s"%(self.snapshots[0]["type"],rule_matched.groups()[0].split(".")[0])
+                module = import_module(python_testcase)
+                if not module and logger.level == logging.DEBUG:
+                    self.log_compliance_info(testId)
+                    logger.error('\t\tERROR: %s missing', rule_matched.groups()[0])
+                    logger.warning('\t\tRESULT: SKIPPED')
+                    return results
+            else:            
+                python_testcase = rule_matched.groups()[0].split(".")[0]
+        
+        if isinstance(rule_expr, list):
+            for rule in rule_expr:
+                function_name = rule["eval"].rsplit(".", 1)[-1] if "eval" in rule else ""
+                evalmessage = rule['message'].rsplit('.', 1)[-1] if "message" in rule else ""
+
+                test_function = import_from(python_testcase, function_name)
+                if not test_function:
+                    self.log_compliance_info(testId)
+                    logger.info('\t\tERROR: %s missing', rule_matched.groups()[0])
+                    logger.warning('\t\tRESULT: SKIPPED')
+                    return results
+                
+                paths = self.snapshots[0]["paths"]
+
+                result = test_function(inputjson, kwargs={"paths": paths})
+
+                if result.get("issue") == True:
+                    result["result"] = "failed"
+                    
+                    self.log_compliance_info(testId)
+                    self.log_result(result)
+                    json_result = {
+                        'eval': rule["eval"], 
+                        'result': result["result"], 
+                        'message': result.get(evalmessage, ""),
+                        'id' : rule.get("id"),
+                        'remediation_description' : rule.get("remediationDescription"),
+                        'remediation_function' : rule.get("remediationFunction"),
+                    }
+
+                    if result.get("errors"):
+                        json_result["errors"] = result.get("errors",[])
+
+                    results.append(json_result)
+
+                elif result.get("issue") == False:
+                    if logger.level == logging.DEBUG:
                         self.log_compliance_info(testId)
                         logger.info('\t\tERROR: %s missing', rule_matched.groups()[0])
                         logger.warning('\t\tRESULT: SKIPPED')
-                        return results
-                else:            
-                    python_testcase = rule_matched.groups()[0].split(".")[0]
-            
-            if isinstance(rule_expr, list):
-                for rule in rule_expr:
-                    function_name = rule["eval"].rsplit(".", 1)[-1] if "eval" in rule else ""
-                    evalmessage = rule['message'].rsplit('.', 1)[-1] if "message" in rule else ""
-                    test_function = import_from(python_testcase, function_name)
-                    if not test_function:
-                        self.log_compliance_info(testId)
-                        logger.info('\t\tERROR: %s missing', rule_matched.groups()[0])
-                        logger.warning('\t\tRESULT: SKIPPED')
-                        return results
-                    result = test_function(inputjson)
+                
+                elif result["issue"] == None:
+                    logger.error("\t\tERROR: have problem in running test")
+                    logger.error(result[evalmessage])
 
-                    if result["issue"] == True:
-                        result["result"] = "failed"
-                        
-                        self.log_compliance_info(testId)
-                        self.log_result(result)
-                        json_result = {
-                            'eval': rule["eval"], 
-                            'result': result["result"], 
-                            'message': result[evalmessage] if not result and evalmessage in results else "",
-                            'id' : rule.get("id"),
-                            'remediation_description' : rule.get("remediationDescription"),
-                            'remediation_function' : rule.get("remediationFunction"),
-                        }
-
-                        if result.get("errors"):
-                            json_result["errors"] = result.get("errors",[])
-
-                        results.append(json_result)
-                    
-                    elif result["issue"] == False:
-                        self.log_compliance_info(testId)
-                        logger.warning('\t\tRESULT: SKIPPED')
-                    
-                    elif result["issue"] == None:
-                        logger.error("\t\tERROR: have problem in running test")
-                        logger.error(result[evalmessage])
-
-        else:
-            results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-            self.log_result(results[-1])
         return results
                 
 
@@ -585,9 +610,19 @@ class ComparatorV01:
             elif testId in self.excludedTestIds:
                 path = doc['paths'][0]
                 toExclude = True if path in self.excludedTestIds[testId] else False
+            else:
+                if 'evals' in self.testcase and self.testcase['evals']:
+                    found = False
+                    for eval in self.testcase['evals']:
+                        if eval['id'] in self.includeTests:
+                            found = True
+                            break
+                    if not found:
+                        for eval in self.testcase['evals']:
+                            if eval['id'] in self.excludedTestIds:
+                                path = doc['paths'][0]
+                                toExclude = True if path in self.excludedTestIds[eval['id']] else False
         return toExclude
-        pass
-
 
     def get_snaphotid_doc(self, sid, testId, isMasterTest=False):
         tobeExcluded = False

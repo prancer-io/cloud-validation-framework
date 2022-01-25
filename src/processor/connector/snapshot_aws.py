@@ -38,7 +38,6 @@ from processor.connector.arn_parser import arnparse
 logger = getlogger()
 _valid_service_names = Session().get_available_services()
 
-
 def _validate_client_name(client_name):
     """
     A private function to validate whether a given client provided
@@ -173,13 +172,14 @@ def get_node(awsclient, node, snapshot_source, snapshot):
         for each_method_str in detail_methods:
             function_to_call = getattr(awsclient, each_method_str, None)
             if function_to_call and callable(function_to_call):
-                params = _get_function_kwargs(arn_str, each_method_str, json_to_put)
+                kwargs = {"node": node}
+                params = _get_function_kwargs(arn_str, each_method_str, json_to_put, kwargs)
                 try:
                     data = function_to_call(**params)
                     if data:
                         json_to_put.update(data) 
                 except Exception as ex:
-                    logger.info('Describe function exception: %s', ex)
+                    logger.error('Describe function exception: %s', ex)
                     db_record['error'] = 'Describe function exception: %s' % ex
             else:
                 logger.info('Invalid function exception: %s', str(function_to_call))
@@ -193,6 +193,8 @@ def _get_resources_from_list_function(response, method):
     Fetches the resources id from different responses
     and returns a list of responses.
     """
+    logger.info("===============list function response==============")
+    logger.info(response)
     if method == 'list_buckets':
         return [x['Name'] for x in response['Buckets']]
     elif method == 'describe_instances':
@@ -203,10 +205,25 @@ def _get_resources_from_list_function(response, method):
         return final_list
     elif method == 'describe_db_instances':
         return [x['DBInstanceIdentifier'] for x in response['DBInstances']]
+    elif method == 'describe_db_clusters':
+        return [x['DBClusterIdentifier'] for x in response['DBClusters']]
+    elif method == 'describe_db_parameter_groups':
+        return [x['DBParameterGroupName'] for x in response['DBParameterGroups']]
+    elif method == 'describe_global_clusters':
+        return [x['GlobalClusterIdentifier'] for x in response['GlobalClusters']]
+    elif method == 'describe_target_groups':
+        return [x['TargetGroupArn'] for x in response['TargetGroups']]
     elif method == 'describe_load_balancers':
-        return [x['LoadBalancerName'] for x in response['LoadBalancerDescriptions']]
+        if "LoadBalancerDescriptions" in response.keys():
+            return [x.get('LoadBalancerName') for x in response.get('LoadBalancerDescriptions', [])]
+        elif "LoadBalancers" in response.keys():
+            return [x.get('LoadBalancerArn') for x in response.get('LoadBalancers', [])]
     elif method == 'list_certificates':
-        return [x['CertificateArn'] for x in response['CertificateSummaryList']]        
+        return [x['CertificateArn'] for x in response['CertificateSummaryList']]     
+    elif method == 'list_backup_vaults':
+        return [x['BackupVaultName'] for x in response['BackupVaultList']]
+    elif method == 'list_servers':
+        return [x['ServerId'] for x in response['Servers']]          
     elif method == 'list_stacks':
         return [x['StackName'] for x in response['StackSummaries']]        
     elif method == 'list_trails':
@@ -227,11 +244,16 @@ def _get_resources_from_list_function(response, method):
         return response.get("TableNames")
     elif method == 'list_backups':
         return [x.get('BackupArn',"") for x in response['BackupSummaries']]
-        return response.get("TableNames")
     elif method == 'list_task_definitions':
         return response.get('taskDefinitionArns')
     elif method == 'list_clusters':
-        return response.get("clusters")
+        clusters = []
+        clusters.extend(response.get("clusters", []))
+        clusters.extend(response.get("Clusters", []))
+        clusters.extend(response.get("clusterArns", []))
+        clusters.extend([cluster["ClusterArn"] for cluster in response.get("ClusterInfoList",[])])
+        logger.info("*****************%s", clusters)
+        return clusters
     elif method == 'describe_replication_groups':
         return [x.get('ReplicationGroupId') for x in response['ReplicationGroups']]
     elif method == 'list_streams':
@@ -239,9 +261,13 @@ def _get_resources_from_list_function(response, method):
     elif method == 'list_functions':
         return [x.get('FunctionName',"") for x in response['Functions']]
     elif method == 'describe_clusters':
-        return [x.get('ClusterIdentifier',"") for x in response['Clusters']]
+        clusters = []
+        clusters.extend([x.get('ClusterIdentifier', x.get("ClusterName", "")) for x in response['Clusters']])
+        return clusters
     elif method == 'list_topics':
         return [x.get('TopicArn',"") for x in response['Topics']]
+    elif method == 'list_subscriptions':
+        return [x.get('SubscriptionArn',"") for x in response['Subscriptions']]
     elif method == 'list_queues':
         return response.get("QueueUrls")  
     elif method == 'list_domain_names':
@@ -266,6 +292,56 @@ def _get_resources_from_list_function(response, method):
         return [x.get('EventSubscriptionArn').split(':')[-1] for x in response['EventSubscriptionsList']]
     elif method == 'describe_db_snapshots':
         return [x.get('DBSnapshotIdentifier') for x in response['DBSnapshots']]
+    elif method == 'list_web_acls':
+        return [x.get("Name") for x in response['WebACLs']]
+    elif method == 'describe_repositories':
+        return [x.get("repositoryName") for x in response['repositories']]
+    elif method == 'list_ledgers':
+        return [x.get("Name") for x in response['Ledgers']]
+    elif method == 'describe_db_cluster_parameter_groups':
+        return [x.get("DBClusterParameterGroupName") for x in response['DBClusterParameterGroups']]
+    elif method == 'list_work_groups':
+        return [x.get("Name") for x in response['WorkGroups']]
+    elif method == 'list_databases':
+        return [x.get("DatabaseName") for x in response['Databases']]
+    elif method == 'describe_endpoints':
+        return [x.get("EndpointIdentifier") for x in response['Endpoints']]
+    elif method == 'describe_security_groups':
+        return [x.get("GroupId") for x in response['SecurityGroups']]
+    elif method == 'list_secrets':
+        return [x.get("Name") for x in response['SecretList']]
+    elif method == 'describe_log_groups':
+        return [x.get("logGroupName") for x in response['logGroups']]
+    elif method == 'describe_workspaces':
+        return [x.get("WorkspaceId") for x in response['Workspaces']]
+    elif method == 'get_data_catalog_encryption_settings':
+        return [""]
+    elif method == 'get_security_configurations':
+        return [x.get("Name") for x in response['SecurityConfigurations']]
+    elif method == 'describe_launch_configurations':
+        return [x.get("LaunchConfigurationName") for x in response['LaunchConfigurations']]
+    elif method == 'describe_auto_scaling_groups':
+        return [x.get("AutoScalingGroupName") for x in response['AutoScalingGroups']]
+    elif method == 'describe_configuration_aggregators':
+        return [x.get("ConfigurationAggregatorName") for x in response['ConfigurationAggregators']]
+    elif method == 'describe_configuration_recorders':
+        return [x.get("name") for x in response['ConfigurationRecorders']]
+    elif method == 'list_streams':
+        return response["StreamNames"]
+    elif method == 'list_brokers':
+        return [x.get("BrokerId") for x in response['BrokerSummaries']]
+    elif method == 'list_hosted_zones':
+        return [x.get("Id") for x in response['HostedZones']]
+    elif method == 'list_notebook_instances':
+        return [x.get("NotebookInstanceName") for x in response['NotebookInstances']]
+    elif method == 'list_projects':
+        return response["projects"]
+    elif method == 'list_pipelines':
+        return [x.get("name") for x in response['pipelines']]
+    elif method == 'list_applications':
+        return response["applications"]
+    elif method == 'list_policies':
+        return [x.get("Arn") for x in response['Policies']]
     else:
         return []
 
@@ -309,6 +385,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 else:
                     resource_arn = arn_string %(awsclient.meta._service_model.service_name,
                         awsclient.meta.region_name, each_resource)
+
                 for each_method_str in detail_methods:
                     each_method = getattr(awsclient, each_method_str, None)
                     if each_method and callable(each_method):
@@ -316,7 +393,10 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 db_record = copy.deepcopy(d_record)
                 db_record['detailMethods'] = type_list
                 db_record['arn'] = resource_arn
+                db_record['boto_type'] = node.get('boto_type', "")
                 db_records.append(db_record)
+        else:
+            logger.warning("list_function %s is not callable", list_function)
 
     return db_records
 
@@ -340,14 +420,27 @@ def _get_list_function_kwargs(service, function_name):
             'REVIEW_IN_PROGRESS', 'IMPORT_IN_PROGRESS', 'IMPORT_COMPLETE', 'IMPORT_ROLLBACK_IN_PROGRESS', \
             'IMPORT_ROLLBACK_FAILED', 'IMPORT_ROLLBACK_COMPLETE']
         }
+    if service == "wafv2":
+        return {
+            "Scope": "REGIONAL"
+        }
     else:
         return {}
 
-def _get_function_kwargs(arn_str, function_name, existing_json):
+def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
     """Fetches the correct keyword arguments for different detail functions"""
     arn = arnparse(arn_str)
     client_str = arn.service
+    node = kwargs.get("node", {})
+    if node:
+        client_str = node.get("boto_type", client_str)
     resource_id = arn.resource
+
+    logger.info("===================getting function kwargs=====================")
+    logger.info("client_str====%s", client_str)
+    logger.info("function_name====%s", function_name)
+    logger.info("arn_str====%s", arn_str)
+    logger.info("resource_id====%s==>%s", type(resource_id),resource_id)
     if client_str == "s3":
         return {'Bucket' : resource_id}
     elif client_str == "rds" and function_name in ["describe_db_instances",\
@@ -355,9 +448,21 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'DBInstanceIdentifier': resource_id
         }
+    elif client_str == "rds" and function_name in ["describe_db_clusters"]:
+        return {
+            'DBClusterIdentifier': resource_id
+        }
+    elif client_str == "rds" and function_name in ["describe_db_parameters"]:
+        return {
+            'DBParameterGroupName': resource_id
+        }
+    elif client_str == "rds" and function_name in ["describe_global_clusters"]:
+        return {
+            'GlobalClusterIdentifier': resource_id
+        }
     elif client_str == "ec2" and function_name == "describe_instance_attribute":
         return {
-            'Attribute': 'instanceType',
+            'Attribute': 'instanceType'|'kernel'|'ramdisk'|'userData'|'disableApiTermination'|'instanceInitiatedShutdownBehavior'|'rootDeviceName'|'blockDeviceMapping'|'productCodes'|'sourceDestCheck'|'groupSet'|'ebsOptimized'|'sriovNetSupport'|'enaSupport'|'enclaveOptions',
             'InstanceId': resource_id
         }
     elif client_str == "ec2" and function_name in ["describe_instances", "monitor_instances"]:
@@ -381,13 +486,8 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
             'VolumeIds': [volumeid]
         }
     elif client_str == "ec2" and function_name == "describe_security_groups":
-        try:
-            groups = existing_json['Reservations'][0]['Instances'][0]['SecurityGroups']
-            groupsidlist = [x['GroupId'] for x in groups]
-        except:
-            groupsidlist = []
         return {
-            'GroupIds': groupsidlist
+            'GroupIds': [resource_id]
         }
     elif client_str == "ec2" and function_name == "describe_vpcs":
         try:
@@ -422,14 +522,26 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
             'SnapshotId': snapshot_id,
             'Attribute' : 'createVolumePermission'
         }
-    elif client_str == "elb" and function_name == "describe_load_balancers":
+    elif client_str == "elbv2" and function_name == "describe_load_balancers":
         return {
-            'LoadBalancerNames': [resource_id]
+            'LoadBalancerArns': [arn_str]
         }
-    elif client_str == "elb" and function_name in ["describe_load_balancers", "describe_load_balancer_attributes",\
+    elif client_str == "elbv2" and function_name == "describe_listeners":
+        return {
+            'LoadBalancerArn': arn_str
+        }
+    elif client_str == "elbv2" and function_name == "describe_target_groups":
+        return {
+            'TargetGroupArns': [arn_str]
+        }
+    elif client_str == "elb" and function_name in ["describe_load_balancer_attributes",\
         "describe_load_balancer_policies"]:
         return {
             'LoadBalancerName': resource_id
+        }
+    elif client_str == "elb" and function_name in ["describe_load_balancers"]:
+        return {
+            'LoadBalancerNames': [resource_id]
         }
     elif client_str == "acm" and function_name == "describe_certificate":
         return {
@@ -450,10 +562,22 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'TrailName': resource_id
         }
+    elif client_str == "cloudtrail" and function_name == "get_trail_status":
+        return {
+            'Name': resource_id
+        }
+    elif client_str == "backup" and function_name in ["describe_backup_vault", "get_backup_vault_access_policy"]:
+        return {
+            'BackupVaultName': resource_id
+        }
+    elif client_str == "transfer" and function_name == "describe_server":
+        return {
+            'ServerId': resource_id
+        }
     elif client_str == "apigateway" and function_name in ["get_rest_api",\
         "get_documentation_parts", "get_documentation_versions",\
         "get_gateway_responses", "get_models", "get_request_validators",\
-        "get_resources", "get_stages"]:
+        "get_resources", "get_stages", "get_authorizers"]:
         return {
             'restApiId': resource_id
         }
@@ -465,20 +589,23 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'HostedZoneId': resource_id
         }
-    elif client_str == "iam" and function_name in ["get_user", "list_ssh_public_keys", \
-        "get_account_summary", "get_account_password_policy", "list_attached_user_policies"]:
+    
+    elif client_str == "iam" and function_name == "get_policy":
         return {
-            'UserName': resource_id
+            'PolicyArn': arn_str
         }
-    elif client_str == "iam" and function_name == "get_role":
+    
+    elif client_str == "iam" and function_name == "get_policy_version":
         return {
-            'RoleName': resource_id
+            'PolicyArn': arn_str,
+            "VersionId": existing_json["Policy"]["DefaultVersionId"]
         }
+    
     elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key",]:
         return {
             'KeyId': resource_id
         }
-    elif client_str == "dynamodb" and function_name == "describe_table":
+    elif client_str == "dynamodb" and function_name in ["describe_table", "describe_continuous_backups", "describe_kinesis_streaming_destination"]:
         return {
             'TableName': resource_id
         }
@@ -489,6 +616,14 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
     elif client_str == "ecs" and function_name == "describe_task_definition":
         return {
             'taskDefinition': resource_id
+        }
+    elif client_str == "ecs" and function_name == "describe_clusters":
+        return {
+            'clusters': [arn_str]
+        }
+    elif client_str == "ecs" and function_name == "describe_services":
+        return {
+            'services': [arn_str]
         }
     elif client_str == "eks" and function_name == "describe_cluster":
         return {
@@ -514,9 +649,17 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return {
             'ClusterIdentifier': resource_id
         }
+    elif client_str == "redshift" and function_name == "describe_cluster_parameters":
+        return {
+            'ParameterGroupName': existing_json["ClusterParameterGroups"][0]["ParameterGroupName"]
+        }
     elif client_str == "sns" and function_name == "get_topic_attributes":
         return {
             'TopicArn': arn_str
+        }
+    elif client_str == "sns" and function_name == "get_subscription_attributes":
+        return {
+            'SubscriptionArn': arn_str
         }
     elif client_str == "sqs" and function_name == "get_queue_attributes":
         return {
@@ -558,6 +701,113 @@ def _get_function_kwargs(arn_str, function_name, existing_json):
         return{
             'DBSnapshotIdentifier': resource_id
         }
+    elif client_str=='emr' and function_name in ['describe_cluster']:
+        return{
+            'ClusterId': resource_id
+        }
+    elif client_str=='emr' and function_name in ['describe_security_configuration']:
+        return{
+            'Name': resource_id
+        }
+    elif client_str=='sqs' and function_name in ['get_queue_attributes']:
+        return{
+            'QueueUrl': resource_id,
+            'AttributeNames':['All']
+        }
+    elif client_str=='kafka' and function_name in ['describe_cluster']:
+        return{
+            'ClusterArn': arn_str
+        }
+    elif client_str=='wafv2' and function_name in ['list_web_acls']:
+        return {
+            "Scope": "REGIONAL"
+        }
+    elif client_str=='wafv2' and function_name in ['get_web_acl']:
+        return{
+            'Scope': "REGIONAL",
+            'Name': existing_json["WebACLs"][0]["Name"],
+            'Id': existing_json["WebACLs"][0]["Id"]
+        }
+    elif client_str=='ecr' and function_name in ['describe_repositories']:
+        return {
+            "repositoryNames": [resource_id]
+        }
+    elif client_str=='ecr' and function_name in ['get_lifecycle_policy']:
+        return {
+            "repositoryName": resource_id
+        }
+    elif client_str == "dax" and function_name == "describe_clusters":
+        return {
+            'ClusterNames': [resource_id]
+        }
+    elif client_str == "qldb" and function_name == "describe_ledger":
+        return {
+            'Name': resource_id
+        }
+    elif client_str == "docdb" and function_name == "describe_db_cluster_parameters":
+        return {
+            'DBClusterParameterGroupName': resource_id
+        }
+    elif client_str == "athena" and function_name == "get_work_group":
+        return {
+            'WorkGroup': resource_id
+        }
+    elif client_str == "logs" and function_name == "describe_log_groups":
+        return {
+            'logGroupNamePrefix': resource_id
+        }
+    elif client_str == "workspaces" and function_name == "describe_workspaces":
+        return {
+            'WorkspaceIds': [resource_id]
+        }
+    elif client_str == "glue" and function_name == "get_security_configuration":
+        return {
+            'Name': resource_id
+        }
+    elif client_str == "autoscaling" and function_name == "describe_launch_configurations":
+        return {
+            'LaunchConfigurationNames': [resource_id]
+        }
+    elif client_str == "autoscaling" and function_name == "describe_auto_scaling_groups":
+        return {
+            'AutoScalingGroupNames': [resource_id]
+        }
+    elif client_str == "config" and function_name == "describe_configuration_aggregators":
+        return {
+            'ConfigurationAggregatorNames': [resource_id]
+        }
+    elif client_str == "config" and function_name == "describe_configuration_recorders":
+        return {
+            'ConfigurationRecorderNames': [resource_id]
+        }
+    elif client_str == "kinesis" and function_name == "describe_stream":
+        return {
+            'StreamName': resource_id
+        }
+    elif client_str == "mq" and function_name == "describe_broker":
+        return {
+            'BrokerId': resource_id
+        }
+    elif client_str == "route53" and function_name == "list_resource_record_sets":
+        return {
+            'HostedZoneId': resource_id
+        }
+    elif client_str == "sagemaker" and function_name == "describe_notebook_instance":
+        return {
+            'NotebookInstanceName': resource_id
+        }
+    elif client_str == "codebuild" and function_name == "batch_get_projects":
+        return {
+            'names': [resource_id]
+        }
+    elif client_str == "codepipeline" and function_name == "get_pipeline":
+        return {
+            'name': resource_id
+        }
+    elif client_str == "codedeploy" and function_name == "batch_get_applications":
+        return {
+            'applicationNames': [resource_id]
+        }
     else:
         return {}
 
@@ -584,6 +834,7 @@ def _get_aws_client_data_from_node(node, default_client=None, default_region=Non
         aws_region = default_region
     aws_region = aws_region or default_region
     client_str = client_str or default_client
+    client_str = node.get("boto_type", client_str)
     return client_str, aws_region
 
 
@@ -647,7 +898,7 @@ def populate_aws_snapshot(snapshot, container=None):
                     client_str, aws_region = _get_aws_client_data_from_node(node,
                         default_client=connector_client_str, default_region=region)
                     if not _validate_client_name(client_str):
-                        logger.error("Invalid Client Name")
+                        logger.error("Invalid Client Name: %s", client_str)
                         return snapshot_data
                     try:
                         awsclient = client(client_str.lower(), aws_access_key_id=access_key,
@@ -693,7 +944,7 @@ def populate_aws_snapshot(snapshot, container=None):
                     client_str, aws_region = _get_aws_client_data_from_node(node,
                         default_client=connector_client_str, default_region=region)
                     if not _validate_client_name(client_str):
-                        logger.error("Invalid Client Name")
+                        logger.error("Invalid Client Name %s", client_str)
                         return snapshot_data
                     if aws_region:
                         all_regions = [aws_region]
@@ -716,17 +967,19 @@ def populate_aws_snapshot(snapshot, container=None):
                             all_data = get_all_nodes(awsclient, node, snapshot, sub_data)
                             if all_data:
                                 for data in all_data:
-                                    snapshot_data[node['masterSnapshotId']].append(
-                                        {
-                                            'snapshotId': '%s%s' % (node['masterSnapshotId'], str(count)),
-                                            'validate': validate,
-                                            'detailMethods': data['detailMethods'],
-                                            'structure': 'aws',
-                                            'masterSnapshotId': node['masterSnapshotId'],
-                                            'collection': data['collection'],
-                                            'arn' : data['arn'],
-                                            'status' : 'active'
-                                        })
+                                    node_data = {
+                                        'snapshotId': '%s%s' % (node['masterSnapshotId'], str(count)),
+                                        'validate': validate,
+                                        'detailMethods': data['detailMethods'],
+                                        'structure': 'aws',
+                                        'masterSnapshotId': node['masterSnapshotId'],
+                                        'collection': data['collection'],
+                                        'arn' : data['arn'],
+                                        'status' : 'active'
+                                    }
+                                    if node.get("boto_type"):
+                                        node_data["boto_type"] = node.get("boto_type")
+                                    snapshot_data[node['masterSnapshotId']].append(node_data)
                                     count += 1
             if mastercode:
                 snapshot_data = eliminate_duplicate_snapshots(snapshot_data)

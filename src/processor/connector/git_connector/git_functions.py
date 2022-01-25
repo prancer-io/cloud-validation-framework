@@ -33,34 +33,54 @@ class GithubFunctions:
         self.user = None
         self.repo = None
         self.access_token = None
+        self.is_bearer_token = False
 
     def set_base_url(self, base_url):
         """ set base url for enterprise github"""
         self.base_url = base_url
+        self.check_is_bearer_token(base_url)
 
     def set_access_token(self, access_token):
         """ get headers """
         self.access_token = access_token
 
+    def check_is_bearer_token(self, base_url):
+        """ Is it a bearer token to pass as an additional header to clone """
+        if base_url:
+            giturl = urllib.parse.unquote(base_url)
+            urlval = urllib.parse.urlparse(giturl)
+            if urlval.netloc.endswith('azure.com'):
+                self.is_bearer_token = True
+
     def get_headers(self):
         """ get headers """
-        return { 
-            "Accept" : "application/vnd.github.v3+json",
-            "Authorization" : "Token %s" % self.access_token
-        }
+        if self.is_bearer_token:
+            return {
+                "Accept" : "application/json"
+            }
+        else:
+            return {
+                "Accept" : "application/vnd.github.v3+json",
+                "Authorization" : "Token %s" % self.access_token
+            }
 
     def populate_user(self):
         """ get user object from access token """
         giturl = urllib.parse.unquote(self.base_url)
         urlval = urllib.parse.urlparse(giturl)
-        if urlval.netloc.endswith('github.com'):
-            api_url = GITHUB_URL + "user"
+        if self.is_bearer_token:
+            if urlval.netloc.endswith('azure.com'):
+                vals = urlval.netloc.split('@')
+                self.user = {'login': vals[0]}
         else:
-            api_url = urlval.scheme + "://" + urlval.netloc + "/api/v3/user"
-        # api_url = self.base_url + "user"
-        response = requests.get(api_url, headers=self.get_headers())
-        if response.status_code == 200:
-            self.user = response.json()
+            if urlval.netloc.endswith('github.com'):
+                api_url = GITHUB_URL + "user"
+            else:
+                api_url = urlval.scheme + "://" + urlval.netloc + "/api/v3/user"
+            # api_url = self.base_url + "user"
+            response = requests.get(api_url, headers=self.get_headers())
+            if response.status_code == 200:
+                self.user = response.json()
         return self.user
     
     def get_user(self):
@@ -82,7 +102,7 @@ class GithubFunctions:
     
     def clone_repo(self, source_repo, clone_path, branch_name=None):
         """ clone repository at provided path """
-
+        cval = None
         giturl = urllib.parse.unquote(source_repo)
         urlval = urllib.parse.urlparse(giturl)
         if urlval.netloc.endswith('github.com'):
@@ -95,6 +115,9 @@ class GithubFunctions:
                 source_repo = "https://" + self.user.get("login") + ":" + self.access_token +"@github.com" + repo_path[-1]
             else:
                 source_repo = "https://github.com" + repo_path[-1]
+        elif urlval.netloc.endswith('azure.com'):
+            # Dont change source repo.
+            cval="http.extraHeader=Authorization: Bearer %s" % self.access_token
         else:
             if self.user and self.access_token and self.user.get("login"):
                 source_repo = urlval.scheme + "://" + self.user.get("login") + ":" + self.access_token + "@" + urlval.netloc + urlval.path
@@ -102,16 +125,25 @@ class GithubFunctions:
                 source_repo = urlval.scheme + "://" + urlval.netloc + urlval.path
 
         kwargs = {"depth": 1}
-        
+
         if branch_name:
             kwargs["branch"] = branch_name
-        
-        self.repo = Repo.clone_from(
-            source_repo,
-            clone_path,
-            env={'GIT_SSL_NO_VERIFY': '1'},
-            **kwargs
-        )
+
+        if cval:
+            self.repo = Repo.clone_from(
+                source_repo,
+                clone_path,
+                env={'GIT_SSL_NO_VERIFY': '1'},
+                c=cval,
+                **kwargs
+            )
+        else:
+            self.repo = Repo.clone_from(
+                source_repo,
+                clone_path,
+                env={'GIT_SSL_NO_VERIFY': '1'},
+                **kwargs
+            )
         return self.repo
     
     def checkout_branch(self, branch_name):
@@ -140,10 +172,10 @@ class GithubFunctions:
         except:
             return False
 
-
 if __name__ == '__main__':
     import sys
     import tempfile
+    import os
     if len(sys.argv) > 2:
         tk = sys.argv[1]
         repoUrl = sys.argv[2]
@@ -156,13 +188,29 @@ if __name__ == '__main__':
         else:
             baseurl = urlval.scheme + "://" + urlval.netloc + "/api/v3/"
         gh.set_base_url(baseurl)
-        usr = gh.populate_user()
+        gh.populate_user()
         rpo = gh.clone_repo(repoUrl, clonedir, 'master')
         if rpo:
             print('Successfully cloned in %s dir' % clonedir)
         else:
             print('Failed to  clone %s ' % repoUrl)
     else:
-        print('Provide access token and repository https URL')
+        tkn = os.environ.get('TOKEN', None)
+        source_repo = os.environ.get('REPOURL', None)
+        if tkn is None or source_repo is None:
+            print('Provide access token and repository https URL')
+            sys.exit(1)
+        clonedir = tempfile.mkdtemp()
+        gh = GithubFunctions()
+        gh.set_access_token(tkn)
+        gh.set_base_url(source_repo)
+        gh.populate_user()
+        rpo = gh.clone_repo(source_repo, clonedir, 'main')
+        if rpo:
+            print('Successfully cloned in %s dir' % clonedir)
+        else:
+            print('Failed to  clone %s ' % repoUrl)
+
+
             
     

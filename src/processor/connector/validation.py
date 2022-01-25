@@ -1,8 +1,10 @@
 """
    Common file for running validations.
 """
+from datetime import datetime
 import json
 import re
+from time import time
 import pymongo
 import copy 
 
@@ -18,6 +20,7 @@ from processor.database.database import create_indexes, COLLECTION,\
 from processor.reporting.json_output import dump_output_results, update_output_testname
 from processor.helper.config.rundata_utils import get_dbtests, get_from_currentdata
 from processor.connector.populate_json import pull_json_data
+from processor.connector.special_compliance.compliances import COMPLIANCES
 
 logger = getlogger()
 
@@ -72,6 +75,7 @@ def run_validation_test(version, container, dbname, collection_data, testcase, e
     results = comparator.validate()
     if isinstance(results, list):
         for result in results:
+            result["result_id"] = "%s_%s" % (re.sub(r"(?=[-_\s\.]).", "", container).lower(), str(int(datetime.now().timestamp())))
             result.update(testcase)
         return results
     else:
@@ -449,6 +453,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                     testsets = get_field_value_with_default(test_json_data, 'testSet', [])
                     for testset in testsets:
                         testcases = get_field_value_with_default(testset, 'cases', [])
+                        testcases += COMPLIANCES
                         testset['cases'] = _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbname, False)
                     # print(json.dumps(test_json_data, indent=2))
                     resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
@@ -495,18 +500,52 @@ def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbna
         for node in snapshot["nodes"]:
             snapshot_resource_map[node.get("snapshotId")] = node.get("resourceTypes", [])
     
+    snapshot_testcases_map = {}
     newcases = []
     for testcase in testcases:
-        if 'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] in excludedTestIds:
-            logger.warning("Excluded from testId exclusions: %s", testcase['masterTestId'])
-            continue
+        if excludedTestIds:
+            # Check if masterTestID is present in exclusion list.
+            if  'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] in excludedTestIds:
+                logger.warning("Excluded from testId exclusions: %s", testcase['masterTestId'])
+                continue
+            # Check if any complianceID is present in the exclusion list. Only that complianceID will be removed and
+            # the rest to be run.
+            # If there is only complianceID in the testcase (i.e only one eval in the evals list) and that is part of
+            # exclusion list, then the testcase is excluded.
+            if 'evals' in testcase and testcase['evals'] and isinstance(testcase['evals'], list):
+                found = False
+                evalsTobeRemoved = []
+                for eval in testcase['evals']:
+                    if eval['id'] in excludedTestIds:
+                        found = True
+                        evalsTobeRemoved.append(eval['id'])
+                if found:
+                    newEvals = []
+                    for eval in testcase['evals']:
+                        if eval['id'] not in evalsTobeRemoved:
+                            newEvals.append(eval)
+                    logger.warning("Excluded from testId exclusions: %s with these complianceIds: %s",
+                                   testcase['masterTestId'], ','.join(evalsTobeRemoved))
+                    if newEvals: # More than one evals was present and one of them was removed.
+                        testcase['evals'] = newEvals
+                    else:  # There was only one eval, that was removed, so whole testcase will be remove as no eval is present.
+                        continue
         if includeTestConfig:
             if 'masterTestId' in testcase and testcase['masterTestId'] and testcase['masterTestId'] not in includeTests:
-                continue
+                # MasterTestID is not present in includeTests, check if any complianceID is present in includeTests
+                if 'evals' in testcase and testcase['evals'] and isinstance(testcase['evals'], list):
+                    evalsTobeAdded = []
+                    for eval in testcase['evals']:
+                        if eval['id'] in includeTests:
+                            evalsTobeAdded.append(eval)
+                    if evalsTobeAdded:
+                        testcase['evals'] = evalsTobeAdded
+                    else:
+                        continue
 
         test_parser_type = testcase.get('type', None)
         if test_parser_type == 'rego' or test_parser_type == 'python':
-            new_cases = _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map)
+            new_cases = _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map, snapshot_testcases_map)
             newcases.extend(new_cases)
         else:
             rule_str = get_field_value_with_default(testcase, 'rule', '')
@@ -532,38 +571,90 @@ def _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbna
                         newcases.append(new_testcase)
     return newcases
 
-def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map):
+def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map, snapshot_testcases_map):
     onlysnapshots = get_from_currentdata("ONLYSNAPSHOTS")
     onlysnapshotsIds = get_from_currentdata("ONLYSNAPSHOTIDS")
     newcases = []
     ms_ids = testcase.get('masterSnapshotId')
     # service = ms_ids[0].split('_')[1]
     for ms_id in ms_ids:
-        for s_id in mastersnapshots[ms_id]:
-            snapshot_resource_types = snapshot_resource_map.get(s_id, [])
-            testcase_resource_types = testcase.get('resourceTypes', [])
-            
-            if testcase_resource_types and all(resource_type not in snapshot_resource_types for resource_type in testcase_resource_types):
-                continue
+        if ms_id == "ALL":
+            for ms_id, s_ids in mastersnapshots.items():
+                for s_id in s_ids:
+                    snapshot_resource_types = snapshot_resource_map.get(s_id, [])
+                    testcase_resource_types = testcase.get('resourceTypes', [])
+                    
+                    if testcase_resource_types and all(resource_type not in snapshot_resource_types for resource_type in testcase_resource_types):
+                        continue
 
-            toAdd = True
-            if onlysnapshots:
-                if s_id not in onlysnapshotsIds:
-                    toAdd = False
-            if toAdd:
-                new_testcase = copy.copy(testcase)
-                # if service not in ms_id:
-                #     if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
-                #         [newcase['snapshotId'].append(s_id) for newcase in newcases]
-                #     else:
-                #         new_cases = copy.deepcopy(newcases)
-                #         [new_case['snapshotId'].pop(-1) and new_case['snapshotId'].append(s_id) for new_case in new_cases]
-                #         newcases.extend(new_cases)
-                #     continue
-                new_testcase['snapshotId'] = [s_id]
-                newcases.append(new_testcase)
+                    toAdd = True
+                    if onlysnapshots:
+                        if s_id not in onlysnapshotsIds:
+                            toAdd = False
+                    if toAdd:
+                        new_testcase = copy.copy(testcase)
+                        new_testcase['snapshotId'] = [s_id]
+                        newcases.append(new_testcase)
+        else:
+            for s_id in mastersnapshots[ms_id]:
+                snapshot_resource_types = snapshot_resource_map.get(s_id, [])
+                testcase_resource_types = testcase.get('resourceTypes', [])
+                
+                if testcase_resource_types and all(resource_type not in snapshot_resource_types for resource_type in testcase_resource_types):
+                    continue
+
+                toAdd = True
+                if onlysnapshots:
+                    if s_id not in onlysnapshotsIds:
+                        toAdd = False
+                if toAdd:
+                    new_testcase = copy.copy(testcase)
+                    
+                    testId = None
+                    snapshot_ids = []
+                    if new_testcase.get("masterTestId"):
+                        testId = new_testcase.get("masterTestId")
+                        snapshot_ids = new_testcase.get("masterSnapshotId")
+                        if new_testcase.get("masterTestId") in snapshot_testcases_map and \
+                            s_id in snapshot_testcases_map[new_testcase.get("masterTestId")]:
+                            continue
+                    else:
+                        continue
+                    
+                    testcase_snapshot_ids = []
+                    if len(snapshot_ids) > 1:
+                        count = 0
+                        parent_mastersnapshot_id = snapshot_ids[0]
+                        child_mastersnapshot_ids = snapshot_ids[1:]
+                        if parent_mastersnapshot_id in mastersnapshots and isinstance(mastersnapshots[parent_mastersnapshot_id], list):
+                            for parent_snapshot_id in mastersnapshots[parent_mastersnapshot_id]:
+                                new_testcase = copy.copy(testcase)
+                                temp_testcase_snapshot_ids = [parent_snapshot_id]
+                                for master_snapshot_id in child_mastersnapshot_ids:
+                                    if master_snapshot_id in mastersnapshots and isinstance(mastersnapshots[master_snapshot_id], list):
+                                        temp_testcase_snapshot_ids += mastersnapshots[master_snapshot_id]
+                                new_testcase['snapshotId'] = temp_testcase_snapshot_ids
+                                testcase_snapshot_ids += temp_testcase_snapshot_ids
+                                newcases.append(new_testcase)
+                    else:
+                        testcase_snapshot_ids = [s_id]
+                        new_testcase['snapshotId'] = testcase_snapshot_ids
+                        newcases.append(new_testcase)
+                        
+                    if testId in snapshot_testcases_map:
+                        snapshot_testcases_map[testId] += list(set(testcase_snapshot_ids))
+                    else:
+                        snapshot_testcases_map[testId] = list(set(testcase_snapshot_ids))
+
+                    # if service not in ms_id:
+                    #     if s_id.split('_')[1] not in newcases[0]['snapshotId'][-1]:
+                    #         [newcase['snapshotId'].append(s_id) for newcase in newcases]
+                    #     else:
+                    #         new_cases = copy.deepcopy(newcases)
+                    #         [new_case['snapshotId'].pop(-1) and new_case['snapshotId'].append(s_id) for new_case in new_cases]
+                    #         newcases.extend(new_cases)
+                    #     continue
     return newcases
-
 
 def container_snapshots_filesystem(container):
     """Get snapshot list used in test files from the filesystem."""

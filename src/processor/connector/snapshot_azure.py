@@ -2,9 +2,11 @@
    Common file for running validator functions.
 """
 import json
+import requests
 import copy
 import hashlib
 import time
+import re
 import pymongo
 import os
 from processor.connector.special_crawler.azure_crawler import AzureCrawler
@@ -83,6 +85,7 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
     # version = get_version_for_type(node)
+    version = node.get("version")
     # if sub_id and token and node and version:
     nodetype = None
     if node and 'type' in node and node['type']:
@@ -108,11 +111,11 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
                 put_in_currentdata('errors', data)
                 logger.info("Get Id returned invalid status: %s", status)
         
-        azure_crawler = AzureCrawler(resources, token=token, apiversions=get_api_versions(), subscription_id=sub_id)
+        azure_crawler = AzureCrawler(resources, token=token, apiversions=get_api_versions(), subscription_id=sub_id, version=version)
         resources = azure_crawler.check_for_special_crawl(nodetype)
         if resources:
             for idx, value in enumerate(resources):
-                if nodetype in value['type']:
+                if nodetype.lower() == value.get('type', "").lower():
                     db_record = copy.deepcopy(d_record)
                     db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(idx))
                     db_record['path'] = value['id']
@@ -124,11 +127,27 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         logger.info('Get requires valid subscription, token and path.!')
     return db_records
 
-def get_node(token, sub_name, sub_id, node, user, snapshot_source):
+def export_template(url, hdrs, path, retry_count=3):
+    """
+    export template
+    """
+    hdrs["Content-type"] = "application/json"
+    hdrs["cache-control"] = "no-cache"
+    request_data = {
+        "resources": [ path ],
+        "options": "SkipAllParameterization"
+    }
+    response = requests.post(url, data=json.dumps(request_data), headers=hdrs)
+    if response.status_code and isinstance(response.status_code, int) and response.status_code == 202 and retry_count:
+        export_template(url, hdrs, path, retry_count=retry_count-1)
+    if response.status_code and isinstance(response.status_code, int) and response.status_code == 200:
+        data = response.json().get("template", {})
+    return response.status_code, data
+
+def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_records):
     """ Fetch node from azure portal using rest API."""
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
-    db_records = []
     db_record = {
         "structure": "azure",
         "reference": sub_name,
@@ -144,32 +163,61 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source):
         "masterSnapshotId": None,
         "collection": collection.replace('.', '').lower(),
         "region" : "",
-        "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
+        "json": {"resources": []}  # Refactor when node is absent it should None, when empty object put it as {}
     }
-    version = get_version_for_type(node)
+            
+    version = node["version"] if node.get("version") else get_version_for_type(node)
     if sub_id and token and node and node['path'] and version:
         hdrs = {
             'Authorization': 'Bearer %s' % token
         }
+        
+        status = None 
+        data = None
         if node['path'].startswith('/subscriptions'):
             urlstr = 'https://management.azure.com%s?api-version=%s'
             url = urlstr % (node['path'], version)
         else:
+            parent_resource_json = {}
             urlstr = 'https://management.azure.com/subscriptions/%s%s?api-version=%s'
             url = urlstr % (sub_id, node['path'], version)
+         
+        child_resource_type_list = node.get('type', "").split("/")   
+        if len(child_resource_type_list) == 2:
+            exmatch = re.search(r'/subscriptions.*/resourceGroups/.*?/', node['path'], re.I)
+            if exmatch:
+                logger.info("exmatch.groups()[0]")
+                logger.info(exmatch.group(0))
+                export_template_url = 'https://management.azure.com%sexportTemplate?api-version=2021-04-01' % (exmatch.group(0).lower())
+                status, data = export_template(export_template_url, hdrs, node['path'])
+                
         db_record['path'] = node['path']
-        # logger.info('Get Id REST API invoked!')
-        status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
-        # logger.info('Get Id status: %s', status)
+        
         if status and isinstance(status, int) and status == 200:
-            db_record['json'] = data
-            db_record['region'] = db_record['json'].get("location")
-            data_str = json.dumps(data)
-            db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
+            if data and data.get("resources"):
+                db_record['json']['resources'] = data.get("resources")
         else:
-            put_in_currentdata('errors', data)
-            logger.info("Get Id returned invalid status: %s, response: %s", status, data)
-            logger.error("Failed to get Azure resourse with given path : %s, please verify your azure connector detail and path given in snapshot.", node['path'])
+            status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
+        
+            if status and isinstance(status, int) and status == 200:    
+                # parent_resource_json = {}
+                # child_resource_type_list = node.get('type', "").split("/")
+                # if len(child_resource_type_list) > 2:
+                #     child_resource_type = "/".join(child_resource_type_list[2:])
+                #     main_resource_type = "/".join(child_resource_type_list[:2])
+                #     for all_data_record in all_data_records:
+                #         if all_data_record["json"]["resources"][0].get("type") == main_resource_type:
+                #             if "%s/" % all_data_record["json"]["resources"][0].get("id") in node["path"]:
+                #                 all_data_record["json"]["resources"].append(data)
+            
+                db_record['json']['resources'].append(data)
+                db_record['region'] = data.get("location")
+                data_str = json.dumps(data)
+                db_record['checksum'] = hashlib.md5(data_str.encode('utf-8')).hexdigest()
+            else:
+                put_in_currentdata('errors', data)
+                logger.info("Get Id returned invalid status: %s, response: %s", status, data)
+                logger.error("Failed to get Azure resourse with given path : %s, please verify your azure connector detail and path given in snapshot.", node['path'])
     else:
         db_record = {}
         logger.info('Get requires valid subscription, token and path.!')
@@ -224,38 +272,40 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     # snapshot_nodes = get_field_value(snapshot, 'nodes')
     # snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and token and snapshot_nodes:
+        all_data_records = []
         for node in snapshot_nodes:
             validate = node['validate'] if 'validate' in node else True
             if 'path' in  node:
-                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source)
+                data = get_node(token, sub_name, sub_id, node, snapshot_user, snapshot_source, all_data_records)
                 if data:
                     if validate:
-                        if get_dbtests():
-                            if get_collection_size(data['collection']) == 0:
-                                # Creating indexes for collection
-                                create_indexes(
-                                    data['collection'], 
-                                    config_value(DATABASE, DBNAME), 
-                                    [
-                                        ('snapshotId', pymongo.ASCENDING),
-                                        ('timestamp', pymongo.DESCENDING)
-                                    ]
-                                )
+                        all_data_records.append(data)
+                        # if get_dbtests():
+                        #     if get_collection_size(data['collection']) == 0:
+                        #         # Creating indexes for collection
+                        #         create_indexes(
+                        #             data['collection'], 
+                        #             config_value(DATABASE, DBNAME), 
+                        #             [
+                        #                 ('snapshotId', pymongo.ASCENDING),
+                        #                 ('timestamp', pymongo.DESCENDING)
+                        #             ]
+                        #         )
 
-                                create_indexes(
-                                    data['collection'], 
-                                    config_value(DATABASE, DBNAME), 
-                                    [
-                                        ('_id', pymongo.DESCENDING),
-                                        ('timestamp', pymongo.DESCENDING),
-                                        ('snapshotId', pymongo.ASCENDING)
-                                    ]
-                                )
-                            insert_one_document(data, data['collection'], dbname, check_keys=False)
-                        else:
-                            snapshot_dir = make_snapshots_dir(container)
-                            if snapshot_dir:
-                                store_snapshot(snapshot_dir, data)
+                        #         create_indexes(
+                        #             data['collection'], 
+                        #             config_value(DATABASE, DBNAME), 
+                        #             [
+                        #                 ('_id', pymongo.DESCENDING),
+                        #                 ('timestamp', pymongo.DESCENDING),
+                        #                 ('snapshotId', pymongo.ASCENDING)
+                        #             ]
+                        #         )
+                        #     insert_one_document(data, data['collection'], dbname, check_keys=False)
+                        # else:
+                        #     snapshot_dir = make_snapshots_dir(container)
+                        #     if snapshot_dir:
+                        #         store_snapshot(snapshot_dir, data)
                         if 'masterSnapshotId' in node:
                             snapshot_data[node['snapshotId']] = node['masterSnapshotId']
                         else:
@@ -327,6 +377,35 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                                     })
                     # snapshot_data[node['masterSnapshotId']] = True
                 logger.debug('Type: %s', type(alldata))
+        
+        for data in all_data_records:
+            if get_dbtests():
+                if get_collection_size(data['collection']) == 0:
+                    # Creating indexes for collection
+                    create_indexes(
+                        data['collection'], 
+                        config_value(DATABASE, DBNAME), 
+                        [
+                            ('snapshotId', pymongo.ASCENDING),
+                            ('timestamp', pymongo.DESCENDING)
+                        ]
+                    )
+
+                    create_indexes(
+                        data['collection'], 
+                        config_value(DATABASE, DBNAME), 
+                        [
+                            ('_id', pymongo.DESCENDING),
+                            ('timestamp', pymongo.DESCENDING),
+                            ('snapshotId', pymongo.ASCENDING)
+                        ]
+                    )
+                insert_one_document(data, data['collection'], dbname, check_keys=False)
+            else:
+                snapshot_dir = make_snapshots_dir(container)
+                if snapshot_dir:
+                    store_snapshot(snapshot_dir, data)
+        
         delete_from_currentdata('resources')
         delete_from_currentdata('clientId')
         delete_from_currentdata('client_secret')
