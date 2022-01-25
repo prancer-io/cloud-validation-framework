@@ -26,6 +26,7 @@ curl -X POST https://portal.prancer.io/customer1/api/webhook/github/create -H 'a
 ```
 
 **Explanation**
+
 - collection: Name of the collection for which configure the webhook
 - enable: Boolean value to specify enable or disable the webhook.
 

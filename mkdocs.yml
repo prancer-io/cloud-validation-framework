@@ -68,4 +68,6 @@ nav:
     - resources: api/resources.md
     - tags: api/tags.md
     - users: api/users.md
+    - permissions: api/permissions.md
+    - webhook: api/webhook.md
     - wizard: api/wizard.md

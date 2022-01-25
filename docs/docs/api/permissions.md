@@ -50,7 +50,6 @@ curl -X GET https://portal.prancer.io/customer1/api/permission/ \
     },
     "error": "",
     "error_list": [],
-    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -93,7 +92,6 @@ curl -X POST https://portal.prancer.io/customer1/api/permission/role/ -H 'author
 {
     "data": {},
     "error": "",
-    "error_list": [],
     "error_list": [],
     "message": "Role saved successfully",
     "metadata": {},
@@ -167,7 +165,6 @@ curl -X GET https://portal.prancer.io/customer1/api/permission/role/ -H 'authori
         ]
     },
     "error": "",
-    "error_list": [],
     "error_list": [],
     "message": "",
     "metadata": {},

@@ -36,7 +36,6 @@ curl -X GET https://portal.prancer.io/customer1/api/collection -H 'authorization
     "data": {},
     "error": "",
     "error_list": [],
-    "error_list": [],
     "message": "Collection created successfully.",
     "metadata": {},
     "status": 200

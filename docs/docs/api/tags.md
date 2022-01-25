@@ -597,7 +597,6 @@ curl -X GET https://portal.prancer.io/customer1/api/default/tags -H 'authorizati
     },
     "error": "",
     "error_list": [],
-    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
