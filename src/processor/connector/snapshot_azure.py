@@ -108,6 +108,7 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
                 resources = data['value']
                 put_in_currentdata('resources', resources)
             else:
+                resources = []
                 put_in_currentdata('errors', data)
                 logger.info("Get Id returned invalid status: %s", status)
         
@@ -138,8 +139,9 @@ def export_template(url, hdrs, path, retry_count=3):
         "options": "SkipAllParameterization"
     }
     response = requests.post(url, data=json.dumps(request_data), headers=hdrs)
+    data = {}
     if response.status_code and isinstance(response.status_code, int) and response.status_code == 202 and retry_count:
-        export_template(url, hdrs, path, retry_count=retry_count-1)
+        return export_template(url, hdrs, path, retry_count=retry_count-1)
     if response.status_code and isinstance(response.status_code, int) and response.status_code == 200:
         data = response.json().get("template", {})
     return response.status_code, data
@@ -413,4 +415,3 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
         delete_from_currentdata('tenant_id')
         delete_from_currentdata('token')
     return snapshot_data
-
