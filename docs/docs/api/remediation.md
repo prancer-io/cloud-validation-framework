@@ -8,10 +8,10 @@
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/remediate/testcase/' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "output_id":"608d646f32e86e9c9453c665", "snapshot_id":"ARM_TEMPLATE_SNAPSHOT10", "remediation_id":"PR-AZR-0053-ARM" }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/remediate/testcase/' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "output_id":"608d646f32e86e9c9453c665", "snapshot_id":"ARM_TEMPLATE_SNAPSHOT10", "remediation_id":"PR-AZR-0053-ARM" }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/remediate/testcase/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/remediate/testcase/
 - **Method:** POST
 - **Header:**
 ```

@@ -7,10 +7,10 @@
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/webhook/github/create -H 'authorization: Bearer <JWT Bearer Token>' -d '{ "collection" : "azure_arm", "enable" : true }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/webhook/github/create -H 'authorization: Bearer <JWT Bearer Token>' -d '{ "collection" : "azure_arm", "enable" : true }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/webhook/github/create
+- **URL:** https://portal.prancer.io/prancer-customer1/api/webhook/github/create
 - **Method:** POST
 - **Header:**
 ```

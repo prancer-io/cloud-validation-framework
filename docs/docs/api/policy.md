@@ -7,10 +7,10 @@
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/policy/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "provider": "Azure", "compliance" : [], "resource_type" : [], "policy_name" : "Network Security Group should not exposed RDP and SSH ports", "count" : 100, "index" : 0 }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/policy/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "provider": "Azure", "compliance" : [], "resource_type" : [], "policy_name" : "Network Security Group should not exposed RDP and SSH ports", "count" : 100, "index" : 0 }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/policy/filter
+- **URL:** https://portal.prancer.io/prancer-customer1/api/policy/filter
 - **Method:** POST
 - **Header:**
 ```
@@ -135,10 +135,10 @@ curl -X POST https://portal.prancer.io/customer1/api/policy/filter -H 'authoriza
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/policy/rego?container_name=azure_cloud&policy_rule=file(PR_AZR_0020.rego)' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/policy/rego?container_name=azure_cloud&policy_rule=file(PR_AZR_0020.rego)' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/policy/search
+- **URL:** https://portal.prancer.io/prancer-customer1/api/policy/search
 - **Method:** GET
 - **Header:**
 ```
@@ -180,7 +180,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/policy/rego?container_name=
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/policy -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' \
+curl -X POST https://portal.prancer.io/prancer-customer1/api/policy -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' \
   -d '{
 	"mastertestcase_id": "608414064648517532cfe2ab",
     "collection_name": "azure_cloud",
@@ -216,7 +216,7 @@ curl -X POST https://portal.prancer.io/customer1/api/policy -H 'authorization: B
 }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/policy
+- **URL:** https://portal.prancer.io/prancer-customer1/api/policy
 - **Method:** POST
 - **Header:**
 ```
@@ -338,10 +338,10 @@ Save Policy with rego rules
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/policy/dashboard -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "mastertest_id": "AZURE_TEST_224", "collection_name" : "azure_crawler_demo" }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/policy/dashboard -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "mastertest_id": "AZURE_TEST_224", "collection_name" : "azure_crawler_demo" }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/policy/dashboard
+- **URL:** https://portal.prancer.io/prancer-customer1/api/policy/dashboard
 - **Method:** POST
 - **Header:**
 ```

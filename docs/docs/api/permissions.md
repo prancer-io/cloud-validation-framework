@@ -9,11 +9,11 @@
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/permission/ \
+curl -X GET https://portal.prancer.io/prancer-customer1/api/permission/ \
   -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/permission/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/permission/
 - **Method:** GET
 - **Header:**
 ```
@@ -62,10 +62,10 @@ curl -X GET https://portal.prancer.io/customer1/api/permission/ \
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/permission/role/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{"permissions": [ "collection_full_control", "compliance_full_control", "configuration_full_control", "crawler_full_control", "dashboard_full_control"],"role_name" : "QC"}'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/permission/role/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{"permissions": [ "collection_full_control", "compliance_full_control", "configuration_full_control", "crawler_full_control", "dashboard_full_control"],"role_name" : "QC"}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/permission/role/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/permission/role/
 - **Method:** POST
 - **Header:**
 ```
@@ -115,10 +115,10 @@ curl -X POST https://portal.prancer.io/customer1/api/permission/role/ -H 'author
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/permission/role/ -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/permission/role/ -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/permission/role/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/permission/role/
 - **Method:** GET
 - **Header:**
 ```

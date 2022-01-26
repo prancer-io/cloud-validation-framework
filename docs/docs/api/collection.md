@@ -9,10 +9,10 @@
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/collection
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
 - **Method:** POST
 - **Header:**
 
@@ -48,10 +48,10 @@ curl -X GET https://portal.prancer.io/customer1/api/collection -H 'authorization
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/collection/list -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/collection/list -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/collection/list
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection/list
 - **Method:** GET
 - **Header:**
 
@@ -154,10 +154,10 @@ curl -X GET https://portal.prancer.io/customer1/api/collection/list -H 'authoriz
 
 **CURL Sample**
 ```
-curl -H "space-id:101"  -H 'authorization: Bearer <JWT Bearer Token>' -X GET "https://portal.prancer.io/customer1/api/collection?collection=git_azure_customer1_1617571294420"
+curl -H "space-id:101"  -H 'authorization: Bearer <JWT Bearer Token>' -X GET "https://portal.prancer.io/prancer-customer1/api/collection?collection=git_azure_customer1_1617571294420"
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/collection
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
 - **Method:** GET
 - **Header:**
 
@@ -193,10 +193,10 @@ curl -H "space-id:101"  -H 'authorization: Bearer <JWT Bearer Token>' -X GET "ht
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/database/collection -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/database/collection -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/database/collection
+- **URL:** https://portal.prancer.io/prancer-customer1/api/database/collection
 - **Method:** GET
 - **Header:**
 ```
@@ -250,10 +250,10 @@ curl -X GET https://portal.prancer.io/customer1/api/database/collection -H 'auth
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/manage/config -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/manage/config -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/manage/config
+- **URL:** https://portal.prancer.io/prancer-customer1/api/manage/config
 - **Method:** GET
 - **Header:**
 ```
@@ -303,10 +303,10 @@ Required Fields
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/manage/config -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/manage/config -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/manage/config
+- **URL:** https://portal.prancer.io/prancer-customer1/api/manage/config
 - **Method:** POST
 - **Header:**
 ```

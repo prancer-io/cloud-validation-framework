@@ -11,7 +11,7 @@
 **CURL Sample**
 ```
 curl -X POST \
-  https://portal.prancer.io/customer1/api/login/ -H 'content-type: application/json' \
+  https://portal.prancer.io/prancer-customer1/api/login/ -H 'content-type: application/json' \
   -d '{
 	"email" : "<Valid Email Address>",
 	"password" : "<Valid Password>",
@@ -19,7 +19,7 @@ curl -X POST \
 }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/login/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/login/
 - **Method:** POST
 - **Header:**
     - content-type: application/json
@@ -38,7 +38,7 @@ curl -X POST \
 
     - **email:** Valid email of user for login.
     - **password:** Valid password of user for login.
-    - **customer_id:** Valid customer Id of user.
+    - **customer_id:** It is in the format of `prancer-<company_name>`. For example, if your company name is `ABC`, the customer id would be `prancer-abc`.
 
 
 **Success Response:**
@@ -83,14 +83,14 @@ curl -X POST \
 **CURL Sample**
 ```
 curl -X POST \
-  https://portal.prancer.io/customer1/api/validate/accesstoken/ -H 'content-type: application/json' \
+  https://portal.prancer.io/prancer-customer1/api/validate/accesstoken/ -H 'content-type: application/json' \
   -d '{
 	"token" : "<Valid User Access Token>",
 	"customer_id" : "<Valid CustomerId>"
 }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/validate/accesstoken/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/validate/accesstoken/
 - **Method:** POST
 - **Header:**
     - content-type: application/json
@@ -107,7 +107,7 @@ curl -X POST \
     `Required Fields`
 
     - **token:** Valid User Access Token, generated from website.
-    - **customer_id:** Valid customer Id of user.
+    - **customer_id:** It is in the format of `prancer-<company_name>`. For example, if your company name is `ABC`, the customer id would be `prancer-abc`.
 
 
 **Success Response:**
@@ -156,12 +156,12 @@ curl -X POST \
 **CURL Sample**
 ```
 curl -X GET \
-  https://portal.prancer.io/customer1/api/refresh/token/ \
+  https://portal.prancer.io/prancer-customer1/api/refresh/token/ \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/refresh/token/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/refresh/token/
 - **Method:** GET
 - **Header:**
 ```
@@ -209,12 +209,12 @@ API for logout user. Once user gets logout the refresh token will also not work.
 **CURL Sample**
 ```
 curl -X POST \
-  https://portal.prancer.io/customer1/api/logout/ \
+  https://portal.prancer.io/prancer-customer1/api/logout/ \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/logout/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/logout/
 - **Method:** POST
 - **Header:**
 ```

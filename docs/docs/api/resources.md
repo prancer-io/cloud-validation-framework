@@ -8,10 +8,10 @@
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/resource/search?count=3&index=0&collection=azure_crawler_demo&start_date=2020-10-26&end_date=2020-10-27' -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/resource/search?count=3&index=0&collection=azure_crawler_demo&start_date=2020-10-26&end_date=2020-10-27' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/resource/search/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/resource/search/
 - **Method:** GET
 - **Header:**
 ```
@@ -166,10 +166,10 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/search?count=3&ind
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collection=azure_nist_cloud_demo&resource_path=%2Fsubscriptions%2Fd34d6562-8a12-4458-ba02-b12345f45gdd%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FnetworkSecurityGroups%2Fnsg-test-456&start_date=2021-02-20&end_date=2021-02-28' -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/resource/dashboard?collection=azure_nist_cloud_demo&resource_path=%2Fsubscriptions%2Fd34d6562-8a12-4458-ba02-b12345f45gdd%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FnetworkSecurityGroups%2Fnsg-test-456&start_date=2021-02-20&end_date=2021-02-28' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/resource/dashboard
+- **URL:** https://portal.prancer.io/prancer-customer1/api/resource/dashboard
 - **Method:** GET
 - **Header:**
 ```
@@ -367,10 +367,10 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/dashboard?collecti
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_path=%2Fsubscriptions%2Fd34d6562-8a12-4458-ba02-b12345f45gdd%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FvirtualNetworks%2FNetworkWatcherRG-vnet&resource_collection_name=microsoftnetwork' -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/resource/detail?resource_path=%2Fsubscriptions%2Fd34d6562-8a12-4458-ba02-b12345f45gdd%2FresourceGroups%2FNetworkWatcherRG%2Fproviders%2FMicrosoft.Network%2FvirtualNetworks%2FNetworkWatcherRG-vnet&resource_collection_name=microsoftnetwork' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/resource/detail
+- **URL:** https://portal.prancer.io/prancer-customer1/api/resource/detail
 - **Method:** GET
 - **Header:**
 ```
@@ -443,10 +443,10 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/detail?resource_pa
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/resource/testcase?result_id=6036368b64b6fd6ff8a33429&test_id=AZURE_TEST_229' -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/resource/testcase?result_id=6036368b64b6fd6ff8a33429&test_id=AZURE_TEST_229' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/resource/testcase
+- **URL:** https://portal.prancer.io/prancer-customer1/api/resource/testcase
 - **Method:** GET
 - **Header:**
 ```
@@ -527,10 +527,10 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/testcase?result_id
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/resource/configuration/drift?resource_collection_name=microsoftnetwork&new_resource_id=603604e7016161111cb46935&old_resource_id=603604345007f294c16c5fbe' -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/resource/configuration/drift?resource_collection_name=microsoftnetwork&new_resource_id=603604e7016161111cb46935&old_resource_id=603604345007f294c16c5fbe' -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/resource/configuration/drift
+- **URL:** https://portal.prancer.io/prancer-customer1/api/resource/configuration/drift
 - **Method:** GET
 - **Header:**
 ```
@@ -586,10 +586,10 @@ curl -X GET 'https://portal.prancer.io/customer1/api/resource/configuration/drif
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "collection": "azure_crawler_demo", "start_date" : "2020-10-19", "end_date" : "2020-10-20", "connector" : "aws_structure", "account_id": 155603667260, "user":"farshid_mahdavipour", "resource_type":"Microsoft.Network/networkSecurityGroups" }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "collection": "azure_crawler_demo", "start_date" : "2020-10-19", "end_date" : "2020-10-20", "connector" : "aws_structure", "account_id": 155603667260, "user":"farshid_mahdavipour", "resource_type":"Microsoft.Network/networkSecurityGroups" }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/resource/filter
+- **URL:** https://portal.prancer.io/prancer-customer1/api/resource/filter
 - **Method:** POST
 - **Header:**
 ```
@@ -664,10 +664,10 @@ curl -X POST https://portal.prancer.io/customer1/api/resource/filter -H 'authori
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/resource/filter
+- **URL:** https://portal.prancer.io/prancer-customer1/api/resource/filter
 - **Method:** GET
 - **Header:**
 ```
@@ -712,10 +712,10 @@ curl -X GET https://portal.prancer.io/customer1/api/resource/filter -H 'authoriz
 
 **CURL Sample**
 ```
-curl -X DELETE https://portal.prancer.io/customer1/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "filter_id": "5f9804784cf7ad1bb583cece" }'
+curl -X DELETE https://portal.prancer.io/prancer-customer1/api/resource/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "filter_id": "5f9804784cf7ad1bb583cece" }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/resource/filter
+- **URL:** https://portal.prancer.io/prancer-customer1/api/resource/filter
 - **Method:** DELETE
 - **Header:**
 ```
@@ -765,10 +765,10 @@ curl -X DELETE https://portal.prancer.io/customer1/api/resource/filter -H 'autho
 
 **CURL Sample**
 ```
-curl -X GET ' https://portal.prancer.io/customer1/api/query/resources?query=Microsoft.Storage%2Fjson.properties.encryption.services.blob.keyType%3Daccount&start_date=2020-11-03&end_date=2020-11-04&count=10&index=50' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+curl -X GET ' https://portal.prancer.io/prancer-customer1/api/query/resources?query=Microsoft.Storage%2Fjson.properties.encryption.services.blob.keyType%3Daccount&start_date=2020-11-03&end_date=2020-11-04&count=10&index=50' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/query/resources
+- **URL:** https://portal.prancer.io/prancer-customer1/api/query/resources
 - **Method:** GET
 - **Header:**
 ```
@@ -845,10 +845,10 @@ curl -X GET ' https://portal.prancer.io/customer1/api/query/resources?query=Micr
 
 **CURL Sample**
 ```
-curl -X GET ' https://portal.prancer.io/customer1/api/query/samples' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+curl -X GET ' https://portal.prancer.io/prancer-customer1/api/query/samples' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/query/samples
+- **URL:** https://portal.prancer.io/prancer-customer1/api/query/samples
 - **Method:** GET
 - **Header:**
 ```
@@ -957,10 +957,10 @@ curl -X GET ' https://portal.prancer.io/customer1/api/query/samples' -H 'authori
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/exclusions/resources/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "container": "azure_arm", "exclusions": [{ "exclusionType": "single", "masterTestID": "PR-AZR-ARM-AGW-001", "paths": [ "/APP_GW/appgw.azuredeploy.json", "/APP_GW/appgw.azuredeploy.parameters.json" ]}]}'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/exclusions/resources/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "container": "azure_arm", "exclusions": [{ "exclusionType": "single", "masterTestID": "PR-AZR-ARM-AGW-001", "paths": [ "/APP_GW/appgw.azuredeploy.json", "/APP_GW/appgw.azuredeploy.parameters.json" ]}]}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/exclusions/resources/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/exclusions/resources/
 - **Method:** POST
 - **Header:**
 ```
@@ -1010,10 +1010,10 @@ curl -X POST https://portal.prancer.io/customer1/api/exclusions/resources/ -H 'a
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/exclusions/resources/?container=azure_arm&count=10&index=0 -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/exclusions/resources/?container=azure_arm&count=10&index=0 -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/exclusions/resources/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/exclusions/resources/
 - **Method:** GET
 - **Header:**
 ```
@@ -1072,10 +1072,10 @@ curl -X GET https://portal.prancer.io/customer1/api/exclusions/resources/?contai
 
 **CURL Sample**
 ```
-curl -X DELETE https://portal.prancer.io/customer1/api/exclusions/resources/?container=azure_arm&count=10&index=0 -H 'authorization: Bearer <JWT Bearer Token>' -d '{"container":"azure_arm","exclusions":[{"exclusionType":"single","masterTestID":"PR-AZR-ARM-AGW-001","paths":["/APP_GW/appgw.azuredeploy.json","/APP_GW/appgw.azuredeploy.parameters.json"]}]}'
+curl -X DELETE https://portal.prancer.io/prancer-customer1/api/exclusions/resources/?container=azure_arm&count=10&index=0 -H 'authorization: Bearer <JWT Bearer Token>' -d '{"container":"azure_arm","exclusions":[{"exclusionType":"single","masterTestID":"PR-AZR-ARM-AGW-001","paths":["/APP_GW/appgw.azuredeploy.json","/APP_GW/appgw.azuredeploy.parameters.json"]}]}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/exclusions/resources/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/exclusions/resources/
 - **Method:** DELETE
 - **Header:**
 ```

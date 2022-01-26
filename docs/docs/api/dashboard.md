@@ -9,11 +9,11 @@
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/dashboard/view \
+curl -X GET https://portal.prancer.io/prancer-customer1/api/dashboard/view \
   -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/dashboard/view
+- **URL:** https://portal.prancer.io/prancer-customer1/api/dashboard/view
 - **Method:** GET
 - **Header:**
 ```
@@ -104,10 +104,10 @@ Once you get the componenet list, call the Dashboard - Stats API for get the sta
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/dashboard/view -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "container": "", "days": "7", "tag": { "cloud": "", "compliances": [], "services": [] }}'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/dashboard/view -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "container": "", "days": "7", "tag": { "cloud": "", "compliances": [], "services": [] }}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/dashboard/view
+- **URL:** https://portal.prancer.io/prancer-customer1/api/dashboard/view
 - **Method:** POST
 - **Header:**
 ```
@@ -168,11 +168,11 @@ curl -X POST https://portal.prancer.io/customer1/api/dashboard/view -H 'authoriz
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/dashboard/manage \
+curl -X POST https://portal.prancer.io/prancer-customer1/api/dashboard/manage \
   -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "container": "test", "days": "7","tag": { "cloud": "test", "compliances": [], "services": [] }}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/dashboard/manage
+- **URL:** https://portal.prancer.io/prancer-customer1/api/dashboard/manage
 - **Method:** POST
 - **Header:**
 ```
@@ -219,10 +219,10 @@ curl -X POST https://portal.prancer.io/customer1/api/dashboard/manage \
 
 **CURL Sample**
 ```
-curl -X DELETE https://portal.prancer.io/customer1/api/dashboard/manage -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "id": "6040ce75eb15c9f599e8cc9a" }'
+curl -X DELETE https://portal.prancer.io/prancer-customer1/api/dashboard/manage -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "id": "6040ce75eb15c9f599e8cc9a" }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/dashboard/manage
+- **URL:** https://portal.prancer.io/prancer-customer1/api/dashboard/manage
 - **Method:** DELETE
 - **Header:**
 ```

@@ -9,10 +9,10 @@
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/customer1/api/wizardredirect?provider=GCP&state=customer1"
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/prancer-customer1/api/wizardredirect?provider=GCP&state=customer1"
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardredirect
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardredirect
 - **Method:** GET
 - **Header:**
 ```
@@ -50,10 +50,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/customer1/api/wizardproviders" -d'{"provider": "GCP", "state": "customer1", "code": "<GOOGLE ACCESS CODE>"}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizardproviders" -d'{"provider": "GCP", "state": "customer1", "code": "<GOOGLE ACCESS CODE>"}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardproviders
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardproviders
 - **Method:** POST
 - **Header:**
 ```
@@ -98,10 +98,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/customer1/api/wizardredirect?provider=github&state=customer1"
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/prancer-customer1/api/wizardredirect?provider=github&state=customer1"
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardredirect
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardredirect
 - **Method:** GET
 - **Header:**
 ```
@@ -139,10 +139,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/customer1/api/wizardproviders" -d'{"provider": "git", "type": "github", "state": "customer1", "code": "<Github Access Code>"}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizardproviders" -d'{"provider": "git", "type": "github", "state": "customer1", "code": "<Github Access Code>"}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardproviders
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardproviders
 - **Method:** POST
 - **Header:**
 ```
@@ -182,10 +182,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/customer1/api/wizardproviders" -d'{"provider": "azure", "tenant": "<Azure Tenant Id>", "client_id": "<Azure Client Id>", "client_secret": "<Azure Client Secret>", "customer": "customer1"}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizardproviders" -d'{"provider": "azure", "tenant": "<Azure Tenant Id>", "client_id": "<Azure Client Id>", "client_secret": "<Azure Client Secret>", "customer": "customer1"}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardproviders
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardproviders
 - **Method:** POST
 - **Header:**
 ```
@@ -228,10 +228,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/customer1/api/wizardproviders" -d'{"provider": "aws", "accessKey": "<AWS accesskey>", "accessSecret": "<AWS Secret Key>"}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizardproviders" -d'{"provider": "aws", "accessKey": "<AWS accesskey>", "accessSecret": "<AWS Secret Key>"}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardproviders
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardproviders
 - **Method:** POST
 - **Header:**
 ```
@@ -273,10 +273,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/customer1/api/wizardstatus?name=git_azure_customer1_1617571294420"
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/prancer-customer1/api/wizardstatus?name=git_azure_customer1_1617571294420"
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardstatus
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardstatus
 - **Method:** GET
 - **Header:**
 ```
@@ -321,10 +321,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/customer1/api/wizardstatus?name=git_azure_customer1_161757129442"
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/prancer-customer1/api/wizardstatus?name=git_azure_customer1_161757129442"
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardstatus
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardstatus
 - **Method:** GET
 - **Header:**
 ```
@@ -361,10 +361,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/customer1/api/collection?collection=git_azure_customer1_1617571294420"
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/prancer-customer1/api/collection?collection=git_azure_customer1_1617571294420"
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/collection
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
 - **Method:** GET
 - **Header:**
 ```
@@ -397,10 +397,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/customer1/api/collection?collection=git_azure_customer1_16175712944"
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/prancer-customer1/api/collection?collection=git_azure_customer1_16175712944"
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/collection
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
 - **Method:** GET
 - **Header:**
 ```
@@ -433,10 +433,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/customer1/api/wizard"  -d'{"customer":"customer1"    ,"provider":"GCP","projects":[{"projectName":"<GCP Project Name>","projectId":"<GCP Project Id>","checked":true}],"name":"<Collection Name like google-test2>","remediate":true}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizard"  -d'{"customer":"customer1"    ,"provider":"GCP","projects":[{"projectName":"<GCP Project Name>","projectId":"<GCP Project Id>","checked":true}],"name":"<Collection Name like google-test2>","remediate":true}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizard
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizard
 - **Method:** POST
 - **Header:**
 ```
@@ -477,10 +477,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/customer1/api/wizard"  -d'{"customer":"customer1"    ,"provider":"GCP","projects":[{"projectName": "<GCP Project Name>","projectId": "<GCP Project Id>","checked":true}],"name":"google-test2","remediate":true}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizard"  -d'{"customer":"customer1"    ,"provider":"GCP","projects":[{"projectName": "<GCP Project Name>","projectId": "<GCP Project Id>","checked":true}],"name":"google-test2","remediate":true}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizard
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizard
 - **Method:** POST
 - **Header:**
 ```
@@ -519,10 +519,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/customer1/api/wizard"  -d'{"customer":"customer1","provider":"kubernetes", "clusterName": "<Cluster Name>", "clusterUrl": "<cluster url>", "secret": "<Secret Token>", "namespaces": [{"name": "default", "namespaceId": "<namespace_id>"}], "name": "< collection name like kube-test>", "remediate": true}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizard"  -d'{"customer":"customer1","provider":"kubernetes", "clusterName": "<Cluster Name>", "clusterUrl": "<cluster url>", "secret": "<Secret Token>", "namespaces": [{"name": "default", "namespaceId": "<namespace_id>"}], "name": "< collection name like kube-test>", "remediate": true}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizard
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizard
 - **Method:** POST
 - **Header:**
 ```
@@ -564,10 +564,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/customer1/api/wizard"  -d'{"customer":"customer1","provider":"kubernetes", "clusterName": "<cluster name>", "clusterUrl": "<cluster url>", "secret": "<Secret Token>", "namespaces": [{"name": "default", "namespaceId": "<namespace Id>"}], "name": "< collection name like kube-test>", "remediate": true}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizard"  -d'{"customer":"customer1","provider":"kubernetes", "clusterName": "<cluster name>", "clusterUrl": "<cluster url>", "secret": "<Secret Token>", "namespaces": [{"name": "default", "namespaceId": "<namespace Id>"}], "name": "< collection name like kube-test>", "remediate": true}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizard
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizard
 - **Method:** POST
 - **Header:**
 ```
@@ -607,10 +607,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/customer1/api/wizardproviders" -d'{"provider": "kubernetes", "customer": "customer1", "clusterName": "<Cluster Name>", "clusterUrl": "<Cluster Url>", "secret": "<Secret Token>"}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizardproviders" -d'{"provider": "kubernetes", "customer": "customer1", "clusterName": "<Cluster Name>", "clusterUrl": "<Cluster Url>", "secret": "<Secret Token>"}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardproviders
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardproviders
 - **Method:** POST
 - **Header:**
 ```
@@ -657,10 +657,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" https://portal.prancer.io/customer1/api/wizardredirect?provider=google&state=customer1
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" https://portal.prancer.io/prancer-customer1/api/wizardredirect?provider=google&state=customer1
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardredirect
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardredirect
 - **Method:** GET
 - **Header:**
 ```
@@ -699,10 +699,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST https://portal.prancer.io/customer1/api/wizardproviders -d'{"provider": "google", "code": "<callback received>", "customer": "customer1"}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST https://portal.prancer.io/prancer-customer1/api/wizardproviders -d'{"provider": "google", "code": "<callback received>", "customer": "customer1"}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardproviders
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardproviders
 - **Method:** POST
 - **Header:**
 ```
@@ -740,10 +740,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" https://portal.prancer.io/customer1/api/wizardredirect?provider=github&state=customer1
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" https://portal.prancer.io/prancer-customer1/api/wizardredirect?provider=github&state=customer1
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardredirect
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardredirect
 - **Method:** GET
 - **Header:**
 ```
@@ -781,10 +781,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id: 101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST https://portal.prancer.io/customer1/api/wizardproviders -d'{"provider": "azure", "tenant": "<tenant-id>", "name": "<spn-name>", "client_id": "<client-key>", "client_secret": "<client secret for spn>"}'
+curl -H "space-id: 101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST https://portal.prancer.io/prancer-customer1/api/wizardproviders -d'{"provider": "azure", "tenant": "<tenant-id>", "name": "<spn-name>", "client_id": "<client-key>", "client_secret": "<client secret for spn>"}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardproviders
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardproviders
 - **Method:** POST
 - **Header:**
 ```
@@ -820,7 +820,7 @@ curl -H "space-id: 101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Conten
 }
 ```
 
-- **URL git:** https://portal.prancer.io/customer1/api/wizardproviders
+- **URL git:** https://portal.prancer.io/prancer-customer1/api/wizardproviders
 - **Method:** POST
 - **Header:**
 ```
@@ -860,10 +860,10 @@ curl -H "space-id: 101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Conten
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST https://portal.prancer.io/customer1/api/wizard -d'{"customer": "customer1", "tenantId": "<tenant-id>", "clientId": "<client Id>", "subscriptionName": "<subscription name>", "subscriptionId": "<subscription Id>", "provider": "azure"}'
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST https://portal.prancer.io/prancer-customer1/api/wizard -d'{"customer": "customer1", "tenantId": "<tenant-id>", "clientId": "<client Id>", "subscriptionName": "<subscription name>", "subscriptionId": "<subscription Id>", "provider": "azure"}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizard
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizard
 - **Method:** POST
 - **Header:**
 ```
@@ -904,10 +904,10 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 
 **CURL Sample**
 ```
-curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" https://portal.prancer.io/customer1/api/wizardstatus?name=git_azure_customer1_1613610032528
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" https://portal.prancer.io/prancer-customer1/api/wizardstatus?name=git_azure_customer1_1613610032528
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/wizardstatus
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardstatus
 - **Method:** GET
 - **Header:**
 ```

@@ -9,10 +9,10 @@
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/default/tags -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/default/tags -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/default/tags?provider_type=iac
+- **URL:** https://portal.prancer.io/prancer-customer1/api/default/tags?provider_type=iac
 - **Method:** GET
 - **Header:**
 ```
