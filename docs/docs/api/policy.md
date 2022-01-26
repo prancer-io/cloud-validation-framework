@@ -7,10 +7,10 @@
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/api/policy/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "provider": "Azure", "compliance" : [], "resource_type" : [], "policy_name" : "Network Security Group should not exposed RDP and SSH ports", "count" : 100, "index" : 0 }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/policy/filter -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "provider": "Azure", "compliance" : [], "resource_type" : [], "policy_name" : "Network Security Group should not exposed RDP and SSH ports", "count" : 100, "index" : 0 }'
 ```
 
-- **URL:** https://portal.prancer.io/api/policy/filter
+- **URL:** https://portal.prancer.io/prancer-customer1/api/policy/filter
 - **Method:** POST
 - **Header:**
 ```
@@ -118,6 +118,7 @@ curl -X POST https://portal.prancer.io/api/policy/filter -H 'authorization: Bear
         }
     ],
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {
         "count": 10,
@@ -134,10 +135,10 @@ curl -X POST https://portal.prancer.io/api/policy/filter -H 'authorization: Bear
 
 **CURL Sample**
 ```
-curl -X GET 'https://portal.prancer.io/customer1/api/policy/rego?container_name=azure_cloud&policy_rule=file(PR_AZR_0020.rego)' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/policy/rego?container_name=azure_cloud&policy_rule=file(PR_AZR_0020.rego)' -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/api/policy/search
+- **URL:** https://portal.prancer.io/prancer-customer1/api/policy/search
 - **Method:** GET
 - **Header:**
 ```
@@ -166,6 +167,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/policy/rego?container_name=
         "rego_file": "#\n# PR-AZR-0020\n#\n\npackage rule\ndefault rulepass = true\n\n# Azure Network Security Group (NSG) allows SSH traffic from internet on port \"22\"\n# If NSG dose not allows SSH traffic from internet on port \"22\"\n\n# https://docs.microsoft.com/en-us/rest/api/virtualnetwork/networksecuritygroups/get\n# https://resources.azure.com/subscriptions/db3667b7-cef9-4523-8e45-e2d9ed4518ab/resourceGroups/hardikResourceGroup/providers/Microsoft.Network/networkSecurityGroups/hardikVM-nsg\n\nrulepass = false {\n    lower(input.type) == \"microsoft.network/networksecuritygroups\"\n    count(public_security_rules_any) > 0\n}\nrulepass = false {\n    lower(input.type) == \"microsoft.network/networksecuritygroups\"\n    count(public_security_rules_Internet) > 0\n}\n# Method for check rule\nget_access[security_rule] {\n    security_rule := input.properties.securityRules[_]\n    security_rule.properties.access == \"Allow\"\n    security_rule.properties.direction == \"Inbound\"\n}\n\n# Method for check rule\nget_source_port[security_rule] {\n    get_access[security_rule]\n    security_rule.properties.sourcePortRange == \"22\"\n}\n\n# Method for check rule\nget_destination_port[security_rule] {\n    get_access[security_rule]\n    security_rule.properties.destinationPortRange == \"22\"\n}\n# Method for check rule\nget_source_PortRanges[security_rule] {\n    get_access[security_rule]\n    security_rule.properties.sourcePortRanges[_] == \"22\"\n}\n# Method for check rule\nget_destination_PortRanges[security_rule] {\n    get_access[security_rule]\n    security_rule.properties.destinationPortRanges[_] == \"22\"\n}\n# Method for check rule\nget_source_PortRange_Any[security_rule] {\n    get_access[security_rule]\n    security_rule.properties.sourcePortRange == \"*\"\n}\n# Method for check rule\nget_destination_PortRange_Any[security_rule] {\n    get_access[security_rule]\n    security_rule.properties.destinationPortRange == \"*\"\n}\n\n\n# \"securityRules[?(@.access == 'Allow' && @.direction == 'Inbound' && @.sourceAddressPrefix == '*'\n# @.sourcePortRange == '22')].destinationPortRange contains _Port.inRange(22)\npublic_security_rules_any[\"internet_on_PortRange_22_any_source\"] {\n    some security_rule\n    get_source_port[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"*\"\n}\n\npublic_security_rules_any[\"internet_on_PortRange_22_any_source\"] {\n    some security_rule\n    get_destination_port[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"*\"\n}\n\n# or \"securityRules[?(@.access == 'Allow' && @.direction == 'Inbound' && @.sourceAddressPrefix == '*'\n# @.sourcePortRanges[*] == '22')].destinationPortRanges[*] contains _Port.inRange(22)\npublic_security_rules_any[\"internet_on_PortRanges_22_any_source\"] {\n    some security_rule\n    get_source_PortRanges[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"*\"\n}\npublic_security_rules_any[\"internet_on_PortRanges_22_any_source\"] {\n    some security_rule\n    get_destination_PortRanges[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"*\"\n}\n\n# or \"securityRules[?(@.access == 'Allow' && @.direction == 'Inbound' && @.sourceAddressPrefix == '*'\n# @.sourcePortRanges[*] == '*')].destinationPortRanges[*] contains _Port.inRange(22)\npublic_security_rules_any[\"internet_on_Any_PortRange_any_source\"] {\n    some security_rule\n    get_source_PortRange_Any[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"*\"\n}\npublic_security_rules_any[\"internet_on_Any_PortRange_any_source\"] {\n    some security_rule\n    get_destination_PortRange_Any[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"*\"\n}\n\n# or securityRules[?(@.access == 'Allow' && @.direction == 'Inbound' && @.sourceAddressPrefix = 'Internet'\n# @.sourcePortRange == '22')]‌.destinationPortRange contains _Port.inRange(22)\npublic_security_rules_Internet[\"internet_on_PortRange_22_Internet_source\"] {\n    some security_rule\n    get_source_port[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"Internet\"\n}\npublic_security_rules_Internet[\"internet_on_PortRange_22_Internet_source\"] {\n    some security_rule\n    get_destination_port[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"Internet\"\n}\n# or \"securityRules[?(@.access == 'Allow' && @.direction == 'Inbound' && @.sourceAddressPrefix == 'Internet'\n#  @.sourcePortRanges[*] == '22')].destinationPortRanges[*] contains _Port.inRange(22)\npublic_security_rules_Internet[\"internet_on_PortRanges_22_Internet_source\"] {\n    some security_rule\n    get_source_PortRanges[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"Internet\"\n}\npublic_security_rules_Internet[\"internet_on_PortRanges_22_Internet_source\"] {\n    some security_rule\n    get_destination_PortRanges[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"Internet\"\n}\n# or \"securityRules[?(@.access == 'Allow' && @.direction == 'Inbound' && @.sourceAddressPrefix == 'Internet'\n# @.sourcePortRanges[*] == '*')].destinationPortRanges[*] contains _Port.inRange(22)\npublic_security_rules_Internet[\"internet_on_Any_PortRange_Internet_source\"] {\n    some security_rule\n    get_source_PortRange_Any[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"Internet\"\n}\npublic_security_rules_Internet[\"internet_on_Any_PortRange_Internet_source\"] {\n    some security_rule\n    get_destination_PortRange_Any[security_rule]\n    security_rule.properties.sourceAddressPrefix == \"Internet\"\n}\n"
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -178,7 +180,7 @@ curl -X GET 'https://portal.prancer.io/customer1/api/policy/rego?container_name=
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/policy -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' \
+curl -X POST https://portal.prancer.io/prancer-customer1/api/policy -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' \
   -d '{
 	"mastertestcase_id": "608414064648517532cfe2ab",
     "collection_name": "azure_cloud",
@@ -214,7 +216,7 @@ curl -X POST https://portal.prancer.io/customer1/api/policy -H 'authorization: B
 }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/policy
+- **URL:** https://portal.prancer.io/prancer-customer1/api/policy
 - **Method:** POST
 - **Header:**
 ```
@@ -252,8 +254,6 @@ Save Policy with basic type
 }
 
 Save Policy with rego rules
-
-```
 {
 	"mastertestcase_id": "608414064648517532cfe2ab",
     "collection_name": "azure_cloud",
@@ -323,6 +323,7 @@ Save Policy with rego rules
 {
     "data": {},
     "error": "",
+    "error_list": [],
     "message": "Policy save successfully",
     "metadata": {},
     "status": 200
@@ -335,10 +336,10 @@ Save Policy with rego rules
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/api/policy/dashboard -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "mastertest_id": "AZURE_TEST_224", "collection_name" : "azure_crawler_demo" }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/policy/dashboard -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "mastertest_id": "AZURE_TEST_224", "collection_name" : "azure_crawler_demo" }'
 ```
 
-- **URL:** https://portal.prancer.io/api/policy/dashboard
+- **URL:** https://portal.prancer.io/prancer-customer1/api/policy/dashboard
 - **Method:** POST
 - **Header:**
 ```
@@ -417,6 +418,7 @@ curl -X POST https://portal.prancer.io/api/policy/dashboard -H 'authorization: B
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200

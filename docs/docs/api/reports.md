@@ -3,15 +3,15 @@
 
 - Report APIs are use for filter the reports.
 
-**Resources - Search**
+**Report - Search**
 ---
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "start_date":"2021-02-17", "end_date":"2021-02-17", "container": "azure_crawler_demo", "timestamp": 1613544407026, "provider" : "Azure", "compliances" : ["CIS","PCI"], "services" : ["Networking"], "status": "failed", "count" : 5, "index" : 0 }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/report/search -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "start_date":"2021-02-17", "end_date":"2021-02-17", "container": "azure_crawler_demo", "timestamp": 1613544407026, "provider" : "Azure", "compliances" : ["CIS","PCI"], "services" : ["Networking"], "status": "failed", "count" : 5, "index" : 0 }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/report/search
+- **URL:** https://portal.prancer.io/prancer-customer1/api/report/search
 - **Method:** GET
 - **Header:**
 ```
@@ -251,6 +251,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {
         "count": 3,
