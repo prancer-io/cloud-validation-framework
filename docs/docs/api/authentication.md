@@ -77,8 +77,7 @@ curl -X POST \
 - Once you get the `token` using Login API, you can use that `token` for access other secure APIs.
 
 
-**Validate Access Token**
----
+## Validate Access Token
 
 **CURL Sample**
 ```
