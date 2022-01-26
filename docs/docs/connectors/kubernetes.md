@@ -1,5 +1,7 @@
 ## Kubernetes structure file 
-Here is sample of kubernetes structure file:
+The **Kubernetes** connector allows you to inspect your **Kubernetes** cluster using their API. The connector is a wrapper around the **Kubernetes** ReST API.
+
+Here is a sample of the Kubernetes structure file:
 ```
 {
     "filetype": "<file-type>",

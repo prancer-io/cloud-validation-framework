@@ -1,4 +1,4 @@
-The **Azure** connector allows you to inspect your **Azure** infrastructure using their api. The connector is a wrapper around the **Azure** ReST api.
+The **Azure** connector allows you to inspect your **Azure** infrastructure using their API. The connector is a wrapper around the **Azure** ReST API.
 
 # Azure Service Principals
 
@@ -25,11 +25,6 @@ Here are the recommended steps to creating such a user if you don't have one yet
 
 > <NoteTitle>Notes: Multiple SPNs</NoteTitle>
 > Prancer cloud validation framework supports multiple SPNs to connect to the Azure. By doing that, you can have different permissions set for each SPN to run various validation scenarios!
-
-
-# Azure api versions
-
-**Prancer** requires a special configuration to support calling the **Azure** apis. To understand more, go to the [Azure api configuration](../configuration/basics.md) section.
 
 # Connector configuration file
 
@@ -78,27 +73,27 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 
 # Company and tenant
 
-You need an **Azure** tenant to work with **Prancer**. Each `azureConnector.json` can only feature 1 tenant but can feature many subscriptions and users.
+You need an **Azure** tenant to work with **Prancer**. Each `azureConnector.json` can only feature one tenant and many subscriptions and users.
 
-You do not need to have a real account/department name for the accounts section, you can use your application's name or organization's name. The accounts section is strictly for organizing your configuration and Microsoft Enterprise customers.
+You do not need to have an actual account/department name for the accounts section, you can use your application's name or organization's name. The accounts section is strictly for organizing your configuration and Microsoft Enterprise customers.
 
 # Subscription and users
 
-The subscriptions portion specify which subscription you want to inspect. You can configure as many subscriptions and users as you want per file. 
+The subscriptions portion specify which subscription you want to inspect. You can configure as many subscriptions and users as you wish per file. 
 
-If you want to link multiple subscriptions together in your tests or want different users to be used to inspect your configuration, you must specify all of them here. Later, in snapshot configuration files, you will specify which user to use to inspect the infrastructure, but it must be defined here beforehand.
+If you want to link multiple subscriptions together in your tests or want different users to be used to inspect your configuration, you must specify all of them here. Later, in snapshot configuration files, you will determine which user to use to inspect the infrastructure, but it must be defined beforehand.
 
 # Client Secret 
 
 There are three options available to store the client secret for an SPN account:
- - In connector file
- - In Environment variable
+ - In the connector file
+ - In the Environment variable
  - In a vault
 
- Keeping the client secret in the `connector` file is good only for testing purposes. 
+ Keeping the client secret in the `connector` file is suitable only for testing purposes. 
 
- You can keep the client secret as an environment variable. The name of the environment variable will be the name of the SPN account. For example, if the name of the SPN account is `prancer_spn` and the secret is `a1b2c3` :
+ You can keep the client secret as an environment variable. The environment variable's name will be the name of the SPN account. For example, if the name of the SPN account is `prancer_spn` and the secret is `a1b2c3` :
 
     export prancer_spn=a1b2c3
 
-Keeping the client secret in the vault is the most secure and recommended way of keeping the secret in prancer framework. To learn more visit [secrets section](../configuration/secrets.md)
+Keeping the client secret in the vault is the most secure and recommended way of keeping the secret in the prancer framework. To learn more visit [secrets section](../configuration/secrets.md)
