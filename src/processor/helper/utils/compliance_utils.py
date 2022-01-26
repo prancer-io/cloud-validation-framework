@@ -72,9 +72,10 @@ def create_container_compliance(container, data):
     mkdir_path(validpath)
     outputpath = None
     for connector in data['connectors']:
-        cname = '%s/%s.json' % (strpath, connector['name'])
-        remove_file(cname)
-        save_json_to_file(connector['json'], cname)
+        if 'name' in connector:
+            cname = '%s/%s.json' % (strpath, connector['name'])
+            remove_file(cname)
+            save_json_to_file(connector['json'], cname)
     for mastersnapshot in data['masersnapshots']:
         cname = '%s/%s.json' % (validpath, mastersnapshot['name'])
         remove_file(cname)
