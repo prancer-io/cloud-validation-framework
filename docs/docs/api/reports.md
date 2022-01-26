@@ -3,7 +3,7 @@
 
 - Report APIs are use for filter the reports.
 
-**Resources - Search**
+**Report - Search**
 ---
 
 **CURL Sample**

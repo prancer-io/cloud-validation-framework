@@ -1,7 +1,7 @@
 **How to use Prancer Enterprise APIs**
 ===
 
-Here is the steps about how to generate access token and access prancer enterprise apis.
+Here are the steps to generate an access token and access prancer enterprise APIs.
 
 ## 1) Generate API Token:
 
@@ -21,7 +21,7 @@ Click on `New Token` to generate a new token. Make sure you keep the token somew
 
 ![../images/token/token2.png](../images/token/token2.png)
 
-## 2) Call the authntication API
+## 2) Call the authentication API
 
 Call [Validate Access Token](authentication.md#validate-access-token) API to validate your token and get the authenticated JWT Bearer token to access APIs.
 
@@ -31,7 +31,7 @@ Call [Validate Access Token](authentication.md#validate-access-token) API to val
 
 You got the authenticated `JWT Bearer token` by calling Validate Access Token API. Now you can use it to call APIs of Prancer Enterprise. For example,
 
-- Call the [Get Collection List](collection.md#collection-get) API for get all collections list.
+- Call the [Get Collection List](collection.md#collection-get) API to get all collections list.
 
 ![../images/api/collection_list.png](../images/api/collection_list.png)
 

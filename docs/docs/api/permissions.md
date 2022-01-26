@@ -171,3 +171,44 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/permission/role/ -H 
     "status": 200
 }
 ```
+
+**Permissions - Role Delete**
+---
+- Delete the user role.
+
+**CURL Sample**
+```
+curl -X DELETE https://portal.prancer.io/prancer-customer1/api/permission/role/ -H 'authorization: Bearer <JWT Bearer Token>' -d '{ "id" : 10 }'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/permission/role/
+- **Method:** DELETE
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+```
+{
+	"id" : 10
+}
+```
+
+- **Explanation:**
+
+    `Required Fields`
+    
+    - **id:** Role id, which returns from the "Permissions - Role Get" API response. If you want to update the existing permissions of a role, it is required. If it is not passed, then it will create a new role.
+
+**Response:**
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Role deleted successfully",
+    "metadata": {},
+    "status": 200
+}
+```

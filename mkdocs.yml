@@ -61,6 +61,7 @@ nav:
     - Backup & export: enterprise/backup-export.md
   - API Reference:
     - overview: api/api_overview.md
+    - Prancer APIs: api/apis_available.md
     - authentication: api/authentication.md
     - collection: api/collection.md
     - compliance: api/compliance.md

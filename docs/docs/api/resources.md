@@ -81,69 +81,85 @@ curl -X GET 'https://portal.prancer.io/prancer-customer1/api/resource/search?cou
             "subscription_id": "db3667b7-cef9-4523-8e45-e2d9ed4518ab",
             "user": "ajey.khanapuri@liquware.com"
         },
+        "resource_type_list": [
+            "Microsoft.KeyVault/vaults",
+            "Microsoft.Network/networkSecurityGroups",
+            "Microsoft.Network/networkWatchers",
+            "Microsoft.Network/virtualNetworks",
+            "Microsoft.Storage/storageAccounts"
+        ],
         "results": [
             {
-                "cloud_type": "azure",
-                "collection_name": "azure_crawler_demo",
-                "compliant": "Yes",
-                "last_scan": "2020-10-27 10:35:08",
-                "resource_name": "acrprancertest01",
-                "resource_path": "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest",
-                "container_name" : "azure_crawler_demo",
-                "container_url": "/container/search/?container_name=azure_crawler_demo",
-                "content_version": "1.0.0.0",
-                "description": "This policy identifies an Azure Container Registry (ACR) that is using the classic SKU. The initial release of the Azure Container Registry (ACR) service that was offered as a classic SKU is being deprecated and will be unavailable after April 2019. As a best practice, upgrade your existing classic registry to a managed registry.",
-                "last_scan": "2021-04-09 08:33:22",
-                "log": "logs_20210409083236",
-                "log_url": "/log/search/?container_name=azure_crawler_demo&test_name=azure_crawler_test&log_name=logs_20210409083236",
-                "output_id": "6070115296e8545sd5d4f",
+                "collection_name": "azureabc",
+                "compliant": false,
                 "resource_names": [
-                    "acrprancertest01"
+                    "ndev001"
                 ],
-                "resource_node_id": "AZRSNP_22441",
+                "resource_node_id": "AZRSNP_2313",
                 "resource_paths": [
-                    "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01"
+                    "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/nprod-dev-eastus2-vnet-rg/providers/Microsoft.Network/networkSecurityGroups/ndev001"
                 ],
-                "rule": "file(azure_224.rego)",
-                "snapshot_name": "",
-                "snapshot_url": "/snapshot/search/?container_name=azure_crawler_demo&snapshot_name=&selected_tab=snapshot-config-tab",
-                "snapshots": [
-                    {
-                        "collection": "microsoftcontainerregistry",
-                        "id": "AZRSNP_22441",
-                        "path": "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01",
-                        "paths": [
-                            {
-                                "name": "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01",
-                                "url": "https://portal.azure.com/#@f123456-a59f-478a-8457-54e8d12458d/resource/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-resources-rg/providers/Microsoft.ContainerRegistry/registries/acrprancertest01"
-                            }
-                        ],
-                        "reference": "whitekite",
-                        "region": "eastus2",
-                        "source": "azure_crawler_structure",
-                        "source_url": "/connector/search/?container_name=azure_crawler_demo",
-                        "structure": "azure",
-                        "type": "Microsoft.ContainerRegistry/registries"
-                    }
+                "resource_type": "Microsoft.Network/networkSecurityGroups"
+            },
+            {
+                "collection_name": "azureabc",
+                "compliant": false,
+                "resource_names": [
+                    "ndev-vnet01"
                 ],
-                "tags": [
-                    {
-                        "cloud": "Azure",
-                        "compliance": [
-                            "COSTUM"
-                        ],
-                        "service": [
-                            "Microsoft.ContainerRegistry",
-                            "Container",
-                            "Container Registry"
-                        ]
-                    }
+                "resource_node_id": "AZRSNP_2844",
+                "resource_paths": [
+                    "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/nprod-dev-eastus2-vnet-rg/providers/Microsoft.Network/virtualNetworks/ndev-vnet01"
                 ],
-                "test_id": "AZURE_TEST_224",
-                "test_name": "azure_crawler_test",
-                "test_type": "mastertest",
-                "test_url": "/test/search/?container_name=azure_crawler_demo&test_name=azure_crawler_test",
-                "title": "Azure Container Registry using the deprecated not classic registry"
+                "resource_type": "Microsoft.Network/virtualNetworks"
+            },
+            {
+                "collection_name": "azureabc",
+                "compliant": false,
+                "resource_names": [
+                    "cs710033fffad674856"
+                ],
+                "resource_node_id": "AZRSNP_3010",
+                "resource_paths": [
+                    "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/cloud-shell-storage-southcentralus/providers/Microsoft.Storage/storageAccounts/cs710033fffad674856"
+                ],
+                "resource_type": "Microsoft.Storage/storageAccounts"
+            },
+            {
+                "collection_name": "azureabc",
+                "compliant": false,
+                "resource_names": [
+                    "NetworkWatcher_eastus2"
+                ],
+                "resource_node_id": "AZRSNP_2601",
+                "resource_paths": [
+                    "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_eastus2"
+                ],
+                "resource_type": "Microsoft.Network/networkWatchers"
+            },
+            {
+                "collection_name": "azureabc",
+                "compliant": false,
+                "resource_names": [
+                    "NetworkWatcher_westus2"
+                ],
+                "resource_node_id": "AZRSNP_2602",
+                "resource_paths": [
+                    "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_westus2"
+                ],
+                "resource_type": "Microsoft.Network/networkWatchers"
+            },
+            {
+                "collection_name": "azureabc",
+                "compliant": false,
+                "resource_names": [
+                    "mykv-01"
+                ],
+                "resource_node_id": "AZRSNP_2285",
+                "resource_paths": [
+                    "/subscriptions/d34d6562-8a12-4458-ba02-b12s5df45gdd/resourceGroups/prancer-nprod-dev-eastus2-aks-rg/providers/Microsoft.KeyVault/vaults/mykv-01"
+                ],
+                "resource_type": "Microsoft.KeyVault/vaults"
             }
         ]
     },

@@ -147,7 +147,7 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/collection/list -H '
 ```
 
 
-**Collection - get by name of the collection**
+**Collection - exists**
 ---
 
 - This API is to check if a collection exists.
@@ -243,7 +243,7 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/database/collection 
 ```
 
 
-**Get Collection manage config items**
+**Get Collection config items**
 ---
 
 - This API is for get getting json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
@@ -296,7 +296,7 @@ Required Fields
 ```
 
 
-**Update Collection manage config items**
+**Update Collection config items**
 ---
 
 - This API is for updating json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration

@@ -254,8 +254,6 @@ Save Policy with basic type
 }
 
 Save Policy with rego rules
-
-```
 {
 	"mastertestcase_id": "608414064648517532cfe2ab",
     "collection_name": "azure_cloud",
