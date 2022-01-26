@@ -61,9 +61,10 @@ import json
 import os
 import signal
 from inspect import currentframe, getframeinfo
-from processor.helper.config.config_utils import COMPLIANCE, CRAWL, CRAWL_AND_COMPLIANCE, framework_dir, config_value, framework_config, \
-    CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, REMOTE, CUSTOMER, \
-    SINGLETEST, EXCLUSION, container_exists
+from processor.helper.config.remote_utils import console_log, remote_config_ini_setup
+from processor.helper.config.config_utils import COMPLIANCE, CRAWL, CRAWL_AND_COMPLIANCE, framework_dir, \
+    config_value, framework_config, CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, \
+    NONE, REMOTE, EXCLUSION, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor import __version__
 import traceback
@@ -135,17 +136,6 @@ def set_customer(cust=None):
         os.environ[str(threading.currentThread().ident) + "_SPACE_ID"] = "staging/" + customer
         return True
     return  False
-
-
-
-def console_log(message, cf):
-    """Logger like statements only used till logger configuration is read and initialized."""
-    filename = getframeinfo(cf).filename
-    line = cf.f_lineno
-    now = datetime.datetime.now()
-    fmtstr = '%s,%s(%s: %3d) %s' % (now.strftime('%Y-%m-%d %H:%M:%S'), str(now.microsecond)[:3],
-                                    os.path.basename(filename).replace('.py', ''), line, message)
-    print(fmtstr)
 
 
 def valid_config_ini(config_ini):
@@ -260,13 +250,14 @@ Run prancer for a list of snapshots
 
     retval = 2
     set_customer()
+    isRemote = True if args.db and args.db.upper() == REMOTE else False
     cfg_error, config_ini = search_config_ini()
-    if cfg_error:
+    if cfg_error and not isRemote:
         return retval
 
     args.remote = False
     args.opath = None
-    if args.db and args.db.upper() == REMOTE:
+    if isRemote:
         from processor.helper.utils.compliance_utils import create_container_compliance, get_api_server, \
             get_collection_api, get_validate_token_api, get_company_prefix
         from processor.helper.httpapi.http_utils import http_get_request, http_json_post_request
@@ -299,12 +290,17 @@ Run prancer for a list of snapshots
                         if status and isinstance(status, int) and status == 200:
                             if 'data' in data:
                                 collectionData = data['data']
-                                opath = create_container_compliance(args.container, collectionData)
-                                if opath:
-                                    remoteValid = True
-                                    args.remote = True
-                                    args.opath = opath
-                                    args.db = NONE
+                                error, cfg_ini = remote_config_ini_setup()
+                                if error:
+                                    msg = "Unable to setup config.ini, exiting!....."
+                                    console_log(msg, currentframe())
+                                else:
+                                    opath = create_container_compliance(args.container, collectionData)
+                                    if opath:
+                                        remoteValid = True
+                                        args.remote = True
+                                        args.opath = opath
+                                        args.db = NONE
         if not remoteValid:
             msg = "Check the remote configuration viz env, apitoken, gittoken, company, exiting!....."
             console_log(msg, currentframe())
