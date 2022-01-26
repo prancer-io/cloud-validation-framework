@@ -1,4 +1,4 @@
-In order to connect to a back-end API system, **Prancer** can use secrets from different sources when required.
+To connect to a back-end API system, **Prancer** can use secrets from different sources when required.
 
 # Providing secrets to Prancer
 
@@ -10,9 +10,9 @@ There are multiple ways of providing secrets to **Prancer**. Here is the orderin
 
 # Exporting environment variables
 
-The simplest approach is to use environment variables when your system runs on Linux based OS. 
+The most straightforward approach is to use environment variables when your system runs on Linux based OS. 
 
-To do so, export a `secretname=secret` environment variable where the value of that environment variable will be the secret **Prancer** needs to run with. For example:
+To do so, export a `secretname=secretvalue` environment variable where the value of that environment variable will be the secret **Prancer** needs to run with. For example:
 
     export username=secretkey
 
@@ -20,7 +20,7 @@ To support this, the `secret` must not be set in the connector's configuration f
 
 
 # Putting secrets in CyberArk
-**CyberArk** (http://www.cyberark.com) Application Access Manager for DevOps provides a secrets management solution tailored specifically to the unique requirements of native-cloud and DevOps environments. The solution manages secrets and credentials used by non-human identities including DevOps and PaaS tools, and containers. **Prancer** validation framework supports secrets to be read from the **CyberArk**. Here are the steps:
+**CyberArk** (http://www.cyberark.com) Application Access Manager for DevOps provides a secret management solution tailored specifically to the unique requirements of native-cloud and DevOps environments. The solution manages secrets and credentials used by non-human identities, including DevOps and PaaS tools, and containers. **Prancer** validation framework supports secrets to be read from the **CyberArk**. Here are the steps:
 
 1. DevOps Engineer starts the **Prancer** validation framework.
 2. **Prancer** validation framework is integrated with CyberArk to retrieve secrets
