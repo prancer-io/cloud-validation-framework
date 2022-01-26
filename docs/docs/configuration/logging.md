@@ -1,4 +1,4 @@
-Generating comprehensive log information is a must today and **Prancer** doesn't stray away from this. Every single operation is captured by the logging system and is timestamped when captured.
+Today, generating comprehensive log information is a must, and **Prancer** doesn't stray away from this. Every single operation is captured by the logging system and is timestamped when caught.
 
 # Configuration
 
@@ -6,12 +6,13 @@ To configure the logging behavior, consult the [Configuration](config.md) sectio
 
 # Logging level
 
-**Prancer** supports the classic 4 levels of logging:
+**Prancer** supports the classic four levels of logging:
 
 * ERROR
 * WARNING
 * INFO
 * DEBUG
+* CRITICAL
 
 Each level is more verbose than the other. Using a mode such as `DEBUG` will print all the logging information possible while `ERROR` prints only the bare minimum.
 
@@ -35,7 +36,7 @@ The `logFolder` will be used by the database logger to create the collection nam
 
     db.logez_20190101120000.find()
     
-will return the data for that log.
+Will return the data for that log.
 
 # Example of log files and database logs
 
@@ -52,7 +53,7 @@ Log files are stored in the file system as a text file. Here is the example of t
     2019-02-27 20:53:51,023(validation: 112) - /home/whitekite/realm/validation//container6
     2019-02-27 20:53:51,027(validation: 114) - /home/whitekite/realm/validation/container6/test6.json
 
-When you configure the system to log in the database, **Prancer** will convert the data to a `JSON` format like below and then store it in the database. Here is an example of a log file in the database :
+When you configure the system to log in to the database, **Prancer** will convert the data to a `JSON` format like below and then store it in the database. Here is an example of a log file in the database :
 
     {
         "_id": {
