@@ -1,10 +1,10 @@
-The **Google** connector allows you to inspect your **Google Cloud** infrastructure using their api. The connector is a wrapper around the **Google** ReST api.
+The **Google** connector allows you to inspect your **Google Cloud** infrastructure using their API. The connector is a wrapper around the **Google** ReST API.
 
 # Google Cloud Platform Service Account
 
 A service account is a special kind of account used by an application or a virtual machine (VM) instance, not a person. Applications use service accounts to make authorized API calls. To learn more about the Service Account, you can [review Google Cloud Platform documentation](https://cloud.google.com/iam/docs/service-accounts)
 
-To grant access to prancer cloud validation framework to browse your Google Cloud Platform, you need to create a Service Account. It is highly recommended to follow [official google cloud platform documentation](https://cloud.google.com/iam/docs/creating-managing-service-accounts)
+To grant access to the prancer cloud validation framework to browse your Google Cloud Platform, you need to create a Service Account. It is highly recommended to follow [official google cloud platform documentation](https://cloud.google.com/iam/docs/creating-managing-service-accounts)
 
 Here are the recommended steps to creating such a user if you don't have one yet:
 
@@ -19,10 +19,6 @@ Here are the recommended steps to creating such a user if you don't have one yet
 5. Enter a service account name (friendly display name), an optional description, select a role you wish to grant to the service account, and then click Save.
 
 6. create a new key by selecting `create key`. Select the json as the type of key and it will be downloaded to your local disk. All the information you need is in that json file.
-
-# Google Cloud Platform API methods
-
-To configure the `Google Cloud Platform` connector, we need the a file detailing out all the available methods. We put those information in a separate file called `googleParams.json`. For more information, you can check [Google API client library](https://github.com/googleapis/google-api-python-client)
 
 # Connector configuration file
 
@@ -72,7 +68,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | client_x509_cert_url | client x509 cert url, you get this info from the key json output |
 
 
-> It is not recommended to put any secret in the `connector` file. This is good just for testing purposes
+> It is not recommended to put any secret in the `connector` file. This is good just for testing purposes.
 
 > You should use either `private_key` or `private_key_path`
 
