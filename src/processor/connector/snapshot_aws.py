@@ -151,7 +151,7 @@ def get_node(awsclient, node, snapshot_source, snapshot):
                         logger.info("Describe function does not exist: %s", str(function_to_call))
                         db_record['error'] = "Describe function does not exist: %s" % str(function_to_call)
             except Exception as ex:
-                logger.info('Describe function exception: %s', ex)
+                logger.warning('Describe function exception: %s', ex)
                 db_record['error'] = 'Describe function exception: %s' % ex
         else:
             logger.info('Invalid function exception: %s', str(function_to_call))
@@ -179,7 +179,7 @@ def get_node(awsclient, node, snapshot_source, snapshot):
                     if data:
                         json_to_put.update(data) 
                 except Exception as ex:
-                    logger.error('Describe function exception: %s', ex)
+                    logger.warning('Describe function exception: %s', ex)
                     db_record['error'] = 'Describe function exception: %s' % ex
             else:
                 logger.info('Invalid function exception: %s', str(function_to_call))
@@ -241,11 +241,11 @@ def _get_resources_from_list_function(response, method):
     elif method == 'list_keys':
         return [x.get('KeyId') for x in response['Keys']]
     elif method == 'list_tables':
-        return response.get("TableNames")
+        return response.get("TableNames", [])
     elif method == 'list_backups':
         return [x.get('BackupArn',"") for x in response['BackupSummaries']]
     elif method == 'list_task_definitions':
-        return response.get('taskDefinitionArns')
+        return response.get('taskDefinitionArns', [])
     elif method == 'list_clusters':
         clusters = []
         clusters.extend(response.get("clusters", []))
@@ -257,7 +257,7 @@ def _get_resources_from_list_function(response, method):
     elif method == 'describe_replication_groups':
         return [x.get('ReplicationGroupId') for x in response['ReplicationGroups']]
     elif method == 'list_streams':
-        return response.get("StreamNames")
+        return response.get("StreamNames", [])
     elif method == 'list_functions':
         return [x.get('FunctionName',"") for x in response['Functions']]
     elif method == 'describe_clusters':
@@ -269,7 +269,7 @@ def _get_resources_from_list_function(response, method):
     elif method == 'list_subscriptions':
         return [x.get('SubscriptionArn',"") for x in response['Subscriptions']]
     elif method == 'list_queues':
-        return response.get("QueueUrls")  
+        return response.get("QueueUrls", [])
     elif method == 'list_domain_names':
         return [x.get('DomainName') for x in response['DomainNames']] 
     elif method == 'describe_configuration_recorders':

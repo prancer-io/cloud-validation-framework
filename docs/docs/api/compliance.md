@@ -7,10 +7,10 @@
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/compliance/run/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "collection" : "azure_cloud" }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/compliance/run/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "collection" : "azure_cloud" }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/compliance/run/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/compliance/run/
 - **Method:** POST
 - **Header:**
 ```
@@ -36,6 +36,7 @@ curl -X POST https://portal.prancer.io/customer1/api/compliance/run/ -H 'authori
 {
     "data": {},
     "error": "",
+    "error_list": [],
     "message": "Compliance started running successfully.",
     "metadata": {},
     "status": 200
@@ -48,10 +49,10 @@ curl -X POST https://portal.prancer.io/customer1/api/compliance/run/ -H 'authori
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/compliance/crawler/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "collection" : "azure_cloud" }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/compliance/crawler/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "collection" : "azure_cloud" }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/compliance/crawler/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/compliance/crawler/
 - **Method:** POST
 - **Header:**
 ```
@@ -77,6 +78,7 @@ curl -X POST https://portal.prancer.io/customer1/api/compliance/crawler/ -H 'aut
 {
     "data": {},
     "error": "",
+    "error_list": [],
     "message": "Crawler started running successfully.",
     "metadata": {},
     "status": 200
@@ -90,7 +92,7 @@ curl -X POST https://portal.prancer.io/customer1/api/compliance/crawler/ -H 'aut
 **CURL Sample**
 ```
 curl -X POST \
-  https://portal.prancer.io/customer1/api/compliance/scheduler/ \
+  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/ \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json' \
   -d '{
@@ -104,7 +106,7 @@ curl -X POST \
 }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/compliance/scheduler/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/
 - **Method:** POST
 - **Header:**
 ```
@@ -158,6 +160,7 @@ curl -X POST \
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "Job scheduled successfully",
     "metadata": {},
     "status": 200
@@ -171,12 +174,12 @@ curl -X POST \
 **CURL Sample**
 ```
 curl -X GET \
-  https://portal.prancer.io/customer1/api/compliance/scheduler/ \
+  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/ \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/compliance/scheduler/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/
 - **Method:** GET
 - **Header:**
 ```
@@ -207,6 +210,7 @@ curl -X GET \
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -220,7 +224,7 @@ curl -X GET \
 **CURL Sample**
 ```
 curl -X DELETE \
-  https://portal.prancer.io/customer1/api/compliance/scheduler/ \
+  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/ \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json' \
   -d '{
@@ -228,7 +232,7 @@ curl -X DELETE \
 }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/compliance/scheduler/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/
 - **Method:** DELETE
 - **Header:**
 ```
@@ -252,6 +256,7 @@ curl -X DELETE \
 {
     "data": {},
     "error": "",
+    "error_list": [],
     "message": "Job deleted successfully",
     "metadata": {},
     "status": 200
