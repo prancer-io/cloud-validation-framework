@@ -87,6 +87,7 @@
 import json
 import hashlib
 import time
+from datetime import datetime
 import tempfile
 import shutil
 import hcl
@@ -173,7 +174,7 @@ def get_node(repopath, node, snapshot, ref, connector):
         "reference": ref if not base_path else "",
         "source": parts[0],
         "path": base_path + node['path'],
-        "timestamp": int(time.time() * 1000),
+        "timestamp": int(datetime.utcnow().timestamp() * 1000),
         "queryuser": get_field_value(snapshot, 'testUser'),
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,
@@ -212,7 +213,7 @@ def get_all_nodes(repopath, node, snapshot, ref, connector):
         "reference": ref if not base_path else "",
         "source": parts[0],
         "path": '',
-        "timestamp": int(time.time() * 1000),
+        "timestamp": int(datetime.utcnow().timestamp() * 1000),
         "queryuser": get_field_value(snapshot, 'testUser'),
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,
