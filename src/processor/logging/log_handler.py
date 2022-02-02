@@ -23,7 +23,7 @@ def get_dblog_name():
     """ Set as per current datetime formay, could be passed thru an environment variable"""
     dblog_name = os.getenv('DBLOG_NAME', None)
     if not dblog_name:
-        dblog_name = 'logs_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        dblog_name = 'logs_%s' % datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
     return dblog_name
 
 def default_logger():
@@ -164,7 +164,7 @@ class DefaultRoutingFileHandler(RotatingFileHandler):
             if self.isjson:
                 log_msg = self.format(record)
                 db_record = {
-                    "timestamp": int(time.time() * 1000),
+                    "timestamp": int(datetime.datetime.utcnow().timestamp() * 1000),
                     "level": record.levelname,
                     "module": record.module,
                     "line": record.lineno,
@@ -230,7 +230,7 @@ class MongoDBHandler(logging.Handler):
         # format the log message so it can be put to db (escape quotes)
         self.log_msg = self.format(record)
         db_record = {
-            "timestamp": int(time.time() * 1000),
+            "timestamp": int(datetime.datetime.utcnow().timestamp() * 1000),
             "level": record.levelname,
             "module": record.module,
             "line": record.lineno,
