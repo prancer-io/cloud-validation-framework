@@ -8,10 +8,10 @@
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/collection_config/?collection=AWS_TF -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/collection_config/?collection=AWS_TF -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/collection_config/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection_config/
 - **Method:** GET
 - **Header:**
 ```
@@ -40,6 +40,7 @@ curl -X GET https://portal.prancer.io/customer1/api/collection_config/?collectio
         }
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -51,10 +52,10 @@ curl -X GET https://portal.prancer.io/customer1/api/collection_config/?collectio
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/collection_config/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{collection: AWS_TF, configuration: {generate_pr: false}}'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/collection_config/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{collection: AWS_TF, configuration: {generate_pr: false}}'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/collection_config/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection_config/
 - **Method:** POST
 - **Header:**
 ```
@@ -83,6 +84,7 @@ curl -X POST https://portal.prancer.io/customer1/api/collection_config/ -H 'auth
 {
     "data": {},
     "error": "",
+    "error_list": [],
     "message": "Configuration updated",
     "metadata": {},
     "status": 200

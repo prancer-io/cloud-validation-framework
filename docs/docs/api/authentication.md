@@ -11,7 +11,7 @@
 **CURL Sample**
 ```
 curl -X POST \
-  https://portal.prancer.io/customer1/api/login/ -H 'content-type: application/json' \
+  https://portal.prancer.io/prancer-customer1/api/login/ -H 'content-type: application/json' \
   -d '{
 	"email" : "<Valid Email Address>",
 	"password" : "<Valid Password>",
@@ -19,7 +19,7 @@ curl -X POST \
 }'
 ```
 
-- **URL:** https://portal.prancer.io/api/login/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/login/
 - **Method:** POST
 - **Header:**
     - content-type: application/json
@@ -38,7 +38,7 @@ curl -X POST \
 
     - **email:** Valid email of user for login.
     - **password:** Valid password of user for login.
-    - **customer_id:** Valid customer Id of user.
+    - **customer_id:** It is in the format of `prancer-<company_name>`. For example, if your company name is `ABC`, the customer id would be `prancer-abc`.
 
 
 **Success Response:**
@@ -52,6 +52,7 @@ curl -X POST \
         "token": "<JWT Bearer Token>"
     },
     "error": "",
+    "error_list": [],
     "message": "User Logged In Successfully",
     "metadata": {},
     "status": 200
@@ -75,6 +76,75 @@ curl -X POST \
 - In Success Response you will receive `token` and `refresh_token`.
 - Once you get the `token` using Login API, you can use that `token` for access other secure APIs.
 
+
+## Validate Access Token
+
+**CURL Sample**
+```
+curl -X POST \
+  https://portal.prancer.io/prancer-customer1/api/validate/accesstoken/ -H 'content-type: application/json' \
+  -d '{
+	"token" : "<Valid User Access Token>",
+	"customer_id" : "<Valid CustomerId>"
+}'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/validate/accesstoken/
+- **Method:** POST
+- **Header:**
+    - content-type: application/json
+- **Param:**
+```
+    {
+        "token" : "<Valid User Access Token>",
+        "customer_id" : "<Valid CustomerId>"
+    }
+```
+
+- **Explanation:**
+
+    `Required Fields`
+
+    - **token:** Valid User Access Token, generated from website.
+    - **customer_id:** It is in the format of `prancer-<company_name>`. For example, if your company name is `ABC`, the customer id would be `prancer-abc`.
+
+
+**Success Response:**
+
+- Status Code: 200
+- Response:
+```
+{
+    "data": {
+        "refresh_token": "<JWT refresh Token>",
+        "token": "<JWT Bearer Token>"
+    },
+    "error": "",
+    "error_list": [],
+    "message": "Token is Valid",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**Failed Response:**
+
+- Status Code: 400
+- Response:
+```
+{
+  "data": {},
+  "error": "",
+    "error_list": [],
+  "message": "Invalid token or customer id",
+  "metadata": {},
+  "status": 400
+}
+```
+
+- In Success Response you will receive `token` and `refresh_token`.
+- Once you get the `token` using Validate Access Token API, you can use that `token` for access other secure APIs.
+
 **Refresh Token**
 ---
 
@@ -85,12 +155,12 @@ curl -X POST \
 **CURL Sample**
 ```
 curl -X GET \
-  https://portal.prancer.io/api/refresh/token/ \
+  https://portal.prancer.io/prancer-customer1/api/refresh/token/ \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/api/refresh/token/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/refresh/token/
 - **Method:** GET
 - **Header:**
 ```
@@ -109,6 +179,7 @@ curl -X GET \
         "token": <JWT Bearer Token>
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -137,12 +208,12 @@ API for logout user. Once user gets logout the refresh token will also not work.
 **CURL Sample**
 ```
 curl -X POST \
-  https://portal.prancer.io/api/logout/ \
+  https://portal.prancer.io/prancer-customer1/api/logout/ \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json'
 ```
 
-- **URL:** https://portal.prancer.io/api/logout/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/logout/
 - **Method:** POST
 - **Header:**
 ```
@@ -158,6 +229,7 @@ curl -X POST \
 {
   "data": {},
   "error": "",
+  "error_list": [],
   "message": "User logged out successfully!",
   "metadata": {},
   "status": 200
