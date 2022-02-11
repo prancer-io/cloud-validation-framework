@@ -32,6 +32,15 @@ Compliance APIs
 | [Get scheduled compliance](compliance.md#compliance-get-scheduler) | Get the list of scheduled compliance. |
 | [Delete a scheduler](compliance.md#compliance-delete-scheduler) | Delete a scheduled compliance. |
 
+Configuration APIs
+
+| API | Description |
+|------------|-------------|
+| [Collection configuration get](config.md#collection-config-get) | Get the configuration of specific collection. |
+| [Collection configuration save](config.md#collection-config-create-or-update) | Save or update the configuration of specific collection. |
+| [Global configuration get](config.md#configuration-get) | Get the global configuration of system. |
+| [Global configuration update](config.md#configuration-update) | Update the global configuration of system. |
+
 Connector APIs
 
 | API | Description |
@@ -108,6 +117,15 @@ Permissions APIs
 | [Create permission role](permissions.md#permissions-role-create) | Create a user role based on permissions. |
 | [Get permission role](permissions.md#permissions-role-get) | Get the list of permission roles. |
 | [Delete permission role](permissions.md#permissions-role-delete) | Delete a permission role. |
+
+Vault APIs
+
+| API | Description |
+|------------|-------------|
+| [Vault get](vault.md#vault-get) | Get specific value from the vault. |
+| [Vault save](vault.md#vault-save-key) | Save new secret into the vault. |
+| [Vault update](vault.md#vault-update) | Update secret value into the vault. |
+| [Vault delete](vault.md#vault-delete-key) | Delete a key from the vault. |
 
 Webhook APIs
 
