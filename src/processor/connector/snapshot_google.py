@@ -223,54 +223,54 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
             return db_record
 
         request_url = get_api_path(base_node_type)
-        if request_url:
-            request_url = generate_request_url(request_url, project_id)
-            logger.info("Invoke request for get snapshot: %s", request_url)
+        if not request_url:
+            logger.error("API URL not set in google parameters for resource type: %s", base_node_type)
+
+        request_url = generate_request_url(request_url, project_id)
+        logger.info("Invoke request for get snapshot: %s", request_url)
+        
+        status, data = http_get_request(request_url, header)
+        logger.info('Get snapshot status: %s', status)
+
+        fn_str_list = ""
+        if node and 'type' in node and node['type']:
+            fn_str_list = get_field_value(node, 'type').split(".")
+        
+        response_param = ""
+        if fn_str_list and len(fn_str_list) > 1:
+            response_param = fn_str_list[-2]
+        elif fn_str_list and len(fn_str_list) == 1:
+            response_param = fn_str_list[0]
+        
+        if data:
+            check_node_type = node_type 
+            node_type_list = node_type.split(".")
+            if len(node_type_list) > 1:
+                del node_type_list[-1]
+                check_node_type = ".".join(node_type_list)
+
+            db_record['json'] = data
+            data_filter = response_param.split("/")[-1]
+
+            if "items" in data:
+                if isinstance(data['items'], dict):
+                    for name, scoped_dict in data['items'].items():
+                        if response_param in scoped_dict:
+                            db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
+
+                if not db_record['items']:
+                    db_record['items'] = data['items']
+            elif data_filter in data:
+                db_record['items'] = data[data_filter]
             
-            status, data = http_get_request(request_url, header)
-            logger.info('Get snapshot status: %s', status)
+            snapshot_data["project-id"] = project_id
+            snapshot_data["request_url"] = request_url
 
-            fn_str_list = ""
-            if node and 'type' in node and node['type']:
-                fn_str_list = get_field_value(node, 'type').split(".")
-            
-            response_param = ""
-            if fn_str_list and len(fn_str_list) > 1:
-                response_param = fn_str_list[-2]
-            elif fn_str_list and len(fn_str_list) == 1:
-                response_param = fn_str_list[0]
-            
-            if data:
-                check_node_type = node_type 
-                node_type_list = node_type.split(".")
-                if len(node_type_list) > 1:
-                    del node_type_list[-1]
-                    check_node_type = ".".join(node_type_list)
+            set_snapshot_data(node, db_record['items'], snapshot_data)
 
-                db_record['json'] = data
-                data_filter = response_param.split("/")[-1]
-
-                if "items" in data:
-                    if isinstance(data['items'], dict):
-                        for name, scoped_dict in data['items'].items():
-                            if response_param in scoped_dict:
-                                db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
-
-                    if not db_record['items']:
-                        db_record['items'] = data['items']
-                elif data_filter in data:
-                    db_record['items'] = data[data_filter]
-                
-                snapshot_data["project-id"] = project_id
-                snapshot_data["request_url"] = request_url
-
-                set_snapshot_data(node, db_record['items'], snapshot_data)
-
-                checksum = get_checksum(data)
-                if checksum:
-                    db_record['checksum'] = checksum
-        else:
-            logger.error("URL not found for type: %s", base_node_type)
+            checksum = get_checksum(data)
+            if checksum:
+                db_record['checksum'] = checksum
 
     return db_record
 
