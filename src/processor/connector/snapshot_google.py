@@ -259,9 +259,9 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
                 check_node_type = ".".join(node_type_list)
 
             db_record['json'] = data
-            if response_param in data:
-                db_record['items'] = data[response_param]
-            elif "items" in data:
+            data_filter = response_param.split("/")[-1]
+
+            if "items" in data:
                 if isinstance(data['items'], dict):
                     for name, scoped_dict in data['items'].items():
                         if response_param in scoped_dict:
@@ -269,6 +269,11 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
 
                 if not db_record['items']:
                     db_record['items'] = data['items']
+            elif data_filter in data:
+                db_record['items'] = data[data_filter]
+            
+            snapshot_data["project-id"] = project_id
+            snapshot_data["request_url"] = request_url
 
             set_snapshot_data(node, db_record['items'], snapshot_data)
 
@@ -300,7 +305,7 @@ def set_snapshot_data(node, items, snapshot_data):
             else:
                 resource_type = node_type.split("/")[1].split(".")[-2]
                 if resource_type in resource and isinstance(resource[resource_type], list):
-                    if len(resource[resource_type]) > 0 and 'selfLink' in resource[resource_type][0]:
+                    if len(resource[resource_type]) > 0 and ('selfLink' in resource[resource_type][0] or "id" in resource[resource_type][0] or "name" in resource[resource_type][0]):
                         resource_items += resource[resource_type]
     else:
         resource_items = items
@@ -315,6 +320,8 @@ def set_snapshot_data(node, items, snapshot_data):
             ignoreNode = False
         else:
             ignoreNode  = True
+        
+    request_url = get_field_value_with_default(snapshot_data, 'request_url',"")
 
     exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
     resourceExclusions = {}
@@ -326,12 +333,20 @@ def set_snapshot_data(node, items, snapshot_data):
 
     for item in resource_items:
         count += 1
-        path_list = item['selfLink'].split("https://")
+        if "selfLink" in item.keys():
+            request_url = item['selfLink']
+        elif "id" in item.keys():
+            request_url = request_url+"/"+item["id"].split(":")[-1]
+        elif "name" in item.keys():
+            request_url = request_url+"/"+item["name"]
+
+        path_list = request_url.split("https://")
+
         path_list = path_list[1].split('/')
         path = "/".join(path_list[1:])
 
         found_old_record = False
-        for masterSnapshotId, snapshot_list in snapshot_data.items():
+        for snapshot_list in snapshot_data.values():
             old_record = None
             if isinstance(snapshot_list, list):
                 for item in snapshot_list:
