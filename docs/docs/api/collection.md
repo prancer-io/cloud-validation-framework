@@ -101,7 +101,12 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/collection/list -H '
                 "others": [],
                 "snapshots": [],
                 "status": "active",
-                "tests": []
+                "tests": [],
+                "notifications" : [
+                    {
+                        "name": "notifications_azure_iac_31"
+                    }
+                ]
             }
         ]
     },
@@ -299,7 +304,7 @@ Required Fields
 **Update Collection config items**
 ---
 
-- This API is for updating json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
+- This API is for updating json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration, notifications
 
 **CURL Sample**
 ```
@@ -346,5 +351,104 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/manage/config -H 'a
     "message": "Connector updated successsfully",
     "metadata": {},
     "status": 200
+}
+```
+
+
+**Archive/Unarchive a collection**
+---
+
+- This API is for updating json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
+
+**CURL Sample**
+```
+curl -X POST https://portal.prancer.io/prancer-customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>' -d '{ "collection" : "azure_iac", "status" : "inactive" }
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
+- **Method:** POST
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+
+```
+{
+	"collection" : "azure_iac",
+	"status" : "inactive"
+}
+```
+
+- **Explanation:**
+
+    `Required Fields`
+
+    - **collection:** Name of the collection for which you want to change the status.
+    - **status:** Status of collection `active` or `inactive`.
+
+
+**Response:**
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Collection azure_iac archived successfully",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**Upload collection manage config files**
+---
+
+- This API is for uploading json files of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration, notifications
+
+**CURL Sample**
+```
+curl -X POST https://portal.prancer.io/prancer-customer1/api/manage/config/upload -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/manage/config/upload
+- **Method:** POST
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **form-data:**
+
+```
+- files - <Multiple files: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuration">
+- container_name - <Name of the container>
+```
+
+**Response Success:**
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "All files added successfully",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**Response Error:**
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [
+        "Invalid JSON - masterSnapshot field is missing or empty"
+    ],
+    "message": "",
+    "metadata": {},
+    "status": 400
 }
 ```
