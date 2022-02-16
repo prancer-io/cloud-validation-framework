@@ -98,23 +98,11 @@ def get_google_data(snapshot_source):
 def generate_request_url(base_url, project_id):
     """Generate request url from base url"""
     try:
-        path_list = base_url.split("https://")
-        path_list = path_list[1].split('/')
+        logger.info("base_url %s", base_url)
+        updated_base_url = re.sub(r"{project}|{projectId}", project_id, base_url)
+        updated_base_url = re.sub(r"{zone}", "-", updated_base_url)
 
-        request_url = "https:/"
-        for path in path_list:
-            field_expresion = re.compile("\{([^}]+)\}")
-            field = field_expresion.search(path)
-            if field:
-                field = path[1:len(path)-1]
-                if field in ["projectId", "project"]:
-                    path = project_id
-                elif field in ["zone"]:
-                    path = "-"
-            request_url = "%s/%s" % (request_url, path)
-
-        logger.info(request_url)
-        return request_url
+        return updated_base_url
     except:
         logger.error("Invalid api url")
         return None
@@ -229,12 +217,15 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
 
         base_node_type_list = node_type.split("/")
         if len(base_node_type_list) > 1:
-            base_node_type = base_node_type_list[1]
+            base_node_type = "/".join(base_node_type_list[1:])
         else:
             logger.error("Invalid node type '%s'", node_type)
             return db_record
 
         request_url = get_api_path(base_node_type)
+        if not request_url:
+            logger.error("API URL not set in google parameters for resource type: %s", base_node_type)
+
         request_url = generate_request_url(request_url, project_id)
         logger.info("Invoke request for get snapshot: %s", request_url)
         
