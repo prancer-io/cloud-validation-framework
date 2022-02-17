@@ -3,7 +3,7 @@
 
 **Compliance - Run Compliance**
 ---
-- API for Run the compliance on provided collection.
+- API for running the compliance on provided collection.
 
 **CURL Sample**
 ```
@@ -20,7 +20,7 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/compliance/run/ -H 
 - **Param:**
 ```
 {
-	"collection" : "azure_cloud"
+    "collection" : "azure_cloud"
 }
 ```
 
@@ -45,7 +45,7 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/compliance/run/ -H 
 
 **Compliance - Run Crawler**
 ---
-- API for Run the crawler on provided collection.
+- API for running the crawler on provided collection.
 
 **CURL Sample**
 ```
@@ -62,7 +62,7 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/compliance/crawler/
 - **Param:**
 ```
 {
-	"collection" : "azure_cloud"
+    "collection" : "azure_cloud"
 }
 ```
 
@@ -87,7 +87,7 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/compliance/crawler/
 
 **Compliance - Add Schedulers**
 ---
-- API for add new Scheduler.
+- API for adding a new Scheduler.
 
 **CURL Sample**
 ```
@@ -96,13 +96,13 @@ curl -X POST \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json' \
   -d '{
-	"collection":"azure_cloud",
-	"schedule":"Daily@01:00 date@13/05/2021",
-	"name":"Test",
-	"description":"test ",
-	"recur":"1",
-	"test":"CRAWLER",
-	"crawler":true
+    "collection":"azure_cloud",
+    "schedule":"Daily@01:00 date@13/05/2021",
+    "name":"Test",
+    "description":"test ",
+    "recur":"1",
+    "test":"CRAWLER",
+    "crawler":true
 }'
 ```
 
@@ -116,13 +116,13 @@ curl -X POST \
 - **Param:**
 ```
 {
-	"collection":"azure_cloud",
-	"schedule":"Daily@01:00 date@13/05/2021",
-	"name":"Test",
-	"description":"test ",
-	"recur":"1",
-	"test":"CRAWLER",
-	"crawler":true
+    "collection":"azure_cloud",
+    "schedule":"Daily@01:00 date@13/05/2021",
+    "name":"Test",
+    "description":"test ",
+    "recur":"1",
+    "test":"CRAWLER",
+    "crawler":true
 }
 ```
 
@@ -142,9 +142,9 @@ curl -X POST \
     - **recur:** It defines the Job will run after no. of recuring defined.
         ( Ex. recur is 2, then Job will run after every 2 hours )
     - **test** : Valid value for this field is `TEST`, `CRAWLER` and `BOTH`.
-        - `TEST:` Run only test on specified collection.
+        - `TEST:` Run the only compliance on specified collection.
         - `CRAWLER:` Run only crawler on specified collection.
-        - `BOTH:` Run both Crawker and then Test on specified collection.
+        - `BOTH:` Run both Crawler and then compliance on specified collection.
     - **crawler** : Require to set this field to `true` if the `test` value is `CRAWLER` or `BOTH`.
 
 **Response:**
@@ -167,9 +167,9 @@ curl -X POST \
 }
 ```
 
-**Compliance - Get Scheduler**
+**Compliance - Get scheduler**
 ---
-- API for get list of scheduled jobs.
+- API for getting the list of scheduled jobs.
 
 **CURL Sample**
 ```
@@ -217,9 +217,9 @@ curl -X GET \
 }
 ```
 
-**Compliance - Delete Scheduler**
+**Compliance - Delete scheduler**
 ---
-- API for delete a scheduled job.
+- API for deleting a scheduled job.
 
 **CURL Sample**
 ```
@@ -228,7 +228,7 @@ curl -X DELETE \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json' \
   -d '{
-	"id" : "azure_cloud_nbyrl_9441"
+    "id" : "azure_cloud_nbyrl_9441"
 }'
 ```
 
@@ -242,7 +242,7 @@ curl -X DELETE \
 - **Param:**
 ```
 {
-	"id" : "azure_cloud_nbyrl_9441"
+    "id" : "azure_cloud_nbyrl_9441"
 }
 ```
 - **Explanation:**
