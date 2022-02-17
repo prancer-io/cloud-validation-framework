@@ -66,6 +66,7 @@ nav:
     - collection: api/collection.md
     - compliance: api/compliance.md
     - connector: api/connector.md
+    - configuration: api/config.md
     - dashboard: api/dashboard.md
     - policy: api/policy.md
     - remediation: api/remediation.md
@@ -74,5 +75,6 @@ nav:
     - tags: api/tags.md
     - users: api/users.md
     - permissions: api/permissions.md
+    - vault: api/vault.md
     - webhook: api/webhook.md
     - wizard: api/wizard.md
