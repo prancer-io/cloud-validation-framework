@@ -16,6 +16,7 @@ LOCAL='LOCAL'
 DEV='DEV'
 QA='QA'
 PROD='PROD'
+
 SERVERENVS = [LOCAL, DEV, QA, PROD]
 
 LOCALSERVER='http://localhost:8080/api/'
@@ -41,7 +42,7 @@ def get_api_server(server, company):
     if server:
         if server in SERVERENVS:
             if server == LOCAL:
-                apiserver = LOCALSERVER
+                apiserver = os.environ['LOCALSERVER'] if 'LOCALSERVER' in os.environ else LOCALSERVER
             else:
                 if company:
                     company_prefix = get_company_prefix(company)
