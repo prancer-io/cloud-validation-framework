@@ -29,7 +29,8 @@ Compliance APIs
 | [Run compliance](compliance.md#compliance-run-compliance) | Run compliance on a specific collection. |
 | [Run crawler](compliance.md#compliance-run-crawler) | Run crawler on a specific collection. |
 | [Schedule a compliance](compliance.md#compliance-add-schedulers) | Schedule a compliance to run automatically. |
-| [Get scheduled compliance](compliance.md#compliance-get-scheduler) | Get the list of scheduled compliance. |
+| [Get scheduled compliances](compliance.md#compliance-get-scheduler-list) | Get the list of scheduled compliance. |
+| [Get a scheduled compliance](compliance.md#compliance-get-a-scheduler) | Get a scheduled compliance. |
 | [Delete a scheduler](compliance.md#compliance-delete-scheduler) | Delete a scheduled compliance. |
 
 Configuration APIs
