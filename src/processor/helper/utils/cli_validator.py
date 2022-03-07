@@ -52,6 +52,8 @@
 
 """
 
+import pyfiglet
+from termcolor import colored
 import argparse
 import threading
 import sys
@@ -194,6 +196,8 @@ def validator_main(arg_vals=None, delete_rundata=True):
            the tests execution could not be started or completed.
     """
     global  current_progress
+    result = pyfiglet.figlet_format("Prancer")
+    print(colored(result, 'red'))
     cmd_parser = argparse.ArgumentParser("prancer", formatter_class=argparse.RawDescriptionHelpFormatter,
                                          epilog='''\
 Example: prancer <collection>
