@@ -184,6 +184,11 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
             urlstr = 'https://management.azure.com/subscriptions/%s%s?api-version=%s'
             url = urlstr % (sub_id, node['path'], version)
          
+        resource_group = ""
+        exmatch = re.search(r'/subscriptions.*/resourceGroups/(.*?)/', node['path'], re.I)
+        if exmatch:
+            resource_group = exmatch.group(1)
+         
         child_resource_type_list = node.get('type', "").split("/")   
         if len(child_resource_type_list) == 2:
             exmatch = re.search(r'/subscriptions.*/resourceGroups/.*?/', node['path'], re.I)
@@ -198,6 +203,8 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
         if status and isinstance(status, int) and status == 200:
             if data and data.get("resources"):
                 db_record['json']['resources'] = data.get("resources")
+                db_record['json']["subscription_id"] = sub_id
+                db_record['json']["resource_group"] = resource_group
         else:
             status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
         
@@ -212,6 +219,8 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
                 #             if "%s/" % all_data_record["json"]["resources"][0].get("id") in node["path"]:
                 #                 all_data_record["json"]["resources"].append(data)
             
+                db_record['json']["subscription_id"] = sub_id
+                db_record['json']["resource_group"] = resource_group
                 db_record['json']['resources'].append(data)
                 db_record['region'] = data.get("location")
                 data_str = json.dumps(data)

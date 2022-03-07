@@ -122,7 +122,8 @@ curl -X POST \
     "description":"test ",
     "recur":"1",
     "test":"CRAWLER",
-    "crawler":true
+    "crawler":true,
+    "config_id" : "62186dd3c1d0e47a312b9f45"
 }
 ```
 
@@ -147,6 +148,10 @@ curl -X POST \
         - `BOTH:` Run both Crawler and then compliance on specified collection.
     - **crawler** : Require to set this field to `true` if the `test` value is `CRAWLER` or `BOTH`.
 
+    `Optional Fields`
+
+    - **config_id** : Any Id to use it as reference at time of running the scheduler.
+
 **Response:**
 ```
 {
@@ -167,7 +172,7 @@ curl -X POST \
 }
 ```
 
-**Compliance - Get scheduler**
+**Compliance - Get scheduler list**
 ---
 - API for getting the list of scheduled jobs.
 
@@ -199,6 +204,7 @@ curl -X GET \
             {
                 "collection": "azure_cloud",
                 "crawler": true,
+                "config_id": "",
                 "description": "Wizard Created azure_cloud scheduled",
                 "id": "azure_cloud_nbyrl_9441",
                 "name": "Scheduled azure_cloud",
@@ -208,6 +214,60 @@ curl -X GET \
                 "test": "BOTH"
             }
         ]
+    },
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**Compliance - Get a scheduler**
+---
+- API for get a scheduled job.
+
+**CURL Sample**
+```
+curl -X GET \
+  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/?scheduler_id=azure_cloud_nbyrl_9441 \
+  -H 'authorization: Bearer <JWT Bearer Token>' \
+  -H 'content-type: application/json'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/
+- **Method:** GET
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+```
+{
+    "scheduler_id" : "azure_cloud_nbyrl_9441"
+}
+```
+- **Explanation:**
+
+    `Required Fields`
+
+    - **scheduler_id:** Id of the Scheduled Job.
+
+**Response:**
+```
+{
+    "data": {
+        "collection": "azure_cloud",
+        "crawler": true,
+        "config_id": "",
+        "description": "Wizard Created azure_cloud scheduled",
+        "id": "azure_cloud_nbyrl_9441",
+        "name": "Scheduled azure_cloud",
+        "next_run_time": "2021-05-13 15:30:00",
+        "recur": "2",
+        "schedule": "Hourly@15:00 date@12/05/2021",
+        "test": "BOTH"
     },
     "error": "",
     "error_list": [],
