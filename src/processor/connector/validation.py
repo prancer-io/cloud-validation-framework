@@ -82,6 +82,28 @@ def run_validation_test(version, container, dbname, collection_data, testcase, e
         results.update(testcase)
         return[results]
 
+def get_min_severity_error_list():
+    severity_list = []
+    console_min_severity_error = config_value("RESULT", "console_min_severity_error", default="Low")
+    if (console_min_severity_error).lower() == "low":
+        severity_list = ["low", "medium", "high"]
+    elif (console_min_severity_error).lower() == "medium":
+        severity_list = ["medium", "high"]
+    elif (console_min_severity_error).lower() == "high":
+        severity_list = ["high"]
+    return severity_list
+
+def validate_result(resultset, finalresult):
+    min_severity_list = get_min_severity_error_list()
+    if resultset:
+        for result in resultset:
+            if 'result' in result:
+                if not re.match(r'passed', result['result'], re.I) and result.get("severity", "low").lower() in min_severity_list:
+                    logger.info("\tTEST: %s", result)
+                    finalresult = False
+                    break
+    return finalresult
+
 
 def run_file_validation_tests(test_file, container, filesystem=True, snapshot_status=None):
     # logger.info("*" * 50)
@@ -115,11 +137,7 @@ def run_file_validation_tests(test_file, container, filesystem=True, snapshot_st
         # else:
         #     dump_output_results(resultset, container, test_file, snapshot, filesystem)
         dump_output_results(resultset, container, test_file, snapshot, filesystem)
-        for result in resultset:
-            if 'result' in result:
-                if not re.match(r'passed', result['result'], re.I):
-                    finalresult = False
-                    break
+        finalresult = validate_result(resultset, finalresult)
     else:
         # TODO: NO test cases in this file.
         # LOG HERE that no test cases are present in this file.
@@ -292,11 +310,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
             # else:
             #     dump_output_results(resultset, container, test_file, snapshot, True)
             dump_output_results(resultset, container, test_file, snapshot, True)
-            for result in resultset:
-                if 'result' in result:
-                    if not re.match(r'passed', result['result'], re.I):
-                        finalresult = False
-                        break
+            finalresult = validate_result(resultset, finalresult)
         else:
             logger.error('\tERROR: No mastertest Documents found!')
             finalresult = False
@@ -353,11 +367,7 @@ def run_filecontent_validation(container, snapshot_status=None):
         elif resultset:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             dump_output_results(resultset, container, test_file, snapshot, True)
-            for result in resultset:
-                if 'result' in result:
-                    if not re.match(r'passed', result['result'], re.I):
-                        finalresult = False
-                        break
+            finalresult = validate_result(resultset, finalresult)
         else:
             logger.error('\tERROR: No mastertest Documents found!')
             finalresult = False
@@ -410,12 +420,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                             return {}
                     resultset = run_json_validation_tests(doc['json'], container, False, dirpath=dirpath)
                     if resultset:
-                        # dump_output_results(resultset, container, test_file, snapshot, False)
-                        for result in resultset:
-                            if 'result' in result:
-                                if not re.match(r'passed', result['result'], re.I):
-                                    finalresult = False
-                                    break
+                        finalresult = validate_result(resultset, finalresult)
                 except Exception as e:
                     # dump_output_results([], container, "-", snapshot, False)
                     raise e
@@ -457,13 +462,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                         testset['cases'] = _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbname, False)
                     # print(json.dumps(test_json_data, indent=2))
                     resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
-                    if resultset:
-                        # dump_output_results(resultset, container, test_file, snapshot, False)
-                        for result in resultset:
-                            if 'result' in result:
-                                if not re.match(r'passed', result['result'], re.I):
-                                    finalresult = False
-                                    break
+                    finalresult = validate_result(resultset, finalresult)
                 except Exception as e:
                     # dump_output_results([], container, test_file, snapshot, False)
                     raise e
