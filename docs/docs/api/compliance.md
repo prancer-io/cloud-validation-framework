@@ -102,7 +102,16 @@ curl -X POST \
     "description":"test ",
     "recur":"1",
     "test":"CRAWLER",
-    "crawler":true
+    "crawler":true,
+    "pac" : true,
+    "webhook" : {
+		"webhook_url" : "https://portal.prancer.io/prancer-customer1/api/run/compliance",
+		"webhook_data" : {
+			"config_id" : "620e24b4a3ddf04e384543b9"
+		},
+		"webhook_method" : "POST",
+		"webhook_headers" : {}
+	}
 }'
 ```
 
@@ -123,7 +132,15 @@ curl -X POST \
     "recur":"1",
     "test":"CRAWLER",
     "crawler":true,
-    "config_id" : "62186dd3c1d0e47a312b9f45"
+    "pac" : true,
+    "webhook" : {
+		"webhook_url" : "https://portal.prancer.io/prancer-customer1/api/run/compliance",
+		"webhook_data" : {
+			"config_id" : "620e24b4a3ddf04e384543b9"
+		},
+		"webhook_method" : "POST",
+		"webhook_headers" : {}
+	}
 }
 ```
 
@@ -131,7 +148,7 @@ curl -X POST \
 
     `Required Fields`
 
-    - **collection:** Name of the collection for which you want to scheduler a Job.
+    - **collection:** Name of the collection for which you want to scheduler a Job. Optional if `pac` is true.
     - **schedule:** We can schedule the following types of Schedulers.
         - Once ( Ex. `once@11:00 date@10/26/2019` )
         - Hourly ( Ex. `hourly@11:00 date@10/26/2019` )
@@ -150,7 +167,12 @@ curl -X POST \
 
     `Optional Fields`
 
-    - **config_id** : Any Id to use it as reference at time of running the scheduler.
+    - **pac** : Boolean field to represent the scheduler is set for PAC. `collection` attribute is optional if `pac` is true.
+    - **webhook** : If you want to get the callback on any API server then you can define the webhook.
+        - **webhook_url** : API url which you want to call while scheduler run.
+		- **webhook_data** : Data in JSON format, which you want to pass in callback API.
+		- **webhook_method** : API method type. It can be either "POST", "PUT", "DELETE","GET".
+		- **webhook_headers** : Header data in JSON format which you want to pass in callback request.
 
 **Response:**
 ```
@@ -204,7 +226,6 @@ curl -X GET \
             {
                 "collection": "azure_cloud",
                 "crawler": true,
-                "config_id": "",
                 "description": "Wizard Created azure_cloud scheduled",
                 "id": "azure_cloud_nbyrl_9441",
                 "name": "Scheduled azure_cloud",
@@ -260,7 +281,6 @@ curl -X GET \
     "data": {
         "collection": "azure_cloud",
         "crawler": true,
-        "config_id": "",
         "description": "Wizard Created azure_cloud scheduled",
         "id": "azure_cloud_nbyrl_9441",
         "name": "Scheduled azure_cloud",
