@@ -78,10 +78,10 @@ def generate_snapshot(snapshot_json_data, snapshot_file_data):
                                     isinstance(snapshot_file_data[mastersnapshotId], list):
                                 for sid_data in snapshot_file_data[mastersnapshotId]:
                                     structure = sid_data.pop('structure', None)
-                                    if structure and structure == 'aws':
-                                        newnode = {}
-                                    else:
-                                        newnode = copy.deepcopy(node)
+                                    # if structure and structure == 'aws':
+                                    #     newnode = {}
+                                    # else:
+                                    newnode = copy.deepcopy(node)
                                     newnode.update(sid_data)
                                     
                                     for field in REMOVE_SNAPSHOTGEN_FIELDS:
