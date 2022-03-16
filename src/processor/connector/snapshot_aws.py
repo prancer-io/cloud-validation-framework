@@ -184,6 +184,11 @@ def get_node(awsclient, node, snapshot_source, snapshot):
             else:
                 logger.info('Invalid function exception: %s', str(function_to_call))
                 db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
+        
+        if client_str == "s3":
+            data["BucketName"] = resourceid
+            json_to_put.update(data)
+
         db_record['json'] = json_to_put
     return db_record
 
