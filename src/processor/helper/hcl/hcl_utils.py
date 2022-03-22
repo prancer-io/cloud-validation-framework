@@ -1,3 +1,4 @@
+import codecs
 import hcl
 import hcl2
 from lark import tree
@@ -15,9 +16,13 @@ def hcl_to_json(file_path):
         with open(file_path, 'r', encoding="utf-8") as fp:
             json_data = parser.loads(fp)
     except Exception as e:
-        error = str(e)
-        error = error.split("Expected one of")[0]
-        logger.error("Unspported terraform file, error while parsing file: %s , error: %s", file_path, error)
+        try:
+            with codecs.open(file_path, "r", encoding="utf-8-sig") as fp:
+                json_data = parser.loads(fp)
+        except Exception as e:
+            error = str(e)
+            error = error.split("Expected one of")[0]
+            logger.error("Unspported terraform file, error while parsing file: %s , error: %s", file_path, error)
 
     return json_data
 
