@@ -25,7 +25,6 @@ Example:
     [DEFAULT]
     space_id = 50973a54-16a7-4590-bcc0-755d0e83c7c9
 
-
 # [Azure] section
 
 **Prancer**  it is possible to specify where Prancer searches for Azure connectors.
@@ -34,7 +33,6 @@ Example:
 
     [AZURE]
     azureStructureFolder = realm/
-
 
 # [Database] section
 
@@ -73,7 +71,7 @@ Example:
 
 # [Logging] section
 
-You can configure logging to use either **MongoDB** or the filesystem. 
+You can configure logging to use either **MongoDB** or the filesystem.
 
 The `INI` section to use in the configuration file is `[LOGGING]` and here are all the possible configurations you can use:
 
@@ -93,8 +91,6 @@ Example:
     propagate = true
     logFolder = logs
     dbname = logs
-
-
 
 # [Notification] section
 
@@ -128,7 +124,7 @@ Example:
 
 # [Vault] section
 
-**Prancer** supports **Azure key vaults** or **CyberArk** (http://www.cyberark.com) Application Access Manager to store secrets that you might need for your infrastructure inspections.
+**Prancer** supports **Azure key vaults** or **CyberArk** (<http://www.cyberark.com>) Application Access Manager to store secrets that you might need for your infrastructure inspections.
 
 The `INI` section to use in the configuration file is `[VAULT]` and here are all the possible configurations you can use:
 
@@ -174,3 +170,18 @@ Example:
 
     [INDEXES]
     OUTPUT = name, container, timestamp
+
+# [RESULT] section
+
+Specify result related configurations
+
+Example:
+
+    [RESULT]
+    console_min_severity_error=Low
+
+    # which is used to filter out result according to minimum level of failing.
+    for example:
+    - if console_min_severity_error is High, then only High level severity cases will fail the result
+    - if console_min_severity_error is Medium, then only Medium and High severity level testcases will fail the result.
+    - if console_min_severity_error is Low, then all(Low, Medium, and High) severity level testcases will fail the result.
