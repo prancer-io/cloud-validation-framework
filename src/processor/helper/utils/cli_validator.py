@@ -71,7 +71,7 @@ from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor import __version__
 import traceback
 from jinja2 import Environment, FileSystemLoader
-
+from processor.database.database import find_and_update_document, DATABASE, DBNAME
 from processor.reporting.json_output import create_output_entry, dump_output_results
 current_progress = None
 
@@ -461,6 +461,8 @@ Run prancer for a list of snapshots
             current_progress = 'CRAWLERSTART'
             if not crawl_and_run:
                 put_in_currentdata("run_type", CRAWL)
+            logger.info("Updating %s container is_run status", args.container)
+            update_collection_run_status(args.db, args.container)
             generate_container_mastersnapshots(args.container, fs)
             current_progress = 'CRAWLERCOMPLETE'
         
@@ -468,6 +470,8 @@ Run prancer for a list of snapshots
             current_progress = 'COMPLIANCESTART'
             if not crawl_and_run:
                 put_in_currentdata("run_type", COMPLIANCE)
+            logger.info("Updating %s container is_run status", args.container)
+            update_collection_run_status(args.db, args.container)
             create_output_entry(args.container, test_file="-", filesystem=True if args.db ==  0 else False)
             # Normal flow
             snapshot_status = populate_container_snapshots(args.container, fs)
@@ -560,3 +564,22 @@ def gen_config_file(fname, path, template, data):
         f.write(output_from_parsed_template)
     return output_from_parsed_template
 
+
+def update_collection_run_status(db, container):
+    """
+    Update is_run status of collection
+    """
+    if db:
+        dbname = config_value(DATABASE, DBNAME)
+        find_and_update_document(
+            "structures",
+            dbname,
+            query={
+                "json.containers.name" : container
+            },
+            update_value={ 
+                "$set": {
+                    "json.containers.$.is_run": True
+                }
+            }
+        )
