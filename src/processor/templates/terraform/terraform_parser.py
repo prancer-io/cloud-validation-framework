@@ -30,9 +30,11 @@ class TerraformTemplateParser(TemplateParser):
             "var" : self.process_variable,
             "data" : self.process_data,
             "other" : self.process_other,
+            "local" : self.process_locals,
         }
         self.default_gparams = kwargs.get("default_gparams", {})
         self.gdata = {}
+        self.locals = {}
         self.resource = {}
         self.module_params = {
             "module" : {}
@@ -84,6 +86,13 @@ class TerraformTemplateParser(TemplateParser):
             json_data = json_from_file(file_path, escape_chars=['$'])
             return True if (json_data and not "resource" in json_data) else False
         return False
+
+    def process_locals(self, resource):
+        """
+        return value of the local variable
+        """
+        status, value = self.parse_field_value(resource, self.locals)
+        return status, value
 
     def process_other(self, resource):
         """
@@ -245,6 +254,17 @@ class TerraformTemplateParser(TemplateParser):
                         if "default" in value:
                             self.gparams[key] = value["default"]
 
+            if "locals" in template_json:
+                locals = []
+                for var in template_json["locals"]:
+                    local_dic = {}
+                    for key, value in var.items():
+                        processed_data, processed = self.process_resource(value, count=self.count)
+                        self.locals[key] = processed_data
+                        local_dic[key] = processed_data
+                    locals.append(local_dic)
+                gen_template_json['locals'] = locals
+
             new_resources = {}
             if "module" in template_json:
                 for mod in template_json["module"]:
@@ -309,15 +329,15 @@ class TerraformTemplateParser(TemplateParser):
                                                     for resource_key, resource_value in resource_item.items():
                                                         for resource_name, resource_properties in resource_value.items():
                                                             if isinstance(resource_properties, dict):
-                                                                for default_key, default_value in default_gparams.items():
-                                                                    if default_key not in resource_properties:
-                                                                        resource_properties[default_key] = default_value
+                                                                # for default_key, default_value in default_gparams.items():
+                                                                    # if default_key not in resource_properties:
+                                                                    #     resource_properties[default_key] = default_value
                                                                 resource_properties["compiletime_identity"] = "module.%s" % key
                                                             if isinstance(resource_properties, list):
                                                                 for resource_property in resource_properties:
-                                                                    for default_key, default_value in default_gparams.items():
-                                                                        if default_key not in resource_property:
-                                                                            resource_property[default_key] = default_value
+                                                                    # for default_key, default_value in default_gparams.items():
+                                                                    #     if default_key not in resource_property:
+                                                                    #         resource_property[default_key] = default_value
                                                                     resource_property["compiletime_identity"] = "module.%s" % key
                                                 if resource not in new_resources:
                                                     new_resources[resource] = [resource_item]
@@ -492,16 +512,24 @@ class TerraformTemplateParser(TemplateParser):
         groups = re.findall(r'([.a-zA-Z]+)[(].*[,].*[)]', param_str, re.I)
         if groups:
             for group in groups:
-                updated_group, _ = self.process_resource(group, count)
-                param_str.replace(group, updated_group)
+                updated_group, processed = self.process_resource(group, count)
+                if processed:
+                    param_str = param_str.replace(group, str(updated_group))
 
         groups = re.findall(r'^[(].*[,].*[)]|.* ([(].*[)])', param_str, re.I)
         if groups:
             for group in groups:
                 parameter_str = re.findall("(?<=\().*(?=\))", group)[0]
                 updated_group = self.process_expression_parameters(parameter_str, count)
-                param_str.replace(group, updated_group)
+                param_str = param_str.replace(group, str(updated_group))
 
+        # groups = re.findall(r'(?<=\?)([a-z0-9A-Z._\-\s]*(\?){1}[a-z0-9A-Z._\-\s]*(\:){1}[a-z0-9A-Z._\-\s]*)(?=:)', param_str, re.I)
+        groups = re.findall(r'(?<=\?\s)(.*[?].*[:].*)(?=\s:)', param_str, re.I)
+        if groups:
+            for group in groups:
+                updated_group, processed = self.process_resource(group, count)
+                if processed:
+                    param_str = param_str.replace(group, str(updated_group))
         return param_str
 
     # TODO: Fix this method
@@ -533,6 +561,11 @@ class TerraformTemplateParser(TemplateParser):
             new_resource_list = [] 
             for value in resource:
                 processed_resource, processed = self.process_resource(value, count=count)
+                if processed and isinstance(value, str) and isinstance(processed_resource, list):
+                    process_var = value.split(".") 
+                    if len(process_var) > 1:
+                        new_resource_list += processed_resource
+                        continue
                 new_resource_list.append(processed_resource)
             new_resource = new_resource_list
         
@@ -717,6 +750,12 @@ class TerraformTemplateParser(TemplateParser):
                     elif processed_param == None and re.match(".*(\.\*\.).*", param.strip()):
                         process = False
                         parameters.append(param.strip())
+                    elif re.match(".*(\.\*\.).*", param.strip()):
+                        process = False
+                        parameters.append(param.strip())
+                    elif re.findall(r'([.a-zA-Z]+)[(].*[,].*[)]', param.strip(), re.I):
+                        process = False
+                        parameters.append(param.strip())
                     else:
                         parameters.append(processed_param)
 
@@ -731,8 +770,10 @@ class TerraformTemplateParser(TemplateParser):
                     try:
                         new_resource = func['method'](*parameters)
                     except Exception as e:
+                        processed = False
                         logger.error("Failed to process %s : %s", new_resource, str(e))
                 else:
+                    processed = False
                     parameters = [str(ele) for ele in parameters]
                     new_resource = func['method'].__name__ + "(" + ",".join(parameters) + ")"
                 break 
@@ -771,7 +812,7 @@ class TerraformTemplateParser(TemplateParser):
                             if isinstance(processed_param, str) and (re.findall(r".*\(.*\)", processed_param) or re.findall(r"\${([^}]*)}", processed_param)):
                                 process_function = False # parameter processing failed
                                 new_parameter_list.append("\"" + param + "\"")
-                            elif isinstance(processed_param, str) and re.findall(r"[a-zA-Z]", processed_param) and processed_param not in self.replace_value_str:
+                            elif isinstance(processed_param, str) and re.findall(r"[a-zA-Z-_]", processed_param) and processed_param not in self.replace_value_str:
                                 new_parameter_list.append("\"" + processed_param + "\"")
                             elif isinstance(processed_param, str) and len(processed_param) == 0:
                                 new_parameter_list.append('""')
@@ -782,9 +823,10 @@ class TerraformTemplateParser(TemplateParser):
                                 new_parameter_list.append(str(processed_param))
 
                         if process_function:
-                            new_resource = func['method'](" ".join(new_parameter_list))
+                            new_resource, processed = func['method'](" ".join(new_parameter_list))
                         else:
                             new_resource = matched_str
+                    break
                 else:
                     splited_list = matched_str.split(".") 
                     if len(splited_list) > 1:
