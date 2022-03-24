@@ -329,15 +329,15 @@ class TerraformTemplateParser(TemplateParser):
                                                     for resource_key, resource_value in resource_item.items():
                                                         for resource_name, resource_properties in resource_value.items():
                                                             if isinstance(resource_properties, dict):
-                                                                for default_key, default_value in default_gparams.items():
-                                                                    if default_key not in resource_properties:
-                                                                        resource_properties[default_key] = default_value
+                                                                # for default_key, default_value in default_gparams.items():
+                                                                    # if default_key not in resource_properties:
+                                                                    #     resource_properties[default_key] = default_value
                                                                 resource_properties["compiletime_identity"] = "module.%s" % key
                                                             if isinstance(resource_properties, list):
                                                                 for resource_property in resource_properties:
-                                                                    for default_key, default_value in default_gparams.items():
-                                                                        if default_key not in resource_property:
-                                                                            resource_property[default_key] = default_value
+                                                                    # for default_key, default_value in default_gparams.items():
+                                                                    #     if default_key not in resource_property:
+                                                                    #         resource_property[default_key] = default_value
                                                                     resource_property["compiletime_identity"] = "module.%s" % key
                                                 if resource not in new_resources:
                                                     new_resources[resource] = [resource_item]
@@ -747,7 +747,13 @@ class TerraformTemplateParser(TemplateParser):
                         process = False
                         parameters.append(param.strip())
                     # Check only for None return
-                    elif not process_status and re.match(".*(\.\*\.).*", param.strip()):
+                    elif processed_param == None and re.match(".*(\.\*\.).*", param.strip()):
+                        process = False
+                        parameters.append(param.strip())
+                    elif re.match(".*(\.\*\.).*", param.strip()):
+                        process = False
+                        parameters.append(param.strip())
+                    elif re.findall(r'([.a-zA-Z]+)[(].*[,].*[)]', param.strip(), re.I):
                         process = False
                         parameters.append(param.strip())
                     else:
