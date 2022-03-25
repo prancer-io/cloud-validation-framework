@@ -7,6 +7,7 @@ import re
 import os
 import inspect
 import ast
+import traceback
 import hcl2
 from processor.logging.log_handler import getlogger
 from processor.templates.base.template_parser import TemplateParser
@@ -504,7 +505,7 @@ class TerraformTemplateParser(TemplateParser):
             return params 
         except Exception as e:
             logger.debug("Failed to split paramaters")
-            logger.debug(value)
+            logger.debug(traceback.format_exc())
             return []
 
     def process_expression_parameters(self, param_str, count):
@@ -748,9 +749,6 @@ class TerraformTemplateParser(TemplateParser):
                         parameters.append(param.strip())
                     # Check only for None return
                     elif processed_param == None and re.match(".*(\.\*\.).*", param.strip()):
-                        process = False
-                        parameters.append(param.strip())
-                    elif re.match(".*(\.\*\.).*", param.strip()):
                         process = False
                         parameters.append(param.strip())
                     elif re.findall(r'([.a-zA-Z]+)[(].*[,].*[)]', param.strip(), re.I):
