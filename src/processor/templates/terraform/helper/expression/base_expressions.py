@@ -16,7 +16,8 @@ def conditional_expression(expression):
     new_expression = '%s if %s else %s' % (true_value, condition, false_value)
     try:
         response = eval(new_expression)
-        return response
+        return response, True
     except Exception as e:
+        logger.error(expression)
         logger.error(e)
-        return expression
+        return expression, False
