@@ -397,7 +397,8 @@ curl -X GET 'https://portal.prancer.io/prancer-customer1/api/resource/detail?res
 ```
 {
     "resource_path" : "/subscriptions/d34d6562-8a12-4458-ba02-b12345f45gdd/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkSecurityGroups/automation-linux-nsg",
-    "resource_collection_name" : "microsoftnetwork"
+    "resource_collection_name" : "microsoftnetwork",
+    "session_id": "session_1648443578974"
 }
 ```
 - **Explanation:**
@@ -406,6 +407,7 @@ curl -X GET 'https://portal.prancer.io/prancer-customer1/api/resource/detail?res
 
     - **resource_path:** Full path of the resource for which you want to get the detail information.
     - **resource_collection_name:** Collection name for the resource, it comes from response of Resource - Dashboard API.
+    - **session_id:** Provide session id to get snapshot of specific session
 
 **Response:**
 ```

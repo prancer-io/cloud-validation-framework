@@ -63,13 +63,10 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/collection/list -H '
 - **Param:**
 
 ```
-- detail: Boolean value to get full detail of the collection
 - search: <search by collection name>
 ```
 
 **Response:**
-
-`detail=true`
 
 ```
 {
@@ -123,34 +120,43 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/collection/list -H '
 }
 ```
 
-`detail=false`
+**Collection - Archive/Delete**
+---
+- This API is for archiving old collection and deleting new collections
+
+**CURL Sample**
+```
+curl -X GET https://portal.prancer.io/prancer-customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
+- **Method:** DELETE
+- **Header:**
+
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+
+```
+- "collection": "collection_name",
+- "status": "delete" [available status: "archive", "unarchive", "delete"]
+```
+
+**Response:**
 
 ```
 {
-    "data": {
-        "results": [
-            {
-                "collection": "aws_test_2",
-                "connectors": [
-                    "aws_test_2_connector_aws",
-                    "git_prancer-liquware_connector"
-                ]
-            }
-        ]
-    },
+    "data": {},
     "error": "",
     "error_list": [],
-    "message": "",
-    "metadata": {
-        "count": 1,
-        "current_page": 1,
-        "next_index": 1,
-        "total": 62
-    },
+    "message": "Collection collection_name deleted successfully",
+    "metadata": {},
     "status": 200
 }
 ```
-
 
 **Collection - exists**
 ---
