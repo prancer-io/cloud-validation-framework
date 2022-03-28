@@ -439,6 +439,8 @@ Run prancer for a list of snapshots
         #     args.db  = DBVALUES.index(NONE)
 
         put_in_currentdata(EXCLUSION, populate_container_exclusions(args.container, fs))
+        session_id = "session_" + str(int(datetime.datetime.utcnow().timestamp() * 1000))
+        put_in_currentdata("session_id", session_id)
 
         if args.file_content:
             current_progress = 'COMPLIANCESTART'

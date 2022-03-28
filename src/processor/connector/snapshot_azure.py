@@ -152,6 +152,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
     """ Fetch node from azure portal using rest API."""
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
+    session_id = get_from_currentdata("session_id")
     db_record = {
         "structure": "azure",
         "reference": sub_name,
@@ -167,6 +168,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
         "masterSnapshotId": None,
         "collection": collection.replace('.', '').lower(),
         "region" : "",
+        "session_id": session_id,
         "json": {"resources": []}  # Refactor when node is absent it should None, when empty object put it as {}
     }
             

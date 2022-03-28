@@ -92,6 +92,8 @@ class TemplateProcessor:
             ref = self.connector_data["branchName"]
         elif "folderPath" in self.connector_data:
             ref = self.connector_data["folderPath"]
+        
+        session_id = get_from_currentdata("session_id")
 
         db_record = {
             "structure": self.connector_data["type"],
@@ -107,6 +109,7 @@ class TemplateProcessor:
             "snapshotId": self.node['snapshotId'],
             "collection": collection.replace('.', '').lower(),
             "json": self.processed_template,
+            "session_id": session_id
             # "resourceTypes" : self.node.get("resourceTypes", [])
         }
         if self.resource_type:

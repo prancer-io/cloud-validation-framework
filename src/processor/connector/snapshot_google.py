@@ -129,6 +129,7 @@ def get_node(credentials, node, snapshot_source, snapshot):
     project_id = get_field_value_with_default(snapshot, 'project-id',"")
     path = get_field_value_with_default(node, 'path',"")
     zone = re.findall(r"(?<=zones\/)[a-zA-Z0-9\-]*(?=\/)", path)
+    session_id = get_from_currentdata("session_id")
     db_record = {
         "structure": "google",
         "error": None,
@@ -143,6 +144,7 @@ def get_node(credentials, node, snapshot_source, snapshot):
         "snapshotId": node['snapshotId'],
         "collection": collection.replace('.', '').lower(),
         "region" : zone[0] if zone else "",
+        "session_id": session_id,
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
 
@@ -190,7 +192,7 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
     parts = snapshot_source.split('.')
     project_id = get_field_value_with_default(snapshot, 'project-id',"")
     node_type = get_field_value_with_default(node, 'type',"")
-    
+    session_id = get_from_currentdata("session_id")
     db_record = {
         "structure": "google",
         "error": None,
@@ -205,6 +207,7 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
         "snapshotId": None,
         "masterSnapshotId": [node['masterSnapshotId']],
         "collection": collection.replace('.', '').lower(),
+        "session_id": session_id,
         "json": {},  # Refactor when node is absent it should None, when empty object put it as {}
         "items": []
     }

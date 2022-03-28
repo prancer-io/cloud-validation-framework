@@ -169,6 +169,7 @@ def get_node(repopath, node, snapshot, ref, connector):
     base_path = get_field_value_with_default(connector, "folderPath", "")
     snapshot_source = get_field_value(snapshot, 'source')
     parts = snapshot_source.split('.')
+    session_id = get_from_currentdata("session_id")
     db_record = {
         "structure": given_type,
         "reference": ref if not base_path else "",
@@ -180,6 +181,7 @@ def get_node(repopath, node, snapshot, ref, connector):
         "node": node,
         "snapshotId": node['snapshotId'],
         "collection": collection.replace('.', '').lower(),
+        "session_id": session_id,
         "json": {}
     }
     json_path = '%s/%s' % (repopath, node['path'])
