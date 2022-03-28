@@ -118,6 +118,7 @@ def get_node(awsclient, node, snapshot_source, snapshot):
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
     function_to_call = None
+    session_id = get_from_currentdata("session_id")
     db_record = {
         "structure": "aws",
         "error": None,
@@ -132,6 +133,7 @@ def get_node(awsclient, node, snapshot_source, snapshot):
         "region" : "",
         "snapshotId": node['snapshotId'],
         "collection": collection.replace('.', '').lower(),
+        "session_id": session_id,
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
     detail_methods = get_field_value(node, "detailMethods")

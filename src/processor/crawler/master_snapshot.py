@@ -29,6 +29,7 @@ import copy
 import hashlib
 
 from bson.objectid import ObjectId
+from processor.helper.config.rundata_utils import get_from_currentdata
 from processor.logging.log_handler import getlogger, get_dblog_handler
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     get_container_snapshot_json_files, MASTERSNAPSHOT, SNAPSHOT,\
@@ -394,7 +395,7 @@ def generate_crawler_run_output(container):
                     "id" : str(snapshot['_id']), 
                     "name" : snapshot['name']
                 } for snapshot in snapshots]
-    
+    session_id = get_from_currentdata("session_id")
     db_record = { 
         "timestamp" : timestamp,     
         "checksum" : hashlib.md5("{}".encode('utf-8')).hexdigest(), 
@@ -414,7 +415,8 @@ def generate_crawler_run_output(container):
             "master_snapshot_list" : master_snapshots, 
             "output_type" : "crawlerrun", 
             "results" : [],
-            "status": "Running"
+            "status": "Running",
+            "session_id": session_id,
         }
     }
     doc_id = insert_one_document(db_record, db_record['collection'], dbname, False)
