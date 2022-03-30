@@ -118,11 +118,10 @@ def test_populate_all_template_snapshot(monkeypatch):
 
 	template_processor = AWSTemplateProcessor(node_data, **master_template_processor_kwargs)
 	snapshot_data = template_processor.populate_all_template_snapshot()
-
+	del snapshot_data['MASTER_SNAPSHOT_'][0]['snapshotId']
 	assert snapshot_data == {
 		"MASTER_SNAPSHOT_": [
 			{
-				"snapshotId": "MASTER_SNAPSHOT_1",
 				"type": "cloudformation",
 				"collection": "cloudformation",
 				"paths": [
