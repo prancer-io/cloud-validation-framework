@@ -138,11 +138,8 @@ class TerraformTemplateParser(TemplateParser):
         is_valid = True
         for resource in resource_list:
             # process variables like this: var.network_http["cidr"]
-            pattern = re.compile(r'\[["|\'](.*?)["|\']\]')
+            pattern = re.compile(r'\[(.*?)\]')
             map_keys = re.findall(pattern, resource)
-            if not map_keys:
-                pattern = re.compile(r'\[(.*?)\]')
-                map_keys = re.findall(pattern, resource)
             if map_keys and len(resource.split("[")) > 1:
                 res = resource.split("[")[0]
                 if res in value:
@@ -152,7 +149,11 @@ class TerraformTemplateParser(TemplateParser):
                     is_valid = False
                     break
                 for key in map_keys:
-                    if value is None or not isinstance(value, dict):
+                    key = self.parse_string(key)
+                    if key == "count.index" and isinstance(value, list) and len(value) > self.count:
+                        value = value[self.count]
+                        continue
+                    elif value is None or not isinstance(value, dict):
                         is_valid = False
                         break
 
@@ -510,7 +511,7 @@ class TerraformTemplateParser(TemplateParser):
 
     def process_expression_parameters(self, param_str, count):
         
-        groups = re.findall(r'([.a-zA-Z]+)[(].*[,].*[)]', param_str, re.I)
+        groups = re.findall(r'[.a-zA-Z]+[(].*[,].*[)]', param_str, re.I)
         if groups:
             for group in groups:
                 updated_group, processed = self.process_resource(group, count)
