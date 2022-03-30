@@ -24,7 +24,7 @@ def lower(str_value):
 
 def replace(str_value, substring, replacement):
     """ searches for substring and replace the value of substring """
-    return str_value.replace(substring , replacement)
+    return str_value.replace(substring , str(replacement))
 
 def split(separator, str_value):
     """ split the string by given separator and returns the list """
