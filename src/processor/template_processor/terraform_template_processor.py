@@ -96,7 +96,8 @@ class TerraformTemplateProcessor(TemplateProcessor):
             
             new_dir_path = self.dir_path
             if len(paths) != 1 and not self.folder_path:
-                new_dir_path = "/".join(self.dir_path.split("/")[:3])
+                # new_dir_path = "/".join(self.dir_path.split("/")[:3])
+                new_dir_path = self.repopath
             for path in paths:
                 file_path = '%s/%s' % (new_dir_path, path)
                 logger.info("Fetching data : %s ", path)
