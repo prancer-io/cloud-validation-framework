@@ -187,9 +187,23 @@ def get_node(awsclient, node, snapshot_source, snapshot):
                 logger.info('Invalid function exception: %s', str(function_to_call))
                 db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
         
+        input_attribute_addded = False
         if client_str == "s3":
             try:
                 data["BucketName"] = resourceid
+                input_attribute_addded = True
+            except:
+                pass
+        
+        elif client_str == "sqs":
+            try:
+                data["QueueUrl"] = 'https:{url}'.format(url=resourceid)
+                input_attribute_addded = True
+            except:
+                pass
+        
+        if input_attribute_addded:
+            try:
                 json_to_put.update(data)
             except:
                 pass
