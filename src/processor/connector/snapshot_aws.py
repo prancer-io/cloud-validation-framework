@@ -171,6 +171,7 @@ def get_node(awsclient, node, snapshot_source, snapshot):
         arn_obj = arnparse(arn_str)
         client_str = arn_obj.service
         resourceid = arn_obj.resource
+        data = {}
         for each_method_str in detail_methods:
             function_to_call = getattr(awsclient, each_method_str, None)
             if function_to_call and callable(function_to_call):
@@ -186,17 +187,46 @@ def get_node(awsclient, node, snapshot_source, snapshot):
             else:
                 logger.info('Invalid function exception: %s', str(function_to_call))
                 db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
-        
-        if client_str == "s3":
-            try:
-                data["BucketName"] = resourceid
-                json_to_put.update(data)
-            except:
-                pass
-
+        set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str)
         db_record['json'] = json_to_put
     return db_record
 
+def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str):
+    input_attribute_addded = False
+    if client_str == "s3":
+        try:
+            data["BucketName"] = resourceid
+            input_attribute_addded = True
+        except:
+            pass
+    
+    elif client_str == "sqs":
+        try:
+            data["QueueUrl"] = 'https:{url}'.format(url=resourceid)
+            input_attribute_addded = True
+        except:
+            pass
+    
+    elif client_str == "elb":
+        try:
+            data["LoadBalancerName"] = resourceid
+            data["LoadBalancerNames"] = [resourceid]
+            input_attribute_addded = True
+        except:
+            pass
+    
+    elif client_str == "elbv2":
+        data["LoadBalancerArn"] = arn_str
+        data["LoadBalancerArns"] = [arn_str]
+        data["TargetGroupArns"] = [arn_str]
+        input_attribute_addded = True
+    
+    if input_attribute_addded:
+        try:
+            json_to_put.update(data)
+        except:
+            pass
+    
 
 def _get_resources_from_list_function(response, method):
     """
