@@ -36,6 +36,7 @@ nav:
     - Definition: snapshots/snapshot-definition.md
     - AWS snapshot: snapshots/aws.md
     - Azure snapshot: snapshots/azure.md
+    - Google snapshot: snapshots/google.md
     - Filesystem snapshot: snapshots/filesystem.md
     - Helm snapshot: snapshots/helm.md
     - Kubernetes snapshot: snapshots/kubernetes.md

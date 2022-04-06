@@ -1007,7 +1007,7 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/exclusions/resource
     `Required Fields`
 
     - **container:** Name of the container
-    - **exclusions:** List of the exclusions to be added. Check the available [excelusions](exclusions/exclusion.md) for more details.
+    - **exclusions:** List of the exclusions to be added. Check the available [excelusions](../exclusions/exclusion.md) for more details.
 
 **Success Response:**
 ```
