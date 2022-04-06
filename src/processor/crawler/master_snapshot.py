@@ -44,6 +44,7 @@ from processor.connector.snapshot_google import populate_google_snapshot
 from processor.connector.snapshot_kubernetes import populate_kubernetes_snapshot
 from processor.connector.populate_json import pull_json_data
 from processor.helper.file.file_utils import exists_file,remove_file
+from processor.template_processor.base.base_template_processor import set_processed_templates
 
 doc_id = None
 logger = getlogger()
@@ -132,6 +133,7 @@ def generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_d
         logger.error("Json MasterSnapshot does not contain snapshots, next!...")
         return snapshot_data
     for mastersnapshot in mastersnapshots:
+        set_processed_templates({})
         current_data = generate_mastersnapshot(mastersnapshot)
         snapshot_data.update(current_data)
     # for each snapshot_json_data, update the existing json data or add the new json data here.
