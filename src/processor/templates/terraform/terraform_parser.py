@@ -927,7 +927,7 @@ class TerraformTemplateParser(TemplateParser):
         if isinstance(new_resource, str) and new_resource.strip() in self.replace_values:
             new_resource = self.replace_values[new_resource.strip()]
             
-        if isinstance(new_resource, str) and "count.index" in new_resource:
+        if isinstance(new_resource, str) and "count.index" in new_resource and isinstance(self.count, int):
             new_resource = new_resource.replace("count.index", str(self.count))
             match_full = re.findall(r'^\${(?<=\{)(.*)(?=\})}', new_resource)
             if match_full:
