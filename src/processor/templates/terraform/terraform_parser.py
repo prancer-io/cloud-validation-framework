@@ -35,7 +35,7 @@ class TerraformTemplateParser(TemplateParser):
         }
         self.default_gparams = kwargs.get("default_gparams", {})
         self.gdata = {}
-        self.locals = {}
+        self.locals = kwargs.get("locals", {})
         self.resource = {}
         self.module_params = {
             "module" : {}
@@ -144,6 +144,10 @@ class TerraformTemplateParser(TemplateParser):
                 res = resource.split("[")[0]
                 if res in value:
                     value = value.get(res)
+                elif isinstance(value, list):
+                    for val in value:
+                        if isinstance(res, dict) and res in val:
+                            value = val.get(res)
                 else:
                     value = None
                     is_valid = False
@@ -153,6 +157,11 @@ class TerraformTemplateParser(TemplateParser):
                     if key == "count.index" and isinstance(value, list) and len(value) > self.count:
                         value = value[self.count]
                         continue
+                    elif isinstance(value, list):
+                        result, res = self.check_numeric_value(key)
+                        if result and isinstance(res, int) and len(value) > res:
+                            value = value[res]
+                            continue
                     elif value is None or not isinstance(value, dict):
                         is_valid = False
                         break
@@ -280,96 +289,12 @@ class TerraformTemplateParser(TemplateParser):
                     locals.append(local_dic)
                 gen_template_json['locals'] = locals
 
-            new_resources = {}
-            if "module" in template_json:
-                for mod in template_json["module"]:
-                    for key, value in mod.items():
-                        if "source" in value:
-                            default_gparams = {}
-                            self.module_params["module"][key] = {}
-                            for k, v in value.items():
-                                if k != "source":
-                                    processed_data, processed = self.process_resource(v, count=self.count)
-                                    default_gparams[k] = processed_data
-                                    self.module_params["module"][key][k] = processed_data
-
-                            full_path_list = self.template_file.split("/")[:-1]
-                            template_file_path = ("/".join(full_path_list)).replace("//","/")
-                            module_parser = ModuleParser(value["source"], template_file_path, connector_data=self.connector_data)
-                            module_file_path = module_parser.process_source()
-
-                            if not module_file_path:
-                                continue
-                            
-                            logger.info("Finding module : %s", module_file_path)
-                            if exists_dir(module_file_path):
-                                list_of_file = os.listdir(module_file_path)
-
-                                template_file_path_list = []
-                                parameter_file_list = []
-                                for entry in list_of_file:
-                                    if any(exclude_dir in entry for exclude_dir in self.exclude_directories):
-                                        continue
-                                    new_file_path = ('%s/%s' % (module_file_path, entry)).replace('//', '/')
-                                    self.template_references["module_templates"].append({
-                                        "main_file_path" : self.get_ralative_path(self.template_file),
-                                        "module_file_path" : self.get_ralative_path(new_file_path),
-                                        "module_label" : key
-                                    })
-                                    if exists_file(new_file_path):
-                                        if self.is_template_file(new_file_path):
-                                            template_file_path_list.append(new_file_path)
-                                        elif self.is_parameter_file(new_file_path):
-                                            parameter_file_list.append(new_file_path)
-                                
-                                if template_file_path_list and parameter_file_list:
-                                    for template_file_path in template_file_path_list:
-                                        terraform_template_parser = TerraformTemplateParser(
-                                            template_file_path,
-                                            parameter_file=parameter_file_list,
-                                            **{"default_gparams" : default_gparams, "process_module" : True })
-                                        new_template_json = terraform_template_parser.parse()
-
-                                        self.template_file_list = self.template_file_list + terraform_template_parser.template_file_list
-                                        self.parameter_file_list = self.parameter_file_list + terraform_template_parser.parameter_file_list
-
-                                        # TO DO: Update module peram
-                                        # for out_key, out_value in terraform_template_parser.outputs.items():
-                                        #     self.module_params["module"][key][out_key] = out_value
-                                        
-                                        if new_template_json:
-                                            for resource, resource_item in new_template_json.items():
-                                                # set parameters from modules files to main resource file
-                                                if resource == "resource":
-                                                    for resource_key, resource_value in resource_item.items():
-                                                        for resource_name, resource_properties in resource_value.items():
-                                                            if isinstance(resource_properties, dict):
-                                                                # for default_key, default_value in default_gparams.items():
-                                                                    # if default_key not in resource_properties:
-                                                                    #     resource_properties[default_key] = default_value
-                                                                resource_properties["compiletime_identity"] = "module.%s" % key
-                                                            if isinstance(resource_properties, list):
-                                                                for resource_property in resource_properties:
-                                                                    # for default_key, default_value in default_gparams.items():
-                                                                    #     if default_key not in resource_property:
-                                                                    #         resource_property[default_key] = default_value
-                                                                    resource_property["compiletime_identity"] = "module.%s" % key
-                                                if resource not in new_resources:
-                                                    new_resources[resource] = [resource_item]
-                                                else:
-                                                    new_resources[resource].append(resource_item)
-                            else:
-                                logger.error("module does not exist : %s ", value["source"])
-                            
-                if "module" in gen_template_json:
-                    del gen_template_json["module"]
-
             if 'data' in template_json:
                 data_resource = {}
                 for data_item in template_json['data']:
                     for data_key, data_value in data_item.items():
                         processed_data, processed = self.process_resource(data_value, count=self.count)
-                        if processed and isinstance(processed_data, dict):
+                        if isinstance(processed_data, dict):
                             for processed_key, processed_value in processed_data.items():
                                 if isinstance(processed_value, dict):
                                     processed_value["compiletime_identity"] = "data.%s.%s" % (data_key, processed_key)
@@ -383,6 +308,21 @@ class TerraformTemplateParser(TemplateParser):
                                     self.gdata[data_key] = { processed_key : processed_value }
                                     data_resource[data_key] = { processed_key : processed_value }
                 gen_template_json['data'] = data_resource
+            
+            new_resources = {}
+            if "module" in template_json:
+                for mod in template_json["module"]:
+                    for key, value in mod.items():
+                        if "source" in value:
+                            count_resource, processed_count = self.process_count(value)
+                            if processed_count and isinstance(count_resource, list):
+                                for value in count_resource:
+                                    self.process_module_resource(key, value, new_resources)
+                            else:
+                                self.process_module_resource(key, value, new_resources)
+                            
+                if "module" in gen_template_json:
+                    del gen_template_json["module"]
             
             self.resource = {}
             resources = []
@@ -453,6 +393,115 @@ class TerraformTemplateParser(TemplateParser):
                 gen_template_json['resource'] = self.resource
             
         return gen_template_json
+    
+    def process_module_resource(self, module_key, module_value, new_resources):
+        default_gparams = {}
+        self.module_params["module"][module_key] = {}
+        for k, v in module_value.items():
+            if k != "source":
+                processed_data, processed = self.process_resource(v, count=self.count)
+                default_gparams[k] = processed_data
+                self.module_params["module"][module_key][k] = processed_data
+
+        full_path_list = self.template_file.split("/")[:-1]
+        template_file_path = ("/".join(full_path_list)).replace("//","/")
+        module_parser = ModuleParser(module_value["source"], template_file_path, connector_data=self.connector_data)
+        module_file_path = module_parser.process_source()
+
+        if not module_file_path:
+            return
+        
+        logger.info("Finding module : %s", module_file_path)
+        if exists_dir(module_file_path):
+            list_of_file = os.listdir(module_file_path)
+
+            template_file_path_list = []
+            parameter_file_list = []
+            for entry in list_of_file:
+                if any(exclude_dir in entry for exclude_dir in self.exclude_directories):
+                    continue
+                new_file_path = ('%s/%s' % (module_file_path, entry)).replace('//', '/')
+                self.template_references["module_templates"].append({
+                    "main_file_path" : self.get_ralative_path(self.template_file),
+                    "module_file_path" : self.get_ralative_path(new_file_path),
+                    "module_label" : module_key
+                })
+                if exists_file(new_file_path):
+                    if self.is_template_file(new_file_path):
+                        template_file_path_list.append(new_file_path)
+                    elif self.is_parameter_file(new_file_path):
+                        parameter_file_list.append(new_file_path)
+            
+            if template_file_path_list and parameter_file_list:
+                for template_file_path in template_file_path_list:
+                    terraform_template_parser = TerraformTemplateParser(
+                        template_file_path,
+                        parameter_file=parameter_file_list,
+                        **{"default_gparams" : default_gparams, "process_module" : True, "locals" : self.locals })
+                    new_template_json = terraform_template_parser.parse()
+
+                    self.template_file_list = self.template_file_list + terraform_template_parser.template_file_list
+                    self.parameter_file_list = self.parameter_file_list + terraform_template_parser.parameter_file_list
+
+                    
+                    if new_template_json:
+                        for resource, resource_item in new_template_json.items():
+                            # set parameters from modules files to main resource file
+                            if resource == "resource":
+                                for resource_key, resource_value in resource_item.items():
+                                    for resource_name, resource_properties in resource_value.items():
+                                        if isinstance(resource_properties, dict):
+                                            # for default_key, default_value in default_gparams.items():
+                                                # if default_key not in resource_properties:
+                                                #     resource_properties[default_key] = default_value
+                                            resource_properties["compiletime_identity"] = "module.%s" % module_key
+                                        if isinstance(resource_properties, list):
+                                            for resource_property in resource_properties:
+                                                # for default_key, default_value in default_gparams.items():
+                                                #     if default_key not in resource_property:
+                                                #         resource_property[default_key] = default_value
+                                                resource_property["compiletime_identity"] = "module.%s" % module_key
+                            if resource not in new_resources:
+                                new_resources[resource] = [resource_item]
+                            else:
+                                new_resources[resource].append(resource_item)
+        else:
+            logger.error("module does not exist : %s ", module_value["source"])
+    
+    def process_count(self, resource):
+        new_resource_list = []
+        processed_count = False
+        r_count = resource.get("count")
+        if r_count:
+            count_resource, processed = self.process_resource(r_count, count=self.count)
+            if isinstance(count_resource, str):
+                result, res = self.check_numeric_value(count_resource)
+                if result:
+                    count_resource = res
+                
+            if isinstance(count_resource, int):
+                processed_count = True
+                for i in range(count_resource):
+                    new_resource_dict = {}
+                    process_resource = copy.deepcopy(resource)
+                    process_resource["count"] = i
+                    del process_resource["count"]
+                    self.count = i
+                    for key, value in process_resource.items():
+                        if key in self.skip_key_to_process:
+                            new_resource_dict[key] = value
+                            continue
+                        elif key == "dynamic" and value and isinstance(value, list) and isinstance(value[0], dict):
+                            processed_resource, processed = self.process_resource({ "dynamic" : value }, count=i)
+                            if processed_resource and isinstance(processed_resource, dict):
+                                for res, val in processed_resource.items():
+                                    new_resource_dict[res] = val
+                        else:
+                            processed_resource, processed = self.process_resource(value, count=i)
+                            new_resource_dict[key] = processed_resource
+                    new_resource_list.append(new_resource_dict)
+                self.count = None
+        return new_resource_list, processed_count
     
     def check_numeric_value(self, resource):
         """ check that resource is numeric value or not and return the numeric value """
@@ -611,6 +660,9 @@ class TerraformTemplateParser(TemplateParser):
                     new_resource = new_resource_list
                 else:
                     for key, value in resource.items():
+                        if key in self.skip_key_to_process:
+                            new_resource[key] = value
+                            continue
                         processed_resource, processed = self.process_resource(value, count=count)
                         new_resource[key] = processed_resource
             else:
@@ -645,28 +697,41 @@ class TerraformTemplateParser(TemplateParser):
                                                                 "value" : loop_value
                                                             }
                                                             # content_value = content_value.replace(var+".value",str(loop_value))
-                                                        print("self.temp_params")
-                                                        print(self.temp_params)
                                                         
                                                         content_value, processed = self.process_resource(content_value, count=count)
                                                         resource_property[content_key] = content_value
                                                         self.temp_params = {}
                                                     resource_properties.append(resource_property)
                                             elif isinstance(loop_values, dict):
-                                                temp_params = {}
-                                                temp_params[var] = { "value" : loop_values}                
-                                                resource_property = {}
-                                                for content_key, content_value in loop_content_value.items():
-                                                    if isinstance(content_value, str):
-                                                        self.temp_params = temp_params
-                                                    else:
+                                                for loop_key, loop_value in loop_values.items():
+                                                    resource_property = {}
+                                                    for content_key, content_value in loop_content_value.items():
+                                                        if isinstance(content_value, str):
+                                                            self.temp_params[var] = {
+                                                                "value" : loop_value,
+                                                                "key" : loop_key
+                                                            }
+                                                            # content_value = content_value.replace(var+".value",str(loop_value))
+                                                            # content_value = content_value.replace(var+".key",str(loop_key))
+                                                        content_value, processed = self.process_resource(content_value, count=count)
+                                                        resource_property[content_key] = content_value
                                                         self.temp_params = {}
-                                                        # content_value = content_value.replace(var+".value",str(loop_value))
-                                                        # content_value = content_value.replace(var+".key",str(loop_key))
-                                                    content_value, processed = self.process_resource(content_value, count=count)
-                                                    resource_property[content_key] = content_value
-                                                    self.temp_params = {}
-                                                resource_properties.append(resource_property)
+                                                    resource_properties.append(resource_property)
+                                                    
+                                                # temp_params = {}
+                                                # temp_params[var] = { "value" : loop_values}                
+                                                # resource_property = {}
+                                                # for content_key, content_value in loop_content_value.items():
+                                                #     if isinstance(content_value, str):
+                                                #         self.temp_params = temp_params
+                                                #     else:
+                                                #         self.temp_params = {}
+                                                #         # content_value = content_value.replace(var+".value",str(loop_value))
+                                                #         # content_value = content_value.replace(var+".key",str(loop_key))
+                                                #     content_value, processed = self.process_resource(content_value, count=count)
+                                                #     resource_property[content_key] = content_value
+                                                #     self.temp_params = {}
+                                                # resource_properties.append(resource_property)
                                 new_resource[main_key] = resource_properties
                     else:
                         processed_resource, processed = self.process_resource(values, count=count)
@@ -685,7 +750,7 @@ class TerraformTemplateParser(TemplateParser):
                     return parsed_string, True
 
             new_resource = copy.deepcopy(parsed_string)
-            match_full = re.match(r'^\${(?<=\{)(.*)(?=\})}', new_resource)
+            match_full = re.match(r'^\${([^}$]*)}$', new_resource)
             if match_full:
                 matched_str = new_resource[2:-1]
             else:
