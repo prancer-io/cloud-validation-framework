@@ -221,6 +221,11 @@ def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str):
         data["TargetGroupArns"] = [arn_str]
         input_attribute_addded = True
     
+    elif client_str == "redshift":
+        data['ClusterIdentifier'] = resourceid
+        data['ParameterGroupName'] = resourceid
+        input_attribute_addded = True
+    
     if input_attribute_addded:
         try:
             json_to_put.update(data)
@@ -384,6 +389,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get("Arn") for x in response.get('Policies', [])]
     elif method == 'list_rules_packages':
         return response.get("rulesPackageArns", [])
+    elif method == 'describe_cluster_parameter_groups':
+        return [x.get("ParameterGroupName") for x in response.get('ParameterGroups', [])]
     else:
         return []
 
@@ -693,7 +700,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         }
     elif client_str == "redshift" and function_name == "describe_cluster_parameters":
         return {
-            'ParameterGroupName': existing_json["ClusterParameterGroups"][0]["ParameterGroupName"]
+            'ParameterGroupName': resource_id
         }
     elif client_str == "sns" and function_name == "get_topic_attributes":
         return {
