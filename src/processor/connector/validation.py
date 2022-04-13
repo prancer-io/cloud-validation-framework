@@ -85,11 +85,11 @@ def run_validation_test(version, container, dbname, collection_data, testcase, e
 def get_min_severity_error_list():
     severity_list = []
     console_min_severity_error = config_value("RESULT", "console_min_severity_error", default="Low")
-    if (console_min_severity_error).lower() == "low":
+    if str(console_min_severity_error).lower() == "low":
         severity_list = ["low", "medium", "high"]
-    elif (console_min_severity_error).lower() == "medium":
+    elif str(console_min_severity_error).lower() == "medium":
         severity_list = ["medium", "high"]
-    elif (console_min_severity_error).lower() == "high":
+    elif str(console_min_severity_error).lower() == "high":
         severity_list = ["high"]
     return severity_list
 
@@ -98,12 +98,11 @@ def validate_result(resultset, finalresult):
     if resultset:
         for result in resultset:
             if 'result' in result:
-                if not re.match(r'passed', result['result'], re.I) and result.get("severity", "low").lower() in min_severity_list:
+                if not re.match(r'passed', result['result'], re.I) and str(result.get("severity", "low")).lower() in min_severity_list:
                     logger.info("\tTEST: %s", result)
                     finalresult = False
                     break
     return finalresult
-
 
 def run_file_validation_tests(test_file, container, filesystem=True, snapshot_status=None):
     # logger.info("*" * 50)
@@ -427,7 +426,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
     else:
         logger.info('No test Documents found!')
         test_files_found = False
-        finalresult = False
+        # finalresult = False
     # For mastertest files
     collection = config_value(DATABASE, collectiontypes[MASTERTEST])
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
@@ -469,7 +468,7 @@ def run_container_validation_tests_database(container, snapshot_status=None):
     else:
         logger.info('No mastertest Documents found!')
         mastertest_files_found = False
-        finalresult = False
+        # finalresult = False
     if not test_files_found and not mastertest_files_found:
         raise Exception("No complaince tests for this container: %s, add and run!", container)
     return finalresult
