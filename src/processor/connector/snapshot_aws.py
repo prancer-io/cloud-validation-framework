@@ -226,6 +226,14 @@ def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str):
         data['ParameterGroupName'] = resourceid
         input_attribute_addded = True
     
+    elif client_str == "route53":
+        data['HostedZoneId'] = resourceid
+        input_attribute_addded = True
+    
+    elif client_str == "sns":
+        data['TopicArn'] = arn_str
+        input_attribute_addded = True
+    
     if input_attribute_addded:
         try:
             json_to_put.update(data)
