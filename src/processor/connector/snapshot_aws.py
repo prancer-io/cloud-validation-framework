@@ -234,6 +234,10 @@ def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str):
         data['TopicArn'] = arn_str
         input_attribute_addded = True
     
+    elif client_str == "sagemaker":
+        data['NotebookInstanceName'] = resourceid
+        input_attribute_addded = True
+
     if input_attribute_addded:
         try:
             json_to_put.update(data)
@@ -678,9 +682,14 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         return {
             'clusters': [arn_str]
         }
+    elif client_str == "ecs" and function_name == "list_services":
+        return {
+            'cluster': arn_str
+        }
     elif client_str == "ecs" and function_name == "describe_services":
         return {
-            'services': [arn_str]
+            'cluster': arn_str,
+            'services': existing_json["serviceArns"]
         }
     elif client_str == "eks" and function_name == "describe_cluster":
         return {
@@ -789,7 +798,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         return {
             "repositoryNames": [resource_id]
         }
-    elif client_str=='ecr' and function_name in ['get_lifecycle_policy']:
+    elif client_str=='ecr' and function_name in ['get_repository_policy']:
         return {
             "repositoryName": resource_id
         }
