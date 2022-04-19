@@ -187,11 +187,11 @@ def get_node(awsclient, node, snapshot_source, snapshot):
             else:
                 logger.info('Invalid function exception: %s', str(function_to_call))
                 db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
-        set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str)
+            set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, each_method_str)
         db_record['json'] = json_to_put
     return db_record
 
-def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str):
+def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, each_method_str):
     input_attribute_addded = False
     if client_str == "s3":
         try:
@@ -236,6 +236,10 @@ def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str):
     
     elif client_str == "sagemaker":
         data['NotebookInstanceName'] = resourceid
+        input_attribute_addded = True
+    
+    elif client_str == "rds" and each_method_str=="describe_db_parameters":
+        data['DBParameterGroupName'] = resourceid
         input_attribute_addded = True
 
     if input_attribute_addded:
