@@ -573,7 +573,7 @@ def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map, snapsho
     onlysnapshots = get_from_currentdata("ONLYSNAPSHOTS")
     onlysnapshotsIds = get_from_currentdata("ONLYSNAPSHOTIDS")
     newcases = []
-    ms_ids = testcase.get('masterSnapshotId')
+    ms_ids = testcase.get('masterSnapshotId', [])
     # service = ms_ids[0].split('_')[1]
     for ms_id in ms_ids:
         if ms_id == "ALL":
