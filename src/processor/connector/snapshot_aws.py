@@ -187,11 +187,11 @@ def get_node(awsclient, node, snapshot_source, snapshot):
             else:
                 logger.info('Invalid function exception: %s', str(function_to_call))
                 db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
-        set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str)
+            set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, each_method_str)
         db_record['json'] = json_to_put
     return db_record
 
-def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str):
+def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, each_method_str):
     input_attribute_addded = False
     if client_str == "s3":
         try:
@@ -234,6 +234,22 @@ def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str):
         data['TopicArn'] = arn_str
         input_attribute_addded = True
     
+    elif client_str == "sagemaker":
+        data['NotebookInstanceName'] = resourceid
+        input_attribute_addded = True
+    
+    elif client_str == "rds" and each_method_str=="describe_db_parameters":
+        data['DBParameterGroupName'] = resourceid
+        input_attribute_addded = True
+
+    elif client_str == "docdb" and each_method_str=="describe_db_cluster_parameters":
+        data['DBClusterParameterGroupName'] = resourceid
+        input_attribute_addded = True
+    
+    elif client_str == "dynamodb" and each_method_str=="describe_continuous_backups":
+        data['TableName'] = resourceid
+        input_attribute_addded = True
+
     if input_attribute_addded:
         try:
             json_to_put.update(data)
@@ -359,6 +375,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get("DatabaseName") for x in response.get('Databases', [])]
     elif method == 'describe_endpoints':
         return [x.get("EndpointIdentifier") for x in response.get('Endpoints', [])]
+    elif method == 'describe_replication_instances':
+        return [""]
     elif method == 'describe_security_groups':
         return [x.get("GroupId") for x in response.get('SecurityGroups', [])]
     elif method == 'list_secrets':
@@ -678,9 +696,14 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         return {
             'clusters': [arn_str]
         }
+    elif client_str == "ecs" and function_name == "list_services":
+        return {
+            'cluster': arn_str
+        }
     elif client_str == "ecs" and function_name == "describe_services":
         return {
-            'services': [arn_str]
+            'cluster': arn_str,
+            'services': existing_json["serviceArns"]
         }
     elif client_str == "eks" and function_name == "describe_cluster":
         return {
@@ -789,7 +812,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         return {
             "repositoryNames": [resource_id]
         }
-    elif client_str=='ecr' and function_name in ['get_lifecycle_policy']:
+    elif client_str=='ecr' and function_name in ['get_repository_policy']:
         return {
             "repositoryName": resource_id
         }
