@@ -242,6 +242,14 @@ def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, e
         data['DBParameterGroupName'] = resourceid
         input_attribute_addded = True
 
+    elif client_str == "docdb" and each_method_str=="describe_db_cluster_parameters":
+        data['DBClusterParameterGroupName'] = resourceid
+        input_attribute_addded = True
+    
+    elif client_str == "dynamodb" and each_method_str=="describe_continuous_backups":
+        data['TableName'] = resourceid
+        input_attribute_addded = True
+
     if input_attribute_addded:
         try:
             json_to_put.update(data)
@@ -367,6 +375,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get("DatabaseName") for x in response.get('Databases', [])]
     elif method == 'describe_endpoints':
         return [x.get("EndpointIdentifier") for x in response.get('Endpoints', [])]
+    elif method == 'describe_replication_instances':
+        return [""]
     elif method == 'describe_security_groups':
         return [x.get("GroupId") for x in response.get('SecurityGroups', [])]
     elif method == 'list_secrets':
