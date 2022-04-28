@@ -84,9 +84,12 @@
 # Host *
 #   IdentitiesOnly yes
 #   ServerAliveInterval 100
+import string
+import random
 import json
 import hashlib
 import time
+from datetime import datetime
 import tempfile
 import shutil
 import hcl
@@ -168,17 +171,19 @@ def get_node(repopath, node, snapshot, ref, connector):
     base_path = get_field_value_with_default(connector, "folderPath", "")
     snapshot_source = get_field_value(snapshot, 'source')
     parts = snapshot_source.split('.')
+    session_id = get_from_currentdata("session_id")
     db_record = {
         "structure": given_type,
         "reference": ref if not base_path else "",
         "source": parts[0],
         "path": base_path + node['path'],
-        "timestamp": int(time.time() * 1000),
+        "timestamp": int(datetime.utcnow().timestamp() * 1000),
         "queryuser": get_field_value(snapshot, 'testUser'),
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,
         "snapshotId": node['snapshotId'],
         "collection": collection.replace('.', '').lower(),
+        "session_id": session_id,
         "json": {}
     }
     json_path = '%s/%s' % (repopath, node['path'])
@@ -202,6 +207,8 @@ def get_node(repopath, node, snapshot, ref, connector):
 def get_all_nodes(repopath, node, snapshot, ref, connector):
     """ Fetch all the nodes from the cloned git repository in the given path."""
     db_records = []
+    charVal = (random.choice(string.ascii_letters) for x in range(4))
+    randomstr = ''.join(charVal)
     collection = node['collection'] if 'collection' in node else COLLECTION
     given_type = get_field_value(connector, "type")
     base_path = get_field_value_with_default(connector, "folderPath", "")
@@ -212,7 +219,7 @@ def get_all_nodes(repopath, node, snapshot, ref, connector):
         "reference": ref if not base_path else "",
         "source": parts[0],
         "path": '',
-        "timestamp": int(time.time() * 1000),
+        "timestamp": int(datetime.utcnow().timestamp() * 1000),
         "queryuser": get_field_value(snapshot, 'testUser'),
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,
@@ -234,7 +241,7 @@ def get_all_nodes(repopath, node, snapshot, ref, connector):
             logger.info('type: %s, json:%s', node_type, json_data)
             if json_data:
                 db_record = copy.deepcopy(d_record)
-                db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(count))
+                db_record['snapshotId'] = '%s%s%s' % (node['masterSnapshotId'], randomstr, str(count))
                 db_record['path'] = path.replace('//', '/')
                 db_record['contentType'] = contentType
                 db_record['json'] = json_data

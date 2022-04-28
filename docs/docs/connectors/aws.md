@@ -1,4 +1,4 @@
-The **AWS** (Amazon Web Services) connector allows you to inspect your **AWS** infrastructure using their api. The connector is a wrapper around the **AWS** ReST api and command line tool. It leverages inspection of the infrastructure using various aws verbs like `describe-xyz` `get-xyz` `list-xyz` ... operations available for each service provider.
+The **AWS** (Amazon Web Services) connector allows you to inspect your **AWS** infrastructure using their API. The connector is a wrapper around the **AWS** ReST API and command-line tool. It leverages inspection of the infrastructure using various AWS verbs like `describe-xyz` `get-xyz` `list-xyz` ... operations available for each service provider.
 
 # IAM user configuration
 
@@ -67,30 +67,30 @@ If you do not have access to an **access key** or to the **secret** you will hav
 
 # Organization
 
-You do not need an **AWS** organization to use the **AWS** connector but you must fill in the data as presented.
+You do not need an **AWS** organization to use the **AWS** connector, but you must fill in the data as presented.
 
-If you do not have an **AWS** organization, just enter values that would correspond if you had one. The organizational units section is strictly for organizing your configuration.
+If you do not have an **AWS** organization, enter values that would correspond if you had one. The organizational units section is strictly for organizing your configuration.
 
 You can define as many organizations as you want in a connector file.
 
 # Accounts and users
 
-The accounts portion specify which account you want to inspect. You can configure as many accounts and users as you want per file. 
+The accounts portion specifies which account you want to inspect. You can configure as many accounts and users as you wish per file. 
 
-If you want to link multiple accounts together in your tests or want different users to be used to inspect your configuration, you must specify all of them here. Later, in snapshot configuration files, you will specify which user to use to inspect the infrastructure, but it must be defined here beforehand.
+If you want to link multiple accounts together in your tests or want different users to be used to inspect your configuration, you must specify all of them here. Later, in snapshot configuration files, you will determine which user to use to inspect the infrastructure, but it must be defined beforehand.
 
 # Secret Access
 
 There are three options available to store the secret access for an IAM account: 
 
-- In aws connector file 
-- In Environment variable 
+- In the AWS connector file 
+- In the Environment variable 
 - In a vault
 
-Keeping the secret access in the connector file is good only for testing purposes.
+Keeping the secret access in the connector file is suitable only for testing purposes.
 
 You can keep the secret access as an environment variable. The name of the environment variable will be the name of the IAM account. For example, if the name of the IAM account is prancer_iam and the secret is a1b2c3 :
 
     export prancer_iam=a1b2c3
 
-Keeping the secret access in the vault is the most secure and recommended way of keeping the secret in prancer framework. To learn more visit [secrets section](../configuration/secrets.md)
+Keeping the secret access in the vault is the most secure and recommended way of keeping the secret in the prancer framework. To learn more visit [secrets section](../configuration/secrets.md)

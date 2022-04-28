@@ -1,8 +1,6 @@
 # Prancer Basic CLI installation
 
-> Target Platform : Basic Edition
-
-**Prancer** uses the popular **Python 3** language interpreter. Read on to learn how to install the dependencies for **Prancer** but also the framework itself. You can run **Prancer** platform using the source code available on **GitHub** or using the **Pip** package manager.
+**Prancer** uses the popular **Python 3** language interpreter. You can run **Prancer** platform using the source code available on **GitHub** or the **Pip** package manager. Read on to learn how to install the dependencies for **Prancer** and the framework itself.
 
 # Installing Prerequisites
 
@@ -37,7 +35,7 @@ If you see something like:
 
 Then it means everything worked fine.
 
-> Note that if you are a **Python** developer and use an environment switcher or if you are a power user that played around with the aliases, you might need to just use `pip` instead of `pip3`. In the same optic, if you changed the alias, the `prancer` alias might not work properly as it expects `python3`.
+> Note that if you are a **Python** developer and use an environment switcher or if you are a power user that played around with the aliases, you might need to just use `pip` instead of `pip3`. If you changed the alias, the `prancer` alias might not work properly as it expects `python3`.
 
 # Running Prancer from source code
 

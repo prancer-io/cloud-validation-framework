@@ -7,10 +7,10 @@
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/user/get/ -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/user/get/ -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/user/get/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/user/get/
 - **Method:** GET
 - **Header:**
 ```
@@ -51,6 +51,7 @@ curl -X GET https://portal.prancer.io/customer1/api/user/get/ -H 'authorization:
         }
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -70,10 +71,10 @@ curl -X GET https://portal.prancer.io/customer1/api/user/get/ -H 'authorization:
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/user/tour/ -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/user/tour/ -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/user/tour/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/user/tour/
 - **Method:** POST
 - **Header:**
 ```
@@ -101,6 +102,7 @@ curl -X POST https://portal.prancer.io/customer1/api/user/tour/ -H 'authorizatio
 {
     "data": "Tour status updated successfully",
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200

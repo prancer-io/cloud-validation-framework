@@ -1,16 +1,21 @@
-The **Filesystem** connector allows you to connect to files from a local file system or a git repository. This is the main connector we use for **Infrastructure as Code** (IaC) security validation. The **Filesystem** connector will help to inspect a static file committed into your project. Therefore, you should use this connector to preemptively validate your cloud management templates before applying your infrastructure changes.
+The **Filesystem** connector allows you to connect to files from a local file system or a git repository. This is the main connector we use for **Infrastructure as Code** (IaC) Static Code Analysis (SCA) and security validation. The **Filesystem** connector will help to inspect a static file committed into your project. Therefore, you should use this connector to preemptively validate your cloud management templates before applying your infrastructure changes.
 
-# SSH user configuration
+# Connecting with the FileSystem Provider
+Prancer supports two methods to connect to a remote git ptovider.
+ * SSH configuration
+ * HTTPS configuration
+ 
+## SSH user configuration
 
-To use SSH as a checkout source, you will need a repository on a hosted solution that is reachable by **Prancer** and that supports SSH based checkouts. A common example would be to use **GitHub**, **GitLab**, **BitBucket** or **CodeCommit**. Depending on the private or public nature of your repository:
+To use SSH as a checkout mechanism for the source code, you will need a repository on a hosted solution that is reachable by **Prancer** and supports SSH-based checkouts. A common example would be to use **GitHub**, **GitLab**, **BitBucket** or **CodeCommit**. Depending on the private or public nature of your repository:
 
 - You only need the url and branch name if the repository is public
 - You need to provide the path to the SSH key file if the repository is private
 - You need to provide a username if you want to use **Prancer** to create branches or tags
 
-# HTTPS user configuration
+## HTTPS user configuration
 
-To use HTTPS as a checkout source, you will need a repository on a hosted solution that is reachable by **Prancer** and that supports HTTPS based checkouts. A common example would be to use **GitHub**, **GitLab**, **BitBucket** or **CodeCommit**. Depending on the private or public nature of your repository:
+To use HTTPS as a checkout mechanism for the source code, you will need a repository on a hosted solution that is reachable by **Prancer** and that supports HTTPS based checkouts. A common example would be to use **GitHub**, **GitLab**, **BitBucket** or **CodeCommit**. Depending on the private or public nature of your repository:
 
 - You only need the url and branch name if the repository is public
 - You need to provide the username and password if the repository is private
@@ -130,4 +135,4 @@ When you run the prancer, it will automatically read the value from the environm
 
 # Users
 
-Other connectors such as **AWS** and **Azure** allow you to configure multiple users, the **filesystem** connector doesn't as it doesn't have permissions other than read. This means that you must always use the same username defined in the **filesystem** connector file in the snapshot configuration files.
+Other connectors such as **AWS** and **Azure** allow you to configure multiple users, the **filesystem** connector doesn't as it doesn't have permissions other than reading. This means that you must always use the same username defined in the **filesystem** connector file in the snapshot configuration files.

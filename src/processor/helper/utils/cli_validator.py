@@ -52,6 +52,8 @@
 
 """
 
+import pyfiglet
+from termcolor import colored
 import argparse
 import threading
 import sys
@@ -61,14 +63,15 @@ import json
 import os
 import signal
 from inspect import currentframe, getframeinfo
-from processor.helper.config.config_utils import COMPLIANCE, CRAWL, CRAWL_AND_COMPLIANCE, framework_dir, config_value, framework_config, \
-    CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, NONE, REMOTE, CUSTOMER, \
-    SINGLETEST, EXCLUSION, container_exists
+from processor.helper.config.remote_utils import console_log, remote_config_ini_setup
+from processor.helper.config.config_utils import COMPLIANCE, CRAWL, CRAWL_AND_COMPLIANCE, framework_dir, \
+    config_value, framework_config, CFGFILE, get_config_data, SNAPSHOT, DBVALUES, TESTS, DBTESTS, \
+    NONE, REMOTE, EXCLUSION, container_exists
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor import __version__
 import traceback
 from jinja2 import Environment, FileSystemLoader
-
+from processor.database.database import find_and_update_document, DATABASE, DBNAME
 from processor.reporting.json_output import create_output_entry, dump_output_results
 current_progress = None
 
@@ -137,17 +140,6 @@ def set_customer(cust=None):
     return  False
 
 
-
-def console_log(message, cf):
-    """Logger like statements only used till logger configuration is read and initialized."""
-    filename = getframeinfo(cf).filename
-    line = cf.f_lineno
-    now = datetime.datetime.now()
-    fmtstr = '%s,%s(%s: %3d) %s' % (now.strftime('%Y-%m-%d %H:%M:%S'), str(now.microsecond)[:3],
-                                    os.path.basename(filename).replace('.py', ''), line, message)
-    print(fmtstr)
-
-
 def valid_config_ini(config_ini):
     """ Valid config ini path and load the file and check """
     error = None
@@ -204,6 +196,8 @@ def validator_main(arg_vals=None, delete_rundata=True):
            the tests execution could not be started or completed.
     """
     global  current_progress
+    result = pyfiglet.figlet_format("Prancer")
+    print(colored(result, 'red'))
     cmd_parser = argparse.ArgumentParser("prancer", formatter_class=argparse.RawDescriptionHelpFormatter,
                                          epilog='''\
 Example: prancer <collection>
@@ -223,7 +217,7 @@ Run prancer for a single file
 
 Example 6: prancer --db NONE --mastertestid TEST_S3_14 <collection>
            prancer --db NONE --mastertestid TEST_S3_14,TEST_EC2_1 <collection>
-Run prancer for a list of master test ids
+Run prancer for a list of master test ids or compliance ids
 
 Example 7: prancer --db NONE --mastersnapshotid CFR_TEMPLATE_SNAPSHOT <collection>
            prancer --db NONE --mastersnapshotid CFR_TEMPLATE_SNAPSHOT,EC2_TEMPLATE_SNAPSHOT <collection>
@@ -244,7 +238,7 @@ Run prancer for a list of snapshots
                             help='Crawls the target environment and generates snapshot configuration file')
     cmd_parser.add_argument('--compliance', action='store_true', default=False, help='Run only compliance tests based on the available snapshot configuration file')
     cmd_parser.add_argument('--file_content', action='store', default=None)
-    cmd_parser.add_argument('--mastertestid', action='store', default="", help='Run the framework only for the master test Ids mentioned here')
+    cmd_parser.add_argument('--mastertestid', action='store', default="", help='Run the framework only for the master test Ids or compliance Ids mentioned here')
     cmd_parser.add_argument('--mastersnapshotid', action='store', default="", help='Run the framework only for the master snapshot Ids mentioned here')
     cmd_parser.add_argument('--snapshotid', action='store', default="", help='Run the framework only for the snapshot Ids mentioned here')
     cmd_parser.add_argument('--env', action='store', default='PROD', choices=['DEV', 'QA', 'PROD', 'LOCAL'],
@@ -260,16 +254,17 @@ Run prancer for a list of snapshots
 
     retval = 2
     set_customer()
+    isRemote = True if args.db and args.db.upper() == REMOTE else False
     cfg_error, config_ini = search_config_ini()
-    if cfg_error:
+    if cfg_error and not isRemote:
         return retval
 
     args.remote = False
     args.opath = None
-    if args.db and args.db.upper() == REMOTE:
+    if isRemote:
         from processor.helper.utils.compliance_utils import create_container_compliance, get_api_server, \
             get_collection_api, get_validate_token_api, get_company_prefix
-        from processor.helper.httpapi.http_utils import http_get_request, http_json_post_request
+        from processor.helper.httpapi.http_utils import http_get_request_useragent, http_json_post_request_useragent
         remoteValid = False
         if not args.gittoken:
             args.gittoken = os.environ['GITTOKEN'] if 'GITTOKEN' in os.environ else None
@@ -287,7 +282,8 @@ Run prancer for a list of snapshots
                     hdrs = {
                         "Content-Type": "application/json"
                     }
-                    status, data = http_json_post_request(validationUri, postdata, headers=hdrs, name='API TOKEN')
+                    status, data = http_json_post_request_useragent(validationUri, postdata, headers=hdrs,
+                                                                    useragent=True, name='API TOKEN')
                     if status and isinstance(status, int) and status == 200:
                         args.apitoken = data['data']['token']
                         collectionUri = get_collection_api(apiserver, args.container)
@@ -295,16 +291,21 @@ Run prancer for a list of snapshots
                             "Authorization": "Bearer %s" % args.apitoken,
                             "Content-Type": "application/json"
                         }
-                        status, data = http_get_request(collectionUri, headers=hdrs)
+                        status, data = http_get_request_useragent(collectionUri, headers=hdrs, useragent=True)
                         if status and isinstance(status, int) and status == 200:
                             if 'data' in data:
                                 collectionData = data['data']
-                                opath = create_container_compliance(args.container, collectionData)
-                                if opath:
-                                    remoteValid = True
-                                    args.remote = True
-                                    args.opath = opath
-                                    args.db = NONE
+                                error, cfg_ini = remote_config_ini_setup()
+                                if error:
+                                    msg = "Unable to setup config.ini, exiting!....."
+                                    console_log(msg, currentframe())
+                                else:
+                                    opath = create_container_compliance(args.container, collectionData)
+                                    if opath:
+                                        remoteValid = True
+                                        args.remote = True
+                                        args.opath = opath
+                                        args.db = NONE
         if not remoteValid:
             msg = "Check the remote configuration viz env, apitoken, gittoken, company, exiting!....."
             console_log(msg, currentframe())
@@ -438,6 +439,8 @@ Run prancer for a list of snapshots
         #     args.db  = DBVALUES.index(NONE)
 
         put_in_currentdata(EXCLUSION, populate_container_exclusions(args.container, fs))
+        session_id = "session_" + str(int(datetime.datetime.utcnow().timestamp() * 1000))
+        put_in_currentdata("session_id", session_id)
 
         if args.file_content:
             current_progress = 'COMPLIANCESTART'
@@ -460,6 +463,8 @@ Run prancer for a list of snapshots
             current_progress = 'CRAWLERSTART'
             if not crawl_and_run:
                 put_in_currentdata("run_type", CRAWL)
+            logger.info("Updating %s container is_run status", args.container)
+            update_collection_run_status(args.db, args.container)
             generate_container_mastersnapshots(args.container, fs)
             current_progress = 'CRAWLERCOMPLETE'
         
@@ -467,6 +472,8 @@ Run prancer for a list of snapshots
             current_progress = 'COMPLIANCESTART'
             if not crawl_and_run:
                 put_in_currentdata("run_type", COMPLIANCE)
+            logger.info("Updating %s container is_run status", args.container)
+            update_collection_run_status(args.db, args.container)
             create_output_entry(args.container, test_file="-", filesystem=True if args.db ==  0 else False)
             # Normal flow
             snapshot_status = populate_container_snapshots(args.container, fs)
@@ -559,3 +566,22 @@ def gen_config_file(fname, path, template, data):
         f.write(output_from_parsed_template)
     return output_from_parsed_template
 
+
+def update_collection_run_status(db, container):
+    """
+    Update is_run status of collection
+    """
+    if db:
+        dbname = config_value(DATABASE, DBNAME)
+        find_and_update_document(
+            "structures",
+            dbname,
+            query={
+                "json.containers.name" : container
+            },
+            update_value={ 
+                "$set": {
+                    "json.containers.$.is_run": True
+                }
+            }
+        )

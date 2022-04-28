@@ -1,6 +1,5 @@
-from processor.templates.terraform.helper.function import collection_functions
-from processor.templates.terraform.helper.function import numeric_functions
-from processor.templates.terraform.helper.function import string_functions
+from processor.templates.terraform.helper.function import (
+    collection_functions, numeric_functions, string_functions, encoding_function )
 
 default_functions = [
     # collection functions
@@ -49,4 +48,8 @@ default_functions = [
     { "expression" : "(substr[(].*[)])$", "method" : string_functions.substr },
     { "expression" : "(title[(].*[)])$", "method" : string_functions.title },
     { "expression" : "(format[(].*[)])$", "method" : string_functions.format },
+    
+    # Encoding funtion
+    { "expression" : "(jsonencode[(].*[)])$", "method" : encoding_function.jsonencode },
+    { "expression" : "(jsondecode[(].*[)])$", "method" : encoding_function.jsondecode },
 ]

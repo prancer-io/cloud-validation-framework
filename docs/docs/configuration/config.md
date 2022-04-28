@@ -1,6 +1,6 @@
 # Project configuration - config.ini
 
-At the root of the **Prancer** project directory, you will be putting the `config.ini` file that tells **Prancer** how to behave for the current project. The configuration of **Prancer** is detailed in the following sections. It consists of sections and key value pairs just like in any `INI` files. Here is an example:
+At the root of the **Prancer** project directory, you will be putting the `config.ini` file that tells **Prancer** how to behave for the current project. The configuration of **Prancer** is detailed in the following sections. It consists of sections and key-value pairs, just like in any `INI` files. Here is an example:
 
     [section]
     key = value
@@ -12,7 +12,7 @@ At the root of the **Prancer** project directory, you will be putting the `confi
 
 # [Default] section
 
-**Prancer** supports a variety of APIs in the enterprise edition. To access these some extra parameters need to be set.
+**Prancer** supports a variety of APIs in the enterprise edition. To access these APIs, some extra parameters need to be set.
 
 The `INI` section to use in the configuration file is `[DEFAULT]` and here are all the possible configurations you can use:
 
@@ -25,31 +25,20 @@ Example:
     [DEFAULT]
     space_id = 50973a54-16a7-4590-bcc0-755d0e83c7c9
 
-
 # [Azure] section
 
-**Prancer** requires a special configuration to support calling the **Azure** apis. Each **Azure** api needs a specific version that the software should support and instead of baking this into the application we went for a description file that everyone can contribute to.
-
-The `INI` section to use in the configuration file is `[AZURE]` and here are all the possible configurations you can use:
-
-| Key | Possible values | Explanation |
-|------|:-------:|----------|
-| api | filename | Name of the file to use to load the **Azure** api versions |
-
-also, it is possible to specify where prancer searches for Azure connectors.
+**Prancer**  it is possible to specify where Prancer searches for Azure connectors.
 
 Example:
 
     [AZURE]
-    api = azureApiVersions.json
     azureStructureFolder = realm/
-
 
 # [Database] section
 
-We use **MongoDB** to store data. You must configure the location of the server through this section plus a few other behaviors.
+We use **MongoDB** to store data. You must configure the server's location through this section plus a few other behaviors.
 
-The `INI` section to use in the configuration file is `[MONGODB]` and here are all the possible configurations you can use:
+The `INI` section to use in the configuration file is `[MONGODB]`, and here are all the possible configurations you can use:
 
 | Key | Possible values | Explanation |
 |------|:-------:|-----------|
@@ -82,7 +71,7 @@ Example:
 
 # [Logging] section
 
-You can configure logging to use either **MongoDB** or the filesystem. 
+You can configure logging to use either **MongoDB** or the filesystem.
 
 The `INI` section to use in the configuration file is `[LOGGING]` and here are all the possible configurations you can use:
 
@@ -103,8 +92,6 @@ Example:
     logFolder = logs
     dbname = logs
 
-
-
 # [Notification] section
 
 **Prancer** supports notifications when using the [Enterprise edition documentation](../enterprise/basics.md). This section allows you to turn on or off the notifications engine.
@@ -122,7 +109,7 @@ Example:
 
 # [Reporting] section
 
-**Prancer** requires you to specify where it should output it's output files after tests are ran. You can use the same directory as your `TESTS` but if you don't, it will create a separate structure. Depending on your artifact building approach, you might want to split them or keep them together.
+**Prancer** requires you to specify where it should output its output files after tests are running. You can use the same directory as your `TESTS`, but it will create a separate structure if you don't. Depending on your artifact-building approach, you might want to split them or keep them together.
 
 The `INI` section to use in the configuration file is `[REPORTING]` and here are all the possible configurations you can use:
 
@@ -137,7 +124,7 @@ Example:
 
 # [Vault] section
 
-**Prancer** supports **Azure key vaults** or **CyberArk** (http://www.cyberark.com) Application Access Manager to store secrets that you might need for you infrastructure inspections.
+**Prancer** supports **Azure key vaults** or **CyberArk** (<http://www.cyberark.com>) Application Access Manager to store secrets that you might need for your infrastructure inspections.
 
 The `INI` section to use in the configuration file is `[VAULT]` and here are all the possible configurations you can use:
 
@@ -148,7 +135,7 @@ The `INI` section to use in the configuration file is `[VAULT]` and here are all
 | client_id | *azure spn client id* | Client id for the SPN that will connect to the vault |
 | keyvault | *string* | Name of the vault to use |
 
-* Note: The service principal name (SPN) should have access granted to read secrets from the keyvault. The client secret for the SPN will be prompted when running in interactive mode. Non-interactive Azure vault are possible through setting the environment variables, or Managed Identities in Azure.
+* Note: The service principal name (SPN) should have access to read secrets from the keyvault. The client secret for the SPN will be prompted when running in interactive mode. Non-interactive Azure vault are possible through setting the environment variables or Managed Identities in Azure.
 
 Example:
 
@@ -160,7 +147,7 @@ Example:
 
 # [Tests] section
 
-**Prancer** requires you to specify where your containers, snapshot configuration files and test files are when using the filesystem storage based approach. This section of the configuration defines where to find those.
+**Prancer** requires you to specify where your containers, snapshot configuration files, and test files are when using the filesystem storage-based approach. This section of the configuration defines where to find those.
 
 The `INI` section to use in the configuration file is `[TESTS]` and here are all the possible configurations you can use:
 
@@ -177,9 +164,24 @@ Example:
 
 # [Indexes] section
 
-Specify which attributes could be indexed in database.
+Specify which attributes could be indexed in the database.
 
 Example:
 
     [INDEXES]
     OUTPUT = name, container, timestamp
+
+# [RESULT] section
+
+Specify result related configurations
+
+Example:
+
+    [RESULT]
+    console_min_severity_error=Low
+
+    # which is used to filter out result according to minimum level of failing.
+    for example:
+    - if console_min_severity_error is High, then only High level severity cases will fail the result
+    - if console_min_severity_error is Medium, then only Medium and High severity level testcases will fail the result.
+    - if console_min_severity_error is Low, then all(Low, Medium, and High) severity level testcases will fail the result.

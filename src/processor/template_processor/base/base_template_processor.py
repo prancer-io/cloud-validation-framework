@@ -1,3 +1,5 @@
+import random
+import string
 import re
 import subprocess
 import time
@@ -72,6 +74,9 @@ class TemplateProcessor:
         self.resource_types = []
         self.processed_templates = get_processed_templates()
         self.kwargs = {}
+        self.folder_path = False
+        charVal = (random.choice(string.ascii_letters) for x in range(5))
+        self.randomstr = ''.join(charVal)
     
     def append_exclude_directories(self, dirs):
         """
@@ -91,6 +96,8 @@ class TemplateProcessor:
             ref = self.connector_data["branchName"]
         elif "folderPath" in self.connector_data:
             ref = self.connector_data["folderPath"]
+        
+        session_id = get_from_currentdata("session_id")
 
         db_record = {
             "structure": self.connector_data["type"],
@@ -106,7 +113,8 @@ class TemplateProcessor:
             "snapshotId": self.node['snapshotId'],
             "collection": collection.replace('.', '').lower(),
             "json": self.processed_template,
-            "resourceTypes" : self.node.get("resourceTypes", [])
+            "session_id": session_id
+            # "resourceTypes" : self.node.get("resourceTypes", [])
         }
         if self.resource_type:
             db_record["resourceType"] = self.resource_type
@@ -183,6 +191,18 @@ class TemplateProcessor:
         """
         return False
     
+    def is_sensitive_file(self, file_path):
+        """
+        Check wether file_path contains sensitive extension or not
+        """
+        sensitive_extension_list = [
+            ".pfx", ".p12", ".cer", ".crt", ".crl", ".csr", ".der", ".p7b", ".p7r", ".spc", ".pem",
+        ]
+        for extension in sensitive_extension_list:
+            if str(file_path).lower().endswith(extension):
+                return True
+        return False
+    
     def is_helm_chart_dir(self,file_path):
         """
         """
@@ -246,7 +266,9 @@ class TemplateProcessor:
             
             self.dir_path = get_field_value(self.connector_data, 'folderPath')
             if not self.dir_path:
-                self.dir_path = self.repopath 
+                self.dir_path = self.repopath
+            else:
+                self.folder_path = True
 
             self.paths = get_field_value(self.node, 'paths')
             if not self.paths or not isinstance(self.paths, list):
@@ -265,26 +287,40 @@ class TemplateProcessor:
                 if not exists_file('%s/%s' % (helm_dir,self.paths[0].rpartition("/")[-1])):
                     self.process_helm_chart(helm_dir)
 
-            found_template = False
-            if run_type == CRAWL_AND_COMPLIANCE and self.processed_templates:
-                # Avoid re-run of same template file when running the crawler and compliance both
-                for resource_type, processed_template_list in self.processed_templates.items():
-                    for processed_template in processed_template_list:
-                        if processed_template.get("paths") == self.paths:
-                            found_template = True
-                            self.processed_template = processed_template.get("json")
+            sensitive_path = False
+            for path in self.paths:
+                if self.is_sensitive_file(path):
+                    sensitive_path = True
 
-            if not found_template:
-                self.processed_template = self.process_template(self.paths)
+            if not sensitive_path:
+                found_template = False
+                if run_type == CRAWL_AND_COMPLIANCE and self.processed_templates:
+                    # Avoid re-run of same template file when running the crawler and compliance both
+                    for resource_type, processed_template_list in self.processed_templates.items():
+                        for processed_template in processed_template_list:
+                            if processed_template.get("paths") == self.paths:
+                                found_template = True
+                                self.processed_template = processed_template.get("json")
 
-            if self.processed_template:
+                if not found_template:
+                    self.processed_template = self.process_template(self.paths)
+                    self.resource_types = list(set(self.resource_types))
+            
+                if self.processed_template:
+                    status = self.store_data_record()
+                    if status:
+                        self.node['status'] = 'active'
+                    else:
+                        self.node['status'] = 'inactive'
+                else:
+                    self.node['status'] = 'inactive'
+            else:
+                self.processed_template = {}
                 status = self.store_data_record()
                 if status:
                     self.node['status'] = 'active'
                 else:
                     self.node['status'] = 'inactive'
-            else:
-                self.node['status'] = 'inactive'
         except:
             logger.error("Failed to process template snapshot")
             logger.debug(traceback.format_exc())
@@ -302,8 +338,8 @@ class TemplateProcessor:
             template_node['resourceTypes'] = list(set(template_node.get('resourceTypes', [])))
             count = count + 1
             node_dict = {
-                "snapshotId": '%s%s' % (master_snapshot_id, str(count)),
-                "type": self.node["type"],
+                "snapshotId": '%s%s%s' % (master_snapshot_id, self.randomstr, str(count)),
+                "type": template_node.get("node_type", self.node["type"]),
                 "collection": collection,
                 "paths": template_node["paths"],
                 "status": template_node['status'],
@@ -329,6 +365,7 @@ class TemplateProcessor:
             ]
             
             self.processed_template = self.process_template(paths)
+            self.resource_types = list(set(self.resource_types))
             
             processed_resource_types = []
             for resource_type in self.resource_types:	
@@ -379,6 +416,7 @@ class TemplateProcessor:
 
             template_file_list = []
             parameter_file_list = []
+            sensitive_file_list = []
             path_is_file,path_is_dir = False,False
         
             if exists_file(dir_path):
@@ -416,12 +454,15 @@ class TemplateProcessor:
                                 template_file_list.append(new_sub_directory_path)
                             elif self.is_parameter_file(new_dir_path):
                                 parameter_file_list.append(new_sub_directory_path)
+                            elif self.is_sensitive_file(new_dir_path):
+                                sensitive_file_list.append(new_dir_path)
 
                 if path_is_file:
                     template_file_list.append('%s' % (sub_dir_path).replace('//', '/'))
 
                 logger.info("parameter_file_list   %s   : ", str(parameter_file_list))
                 logger.info("template_file_list   %s   : ", str(template_file_list))
+                logger.info("sensitive_file_list   %s   : ", str(sensitive_file_list))
                 generated_template_file_list = []
                 if template_file_list:
                     for template_file in template_file_list:
@@ -437,6 +478,7 @@ class TemplateProcessor:
                                 template_file
                             ]
                             self.processed_template = self.process_template(paths)
+                            self.resource_types = list(set(self.resource_types))
                             
                             template_paths = [	
                                 ("%s/%s" % (file_path, template_file)).replace("//", "/")	
@@ -471,6 +513,33 @@ class TemplateProcessor:
                     if self.node['masterSnapshotId'] not in self.snapshot_data or not isinstance(self.snapshot_data[self.node['masterSnapshotId']], list):
                         self.snapshot_data[self.node['masterSnapshotId']] = []
                     self.snapshot_data[self.node['masterSnapshotId']] = self.snapshot_data[self.node['masterSnapshotId']] + nodes
+        
+                if sensitive_file_list:
+                    for sensitive_file in sensitive_file_list:
+                        if sensitive_file in self.exclude_paths:
+                            logger.warning("Excluded from resource exclusions: %s", sensitive_file)
+                            continue
+                        # template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
+                        
+                        self.processed_template = {}
+                        
+                        sensitive_file_paths = [	
+                            ("%s/%s" % (file_path, sensitive_file)).replace("//", "/")	
+                        ]
+                    
+                        sensitive_file_template_list = []
+                        sensitive_file_template_list.append({
+                            "paths" : sensitive_file_paths,
+                            "status" : "active",
+                            "json" : self.processed_template,
+                            "validate" : node['validate'] if 'validate' in node else True,
+                            "node_type": "common",
+                            "resourceTypes": ["sensitive_extension"]
+                        })
+                    nodes, count = self.create_node_record(sensitive_file_template_list, count)
+                    if self.node['masterSnapshotId'] not in self.snapshot_data or not isinstance(self.snapshot_data[self.node['masterSnapshotId']], list):
+                        self.snapshot_data[self.node['masterSnapshotId']] = []
+                    self.snapshot_data[self.node['masterSnapshotId']] = self.snapshot_data[self.node['masterSnapshotId']] + nodes
         except Exception as e:
             logger.error("Error occurs while crawl this path: %s " % sub_dir_path)
             logger.debug(traceback.format_exc())
@@ -482,7 +551,9 @@ class TemplateProcessor:
         """
         root_dir_path = get_field_value(self.connector_data, 'folderPath')
         if not root_dir_path:
-            root_dir_path = self.repopath 
+            root_dir_path = self.repopath
+        else:
+            self.folder_path = True
 
         self.paths = get_field_value(self.node, 'paths')
         self.resource_type = get_field_value_with_default(self.node, 'resourceType', "").lower()
@@ -506,7 +577,7 @@ class TemplateProcessor:
                             "validate" : self.node['validate'] if 'validate' in self.node else True
                         })
             
-            nodes, count = self.create_node_record(generated_template_file_list, count)	
+            nodes, count = self.create_node_record(generated_template_file_list, count)
             if self.node['masterSnapshotId'] not in self.snapshot_data or not isinstance(self.snapshot_data[self.node['masterSnapshotId']], list):	
                 self.snapshot_data[self.node['masterSnapshotId']] = []	
             self.snapshot_data[self.node['masterSnapshotId']] = self.snapshot_data[self.node['masterSnapshotId']] + nodes	

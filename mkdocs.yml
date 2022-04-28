@@ -4,6 +4,9 @@ google_analytics: ['UA-133762205-1', 'prancer.io']
 docs_dir: docs/docs
 site_dir: docs/build
 extra_css: ['extra.css']
+markdown_extensions:
+    - toc:
+        permalink: True
 theme:
   custom_dir: docs/theme
   name: readthedocs
@@ -33,6 +36,7 @@ nav:
     - Definition: snapshots/snapshot-definition.md
     - AWS snapshot: snapshots/aws.md
     - Azure snapshot: snapshots/azure.md
+    - Google snapshot: snapshots/google.md
     - Filesystem snapshot: snapshots/filesystem.md
     - Helm snapshot: snapshots/helm.md
     - Kubernetes snapshot: snapshots/kubernetes.md
@@ -57,10 +61,13 @@ nav:
     - Use case: enterprise/use-case.md
     - Backup & export: enterprise/backup-export.md
   - API Reference:
+    - overview: api/api_overview.md
+    - Prancer APIs: api/apis_available.md
     - authentication: api/authentication.md
     - collection: api/collection.md
     - compliance: api/compliance.md
     - connector: api/connector.md
+    - configuration: api/config.md
     - dashboard: api/dashboard.md
     - policy: api/policy.md
     - remediation: api/remediation.md
@@ -68,4 +75,7 @@ nav:
     - resources: api/resources.md
     - tags: api/tags.md
     - users: api/users.md
+    - permissions: api/permissions.md
+    - vault: api/vault.md
+    - webhook: api/webhook.md
     - wizard: api/wizard.md
