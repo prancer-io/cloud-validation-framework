@@ -204,15 +204,19 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
         
         if status and isinstance(status, int) and status == 200:
             if data and data.get("resources"):
-                temp_dir = tempfile.mkdtemp()
-                resource_file = ("%s/%s") % (temp_dir, "resource_file.json")
+                try:
+                    temp_dir = tempfile.mkdtemp()
+                    resource_file = ("%s/%s") % (temp_dir, "resource_file.json")
                 
-                save_json_to_file(data, resource_file)
+                    save_json_to_file(data, resource_file)
     
-                azure_template_parser = AzureTemplateParser(resource_file, parameter_file=[])
-                template_json = azure_template_parser.parse()
+                    azure_template_parser = AzureTemplateParser(resource_file, parameter_file=[])
+                    template_json = azure_template_parser.parse()
                 
-                os.remove(resource_file)
+                    os.remove(resource_file)
+                except Exception as e:
+                    logger.info("Exception: %s, Snapshot: %s", str(e), node['snapshotId'])
+                    template_json = data
 
                 db_record['json']['resources'] = template_json.get("resources")
                 db_record['json']["subscription_id"] = sub_id
