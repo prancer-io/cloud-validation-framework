@@ -148,7 +148,7 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/l
 - **CURL Sample**
 
 ``` curl
-curl --location --request GET 'http://localhost:4200/api/logs/details/?index=0&count=10&log_name=logs_20220421130000_jwlyh_3384' \
+curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/logs/details/?index=0&count=10&log_name=logs_20220421130000_jwlyh_3384' \
 --header '<JWT Bearer Token>'
 ```
 
