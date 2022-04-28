@@ -2,7 +2,7 @@ import os
 import json
 import base64
 import shutil
-import time
+import glob
 from datetime import datetime
 from zipfile import ZipFile, ZIP_BZIP2
 import requests
@@ -177,7 +177,7 @@ def upload_file(container, content_path, content_name, url, logname, fileType, h
         chunk = nextdata
 
 
-def upload_file_multipart(container, content_path, content_name, url, logname, fileType, hdrs, upload_id=None):
+def upload_file_multipart(container, content_path, content_name, url, logname, fileType, hdrs, upload_id=None, timestamp=None):
     fileUploaded = False
     headers = hdrs
     headers['User-Agent'] = 'Mozilla/5.0'
@@ -187,8 +187,10 @@ def upload_file_multipart(container, content_path, content_name, url, logname, f
 
     mpdata = {
         'file': (content_name + '.zip', open(content_name + '.zip', 'rb')),
-        'uploadid': (None, upload_id if upload_id else '')
+        'uploadid': (None, upload_id if upload_id else ''),
     }
+    if timestamp:
+        mpdata["timestamp"] = timestamp
     try:
         response = requests.post(url, files=mpdata, headers=headers)
         if response.status_code == 200:
@@ -226,14 +228,8 @@ def upload_compliance_results(container, opath, server, company, apitoken):
     name = fname.rsplit('/', 1)
     logs = name[-1].split('.')
     oname = opath.rsplit('/', 1)
-    ojson = json_from_file(opath)
-    snapshotpath = None
-    snapshot = None
+    ts = None
     uploadid = 'upload_%s_%s' % (container.replace(' ', '_'), datetime.utcnow().strftime('%d%m%Y%H%M%s'))
-    if ojson and 'snapshot' in ojson:
-        snapshot = '%s.json' % ojson['snapshot']
-        snapshotpath = os.path.join('', oname[0], snapshot)
-        ojson = None
     fileUploaded = False
     apiserver = get_api_server(server, company)
     if apiserver:
@@ -244,27 +240,44 @@ def upload_compliance_results(container, opath, server, company, apitoken):
         completedata = []
         if exists_file(fname):
             fileUploaded = upload_file_multipart(container, fname, name[-1], collectionUri, logs[0],
-                                                 'log', hdrs, upload_id=uploadid)
+                                                 'log', hdrs, upload_id=uploadid, timestamp=ts)
             completedata.append({
                 'filename': name[-1],
                 'filetype': 'log',
                 'log': logs[0]
             })
+        snapshotfilenames = {}
         if fileUploaded and exists_file(opath):
-            fileUploaded = upload_file_multipart(container, opath, oname[-1], collectionUri, logs[0],
-                                                 'output', hdrs, upload_id=uploadid)
-            completedata.append({
-                'filename': oname[-1],
-                'filetype': 'output',
-                'log': logs[0]
-            })
-        if fileUploaded and snapshot and snapshotpath and exists_file(snapshotpath):
-            fileUploaded = upload_file_multipart(container, snapshotpath, snapshot, collectionUri, logs[0],
-                                                 'snapshot', hdrs, upload_id=uploadid)
-            completedata.append({
-                'filename': snapshot,
-                'filetype': 'snapshot',
-                'log': logs[0]
-            })
+            ofilenames = []
+            odir = oname[0]
+            for filename in glob.glob('%s/output*.json' % odir.replace('//', '/')):
+                sjson = json_from_file(filename)
+                if sjson and 'snapshot' in sjson:
+                    snapshot = '%s.json' % sjson['snapshot']
+                    snapshotpath = os.path.join('', odir, snapshot)
+                    snapshotfilenames[snapshotpath] = snapshot
+                    ofilenames.append(filename)
+            for ofile in ofilenames:
+                ofilename = ofile.rsplit('/', 1)
+                fileUploaded = upload_file_multipart(container, ofile, ofilename[-1], collectionUri, logs[0],
+                                                     'output', hdrs, upload_id=uploadid, timestamp=ts)
+                completedata.append({
+                    'filename': ofilename[-1],
+                    'filetype': 'output',
+                    'log': logs[0]
+                })
+                if not fileUploaded:
+                    break
+        if fileUploaded and snapshotfilenames:
+            for sfilepath, sfilename in snapshotfilenames.items():
+                fileUploaded = upload_file_multipart(container, sfilepath, sfilename, collectionUri, logs[0],
+                                                     'snapshot', hdrs, upload_id=uploadid, timestamp=ts)
+                completedata.append({
+                    'filename': sfilename,
+                    'filetype': 'snapshot',
+                    'log': logs[0]
+                })
+                if not fileUploaded:
+                    break
         upload_complete_process(container, uploadid, collectionUri, completedata, hdrs)
     return fileUploaded
