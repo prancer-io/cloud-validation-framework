@@ -92,6 +92,8 @@ def generate_snapshot(snapshot_json_data, snapshot_file_data):
                                     for field in REMOVE_SNAPSHOTGEN_FIELDS:
                                         if field in newnode:
                                             del newnode[field]
+                                        if field in sid_data:
+                                            del sid_data[field]
                                     
                                     new_nodes.append(newnode)
                         # if new_nodes:
