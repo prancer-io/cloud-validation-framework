@@ -124,6 +124,7 @@ def test_populate_all_template_snapshot(monkeypatch):
 				"collection": "deploymentmanager",
 				"paths": ["/sample/cloudbuild.yaml"],
 				"status": "active",
+				'source': 'fsGoogleConnector',
 				"validate": True,
     			'resourceTypes': []
 			}

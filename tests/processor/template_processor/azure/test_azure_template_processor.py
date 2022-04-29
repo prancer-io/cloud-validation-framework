@@ -127,6 +127,7 @@ def test_populate_all_template_snapshot(monkeypatch):
 				"paths": ["/sample/keyvault.json", "/sample/vars.keyvaultrg.json"],
 				"status": "active",
 				"validate": True,
+    			'source': 'fsAzureConnector',
     			'resourceTypes': ['microsoft.keyvault/vaults']
 			}
 		]

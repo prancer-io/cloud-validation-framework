@@ -128,6 +128,7 @@ def test_populate_all_template_snapshot(monkeypatch):
 					"/sample/EC2InstanceWithSecurityGroupSample.yaml",
 					"/sample/parameters.json",
 				],
+    			'source': 'fsAwsConnector',
 				"status": "active",
 				"validate": True,
     			'resourceTypes': ['aws::ec2::instance']
