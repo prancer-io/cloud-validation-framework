@@ -58,7 +58,8 @@ mastersnapshot_fns = {
 }
 
 REMOVE_SNAPSHOTGEN_FIELDS = [
-    "exclude"
+    "exclude",
+    "source",
 ]
 
 def generate_snapshot(snapshot_json_data, snapshot_file_data):
@@ -83,12 +84,16 @@ def generate_snapshot(snapshot_json_data, snapshot_file_data):
                                     # if structure and structure == 'aws':
                                     #     newnode = {}
                                     # else:
+                                    if "source" in sid_data and sid_data["source"] != snapshot.get("source"):
+                                        continue
                                     newnode = copy.deepcopy(node)
                                     newnode.update(sid_data)
                                     
                                     for field in REMOVE_SNAPSHOTGEN_FIELDS:
                                         if field in newnode:
                                             del newnode[field]
+                                        if field in sid_data:
+                                            del sid_data[field]
                                     
                                     new_nodes.append(newnode)
                         # if new_nodes:
@@ -135,7 +140,21 @@ def generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_d
     for mastersnapshot in mastersnapshots:
         set_processed_templates({})
         current_data = generate_mastersnapshot(mastersnapshot)
-        snapshot_data.update(current_data)
+        # snapshot_data.update(current_data)
+        for ms_id, node_list in current_data.items():
+            if isinstance(node_list, list):
+                if ms_id in snapshot_data:
+                    if isinstance(snapshot_data[ms_id], list):
+                        snapshot_data[ms_id].extend(node_list)
+                    else:
+                        snapshot_data[ms_id] = node_list
+                else:
+                    snapshot_data[ms_id] = node_list
+            else:
+                logger.error("No snapshot found for %s connector " % (get_field_value(mastersnapshot, "source")))
+                if ms_id not in snapshot_data:
+                    snapshot_data[ms_id] = node_list
+
     # for each snapshot_json_data, update the existing json data or add the new json data here.
     return snapshot_data
 
