@@ -32,6 +32,8 @@ def json_record(container, filetype, filename, json_data=None):
 def create_output_entry(container, test_file="", filesystem=False):
     global doc_id, dbname, collection
     session_id = get_from_currentdata("session_id")
+    isremote = get_from_currentdata('remote')
+    isremote = True if isremote else False
     od = OrderedDict()
     od["$schema"] = ""
     od["contentVersion"] = "1.0.0.0"
@@ -40,6 +42,7 @@ def create_output_entry(container, test_file="", filesystem=False):
     od["container"] = container
     od["status"] = "Running"
     od["session_id"] = session_id
+    od["remote_run"] = isremote
     dblog = get_dblogger()
     od["log"] = dblog if dblog else ""
     if not filesystem:
@@ -72,6 +75,8 @@ def dump_output_results(results, container, test_file, snapshot, filesystem=True
     collection = config_value(DATABASE, collectiontypes[OUTPUT])
     session_id = get_from_currentdata("session_id")
     if not doc_id:
+        isremote = get_from_currentdata('remote')
+        isremote = True if isremote else False
         od = OrderedDict()
         od["$schema"] = ""
         od["contentVersion"] = "1.0.0.0"
@@ -80,6 +85,7 @@ def dump_output_results(results, container, test_file, snapshot, filesystem=True
         od["snapshot"] = snapshot
         od["container"] = container
         od["session_id"] = session_id
+        od["remote_run"] = isremote
         dblog = get_dblogger()
         od["log"] = dblog if dblog else ""
         if filesystem:
