@@ -344,6 +344,7 @@ class TemplateProcessor:
                 "paths": template_node["paths"],
                 "status": template_node['status'],
                 "validate": template_node['validate'],
+                "source": self.snapshot_source,
                 "resourceTypes" : [self.resource_type] if self.resource_type else template_node.get('resourceTypes', [])
             }
             nodes.append(node_dict)
