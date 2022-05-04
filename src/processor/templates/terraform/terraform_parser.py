@@ -735,7 +735,10 @@ class TerraformTemplateParser(TemplateParser):
                                                 #     resource_property[content_key] = content_value
                                                 #     self.temp_params = {}
                                                 # resource_properties.append(resource_property)
-                                new_resource[main_key] = resource_properties
+                                if main_key in new_resource:
+                                    new_resource[main_key].extend(resource_properties)
+                                else:
+                                    new_resource[main_key] = resource_properties
                     else:
                         processed_resource, processed = self.process_resource(values, count=count)
                         new_resource[key] = processed_resource
