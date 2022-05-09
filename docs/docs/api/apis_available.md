@@ -6,6 +6,9 @@ Authentication APIs
 | API | Description |
 |------------|-------------|
 | [Login API](authentication.md#login-api) |  API for authenticate user by email and password. |
+| [Create User Access Token](authentication.md#create-user-access-token) |  API for create user access token. |
+| [Get list of access token](authentication.md#get-list-of-access-token) |  API for get list of user access token. |
+| [Delete User Access Token](authentication.md#delete-a-access-token) |  API for delete an user access token. |
 | [Validate Access Token](authentication.md#validate-access-token) |  API for authenticate user by access token. |
 | [Refresh Token](authentication.md#refresh-token) |  Refresh the expired JWT bearer token. |
 | [Logout User](authentication.md#logout-api) |  Logout user. |
