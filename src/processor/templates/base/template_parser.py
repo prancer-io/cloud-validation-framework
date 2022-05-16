@@ -84,7 +84,7 @@ class TemplateParser:
         return resource
     
 
-    def find_functions_all(self,data):
+    def find_functions_all(self, data):
         final_list = []
         regex = r"[a-zA-Z]+\(.*"
         findings = re.findall(regex, data)
@@ -102,7 +102,7 @@ class TemplateParser:
                     remaining_string = finding[count:]
                     found_string = finding[:count+1]
                     final_list.append(found_string)
-                    final_list.extend(self.find_functions(remaining_string))
+                    final_list.extend(self.find_functions_all(remaining_string))
                     break
         
         return final_list
