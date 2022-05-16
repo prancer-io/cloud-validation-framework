@@ -576,7 +576,7 @@ class TerraformTemplateParser(TemplateParser):
 
     def process_expression_parameters(self, param_str, count):
         
-        groups = re.findall(r'[.a-zA-Z]+[(].*[,].*[)]', param_str, re.I)
+        groups = self.find_functions_all(param_str)
         if groups:
             for group in groups:
                 if group != param_str:

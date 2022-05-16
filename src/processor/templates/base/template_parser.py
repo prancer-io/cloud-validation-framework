@@ -1,6 +1,6 @@
 import json
 import os
-import hcl
+import re
 from yaml.loader import FullLoader
 from processor.logging.log_handler import getlogger
 from processor.helper.yaml.yaml_utils import yaml_from_file
@@ -82,3 +82,27 @@ class TemplateParser:
         process the resource json and return the resource with updated values
         """
         return resource
+    
+
+    def find_functions_all(self,data):
+        final_list = []
+        regex = r"[a-zA-Z]+\(.*"
+        findings = re.findall(regex, data)
+        for finding in findings:
+            parantheses_count = 0
+            parantheses_found = False
+            for count, character in enumerate(finding):
+                if character == "(":
+                    parantheses_count += 1
+                    parantheses_found = True
+                elif character == ")":
+                    parantheses_count -= 1
+                
+                if parantheses_found and parantheses_count == 0:
+                    remaining_string = finding[count:]
+                    found_string = finding[:count+1]
+                    final_list.append(found_string)
+                    final_list.extend(self.find_functions(remaining_string))
+                    break
+        
+        return final_list
