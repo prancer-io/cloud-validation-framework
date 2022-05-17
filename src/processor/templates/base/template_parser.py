@@ -86,7 +86,7 @@ class TemplateParser:
 
     def find_functions_all(self, data):
         final_list = []
-        regex = r"[a-zA-Z]+\(.*"
+        regex = r"[a-zA-Z]+\(.*,.*"
         findings = re.findall(regex, data)
         for finding in findings:
             parantheses_count = 0
