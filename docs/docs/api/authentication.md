@@ -76,6 +76,137 @@ curl -X POST \
 - In Success Response you will receive `token` and `refresh_token`.
 - Once you get the `token` using Login API, you can use that `token` for access other secure APIs.
 
+## Create User Access Token
+
+User Acceess Token can be use to authenticate the prancer enterprise API without email and password
+
+**CURL Sample**
+```
+curl -X POST \
+  https://portal.prancer.io/prancer-customer1/api/user/accesstoken/ -H 'content-type: application/json' \
+  -H 'authorization: Bearer <JWT Bearer Token>' \
+  -d '{
+	"token_name" : "github pipeline token"
+}'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/validate/accesstoken/
+- **Method:** POST
+- **Header:**
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+- **Param:**
+```
+    {
+        "token_name" : "github pipeline token"
+    }
+```
+
+- **Explanation:**
+
+    `Required Fields`
+
+    - **token_name:** Any name to identify the token reference.
+    
+
+**Success Response:**
+
+- Status Code: 200
+- Response:
+```
+{
+    "data": {
+        "token":"04c57a81fc034b16aa2d654f5d46fd59"
+    },
+    "error": "",
+    "error_list": [],
+    "message": "User access token set successfully",
+    "metadata": {},
+    "status": 200
+}
+```
+
+## Get list of access token
+
+Get the list of access token
+
+**CURL Sample**
+```
+curl -X GET https://portal.prancer.io/prancer-customer1/api/user/accesstoken/ \
+  -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/validate/accesstoken/
+- **Method:** GET
+- **Header:**
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+- **Param:**
+```
+- No Parameters
+```
+
+**Success Response:**
+
+- Status Code: 200
+- Response:
+```
+{
+    "data": {
+        "token_list": [{
+            "token_id":"62752393b5079a7af37d490f",
+            "token_name":"github pipeline token"
+        }]
+    },
+    "error": "",
+    "error_list": [],
+    "message": "Token is Valid",
+    "metadata": {},
+    "status": 200
+}
+```
+
+## Delete an access token
+
+Delete a user access token
+
+**CURL Sample**
+```
+curl -X DELETE https://portal.prancer.io/prancer-customer1/api/user/accesstoken/ \
+    -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/validate/accesstoken/
+- **Method:** DELETE
+- **Header:**
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+- **Param:**
+```
+{
+    "token_id" : "62752393b5079a7af37d490f"
+}
+```
+- **Explanation:**
+
+    `Required Fields`
+
+    - **token_id:** A valid token id returns from the get token list API.
+
+**Success Response:**
+
+- Status Code: 200
+- Response:
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Token removed successfully",
+    "metadata": {},
+    "status": 200
+}
+```
 
 ## Validate Access Token
 
