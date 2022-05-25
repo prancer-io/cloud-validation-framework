@@ -25,7 +25,7 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/user/invite/ -H 'aut
 
 ```json
 {
-    "email": "test.login319@gmail.com",
+    "email": "test@gmail.com",
     "resend": false
 }
 ```
@@ -150,7 +150,7 @@ Authorization: Bearer <JWT Bearer Token>
         "users": [
             {
                 "date_joined": "Fri, 20 Mar 2020 05:50:56 GMT",
-                "email": "prancer@gmail.com",
+                "email": "test@gmail.com",
                 "first_name": "",
                 "id": 1,
                 "is_active": true,
@@ -158,12 +158,12 @@ Authorization: Bearer <JWT Bearer Token>
                 "is_superuser": true,
                 "last_login": "Fri, 01 Apr 2022 09:44:17 GMT",
                 "last_name": "",
-                "password": "pbkdf2_sha256$120000$csNVo2wtSbVa$yGEM7dVeQkWbsCvM641GgASxFk2p0VqU5lw4raw5UGc=",
-                "status": "Registered",
+                "password": "",
+                "status": "Pending",
                 "user_groups": [
                     "Owner"
                 ],
-                "username": "prancer@gmail.com"
+                "username": "test@gmail.com"
             }
         ]
     },
