@@ -49,7 +49,6 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/user/invite/ -H 'aut
 - If user invitation is sending for first time then set `resend` value to `false`
 - If user invitation is resending to the user then set `resend` value to `true`
 
-
 **Users - get**
 ---
 
