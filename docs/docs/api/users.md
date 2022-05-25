@@ -41,6 +41,7 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/user/invite/ -H 'aut
     "metadata": {},
     "status": 200
 }
+```
 
 **Explanation**
 
