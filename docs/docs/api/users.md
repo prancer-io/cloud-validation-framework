@@ -118,7 +118,7 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/user/get/ -H 'author
 - If the user type is either `is_admin` or `is_superuser` then user have full control on all services.
 - For Staff users need to verify permissions on web interface.
 
-**Users - list**
+**Users - List**
 ---
 
 **CURL Sample**
@@ -139,7 +139,9 @@ Authorization: Bearer <JWT Bearer Token>
 **Param:**
 
 ```text
-- No Parameters
+- {
+    "search": "test"
+}
 ```
 
 **Response:**
