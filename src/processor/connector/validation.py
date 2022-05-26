@@ -32,9 +32,9 @@ def get_snapshot_file(snapshot_file, container, dbname, filesystem):
         snapshot_file = '%s/%s/%s' % (get_test_json_dir(), container, file_name)
         snapshot_json_data = json_from_file(snapshot_file)
     else:
-        parts = snapshot_file.split('.')
+        # parts = snapshot_file.split('.')
         collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
-        qry = {'container': container, 'name': parts[0]}
+        qry = {'container': container, 'name': snapshot_file}
         sort = [sort_field('timestamp', False)]
         docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
         logger.info('Number of Snapshot Documents: %s', len(docs))
