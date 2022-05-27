@@ -64,6 +64,7 @@ class TerraformTemplateParser(TemplateParser):
         }
         self.outputs = {}
         self.skip_key_to_process = ["compiletime_identity"]
+        self.group_count = 0
 
     def is_template_file(self, file_path):
         """
@@ -576,21 +577,32 @@ class TerraformTemplateParser(TemplateParser):
 
     def process_expression_parameters(self, param_str, count):
         
-        groups = re.findall(r'[.a-zA-Z]+[(].*[,].*[)]', param_str, re.I)
+        processed_groups = {}
+
+        groups = self.find_functions_all(param_str)
         if groups:
             for group in groups:
                 if group != param_str:
                     updated_group, processed = self.process_resource(group, count)
                     if processed:
-                        param_str = param_str.replace(group, str(updated_group))
+                        self.group_count += 1
+                        group_name = "group%s" % str(self.group_count)
+                        param_str = param_str.replace(group, group_name)
+                        processed_groups[group_name] = str(updated_group)
 
         groups = re.findall(r'^[(].*[,].*[)]|.* ([(].*[)])', param_str, re.I)
         if groups:
             for group in groups:
                 if group != param_str:
                     parameter_str = re.findall("(?<=\().*(?=\))", group)[0]
-                    updated_group = self.process_expression_parameters(parameter_str, count)
-                    param_str = param_str.replace(group, str(updated_group))
+                    updated_group, p_groups = self.process_expression_parameters(parameter_str, count)
+
+                    processed_groups.update(p_groups)
+
+                    self.group_count += 1
+                    group_name = "group%s" % str(self.group_count)
+                    param_str = param_str.replace(group, group_name)
+                    processed_groups[group_name] = str(updated_group)
 
         # groups = re.findall(r'(?<=\?)([a-z0-9A-Z._\-\s]*(\?){1}[a-z0-9A-Z._\-\s]*(\:){1}[a-z0-9A-Z._\-\s]*)(?=:)', param_str, re.I)
         groups = re.findall(r'(?<=\?\s)(.*[?].*[:].*)(?=\s:)', param_str, re.I)
@@ -599,8 +611,12 @@ class TerraformTemplateParser(TemplateParser):
                 if group != param_str:
                     updated_group, processed = self.process_resource(group, count)
                     if processed:
-                        param_str = param_str.replace(group, str(updated_group))
-        return param_str
+                        self.group_count += 1
+                        group_name = "group%s" % str(self.group_count)
+                        param_str = param_str.replace(group, group_name)
+                        processed_groups[group_name] = str(updated_group)
+
+        return param_str, processed_groups
 
     def eval_expression(self, resource):
         try:
@@ -862,8 +878,8 @@ class TerraformTemplateParser(TemplateParser):
                         continue
 
                     parameter_str = m.group(0)
-                    parameter_str = self.process_expression_parameters(parameter_str, count)
-                    
+                    parameter_str, processed_groups = self.process_expression_parameters(parameter_str, count)
+
                     string_params = {}
                     groups = re.findall(r'\".*?\"', parameter_str, re.I)
                     if groups:
@@ -886,6 +902,8 @@ class TerraformTemplateParser(TemplateParser):
                                 param = str(string_params[param])
                             if param in nested_string_params:
                                 param = str(nested_string_params[param])
+                            if param in processed_groups:
+                                param = str(processed_groups[param])
 
                             processed_param, processed = self.process_resource("${" + param.strip() + "}", count=count, nested_string_params=string_params)
                             if isinstance(processed_param, str) and (re.findall(r".*\(.*\)", processed_param) or re.findall(r"\${([^}]*)}", processed_param)):
