@@ -145,8 +145,7 @@ def get_custom_data(snapshot_source, tabs=2):
         container = get_from_currentdata('container')
         dbname = config_value(DATABASE, DBNAME)
         collection = config_value(DATABASE, collectiontypes[STRUCTURE])
-        parts = snapshot_source.split('.')
-        qry = {'name': parts[0], 'container' : container }
+        qry = {'name': snapshot_source, 'container' : container }
         sort = [sort_field('timestamp', False)]
         docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
         logger.info('Number of Custom Documents: %d', len(docs))
