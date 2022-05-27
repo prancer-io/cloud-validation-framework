@@ -264,3 +264,61 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/user/tour/ -H 'auth
     "status": 200
 }
 ```
+
+**Users - Update Roles**
+---
+
+- API to update the roles of a user
+
+**CURL Sample**
+
+```curl
+curl -X POST https://portal.prancer.io/prancer-customer1/api//user/roles -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** <https://portal.prancer.io/prancer-customer1/api//user/roles>
+- **Method:** POST
+- **Header:**
+
+```text
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+
+```json
+{
+    "user_id": 81,
+    "groups": [
+        "Security Admin",
+        "Debug Team"
+    ]
+}
+```
+
+**Explanation**
+
+`Required Fields`
+
+**user_id:**  Id of the user.
+**groups:** Set valid groups of the user.
+
+**Response:**
+
+```json
+{
+    "data": {
+        "groups": [
+            "Security Admin",
+            "Debug Team"
+        ],
+        "user_id": 81
+    },
+    "error": "",
+    "error_list": [],
+    "message": "user groups updated successfully",
+    "metadata": {},
+    "status": 200
+}
+```
