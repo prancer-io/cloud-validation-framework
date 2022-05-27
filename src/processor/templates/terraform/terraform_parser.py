@@ -578,7 +578,7 @@ class TerraformTemplateParser(TemplateParser):
     def process_expression_parameters(self, param_str, count):
         
         processed_groups = {}
-
+        
         groups = self.find_functions_all(param_str)
         if groups:
             for group in groups:
@@ -771,6 +771,9 @@ class TerraformTemplateParser(TemplateParser):
                     parsed_string, processed = self.process_resource(json_data, count=count)
                     return parsed_string, True
 
+            for_loop_expression = r'\[for\s(.*)\sin\s(.*)\s:\s(.*)\]'
+            for_loop_parameters = re.search(for_loop_expression, parsed_string, re.I)
+
             new_resource = copy.deepcopy(parsed_string)
             match_full = re.match(r'^\${([^}$]*)}$', new_resource)
             if match_full:
@@ -783,7 +786,7 @@ class TerraformTemplateParser(TemplateParser):
                         expression_parameter = True
                     
                 all_exmatch = re.findall(r'\${([^}$]*)}', new_resource)
-                if all_exmatch and not expression_parameter:
+                if all_exmatch and not expression_parameter and not for_loop_parameters:
                     for exmatch in all_exmatch:
                         processed_param, processed = self.process_resource("${" + copy.deepcopy(exmatch).strip() + "}", count=count)
                         parsed_string = parsed_string.replace("${" + exmatch + "}", str(processed_param))
@@ -791,6 +794,28 @@ class TerraformTemplateParser(TemplateParser):
                     matched_str = parsed_string
                 else:
                     matched_str = parsed_string
+
+            for_loop_parameters = re.search(for_loop_expression, matched_str, re.I)
+            if for_loop_parameters:
+                for_loop_items = []
+                # Process terraform `for-expressions`
+                temp_loop_variable = for_loop_parameters.group(1)
+                loop_source_list = for_loop_parameters.group(2)
+                loop_value = for_loop_parameters.group(3)
+                processed_loop_source_list, _ = self.process_resource(loop_source_list, count=count)
+
+                if processed_loop_source_list and isinstance(processed_loop_source_list, list):
+                    for item in processed_loop_source_list:
+                        new_loop_value = copy.deepcopy(loop_value)
+                        new_loop_value_list = re.findall(r"[^\w]"+ temp_loop_variable + "[^\w]", new_loop_value)
+                        for match_param in new_loop_value_list:
+                            new_match_param = match_param.replace(temp_loop_variable, "'%s'" % str(item))
+                            new_loop_value = new_loop_value.replace(match_param, new_match_param)
+
+                        processed_new_loop_value, _ = self.process_resource(new_loop_value, count=count)
+                        for_loop_items.append(processed_new_loop_value)
+                
+                return for_loop_items, True
 
             exmatch = re.search(r'\${([^}]*)}', matched_str, re.I)
             if exmatch:
@@ -824,7 +849,7 @@ class TerraformTemplateParser(TemplateParser):
                 parameter_str = re.findall("(?<=\().*(?=\))", m.group(0))[0]
                 parameters = []
                 process = True
-
+                    
                 found_parameters = self.split_parameters(parameter_str.strip())
 
                 for param in found_parameters:
@@ -837,7 +862,7 @@ class TerraformTemplateParser(TemplateParser):
                             param = match_values.group(0)
                     if param in nested_string_params:
                         param = str(nested_string_params[param])
-                
+
                     processed_param, process_status = self.process_resource("${" + param.strip() + "}", count)
                     processed = processed and process_status
                     if (isinstance(processed_param, str) and re.search(r'\${([^}]*)}', processed_param, re.I)):
@@ -847,7 +872,7 @@ class TerraformTemplateParser(TemplateParser):
                     elif processed_param == None and re.match(".*(\.\*\.).*", param.strip()):
                         process = False
                         parameters.append(param.strip())
-                    elif re.findall(r'([.a-zA-Z]+)[(].*[,].*[)]', param.strip(), re.I):
+                    elif isinstance(processed_param, str) and re.findall(r'([.a-zA-Z]+)[(].*[,].*[)]', processed_param.strip(), re.I):
                         process = False
                         parameters.append(param.strip())
                     else:
@@ -879,7 +904,7 @@ class TerraformTemplateParser(TemplateParser):
 
                     parameter_str = m.group(0)
                     parameter_str, processed_groups = self.process_expression_parameters(parameter_str, count)
-
+                    
                     string_params = {}
                     groups = re.findall(r'\".*?\"', parameter_str, re.I)
                     if groups:
@@ -940,10 +965,12 @@ class TerraformTemplateParser(TemplateParser):
                         else:
                             if matched_str == "count.index" and count is not None:
                                 new_resource = count
-                            else:
+                            elif re.search(r'[A-Za-z]+', splited_list[0]):
                                 result, new_value = self.schema_filter["other"](".".join(splited_list))
                                 if result:
                                     new_resource = new_value
+                            else:
+                                new_resource = ".".join(splited_list)
                     else:
                         new_resource = matched_str
         else:
