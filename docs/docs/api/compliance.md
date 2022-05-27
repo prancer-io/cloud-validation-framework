@@ -457,3 +457,53 @@ curl -X DELETE \
     "status": 200
 }
 ```
+
+**Compliance - List Queued Tasks**
+---
+
+- **CURL Sample**
+
+```curl
+curl -X DELETE \
+  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/ \
+  -H 'authorization: Bearer <JWT Bearer Token>' \
+  -H 'content-type: application/json' \
+  -d '{
+    "id" : "azure_cloud_nbyrl_9441"
+}'
+
+
+curl --location --request GET 'https://portal.prancer.io/prancer-customer1/prancer-vatsal/api/tasks/' \
+-H 'authorization: Bearer <JWT Bearer Token>' \
+-H 'space-id: 102' \
+-H 'content-type: application/json' \
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/prancer-vatsal/api/tasks/
+- **Method:** GET
+- **Header:**
+
+```text
+    - content-type: application/json
+    - space-id: 102
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Response:**
+
+```json
+{
+    "msg": "Tasks list",
+    "status": "OK",
+    "tasks": [
+        {
+            "container": "aws_cloud",
+            "logname": "logs_20220524115353_pawgl_0578",
+            "name": "invoke_manual_compliance",
+            "start": 1653393233398,
+            "state": "RUNNING",
+            "taskid": "task_aws_cloud_nbxfkrfd_26571274"
+        }
+    ]
+}
+```
