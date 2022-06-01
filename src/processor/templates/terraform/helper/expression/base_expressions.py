@@ -15,6 +15,14 @@ def conditional_expression(expression):
     false_value = expression_list[1].split(" : ")[1]
     new_expression = '%s if %s else %s' % (true_value, condition, false_value)
     try:
+        eval(true_value)
+    except:
+        true_value = f'"{true_value}"'
+    try:
+        eval(false_value)
+    except:
+        false_value = f'"{false_value}"'
+    try:
         response = eval(new_expression)
         return response, True
     except Exception as e:
