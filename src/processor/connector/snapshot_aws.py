@@ -670,6 +670,16 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
             'PolicyArn': arn_str
         }
     
+    elif client_str == "iam" and function_name == "list_policy_versions":
+        return {
+            'PolicyArn': arn_str
+        }
+
+    elif client_str == "iam" and function_name == "get_role":
+        return {
+            'RoleName': resource_id
+        }
+    
     elif client_str == "iam" and function_name == "get_policy_version":
         return {
             'PolicyArn': arn_str,
