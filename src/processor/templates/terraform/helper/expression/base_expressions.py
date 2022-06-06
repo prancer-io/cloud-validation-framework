@@ -5,6 +5,7 @@ from processor.logging.log_handler import getlogger
 
 logger = getlogger()
 
+
 def conditional_expression(expression):
     """
     perform the condition operation on provided expression and returns the result
@@ -13,7 +14,6 @@ def conditional_expression(expression):
     condition = expression_list[0]
     true_value = expression_list[1].split(" : ")[0]
     false_value = expression_list[1].split(" : ")[1]
-    new_expression = '%s if %s else %s' % (true_value, condition, false_value)
     try:
         eval(true_value)
     except:
@@ -22,6 +22,7 @@ def conditional_expression(expression):
         eval(false_value)
     except:
         false_value = f'"{false_value}"'
+    new_expression = "%s if %s else %s" % (true_value, condition, false_value)
     try:
         response = eval(new_expression)
         return response, True
