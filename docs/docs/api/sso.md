@@ -16,7 +16,7 @@ curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/
     "tenant_id": "f997f2f9-a48f-xxxx-xxxx-xxxxxxxxxxxx",
     "client_id": "db57053a-7bce-xxxx-xxxx-xxxxxxxxxxxx",
     "client_secret": "EnM7Q~52qpx67LcMDQpxxxxxxxxxxxxxxx",
-    "group_id": "18744974-c1ec-xxxx-xxxx-xxxxxxxxxxxx"
+    "group_id": "12345678-a1b1-xxxx-xxxx-xxxxxxxxxxxx"
 }'
 ```
 
@@ -35,7 +35,7 @@ curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/
     "tenant_id": "f997f2f9-a48f-xxxx-xxxx-xxxxxxxxxxxx",
     "client_id": "db57053a-7bce-xxxx-xxxx-xxxxxxxxxxxx",
     "client_secret": "EnM7Q~52qpx67LcMDQpxxxxxxxxxxxxxxx",
-    "group_id": "18744974-c1ec-xxxx-xxxx-xxxxxxxxxxxx"
+    "group_id": "12345678-a1b1-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
 - **Explanation:** provide given parameter and the API will return list of available users with invitation status
@@ -48,7 +48,7 @@ curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/
         "results": [
             {
                 "email": "farshid@liquware.com",
-                "group_id": "18744974-c1ec-448b-838f-65666fa3dc76",
+                "group_id": "12345678-a1b1-c1d1-1234-123456abc1",
                 "is_invited": false,
                 "username": "Farshid Mahdavipour"
             }
@@ -76,7 +76,7 @@ curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/
 --header 'Content-Type: application/json' \
 --data-raw '{
     "provision_emails": ["vatsal.thaker.p@Liquwareus.onmicrosoft.com", "ajey.khanapuri@liquware.com"],
-    "group_id": "18744974-c1ec-448b-838f-65666fa3dc76"
+    "group_id": "12345678-a1b1-c1d1-1234-123456abc1"
 }'
 ```
 
@@ -94,7 +94,7 @@ curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/
 ```json
 {
     "provision_emails": ["farshid@liquware.com"],
-    "group_id": "18744974-c1ec-xxxx-xxxx-xxxxxxxxxxx"
+    "group_id": "12345678-a1b1-xxxx-xxxx-xxxxxxxxxxx"
 }
 ```
 
@@ -108,7 +108,7 @@ curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/
         "results": [
             {
                 "email": "farshid@liquware.com",
-                "group_id": "18744974-c1ec-448b-838f-65666fa3dc76",
+                "group_id": "12345678-a1b1-c1d1-1234-123456abc1",
                 "is_invited": false,
                 "username": "Farshid Mahdavipour"
             }
