@@ -263,7 +263,8 @@ def _get_resources_from_list_function(response, method):
     and returns a list of responses.
     """
     logger.info("===============list function response==============")
-    logger.info(response)
+    logger.info("method => %s", method)
+    logger.debug("response => %s", response)
     if method == 'list_buckets':
         return [x['Name'] for x in response.get('Buckets', [])]
     elif method == 'describe_instances':
@@ -1040,7 +1041,6 @@ def populate_aws_snapshot(snapshot, container=None):
                     except Exception as ex:
                         logger.info('Unable to create AWS client: %s', ex)
                         awsclient = None
-                    logger.info(awsclient)
                     if awsclient:
                         data = get_node(awsclient, node, snapshot_source, snapshot)
                         if data:
