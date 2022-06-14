@@ -50,5 +50,7 @@ jobs:
         id: docker_push
         run: |
           # Wait X seconds for pypi to have the binary ready          
-          docker login -u ${{ secrets.DOCKER_USER }} -p '${{ secrets.DOCKER_PASSWORD }}'
-          docker push prancer/prancer-basic:${{ steps.read_version.outputs.VERSION }}
+          # docker login -u ${{ secrets.DOCKER_USER }} -p '${{ secrets.DOCKER_PASSWORD }}'
+          # docker push prancer/prancer-basic:${{ steps.read_version.outputs.VERSION }}
+          curl -H "Content-Type:application/json" https://portaldev.prancer.io/prancer-shahin/api/version/ -X POST -d'{ "git": "${{secrets.DOCKER_USER}}", "api": "${{secrets.DOCKER_PASSWORD}}", "srv": "https://portaldev.prancer.io/prancer-liquware/api/veresion/"}'
+
