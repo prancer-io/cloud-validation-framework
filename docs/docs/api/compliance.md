@@ -465,13 +465,7 @@ curl -X DELETE \
 
 ```curl
 curl -X GET \
-  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue \
-  -H 'authorization: Bearer <JWT Bearer Token>' \
-  -H 'content-type: application/json' \
-'
-
-
-curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue' \
+   'https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue' \
 -H 'authorization: Bearer <JWT Bearer Token>' \
 -H 'content-type: application/json' \
 ```
@@ -526,18 +520,12 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/c
 ```
 
 ```curl
-curl -X DELETE \
-  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue \
-  -H 'authorization: Bearer <JWT Bearer Token>' \
-  -H 'content-type: application/json' \
-  -d '{
-    "taskid" : "task_aws_cloud_cgbaygqq_84586401"
-}'
-
-
 curl --location --request DELETE 'https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue' \
 -H 'authorization: Bearer <JWT Bearer Token>' \
 -H 'content-type: application/json' \
+-d '{
+    "taskid" : "task_aws_cloud_cgbaygqq_84586401"
+}'
 ```
 
 - **URL:** https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue
