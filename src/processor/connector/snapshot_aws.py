@@ -263,7 +263,8 @@ def _get_resources_from_list_function(response, method):
     and returns a list of responses.
     """
     logger.info("===============list function response==============")
-    logger.info(response)
+    logger.info("method => %s", method)
+    logger.debug("response => %s", response)
     if method == 'list_buckets':
         return [x['Name'] for x in response.get('Buckets', [])]
     elif method == 'describe_instances':
@@ -272,6 +273,10 @@ def _get_resources_from_list_function(response, method):
             for instance in reservation['Instances']:
                 final_list.append(instance['InstanceId'])
         return final_list
+    elif method == "describe_snapshots":
+        return [x["SnapshotId"] for x in response.get("Snapshots", [])]
+    elif method == "describe_images":
+        return [x["ImageId"] for x in response.get("Images", [])]
     elif method == 'describe_db_instances':
         return [x['DBInstanceIdentifier'] for x in response.get('DBInstances', [])]
     elif method == 'describe_db_clusters':
@@ -376,7 +381,7 @@ def _get_resources_from_list_function(response, method):
     elif method == 'describe_endpoints':
         return [x.get("EndpointIdentifier") for x in response.get('Endpoints', [])]
     elif method == 'describe_replication_instances':
-        return [""]
+        return [x.get("ReplicationInstanceIdentifier") for x in response.get('ReplicationInstances', [])]
     elif method == 'describe_security_groups':
         return [x.get("GroupId") for x in response.get('SecurityGroups', [])]
     elif method == 'list_secrets':
@@ -417,6 +422,12 @@ def _get_resources_from_list_function(response, method):
         return response.get("rulesPackageArns", [])
     elif method == 'describe_cluster_parameter_groups':
         return [x.get("ParameterGroupName") for x in response.get('ParameterGroups', [])]
+    elif method == 'get_domain_names':
+        return [x.get("domainName") for x in response.get('items', [])]
+    elif method == 'describe_configuration_recorder_status':
+        return [x.get("name") for x in response.get('ConfigurationRecordersStatus', [])]
+    elif method == 'describe_certificates':
+        return [x.get("CertificateIdentifier") for x in response.get('Certificates', [])]
     else:
         return []
 
@@ -548,7 +559,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         try:
             imageid = existing_json['Reservations'][0]['Instances'][0]['ImageId']
         except:
-            imageid = ""
+            imageid = resource_id
         return {
             'ImageIds': [imageid]
         }
@@ -655,6 +666,10 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         "get_resources", "get_stages", "get_authorizers"]:
         return {
             'restApiId': resource_id
+        }
+    elif client_str == "apigateway" and function_name == "get_domain_name":
+        return {
+            'domainName': resource_id
         }
     elif client_str == "route53" and function_name == "get_hosted_zone":
         return {
@@ -783,6 +798,11 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         return{
             'NetworkAclIds': [resource_id]
         }
+    elif client_str == "ec2" and function_name == "describe_snapshot_attribute":
+        return {
+            'Attribute': 'productCodes'|'createVolumePermission',
+            "SnapshotId": resource_id
+        }
     elif client_str=='rds'and function_name == 'describe_event_subscriptions':
         return{
             'SubscriptionName': resource_id
@@ -902,6 +922,27 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         return {
             'rulesPackageArns': [arn_str]
         }
+    elif client_str == "dms" and function_name == "describe_endpoints":
+        return {
+            'Filters': [{
+                "Name": "endpoint-id",
+                "Values": [resource_id]
+            }]
+        }
+    elif client_str == "dms" and function_name == "describe_replication_instances":
+        return {
+            'Filters': [{
+                "Name": "replication-instance-id",
+                "Values": [resource_id]
+            }]
+        }
+    elif client_str == "dms" and function_name == "describe_certificates":
+        return {
+            'Filters': [{
+                "Name": "certificate-id",
+                "Values": [resource_id]
+            }]
+        }
     else:
         return {}
 
@@ -1000,7 +1041,6 @@ def populate_aws_snapshot(snapshot, container=None):
                     except Exception as ex:
                         logger.info('Unable to create AWS client: %s', ex)
                         awsclient = None
-                    logger.info(awsclient)
                     if awsclient:
                         data = get_node(awsclient, node, snapshot_source, snapshot)
                         if data:
