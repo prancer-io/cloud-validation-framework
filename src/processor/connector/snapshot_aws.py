@@ -257,7 +257,7 @@ def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, e
             pass
     
 
-def _get_resources_from_list_function(response, method):
+def _get_resources_from_list_function(response, method, service_name=None):
     """
     Fetches the resources id from different responses
     and returns a list of responses.
@@ -320,6 +320,8 @@ def _get_resources_from_list_function(response, method):
         return [x.get('BackupArn',"") for x in response.get('BackupSummaries', [])]
     elif method == 'list_task_definitions':
         return response.get('taskDefinitionArns', [])
+    elif service_name == "emr" and method == 'list_clusters':
+        return [cluster["ClusterArn"] for cluster in response.get("Clusters",[])]
     elif method == 'list_clusters':
         clusters = []
         clusters.extend(response.get("clusters", []))
@@ -365,7 +367,7 @@ def _get_resources_from_list_function(response, method):
     elif method == 'describe_event_subscriptions':
         return [x.get('EventSubscriptionArn').split(':')[-1] for x in response.get('EventSubscriptionsList', [])]
     elif method == 'describe_db_snapshots':
-        return [x.get('DBSnapshotIdentifier') for x in response.get('DBSnapshots', [])]
+        return [x.get('DBInstanceIdentifier') for x in response.get('DBSnapshots', [])]
     elif method == 'list_web_acls':
         return [x.get("Name") for x in response.get('WebACLs', [])]
     elif method == 'describe_repositories':
@@ -428,9 +430,15 @@ def _get_resources_from_list_function(response, method):
         return [x.get("name") for x in response.get('ConfigurationRecordersStatus', [])]
     elif method == 'describe_certificates':
         return [x.get("CertificateIdentifier") for x in response.get('Certificates', [])]
+    elif method == 'describe_cache_clusters':
+        return [x.get("CacheClusterId") for x in response.get('CacheClusters', [])]
+    elif method == 'get_account_authorization_details':
+        return [x.get("Arn") for x in response.get('UserDetailList', [])]
+    elif method == 'describe_option_groups':
+        return [x.get("OptionGroupName") for x in response.get('OptionGroupsList', [])]
     else:
         return []
-
+        
 def get_all_nodes(awsclient, node, snapshot, connector):
     """ Fetch all the nodes from the cloned git repository in the given path."""
     db_records = []
@@ -460,7 +468,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
             try:
                 list_kwargs = _get_list_function_kwargs(awsclient.meta._service_model.service_name, list_function_name)
                 response = list_function(**list_kwargs)
-                list_of_resources = _get_resources_from_list_function(response, list_function_name)
+                list_of_resources = _get_resources_from_list_function(response, list_function_name, awsclient.meta._service_model.service_name)
             except Exception as ex:
                 list_of_resources = []
             detail_methods = get_field_value(node, 'detailMethods')
@@ -624,6 +632,10 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         "describe_load_balancer_policies"]:
         return {
             'LoadBalancerName': resource_id
+        }
+    elif client_str == "elbv2" and function_name in ["describe_load_balancer_attributes"]:
+        return {
+            'LoadBalancerArn': arn_str
         }
     elif client_str == "elb" and function_name in ["describe_load_balancers"]:
         return {
@@ -843,6 +855,10 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
             "repositoryNames": [resource_id]
         }
     elif client_str=='ecr' and function_name in ['get_repository_policy']:
+        return {
+            "repositoryName": resource_id
+        }
+    elif client_str=='ecr' and function_name in ['get_lifecycle_policy']:
         return {
             "repositoryName": resource_id
         }
