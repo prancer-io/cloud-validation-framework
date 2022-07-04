@@ -148,7 +148,7 @@ curl -X POST \
 
     `Required Fields`
 
-    - **collection:** Name of the collection for which you want to scheduler a Job. Optional if `pac` is true.
+    - **collection:** Name of the collection for which you want to schedule a Job. Optional if `pac` is true.
     - **schedule:** We can schedule the following types of Schedulers.
         - Once ( Ex. `once@11:00 date@10/26/2019` )
         - Hourly ( Ex. `hourly@11:00 date@10/26/2019` )
@@ -316,7 +316,7 @@ curl -X PUT \
 **CURL Sample**
 ```
 curl -X GET \
-  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/ \
+  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/?collection=aws_cspm_test&count=3&index=0 \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json'
 ```
@@ -330,8 +330,22 @@ curl -X GET \
 ```
 - **Param:**
 ```
-- No Parameters
+{
+    "collection": "azure_cloud",
+    "count" : 3,
+    "index" : 0
+}
 ```
+- **Explanation:**
+
+    `Optional Fields`
+
+    - **collection:** Name of the collection for which you want to filter the Jobs.
+    - **index:** determines from which index have to start populating of the data.
+    - **count:** determines the number of records per page need to populate in response.
+
+**NOTE:** 
+ - `index` and `count` parameters are useful for pagination. If no index pass then it will return all the records.
 
 **Response:**
 ```
