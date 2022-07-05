@@ -290,7 +290,7 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     put_in_currentdata('subscriptionId', sub_id)
     put_in_currentdata('tenant_id', tenant_id)
     token = get_access_token()
-    logger.debug('TOKEN: %s', token)
+    # logger.debug('TOKEN: %s', token)
     if not token:
         logger.info("Unable to get access token, will not run tests....")
         raise Exception("Unable to get access token, will not run tests....")

@@ -128,7 +128,7 @@ def set_azure_vault_data(secret_key=None, value=None):
     """Fetches the bearer token for Azure Vault API calls"""
     val = None
     vaulttoken = _get_vault_token()
-    logger.debug('Vault Token: %s', vaulttoken)
+    # logger.debug('Vault Token: %s', vaulttoken)
     if vaulttoken and secret_key and value:
         keyvault = config_value('VAULT', 'keyvault')
         # secret_key = config_value('VAULT', 'secret_key')
@@ -142,7 +142,7 @@ def set_azure_vault_data_with_response(secret_key=None, value=None):
     """Fetches the bearer token for Azure Vault API calls"""
     status, data = None, None
     vaulttoken = _get_vault_token()
-    logger.debug('Vault Token: %s', vaulttoken)
+    # logger.debug('Vault Token: %s', vaulttoken)
     if vaulttoken and secret_key and value:
         keyvault = config_value('VAULT', 'keyvault')
         logger.info('Keyvault: %s, key:%s', keyvault, '*' * len(secret_key))
@@ -153,7 +153,7 @@ def delete_azure_vault_data(secret_key=None):
     """"Delete a key from vault"""
     success = None
     vaulttoken = _get_vault_token()
-    logger.debug('Vault Token: %s', vaulttoken)
+    # logger.debug('Vault Token: %s', vaulttoken)
     if vaulttoken and secret_key:
         keyvault = config_value('VAULT', 'keyvault')
         logger.info('Keyvault: %s, key:%s', keyvault, '*' * len(secret_key))
