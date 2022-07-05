@@ -361,6 +361,56 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/manage/config -H 'a
 ```
 
 
+**Create a collection**
+---
+
+- This API is for creating a collection of type IAC("infrastructure") and PAC("application")
+
+**CURL Sample**
+```
+curl -X POST https://portal.prancer.io/prancer-customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>' -d '{ "collection" : "azure_iac", "collection_type" : "infrastructure" }
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
+- **Method:** POST
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+
+```
+{
+	"collection" : "azure_iac",
+	"collection_type" : "infrastructure"
+}
+```
+
+- **Explanation:**
+
+    `Required Fields`
+
+    - **collection:** Name of the collection for which you want to change the status.
+
+    `Optional Fields`
+
+    - **collection_type:** Valid values are "infrastructure", "application". Default value is "infrastructure". Invalid or missing values default to "infrastructure"
+
+
+**Response:**
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Collection created successfully",
+    "metadata": {},
+    "status": 200
+}
+```
+
 **Archive/Unarchive a collection**
 ---
 
@@ -368,11 +418,11 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/manage/config -H 'a
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/prancer-customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>' -d '{ "collection" : "azure_iac", "status" : "inactive" }
+curl -X DELETE https://portal.prancer.io/prancer-customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>' -d '{ "collection" : "azure_iac", "status" : "inactive" }
 ```
 
 - **URL:** https://portal.prancer.io/prancer-customer1/api/collection
-- **Method:** POST
+- **Method:** DELETE
 - **Header:**
 ```
     - content-type: application/json

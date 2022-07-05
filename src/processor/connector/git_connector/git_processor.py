@@ -77,6 +77,13 @@ def get_git_pwd(key='GIT_PWD'):
             logger.info("Git password from envirnment: %s", '*' * len(git_pwd))
     return git_pwd
 
+
+def mask_value(value):
+    if value:
+        return '*' * len(str(value))
+    return value
+
+
 def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=True):
     global CLONE_REPOS
     clonedir = None
@@ -107,7 +114,7 @@ def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=Tru
             accessToken = get_field_value(connector, 'httpsAccessToken')
             username = get_field_value(connector, 'httpsUser')
             if accessToken:
-                logger.info("AccessToken: %s" % accessToken)
+                logger.info("AccessToken: %s" % mask_value(accessToken))
                 pwd = get_field_value(connector, 'httpsPassword')
                 isremote = get_from_currentdata('remote')
                 if isremote:
@@ -117,7 +124,7 @@ def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=Tru
                 if not pwd:
                     pwd = get_pwd_from_vault(accessToken)
                     if pwd:
-                        logger.info("Git access token from vault: %s", '*' * len(pwd))
+                        logger.info("Git access token from vault: %s", mask_value(pwd))
                 if pwd:
                     gh = GithubFunctions()
                     gh.set_base_url(giturl)
@@ -147,7 +154,7 @@ def git_clone_dir(connector, giturl=None, branch=None, clone_specific_branch=Tru
                 if not pwd:
                     pwd = get_pwd_from_vault(username)
                     if pwd:
-                        logger.info("Git password from vault: %s", '*' * len(pwd))
+                        logger.info("Git password from vault: %s", mask_value(pwd))
                 if pwd:
                     git_cmd = 'git clone --depth 1 %s%s:%s@%s %s' % (schema, urllib.parse.quote_plus(username),
                                                         urllib.parse.quote_plus(pwd), other_part, repopath)
