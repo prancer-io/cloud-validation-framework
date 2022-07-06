@@ -480,7 +480,7 @@ def generate_gce(google_data, project, user):
     # Read the private key from the key path
     if not gce['private_key'] and get_field_value(user, "private_key_path"):
         private_key_path = get_field_value(user, "private_key_path")
-        logger.info("Private key path : %s ", private_key_path)
+        # logger.info("Private key path : %s ", private_key_path)
         try:
             gce['private_key'] = open(private_key_path, 'r', encoding="utf-8").read().replace("\\n","\n")
             if gce['private_key']:

@@ -37,7 +37,7 @@ def urlopen_request(urlreq, method):
         urlresp = request.urlopen(urlreq)
         respdata = urlresp.read()
         st_code = urlresp.status
-        logger.debug("%s status: %d, response: %s", method, st_code, respdata)
+        # logger.debug("%s status: %d, response: %s", method, st_code, respdata)
         check_and_add_error(st_code, "%s Status: %d" % (method, st_code))
         if isinstance(respdata, bytes):
             respdata = respdata.decode()
@@ -62,7 +62,7 @@ def http_delete_request(url, deldata=None, headers=None, name='DELETE'):
         return None, None
     if deldata:
         encdata = parse.urlencode(deldata).encode()
-        logger.info('%s: data: %s', name, encdata)
+        # logger.info('%s: data: %s', name, encdata)
         urlreq = request.Request(url, data=encdata, headers=get_request_headers(headers),
                                  method=name)
     else:
@@ -102,7 +102,7 @@ def http_put_request(url, mapdata, headers=None, name='PUT', json_type=False):
         putdata = parse.urlencode(mapdata).encode()
     else:
         putdata = json.dumps(mapdata, cls=json.JSONEncoder).encode('utf-8')
-    logger.info('%s: data: %s', name, putdata)
+    # logger.info('%s: data: %s', name, putdata)
     urlreq = request.Request(url, data=putdata, headers=get_request_headers(headers),
                              method='PUT')
     return urlopen_request(urlreq, name)
