@@ -1,9 +1,11 @@
 """Reporting related utility functions."""
 import hashlib
 import time
+from datetime import datetime
 from bson.objectid import ObjectId
 from processor.helper.config.config_utils import config_value
 from collections import OrderedDict
+from processor.helper.config.rundata_utils import get_from_currentdata
 from processor.helper.json.json_utils import save_json_to_file, collectiontypes, OUTPUT
 from processor.database.database import DATABASE, DBNAME, find_and_update_document, get_documents, insert_one_document, update_one_document
 from processor.logging.log_handler import get_dblogger
@@ -13,8 +15,9 @@ dbname = None
 collection = None
 
 def json_record(container, filetype, filename, json_data=None):
+
     db_record = {
-        "timestamp": int(time.time() * 1000),
+        "timestamp": int(datetime.utcnow().timestamp() * 1000),
         "container": container,
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "type": filetype,
@@ -28,13 +31,18 @@ def json_record(container, filetype, filename, json_data=None):
 
 def create_output_entry(container, test_file="", filesystem=False):
     global doc_id, dbname, collection
+    session_id = get_from_currentdata("session_id")
+    isremote = get_from_currentdata('remote')
+    isremote = True if isremote else False
     od = OrderedDict()
     od["$schema"] = ""
     od["contentVersion"] = "1.0.0.0"
     od["fileType"] = OUTPUT
-    od["timestamp"] = int(time.time() * 1000)
+    od["timestamp"] = int(datetime.utcnow().timestamp() * 1000)
     od["container"] = container
     od["status"] = "Running"
+    od["session_id"] = session_id
+    od["remote_run"] = isremote
     dblog = get_dblogger()
     od["log"] = dblog if dblog else ""
     if not filesystem:
@@ -65,14 +73,19 @@ def dump_output_results(results, container, test_file, snapshot, filesystem=True
     """ Dump the report in the json format for test execution results."""
     dbname = config_value(DATABASE, DBNAME)
     collection = config_value(DATABASE, collectiontypes[OUTPUT])
+    session_id = get_from_currentdata("session_id")
     if not doc_id:
+        isremote = get_from_currentdata('remote')
+        isremote = True if isremote else False
         od = OrderedDict()
         od["$schema"] = ""
         od["contentVersion"] = "1.0.0.0"
         od["fileType"] = OUTPUT
-        od["timestamp"] = int(time.time() * 1000)
+        od["timestamp"] = int(datetime.utcnow().timestamp() * 1000)
         od["snapshot"] = snapshot
         od["container"] = container
+        od["session_id"] = session_id
+        od["remote_run"] = isremote
         dblog = get_dblogger()
         od["log"] = dblog if dblog else ""
         if filesystem:

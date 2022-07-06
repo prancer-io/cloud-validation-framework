@@ -3,15 +3,15 @@
 
 - Report APIs are use for filter the reports.
 
-**Resources - Search**
+**Report - Search**
 ---
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "start_date":"2021-02-17", "end_date":"2021-02-17", "container": "azure_crawler_demo", "timestamp": 1613544407026, "provider" : "Azure", "compliances" : ["CIS","PCI"], "services" : ["Networking"], "status": "failed", "count" : 5, "index" : 0 }'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/report/search -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{ "start_date":"2021-02-17", "end_date":"2021-02-17", "container": "azure_crawler_demo", "timestamp": 1613544407026, "provider" : "Azure", "compliances" : ["CIS","PCI"], "services" : ["Networking"], "status": "failed", "count" : 5, "index" : 0 }'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/report/search
+- **URL:** https://portal.prancer.io/prancer-customer1/api/report/search
 - **Method:** GET
 - **Header:**
 ```
@@ -32,6 +32,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
     "count" : 3,
     "index" : 0,
     "provider_type" : "cloud",
+    "type" : "csv",
     "search" : <search_text>
 }
 ```
@@ -51,6 +52,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
     - **services:** A valid list of services for filter the services. See [Default - tags](/prancer-ent-apis/tags) API for get valid services list.
     - **status:** Filter the reports by report's result. ( "Passed" or "Failed" )
     - **provider_type:** Filter the reports by provider types. Valid values for provider types are `cloud` and `iac`. If the provider type not pass in request parameter then it will return report of last compliance run.
+    - **type:** This field if present and set to csv will return a csv report for the report instead of a json response. Only Valid value for type is `csv`. If the protype is not set to `csv` it will be ignored.
     - **search:** Search reports by title of the report.
 
  **NOTE:** 
@@ -251,6 +253,7 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {
         "count": 3,
@@ -260,3 +263,32 @@ curl -X POST https://portal.prancer.io/customer1/api/report/search -H 'authoriza
     "status": 200
 }
 ```
+- CSVResponse:
+```
+Prancer Infrastructure Security Findings,,,
+Report run by:,ajey.khanapuri@prancer.io,,
+Report Date:,2022-02-11T10:50:59.000Z,,
+Timestamp:,2022-02-11T10:50:59.000Z,,
+Provider,,,
+Collection,KI_k8s,,
+Applied Compliance Test,13,,
+Total Cloud Resources,4,,
+Total Files,4,,
+Passed Scenarios,12,,
+Failed Scenarios,1,,
+Status,Title,Severity,Path
+passed,Restrict Traffic Among Pods with a Network Policy,Medium,/network/network-policy.yaml
+passed,Ensure that Containers are not running in privileged mode,Medium,/deployment/deployment-definition.yaml
+passed,The default namespace should not be used,Medium,/deployment/deployment-definition.yaml
+passed, Ensure pods outside of kube-system do not have access to node volume,Medium,/deployment/deployment-definition.yaml
+failed,Apply Security Context to Your Pods and Containers,Medium,/deployment/deployment-definition.yaml
+passed,Minimize the admission of privileged containers (PSP),Medium,/pods/pod-security-policy.yaml
+passed,Minimize the admission of root containers (PSP),Medium,/pods/pod-security-policy.yaml
+passed,Minimize the admission of containers with the NET_RAW capability (PSP),Medium,/pods/pod-security-policy.yaml
+passed,Minimize the admission of containers wishing to share the host IPC namespace (PSP),Medium,/pods/pod-security-policy.yaml
+passed,Minimize the admission of containers wishing to share the host network namespace (PSP),Medium,/pods/pod-security-policy.yaml
+passed,Minimize the admission of containers wishing to share the host process ID namespace (PSP),Medium,/pods/pod-security-policy.yaml
+passed,Minimize the admission of containers with allowPrivilegeEscalation (PSP),Medium,/pods/pod-security-policy.yaml
+passed, Ensure that Service Account Tokens are only mounted where necessary (RBAC),Medium,/test-multi-yaml/multiple-yamls/multiple-helm-response_multiple_yaml_0.yaml
+```
+

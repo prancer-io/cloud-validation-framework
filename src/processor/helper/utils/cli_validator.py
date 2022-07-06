@@ -52,6 +52,8 @@
 
 """
 
+import pyfiglet
+from termcolor import colored
 import argparse
 import threading
 import sys
@@ -69,7 +71,7 @@ from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
 from processor import __version__
 import traceback
 from jinja2 import Environment, FileSystemLoader
-
+from processor.database.database import find_and_update_document, DATABASE, DBNAME
 from processor.reporting.json_output import create_output_entry, dump_output_results
 current_progress = None
 
@@ -194,6 +196,8 @@ def validator_main(arg_vals=None, delete_rundata=True):
            the tests execution could not be started or completed.
     """
     global  current_progress
+    result = pyfiglet.figlet_format("Prancer")
+    print(colored(result, 'red'))
     cmd_parser = argparse.ArgumentParser("prancer", formatter_class=argparse.RawDescriptionHelpFormatter,
                                          epilog='''\
 Example: prancer <collection>
@@ -260,7 +264,7 @@ Run prancer for a list of snapshots
     if isRemote:
         from processor.helper.utils.compliance_utils import create_container_compliance, get_api_server, \
             get_collection_api, get_validate_token_api, get_company_prefix
-        from processor.helper.httpapi.http_utils import http_get_request, http_json_post_request
+        from processor.helper.httpapi.http_utils import http_get_request_useragent, http_json_post_request_useragent
         remoteValid = False
         if not args.gittoken:
             args.gittoken = os.environ['GITTOKEN'] if 'GITTOKEN' in os.environ else None
@@ -278,7 +282,8 @@ Run prancer for a list of snapshots
                     hdrs = {
                         "Content-Type": "application/json"
                     }
-                    status, data = http_json_post_request(validationUri, postdata, headers=hdrs, name='API TOKEN')
+                    status, data = http_json_post_request_useragent(validationUri, postdata, headers=hdrs,
+                                                                    useragent=True, name='API TOKEN')
                     if status and isinstance(status, int) and status == 200:
                         args.apitoken = data['data']['token']
                         collectionUri = get_collection_api(apiserver, args.container)
@@ -286,7 +291,7 @@ Run prancer for a list of snapshots
                             "Authorization": "Bearer %s" % args.apitoken,
                             "Content-Type": "application/json"
                         }
-                        status, data = http_get_request(collectionUri, headers=hdrs)
+                        status, data = http_get_request_useragent(collectionUri, headers=hdrs, useragent=True)
                         if status and isinstance(status, int) and status == 200:
                             if 'data' in data:
                                 collectionData = data['data']
@@ -434,6 +439,8 @@ Run prancer for a list of snapshots
         #     args.db  = DBVALUES.index(NONE)
 
         put_in_currentdata(EXCLUSION, populate_container_exclusions(args.container, fs))
+        session_id = "session_" + str(int(datetime.datetime.utcnow().timestamp() * 1000))
+        put_in_currentdata("session_id", session_id)
 
         if args.file_content:
             current_progress = 'COMPLIANCESTART'
@@ -456,6 +463,8 @@ Run prancer for a list of snapshots
             current_progress = 'CRAWLERSTART'
             if not crawl_and_run:
                 put_in_currentdata("run_type", CRAWL)
+            logger.info("Updating %s container is_run status", args.container)
+            update_collection_run_status(args.db, args.container)
             generate_container_mastersnapshots(args.container, fs)
             current_progress = 'CRAWLERCOMPLETE'
         
@@ -463,6 +472,8 @@ Run prancer for a list of snapshots
             current_progress = 'COMPLIANCESTART'
             if not crawl_and_run:
                 put_in_currentdata("run_type", COMPLIANCE)
+            logger.info("Updating %s container is_run status", args.container)
+            update_collection_run_status(args.db, args.container)
             create_output_entry(args.container, test_file="-", filesystem=True if args.db ==  0 else False)
             # Normal flow
             snapshot_status = populate_container_snapshots(args.container, fs)
@@ -555,3 +566,22 @@ def gen_config_file(fname, path, template, data):
         f.write(output_from_parsed_template)
     return output_from_parsed_template
 
+
+def update_collection_run_status(db, container):
+    """
+    Update is_run status of collection
+    """
+    if db:
+        dbname = config_value(DATABASE, DBNAME)
+        find_and_update_document(
+            "structures",
+            dbname,
+            query={
+                "json.containers.name" : container
+            },
+            update_value={ 
+                "$set": {
+                    "json.containers.$.is_run": True
+                }
+            }
+        )

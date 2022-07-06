@@ -2,6 +2,7 @@
    Common file for running validator functions.
 """
 import json
+import tempfile
 import requests
 import copy
 import hashlib
@@ -15,7 +16,7 @@ from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
     delete_from_currentdata, get_from_currentdata, get_dbtests
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
-    collectiontypes, STRUCTURE, make_snapshots_dir, store_snapshot
+    collectiontypes, STRUCTURE, make_snapshots_dir, save_json_to_file, store_snapshot
 from processor.helper.httpapi.restapi_azure import get_access_token,\
     get_web_client_data, get_client_secret, json_source
 from processor.connector.vault import get_vault_data
@@ -24,6 +25,7 @@ from processor.helper.config.config_utils import config_value, framework_dir, CU
 from processor.database.database import insert_one_document, COLLECTION, get_collection_size, create_indexes, \
      DATABASE, DBNAME, sort_field, get_documents
 from processor.connector.snapshot_utils import validate_snapshot_nodes
+from processor.templates.azure.azure_parser import AzureTemplateParser
 
 
 logger = getlogger()
@@ -150,6 +152,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
     """ Fetch node from azure portal using rest API."""
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
+    session_id = get_from_currentdata("session_id")
     db_record = {
         "structure": "azure",
         "reference": sub_name,
@@ -165,6 +168,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
         "masterSnapshotId": None,
         "collection": collection.replace('.', '').lower(),
         "region" : "",
+        "session_id": session_id,
         "json": {"resources": []}  # Refactor when node is absent it should None, when empty object put it as {}
     }
             
@@ -184,12 +188,15 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
             urlstr = 'https://management.azure.com/subscriptions/%s%s?api-version=%s'
             url = urlstr % (sub_id, node['path'], version)
          
+        resource_group = ""
+        exmatch = re.search(r'/subscriptions.*/resourceGroups/(.*?)/', node['path'], re.I)
+        if exmatch:
+            resource_group = exmatch.group(1)
+         
         child_resource_type_list = node.get('type', "").split("/")   
         if len(child_resource_type_list) == 2:
             exmatch = re.search(r'/subscriptions.*/resourceGroups/.*?/', node['path'], re.I)
             if exmatch:
-                logger.info("exmatch.groups()[0]")
-                logger.info(exmatch.group(0))
                 export_template_url = 'https://management.azure.com%sexportTemplate?api-version=2021-04-01' % (exmatch.group(0).lower())
                 status, data = export_template(export_template_url, hdrs, node['path'])
                 
@@ -197,7 +204,23 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
         
         if status and isinstance(status, int) and status == 200:
             if data and data.get("resources"):
-                db_record['json']['resources'] = data.get("resources")
+                try:
+                    temp_dir = tempfile.mkdtemp()
+                    resource_file = ("%s/%s") % (temp_dir, "resource_file.json")
+                
+                    save_json_to_file(data, resource_file)
+    
+                    azure_template_parser = AzureTemplateParser(resource_file, parameter_file=[])
+                    template_json = azure_template_parser.parse()
+                
+                    os.remove(resource_file)
+                except Exception as e:
+                    logger.info("Exception: %s, Snapshot: %s", str(e), node['snapshotId'])
+                    template_json = data
+
+                db_record['json']['resources'] = template_json.get("resources")
+                db_record['json']["subscription_id"] = sub_id
+                db_record['json']["resource_group"] = resource_group
         else:
             status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
         
@@ -212,6 +235,8 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
                 #             if "%s/" % all_data_record["json"]["resources"][0].get("id") in node["path"]:
                 #                 all_data_record["json"]["resources"].append(data)
             
+                db_record['json']["subscription_id"] = sub_id
+                db_record['json']["resource_group"] = resource_group
                 db_record['json']['resources'].append(data)
                 db_record['region'] = data.get("location")
                 data_str = json.dumps(data)

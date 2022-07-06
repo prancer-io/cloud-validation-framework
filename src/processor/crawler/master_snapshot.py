@@ -29,6 +29,7 @@ import copy
 import hashlib
 
 from bson.objectid import ObjectId
+from processor.helper.config.rundata_utils import get_from_currentdata
 from processor.logging.log_handler import getlogger, get_dblog_handler
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     get_container_snapshot_json_files, MASTERSNAPSHOT, SNAPSHOT,\
@@ -43,6 +44,7 @@ from processor.connector.snapshot_google import populate_google_snapshot
 from processor.connector.snapshot_kubernetes import populate_kubernetes_snapshot
 from processor.connector.populate_json import pull_json_data
 from processor.helper.file.file_utils import exists_file,remove_file
+from processor.template_processor.base.base_template_processor import set_processed_templates
 
 doc_id = None
 logger = getlogger()
@@ -56,7 +58,8 @@ mastersnapshot_fns = {
 }
 
 REMOVE_SNAPSHOTGEN_FIELDS = [
-    "exclude"
+    "exclude",
+    "source",
 ]
 
 def generate_snapshot(snapshot_json_data, snapshot_file_data):
@@ -78,15 +81,19 @@ def generate_snapshot(snapshot_json_data, snapshot_file_data):
                                     isinstance(snapshot_file_data[mastersnapshotId], list):
                                 for sid_data in snapshot_file_data[mastersnapshotId]:
                                     structure = sid_data.pop('structure', None)
-                                    if structure and structure == 'aws':
-                                        newnode = {}
-                                    else:
-                                        newnode = copy.deepcopy(node)
+                                    # if structure and structure == 'aws':
+                                    #     newnode = {}
+                                    # else:
+                                    if "source" in sid_data and sid_data["source"] != snapshot.get("source"):
+                                        continue
+                                    newnode = copy.deepcopy(node)
                                     newnode.update(sid_data)
                                     
                                     for field in REMOVE_SNAPSHOTGEN_FIELDS:
                                         if field in newnode:
                                             del newnode[field]
+                                        # if field in sid_data:
+                                        #     del sid_data[field]
                                     
                                     new_nodes.append(newnode)
                         # if new_nodes:
@@ -131,8 +138,23 @@ def generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_d
         logger.error("Json MasterSnapshot does not contain snapshots, next!...")
         return snapshot_data
     for mastersnapshot in mastersnapshots:
+        set_processed_templates({})
         current_data = generate_mastersnapshot(mastersnapshot)
-        snapshot_data.update(current_data)
+        # snapshot_data.update(current_data)
+        for ms_id, node_list in current_data.items():
+            if isinstance(node_list, list):
+                if ms_id in snapshot_data:
+                    if isinstance(snapshot_data[ms_id], list):
+                        snapshot_data[ms_id].extend(node_list)
+                    else:
+                        snapshot_data[ms_id] = node_list
+                else:
+                    snapshot_data[ms_id] = node_list
+            else:
+                logger.error("No snapshot found for %s connector " % (get_field_value(mastersnapshot, "source")))
+                if ms_id not in snapshot_data:
+                    snapshot_data[ms_id] = node_list
+
     # for each snapshot_json_data, update the existing json data or add the new json data here.
     return snapshot_data
 
@@ -394,7 +416,7 @@ def generate_crawler_run_output(container):
                     "id" : str(snapshot['_id']), 
                     "name" : snapshot['name']
                 } for snapshot in snapshots]
-    
+    session_id = get_from_currentdata("session_id")
     db_record = { 
         "timestamp" : timestamp,     
         "checksum" : hashlib.md5("{}".encode('utf-8')).hexdigest(), 
@@ -414,7 +436,8 @@ def generate_crawler_run_output(container):
             "master_snapshot_list" : master_snapshots, 
             "output_type" : "crawlerrun", 
             "results" : [],
-            "status": "Running"
+            "status": "Running",
+            "session_id": session_id,
         }
     }
     doc_id = insert_one_document(db_record, db_record['collection'], dbname, False)

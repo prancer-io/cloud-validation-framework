@@ -79,6 +79,20 @@ def http_get_request(url, headers=None, name='HTTP GET'):
     return urlopen_request(urlreq, name)
 
 
+def http_get_request_useragent(url, headers=None, useragent=False, name='HTTP GET'):
+    """Get method sends and accepts JSON format."""
+    logger.info("%s %s  .......", name, url)
+    if not url:
+        return None, None
+    urlreq = request.Request(url, method='GET')
+    myhdrs = get_request_headers(headers)
+    if useragent:
+        myhdrs.update({'User-Agent': 'Mozilla/5.0'})
+        logger.info("Updated useragent for the request: Mozilla/5.0")
+    urlreq.headers = myhdrs
+    return urlopen_request(urlreq, name)
+
+
 def http_put_request(url, mapdata, headers=None, name='PUT', json_type=False):
     """Put method sends and accepts JSON format."""
     logger.info("HTTP %s %s  .......", name, url)
@@ -121,4 +135,20 @@ def http_json_post_request(url, mapdata, headers=None, name='HTTP POST:'):
     logger.debug('%s: data: %s', name, postdata)
     urlreq = request.Request(url, data=postdata.encode(), headers=myhdrs,
                              method='POST')
+    return urlopen_request(urlreq, name)
+
+
+def http_json_post_request_useragent(url, mapdata, headers=None, useragent=False, name='HTTP POST:'):
+    """Post method sends and accepts JSON format"""
+    logger.info("%s %s  .......", name, url)
+    if not url:
+        return None, None
+    myhdrs = get_request_headers(headers)
+    postdata = json.dumps(mapdata)
+    logger.debug('%s: data: %s', name, postdata)
+    urlreq = request.Request(url, data=postdata.encode(), method='POST')
+    if useragent:
+        myhdrs.update({'User-Agent': 'Mozilla/5.0'})
+        logger.info("Updated useragent for the request: Mozilla/5.0")
+    urlreq.headers = myhdrs
     return urlopen_request(urlreq, name)

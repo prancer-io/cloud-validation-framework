@@ -98,23 +98,11 @@ def get_google_data(snapshot_source):
 def generate_request_url(base_url, project_id):
     """Generate request url from base url"""
     try:
-        path_list = base_url.split("https://")
-        path_list = path_list[1].split('/')
+        logger.info("base_url %s", base_url)
+        updated_base_url = re.sub(r"{project}|{projectId}", project_id, base_url)
+        updated_base_url = re.sub(r"{zone}", "-", updated_base_url)
 
-        request_url = "https:/"
-        for path in path_list:
-            field_expresion = re.compile("\{([^}]+)\}")
-            field = field_expresion.search(path)
-            if field:
-                field = path[1:len(path)-1]
-                if field in ["projectId", "project"]:
-                    path = project_id
-                elif field in ["zone"]:
-                    path = "-"
-            request_url = "%s/%s" % (request_url, path)
-
-        logger.info(request_url)
-        return request_url
+        return updated_base_url
     except:
         logger.error("Invalid api url")
         return None
@@ -141,6 +129,7 @@ def get_node(credentials, node, snapshot_source, snapshot):
     project_id = get_field_value_with_default(snapshot, 'project-id',"")
     path = get_field_value_with_default(node, 'path',"")
     zone = re.findall(r"(?<=zones\/)[a-zA-Z0-9\-]*(?=\/)", path)
+    session_id = get_from_currentdata("session_id")
     db_record = {
         "structure": "google",
         "error": None,
@@ -155,6 +144,7 @@ def get_node(credentials, node, snapshot_source, snapshot):
         "snapshotId": node['snapshotId'],
         "collection": collection.replace('.', '').lower(),
         "region" : zone[0] if zone else "",
+        "session_id": session_id,
         "json": {}  # Refactor when node is absent it should None, when empty object put it as {}
     }
 
@@ -202,7 +192,7 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
     parts = snapshot_source.split('.')
     project_id = get_field_value_with_default(snapshot, 'project-id',"")
     node_type = get_field_value_with_default(node, 'type',"")
-    
+    session_id = get_from_currentdata("session_id")
     db_record = {
         "structure": "google",
         "error": None,
@@ -217,6 +207,7 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
         "snapshotId": None,
         "masterSnapshotId": [node['masterSnapshotId']],
         "collection": collection.replace('.', '').lower(),
+        "session_id": session_id,
         "json": {},  # Refactor when node is absent it should None, when empty object put it as {}
         "items": []
     }
@@ -229,12 +220,15 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
 
         base_node_type_list = node_type.split("/")
         if len(base_node_type_list) > 1:
-            base_node_type = base_node_type_list[1]
+            base_node_type = "/".join(base_node_type_list[1:])
         else:
             logger.error("Invalid node type '%s'", node_type)
             return db_record
 
         request_url = get_api_path(base_node_type)
+        if not request_url:
+            logger.error("API URL not set in google parameters for resource type: %s", base_node_type)
+
         request_url = generate_request_url(request_url, project_id)
         logger.info("Invoke request for get snapshot: %s", request_url)
         
@@ -259,9 +253,9 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
                 check_node_type = ".".join(node_type_list)
 
             db_record['json'] = data
-            if response_param in data:
-                db_record['items'] = data[response_param]
-            elif "items" in data:
+            data_filter = response_param.split("/")[-1]
+
+            if "items" in data:
                 if isinstance(data['items'], dict):
                     for name, scoped_dict in data['items'].items():
                         if response_param in scoped_dict:
@@ -269,6 +263,11 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
 
                 if not db_record['items']:
                     db_record['items'] = data['items']
+            elif data_filter in data:
+                db_record['items'] = data[data_filter]
+            
+            snapshot_data["project-id"] = project_id
+            snapshot_data["request_url"] = request_url
 
             set_snapshot_data(node, db_record['items'], snapshot_data)
 
@@ -300,7 +299,7 @@ def set_snapshot_data(node, items, snapshot_data):
             else:
                 resource_type = node_type.split("/")[1].split(".")[-2]
                 if resource_type in resource and isinstance(resource[resource_type], list):
-                    if len(resource[resource_type]) > 0 and 'selfLink' in resource[resource_type][0]:
+                    if len(resource[resource_type]) > 0 and ('selfLink' in resource[resource_type][0] or "id" in resource[resource_type][0] or "name" in resource[resource_type][0]):
                         resource_items += resource[resource_type]
     else:
         resource_items = items
@@ -315,6 +314,8 @@ def set_snapshot_data(node, items, snapshot_data):
             ignoreNode = False
         else:
             ignoreNode  = True
+        
+    request_url = get_field_value_with_default(snapshot_data, 'request_url',"")
 
     exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
     resourceExclusions = {}
@@ -326,12 +327,20 @@ def set_snapshot_data(node, items, snapshot_data):
 
     for item in resource_items:
         count += 1
-        path_list = item['selfLink'].split("https://")
+        if "selfLink" in item.keys():
+            request_url = item['selfLink']
+        elif "id" in item.keys():
+            request_url = request_url+"/"+item["id"].split(":")[-1]
+        elif "name" in item.keys():
+            request_url = request_url+"/"+item["name"]
+
+        path_list = request_url.split("https://")
+
         path_list = path_list[1].split('/')
         path = "/".join(path_list[1:])
 
         found_old_record = False
-        for masterSnapshotId, snapshot_list in snapshot_data.items():
+        for snapshot_list in snapshot_data.values():
             old_record = None
             if isinstance(snapshot_list, list):
                 for item in snapshot_list:

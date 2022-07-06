@@ -485,65 +485,66 @@ class ComparatorV01:
                 inputjson.update({ms_id[sid]: snapshot_doc})
         results = []
 
-        test_rule = self.rule
-        rule_matched = re.match(r'^file\((.*)\)$', test_rule, re.I)
-        if rule_matched:
-            rego_file_name = self.rego_rule_filename(rule_matched.groups()[0], self.container)
-            if not rego_file_name:
-                python_testcase = "processor.comparison.rules.%s.%s"%(self.snapshots[0]["type"],rule_matched.groups()[0].split(".")[0])
-                module = import_module(python_testcase)
-                if not module and logger.level == logging.DEBUG:
-                    self.log_compliance_info(testId)
-                    logger.error('\t\tERROR: %s missing', rule_matched.groups()[0])
-                    logger.warning('\t\tRESULT: SKIPPED')
-                    return results
-            else:            
-                python_testcase = rule_matched.groups()[0].split(".")[0]
-        
-        if isinstance(rule_expr, list):
-            for rule in rule_expr:
-                function_name = rule["eval"].rsplit(".", 1)[-1] if "eval" in rule else ""
-                evalmessage = rule['message'].rsplit('.', 1)[-1] if "message" in rule else ""
+        if inputjson:
+            test_rule = self.rule
+            rule_matched = re.match(r'^file\((.*)\)$', test_rule, re.I)
+            if rule_matched:
+                rego_file_name = self.rego_rule_filename(rule_matched.groups()[0], self.container)
+                if not rego_file_name:
+                    python_testcase = "processor.comparison.rules.%s.%s"%(self.snapshots[0]["type"],rule_matched.groups()[0].split(".")[0])
+                    module = import_module(python_testcase)
+                    if not module and logger.level == logging.DEBUG:
+                        self.log_compliance_info(testId)
+                        logger.error('\t\tERROR: %s missing', rule_matched.groups()[0])
+                        logger.warning('\t\tRESULT: SKIPPED')
+                        return results
+                else:
+                    python_testcase = rule_matched.groups()[0].split(".")[0]
 
-                test_function = import_from(python_testcase, function_name)
-                if not test_function:
-                    self.log_compliance_info(testId)
-                    logger.info('\t\tERROR: %s missing', rule_matched.groups()[0])
-                    logger.warning('\t\tRESULT: SKIPPED')
-                    return results
-                
-                paths = self.snapshots[0]["paths"]
+            if isinstance(rule_expr, list):
+                for rule in rule_expr:
+                    function_name = rule["eval"].rsplit(".", 1)[-1] if "eval" in rule else ""
+                    evalmessage = rule['message'].rsplit('.', 1)[-1] if "message" in rule else ""
 
-                result = test_function(inputjson, kwargs={"paths": paths})
-
-                if result.get("issue") == True:
-                    result["result"] = "failed"
-                    
-                    self.log_compliance_info(testId)
-                    self.log_result(result)
-                    json_result = {
-                        'eval': rule["eval"], 
-                        'result': result["result"], 
-                        'message': result.get(evalmessage, ""),
-                        'id' : rule.get("id"),
-                        'remediation_description' : rule.get("remediationDescription"),
-                        'remediation_function' : rule.get("remediationFunction"),
-                    }
-
-                    if result.get("errors"):
-                        json_result["errors"] = result.get("errors",[])
-
-                    results.append(json_result)
-
-                elif result.get("issue") == False:
-                    if logger.level == logging.DEBUG:
+                    test_function = import_from(python_testcase, function_name)
+                    if not test_function:
                         self.log_compliance_info(testId)
                         logger.info('\t\tERROR: %s missing', rule_matched.groups()[0])
                         logger.warning('\t\tRESULT: SKIPPED')
+                        return results
                 
-                elif result["issue"] == None:
-                    logger.error("\t\tERROR: have problem in running test")
-                    logger.error(result[evalmessage])
+                    paths = self.snapshots[0]["paths"]
+
+                    result = test_function(inputjson, kwargs={"paths": paths})
+
+                    if result.get("issue") == True:
+                        result["result"] = "failed"
+                    
+                        self.log_compliance_info(testId)
+                        self.log_result(result)
+                        json_result = {
+                            'eval': rule["eval"], 
+                            'result': result["result"], 
+                            'message': result.get(evalmessage, ""),
+                            'id' : rule.get("id"),
+                            'remediation_description' : rule.get("remediationDescription"),
+                            'remediation_function' : rule.get("remediationFunction"),
+                        }
+
+                        if result.get("errors"):
+                            json_result["errors"] = result.get("errors",[])
+
+                        results.append(json_result)
+
+                    elif result.get("issue") == False:
+                        if logger.level == logging.DEBUG:
+                            self.log_compliance_info(testId)
+                            logger.info('\t\tERROR: %s missing', rule_matched.groups()[0])
+                            logger.warning('\t\tRESULT: SKIPPED')
+                
+                    elif result["issue"] == None:
+                        logger.error("\t\tERROR: have problem in running test")
+                        logger.error(result[evalmessage])
 
         return results
                 

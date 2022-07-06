@@ -32,9 +32,9 @@ def get_snapshot_file(snapshot_file, container, dbname, filesystem):
         snapshot_file = '%s/%s/%s' % (get_test_json_dir(), container, file_name)
         snapshot_json_data = json_from_file(snapshot_file)
     else:
-        parts = snapshot_file.split('.')
+        # parts = snapshot_file.split('.')
         collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
-        qry = {'container': container, 'name': parts[0]}
+        qry = {'container': container, 'name': snapshot_file}
         sort = [sort_field('timestamp', False)]
         docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
         logger.info('Number of Snapshot Documents: %s', len(docs))
@@ -82,6 +82,27 @@ def run_validation_test(version, container, dbname, collection_data, testcase, e
         results.update(testcase)
         return[results]
 
+def get_min_severity_error_list():
+    severity_list = []
+    console_min_severity_error = config_value("RESULT", "console_min_severity_error", default="Low")
+    if str(console_min_severity_error).lower() == "low":
+        severity_list = ["low", "medium", "high"]
+    elif str(console_min_severity_error).lower() == "medium":
+        severity_list = ["medium", "high"]
+    elif str(console_min_severity_error).lower() == "high":
+        severity_list = ["high"]
+    return severity_list
+
+def validate_result(resultset, finalresult):
+    min_severity_list = get_min_severity_error_list()
+    if resultset:
+        for result in resultset:
+            if 'result' in result:
+                if not re.match(r'passed', result['result'], re.I) and str(result.get("severity", "low")).lower() in min_severity_list:
+                    logger.info("\tTEST: %s", result)
+                    finalresult = False
+                    break
+    return finalresult
 
 def run_file_validation_tests(test_file, container, filesystem=True, snapshot_status=None):
     # logger.info("*" * 50)
@@ -115,11 +136,7 @@ def run_file_validation_tests(test_file, container, filesystem=True, snapshot_st
         # else:
         #     dump_output_results(resultset, container, test_file, snapshot, filesystem)
         dump_output_results(resultset, container, test_file, snapshot, filesystem)
-        for result in resultset:
-            if 'result' in result:
-                if not re.match(r'passed', result['result'], re.I):
-                    finalresult = False
-                    break
+        finalresult = validate_result(resultset, finalresult)
     else:
         # TODO: NO test cases in this file.
         # LOG HERE that no test cases are present in this file.
@@ -292,11 +309,7 @@ def run_container_validation_tests_filesystem(container, snapshot_status=None):
             # else:
             #     dump_output_results(resultset, container, test_file, snapshot, True)
             dump_output_results(resultset, container, test_file, snapshot, True)
-            for result in resultset:
-                if 'result' in result:
-                    if not re.match(r'passed', result['result'], re.I):
-                        finalresult = False
-                        break
+            finalresult = validate_result(resultset, finalresult)
         else:
             logger.error('\tERROR: No mastertest Documents found!')
             finalresult = False
@@ -353,11 +366,7 @@ def run_filecontent_validation(container, snapshot_status=None):
         elif resultset:
             snapshot = test_json_data['snapshot'] if 'snapshot' in test_json_data else ''
             dump_output_results(resultset, container, test_file, snapshot, True)
-            for result in resultset:
-                if 'result' in result:
-                    if not re.match(r'passed', result['result'], re.I):
-                        finalresult = False
-                        break
+            finalresult = validate_result(resultset, finalresult)
         else:
             logger.error('\tERROR: No mastertest Documents found!')
             finalresult = False
@@ -410,19 +419,14 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                             return {}
                     resultset = run_json_validation_tests(doc['json'], container, False, dirpath=dirpath)
                     if resultset:
-                        # dump_output_results(resultset, container, test_file, snapshot, False)
-                        for result in resultset:
-                            if 'result' in result:
-                                if not re.match(r'passed', result['result'], re.I):
-                                    finalresult = False
-                                    break
+                        finalresult = validate_result(resultset, finalresult)
                 except Exception as e:
                     # dump_output_results([], container, "-", snapshot, False)
                     raise e
     else:
         logger.info('No test Documents found!')
         test_files_found = False
-        finalresult = False
+        # finalresult = False
     # For mastertest files
     collection = config_value(DATABASE, collectiontypes[MASTERTEST])
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
@@ -457,20 +461,14 @@ def run_container_validation_tests_database(container, snapshot_status=None):
                         testset['cases'] = _get_new_testcases(testcases, mastersnapshots, snapshot_key, container, dbname, False)
                     # print(json.dumps(test_json_data, indent=2))
                     resultset = run_json_validation_tests(test_json_data, container, False, snapshot_status, dirpath=dirpath)
-                    if resultset:
-                        # dump_output_results(resultset, container, test_file, snapshot, False)
-                        for result in resultset:
-                            if 'result' in result:
-                                if not re.match(r'passed', result['result'], re.I):
-                                    finalresult = False
-                                    break
+                    finalresult = validate_result(resultset, finalresult)
                 except Exception as e:
                     # dump_output_results([], container, test_file, snapshot, False)
                     raise e
     else:
         logger.info('No mastertest Documents found!')
         mastertest_files_found = False
-        finalresult = False
+        # finalresult = False
     if not test_files_found and not mastertest_files_found:
         raise Exception("No complaince tests for this container: %s, add and run!", container)
     return finalresult
@@ -575,7 +573,7 @@ def _get_rego_testcase(testcase, mastersnapshots, snapshot_resource_map, snapsho
     onlysnapshots = get_from_currentdata("ONLYSNAPSHOTS")
     onlysnapshotsIds = get_from_currentdata("ONLYSNAPSHOTIDS")
     newcases = []
-    ms_ids = testcase.get('masterSnapshotId')
+    ms_ids = testcase.get('masterSnapshotId', [])
     # service = ms_ids[0].split('_')[1]
     for ms_id in ms_ids:
         if ms_id == "ALL":

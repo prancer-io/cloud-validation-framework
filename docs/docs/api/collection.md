@@ -3,16 +3,55 @@
 
 - Collection is the combinations of Snapshots configuration, Connectors configuration, Compliances configuration, and rego files.
 
+**Collection - create**
+---
+- Create new collection with given name
+
+**CURL Sample**
+```
+curl -X GET https://portal.prancer.io/prancer-customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
+- **Method:** POST
+- **Header:**
+
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+
+```
+{
+	"collection" : "<name of the collection>"
+}
+```
+
+**Response:**
+
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Collection created successfully.",
+    "metadata": {},
+    "status": 200
+}
+```
+
 **Collection - get**
 ---
 - This API is for get the list of available collections with connectors list available in each collection.
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/collection/list -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/api/collection/list
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection/list
 - **Method:** GET
 - **Header:**
 
@@ -24,13 +63,10 @@ curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bea
 - **Param:**
 
 ```
-- detail= <show details of collection>
-- search= <search by collection name>
+- search: <search by collection name>
 ```
 
 **Response:**
-
-`detail=true`
 
 ```
 {
@@ -62,11 +98,17 @@ curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bea
                 "others": [],
                 "snapshots": [],
                 "status": "active",
-                "tests": []
+                "tests": [],
+                "notifications" : [
+                    {
+                        "name": "notifications_azure_iac_31"
+                    }
+                ]
             }
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {
         "count": 1,
@@ -78,45 +120,55 @@ curl -X GET https://portal.prancer.io/api/collection/list -H 'authorization: Bea
 }
 ```
 
-`detail=false`
+**Collection - Archive/Delete**
+---
+- This API is for archiving old collection and deleting new collections
+
+**CURL Sample**
+```
+curl -X GET https://portal.prancer.io/prancer-customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
+- **Method:** DELETE
+- **Header:**
+
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+
+```
+- "collection": "collection_name",
+- "status": "delete" [available status: "archive", "unarchive", "delete"]
+```
+
+**Response:**
 
 ```
 {
-    "data": {
-        "results": [
-            {
-                "collection": "aws_test_2",
-                "connectors": [
-                    "aws_test_2_connector_aws",
-                    "git_prancer-liquware_connector"
-                ]
-            }
-        ]
-    },
+    "data": {},
     "error": "",
-    "message": "",
-    "metadata": {
-        "count": 1,
-        "current_page": 1,
-        "next_index": 1,
-        "total": 62
-    },
+    "error_list": [],
+    "message": "Collection collection_name deleted successfully",
+    "metadata": {},
     "status": 200
 }
 ```
 
-
-**Collection - get by name of the collection**
+**Collection - exists**
 ---
 
 - This API is to check if a collection exists.
 
 **CURL Sample**
 ```
-curl -H "space-id:101"  -H 'authorization: Bearer <JWT Bearer Token>' -X GET "https://portal.prancer.io/customer1/api/collection?collection=git_azure_customer1_1617571294420"
+curl -H "space-id:101"  -H 'authorization: Bearer <JWT Bearer Token>' -X GET "https://portal.prancer.io/prancer-customer1/api/collection?collection=git_azure_customer1_1617571294420"
 ```
 
-- **URL:** https://portal.prancer.io/api/collection
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
 - **Method:** GET
 - **Header:**
 
@@ -148,14 +200,14 @@ curl -H "space-id:101"  -H 'authorization: Bearer <JWT Bearer Token>' -X GET "ht
 
 **Database Collection - get**
 ---
-- This API is for get the list of available database collections which are set in snapshot nodes.
+- This API is for get the list of available database collections in which the actual cloud/IaC snapshot JSON file is stored.
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/database/collection -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/database/collection -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/database/collection
+- **URL:** https://portal.prancer.io/prancer-customer1/api/database/collection
 - **Method:** GET
 - **Header:**
 ```
@@ -194,6 +246,7 @@ curl -X GET https://portal.prancer.io/customer1/api/database/collection -H 'auth
         ]
     },
     "error": "",
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
@@ -201,17 +254,17 @@ curl -X GET https://portal.prancer.io/customer1/api/database/collection -H 'auth
 ```
 
 
-**Get Collection manage config items**
+**Get Collection config items**
 ---
 
 - This API is for get getting json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
 
 **CURL Sample**
 ```
-curl -X GET https://portal.prancer.io/customer1/api/manage/config -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X GET https://portal.prancer.io/prancer-customer1/api/manage/config -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/manage/config
+- **URL:** https://portal.prancer.io/prancer-customer1/api/manage/config
 - **Method:** GET
 - **Header:**
 ```
@@ -222,9 +275,10 @@ curl -X GET https://portal.prancer.io/customer1/api/manage/config -H 'authorizat
 - **Param:**
 
 ```
-- resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuaration">
-- resource_name - <Name of the resource>
-- container_name - <Name of the container>
+Required Fields
+    - resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuaration">
+    - resource_name - <Name of the resource>
+    - container_name - <Name of the container>
 ```
 
 **Response:**
@@ -253,17 +307,17 @@ curl -X GET https://portal.prancer.io/customer1/api/manage/config -H 'authorizat
 ```
 
 
-**Update Collection manage config items**
+**Update Collection config items**
 ---
 
-- This API is for updating json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
+- This API is for updating json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration, notifications
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/manage/config -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/manage/config -H 'authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/manage/config
+- **URL:** https://portal.prancer.io/prancer-customer1/api/manage/config
 - **Method:** POST
 - **Header:**
 ```
@@ -274,18 +328,13 @@ curl -X POST https://portal.prancer.io/customer1/api/manage/config -H 'authoriza
 - **Data:**
 
 ```
-- resource_type - <Type of the resource available types: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuaration">
-- resource_name - <Name of the resource>
-- container_name - <Name of the container>
-- data - <Updated data>
-```
-
-**Response:**
-```
 {
-    "data":{
-        "json": {
-            "autoRemediate": true,
+	"resource_type" : "connector",
+	"container_name" : "aws_iac",
+	"resource_name" : "aws_iac_structure",
+	"data" : {
+		"json": {
+            "autoRemediate": false,
             "branchName": "sensitive_extension",
             "companyName": "prancer",
             "fileType": "structure",
@@ -294,29 +343,35 @@ curl -X POST https://portal.prancer.io/customer1/api/manage/config -H 'authoriza
             "private": false,
             "type": "filesystem",
             "username": "vatsalgit5118"
-        },
-        "name": "aws_iac_structure"
-    },
+        }
+	}
+}
+```
+
+**Response:**
+```
+{
+    "data": {},
     "error": "",
     "error_list": [],
-    "message": "",
+    "message": "Connector updated successsfully",
     "metadata": {},
     "status": 200
 }
 ```
 
 
-**Upload Collection manage config files**
+**Archive/Unarchive a collection**
 ---
 
-- This API is for uploading json files of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
+- This API is for updating json data of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/customer1/api/manage/config/upload/ -H 'authorization: Bearer <JWT Bearer Token>'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/collection -H 'authorization: Bearer <JWT Bearer Token>' -d '{ "collection" : "azure_iac", "status" : "inactive" }
 ```
 
-- **URL:** https://portal.prancer.io/customer1/api/manage/config/upload/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/collection
 - **Method:** POST
 - **Header:**
 ```
@@ -324,10 +379,57 @@ curl -X POST https://portal.prancer.io/customer1/api/manage/config/upload/ -H 'a
     - Authorization: Bearer <JWT Bearer Token>
 ```
 
-- **form:**
+- **Param:**
 
 ```
-- files - <List of files: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuration">
+{
+	"collection" : "azure_iac",
+	"status" : "inactive"
+}
+```
+
+- **Explanation:**
+
+    `Required Fields`
+
+    - **collection:** Name of the collection for which you want to change the status.
+    - **status:** Status of collection `active` or `inactive`.
+
+
+**Response:**
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Collection azure_iac archived successfully",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**Upload collection manage config files**
+---
+
+- This API is for uploading json files of config item like connector, snapshot, mastersnapshot, test, mastertest, and collection_configuration, notifications
+
+**CURL Sample**
+```
+curl -X POST https://portal.prancer.io/prancer-customer1/api/manage/config/upload -H 'authorization: Bearer <JWT Bearer Token>'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/manage/config/upload
+- **Method:** POST
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **form-data:**
+
+```
+- files - <Multiple files: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuration">
 - container_name - <Name of the container>
 ```
 

@@ -1,3 +1,5 @@
+import random
+import string
 import re
 import subprocess
 import time
@@ -73,6 +75,8 @@ class TemplateProcessor:
         self.processed_templates = get_processed_templates()
         self.kwargs = {}
         self.folder_path = False
+        charVal = (random.choice(string.ascii_letters) for x in range(5))
+        self.randomstr = ''.join(charVal)
     
     def append_exclude_directories(self, dirs):
         """
@@ -92,6 +96,8 @@ class TemplateProcessor:
             ref = self.connector_data["branchName"]
         elif "folderPath" in self.connector_data:
             ref = self.connector_data["folderPath"]
+        
+        session_id = get_from_currentdata("session_id")
 
         db_record = {
             "structure": self.connector_data["type"],
@@ -107,6 +113,7 @@ class TemplateProcessor:
             "snapshotId": self.node['snapshotId'],
             "collection": collection.replace('.', '').lower(),
             "json": self.processed_template,
+            "session_id": session_id
             # "resourceTypes" : self.node.get("resourceTypes", [])
         }
         if self.resource_type:
@@ -331,12 +338,13 @@ class TemplateProcessor:
             template_node['resourceTypes'] = list(set(template_node.get('resourceTypes', [])))
             count = count + 1
             node_dict = {
-                "snapshotId": '%s%s' % (master_snapshot_id, str(count)),
+                "snapshotId": '%s%s%s' % (master_snapshot_id, self.randomstr, str(count)),
                 "type": template_node.get("node_type", self.node["type"]),
                 "collection": collection,
                 "paths": template_node["paths"],
                 "status": template_node['status'],
                 "validate": template_node['validate'],
+                "source": self.snapshot_source,
                 "resourceTypes" : [self.resource_type] if self.resource_type else template_node.get('resourceTypes', [])
             }
             nodes.append(node_dict)
@@ -570,7 +578,7 @@ class TemplateProcessor:
                             "validate" : self.node['validate'] if 'validate' in self.node else True
                         })
             
-            nodes, count = self.create_node_record(generated_template_file_list, count)	
+            nodes, count = self.create_node_record(generated_template_file_list, count)
             if self.node['masterSnapshotId'] not in self.snapshot_data or not isinstance(self.snapshot_data[self.node['masterSnapshotId']], list):	
                 self.snapshot_data[self.node['masterSnapshotId']] = []	
             self.snapshot_data[self.node['masterSnapshotId']] = self.snapshot_data[self.node['masterSnapshotId']] + nodes	
