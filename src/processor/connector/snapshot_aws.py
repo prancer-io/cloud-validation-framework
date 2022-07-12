@@ -436,6 +436,14 @@ def _get_resources_from_list_function(response, method, service_name=None):
         return [x.get("Arn") for x in response.get('UserDetailList', [])]
     elif method == 'describe_option_groups':
         return [x.get("OptionGroupName") for x in response.get('OptionGroupsList', [])]
+    elif method == 'describe_vpcs':
+        return [x.get("VpcId") for x in response.get('Vpcs', [])]
+    elif method == 'describe_vpc_peering_connections':
+        return [x.get("VpcPeeringConnectionId") for x in response.get('VpcPeeringConnections', [])]
+    elif method == 'describe_vpc_endpoints':
+        return [x.get("VpcEndpointId") for x in response.get('VpcEndpoints', [])]
+    elif method == 'describe_workspace_directories':
+        return [x.get("DirectoryId") for x in response.get('Directories', [])]
     else:
         return []
         
@@ -583,14 +591,14 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         return {
             'GroupIds': [resource_id]
         }
-    elif client_str == "ec2" and function_name == "describe_vpcs":
-        try:
-            vpicid = existing_json['Reservations'][0]['Instances'][0]['VpcId']
-        except:
-            vpicid = ""
-        return {
-            'VpcIds': [vpicid]
-        }
+    # elif client_str == "ec2" and function_name == "describe_vpcs":
+    #     try:
+    #         vpicid = existing_json['Reservations'][0]['Instances'][0]['VpcId']
+    #     except:
+    #         vpicid = ""
+    #     return {
+    #         'VpcIds': [vpicid]
+    #     }
     elif client_str == "ec2" and function_name == "describe_subnets":
         try:
             subnetid = existing_json['Reservations'][0]['Instances'][0]['SubnetId']
