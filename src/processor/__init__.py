@@ -1,3 +1,3 @@
 # Prancer Basic
 
-__version__ = '2.1.31'
+__version__ = '2.1.32'
