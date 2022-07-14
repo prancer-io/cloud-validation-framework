@@ -63,7 +63,7 @@ class TerraformTemplateParser(TemplateParser):
             "module_templates" : []
         }
         self.outputs = {}
-        self.skip_key_to_process = ["compiletime_identity"]
+        self.skip_key_to_process = ["compiletime_identity", "depends_on"]
         self.group_count = 0
 
     def is_template_file(self, file_path):
