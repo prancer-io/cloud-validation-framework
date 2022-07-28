@@ -308,58 +308,33 @@ class ComparatorV01:
         else:
             # ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
             # logger.info("ms_id")
-            # logger.info(ms_id)
-            
-            snapshot_json = {}
+            # logger.info(ms_id) 
             self.snapshots = []
-            primary_resource_sid = []
-            secondary_resource_sid= []
-            snapshot_pairs = []
-            
-            for sid in self.testcase['snapshotId']:
-                master_snap_id = ""
-                if sid.startswith(self.testcase['masterSnapshotId'][0]):
-                    primary_resource_sid.append(sid)
-                else:
-                    secondary_resource_sid.append(sid)
-
-            for p_sid in primary_resource_sid:
-                pair = (p_sid, secondary_resource_sid)
-                snapshot_pairs.append(pair)
-
+            resource_sid = []
+            for mastersnapshot_id in self.testcase['masterSnapshotId']:
+                msid = []
+                for sid in self.testcase['snapshotId']:
+                    if sid.startswith(mastersnapshot_id):
+                        msid.append(sid)
+                resource_sid.append({mastersnapshot_id:msid})
             inputjson = {}
-            
-            for sid_pair in snapshot_pairs:
-                toExclude, primary_snapshot_doc = self.get_snaphotid_doc(sid_pair[0], testId, isMasterTest)
-                primary_input = {f"{self.testcase['masterSnapshotId'][0]}": primary_snapshot_doc}
-                inputjson.update(primary_input)
-
-                if toExclude:
-                    logger.warn('\t\tWARN: Excluded test case: %s' % testId)
-                    logger.warn('\t\tRESULT: SKIPPED')
-                    # msg = 'Excluded testcase because of testId: %s' % testId
-                    # results.append({'eval': 'data.rule.rulepass', 'result': 'skipped', 'message': msg})
-                    return results
-
-                secondary_snapshot_doc_list = []
-                for s_sid in sid_pair[1]:
-                    toExclude, secondary_snapshot_doc = self.get_snaphotid_doc(s_sid, testId, isMasterTest)
-                    if toExclude:
-                        logger.warn('\t\tWARN: Excluded test case: %s' % testId)
-                        logger.warn('\t\tRESULT: SKIPPED')
-                        # msg = 'Excluded testcase because of testId: %s' % testId
-                        # results.append({'eval': 'data.rule.rulepass', 'result': 'skipped', 'message': msg})
-                        return results
-                    secondary_snapshot_doc_list.append(secondary_snapshot_doc)
-
-                secondary_input = {f"{self.testcase['masterSnapshotId'][1]}": secondary_snapshot_doc_list}
-                inputjson.update(secondary_input)
-
-                if inputjson:
-                    results = self.generating_result_for_rego_testcase(inputjson, tid, testId, opa_exe, rule_expr, results, sid_pair)
-                else:
-                    results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-                    self.log_result(results[-1])
+            for sid_pair in resource_sid:    
+                for ms_id, s_id_list in sid_pair.items():
+                    snapshot_doc_list = []
+                    for s_id in s_id_list:
+                        toExclude, snapshot_doc = self.get_snaphotid_doc(s_id, testId, isMasterTest)
+                        if toExclude:
+                            logger.warn('\t\tWARN: Excluded test case: %s' % testId)
+                            logger.warn('\t\tRESULT: SKIPPED')
+                            return results
+                        snapshot_doc_list.append(snapshot_doc)
+                    input = {ms_id: snapshot_doc_list}
+                    inputjson.update(input)  
+            if inputjson:
+                results = self.generating_result_for_rego_testcase(inputjson, tid, testId, opa_exe, rule_expr, results, resource_sid)
+            else:
+                results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                self.log_result(results[-1])
             return results
 
     def generating_result_for_rego_testcase(self, inputjson, tid, testId, opa_exe, rule_expr, results, sid_pair=None):
