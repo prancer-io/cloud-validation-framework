@@ -7,11 +7,11 @@
 - **CURL Sample**
 
 ``` curl
-curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/notification/search/?container=test_collection&index=0&count=2' \
+curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/manage/notification/?container=test_collection&index=0&count=2' \
 --header 'Authorization: Bearer <JWT Bearer Token>'
 ```
 
-- **URL:** <https://portal.prancer.io/prancer-customer1/api/notification/search>
+- **URL:** <https://portal.prancer.io/prancer-customer1/api/manage/notification>
 - **Method:** GET
 - **Header:**
 
@@ -54,7 +54,7 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/n
 {
     "data": [
         {
-            "_id": "62f08ba3d6104952c348827d",
+            "id": "62f08ba3d6104952c348827d",
             "name": "aws_cloud_notification7",
             "timestamp": "2022-08-08T04:05:55.000Z"
         }
@@ -79,11 +79,11 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/n
 - **CURL Sample**
 
 ``` curl
-curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/notification/search/?notification_id=62f08ba3d6104952c348827d' \
+curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/manage/notification/?id=62f08ba3d6104952c348827d' \
 --header '<JWT Bearer Token>'
 ```
 
-- **URL:** <https://portal.prancer.io/prancer-customer1/api/notification/search>
+- **URL:** <https://portal.prancer.io/prancer-customer1/api/manage/notification>
 - **Method:** DELETE
 - **Header:**
 
@@ -96,7 +96,7 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/n
 
 ``` json
 {
-    "notification_id": "62f08ba3d6104952c348827d"
+    "id": "62f08ba3d6104952c348827d"
 }
 ```
 
