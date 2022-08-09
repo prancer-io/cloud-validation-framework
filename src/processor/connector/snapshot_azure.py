@@ -402,9 +402,7 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                                         'validate': validate,
                                         'status': 'active'
                                     })
-                    # snapshot_data[node['masterSnapshotId']] = True
-                logger.debug('Type: %s', type(alldata))
-        
+
         for data in all_data_records:
             if get_dbtests():
                 if get_collection_size(data['collection']) == 0:

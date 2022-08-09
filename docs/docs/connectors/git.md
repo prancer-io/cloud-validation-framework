@@ -55,7 +55,8 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
         "companyName": "Organization name",
         "gitProvider": "<url-to-repository>",
         "branchName": "<branch>",
-        "private": false
+        "httpsAccessToken": "secret-git-key",
+        "private": false,
     }
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
@@ -65,6 +66,11 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | url-to-repository | Enter the HTTPS or SSH url to the repository |
 | branch | Branch to checkout |
 | private | Boolean value stating if the repository is private or public |
+| httpsAccessToken | Secret key require for connect to private git repository. |
+
+* **httpsAccessToken:**
+    - If you are connecting the private repository then additionally you have to export the git access token in environment variable. 
+    - For example, you want to connect private github repository then geneate the new Github Access Token and export the new environment variable, where **key** is the value of `httpsAccessToken` and **value** is Github Access Token.
 
 * **Note**: Path expansions are not implemented yet, you need to provide full paths!
 
