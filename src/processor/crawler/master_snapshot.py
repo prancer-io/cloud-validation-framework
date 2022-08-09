@@ -139,6 +139,10 @@ def generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_d
         return snapshot_data
     for mastersnapshot in mastersnapshots:
         set_processed_templates({})
+        node_resource_types = {}
+        for nd in mastersnapshot.get('nodes', []):
+            if 'masterSnapshotId' in nd and 'type' in  nd:
+                node_resource_types[nd['masterSnapshotId']] = nd['type']
         current_data = generate_mastersnapshot(mastersnapshot)
         # snapshot_data.update(current_data)
         for ms_id, node_list in current_data.items():
@@ -151,7 +155,7 @@ def generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_d
                 else:
                     snapshot_data[ms_id] = node_list
             else:
-                logger.error("No snapshot found for %s connector " % (get_field_value(mastersnapshot, "source")))
+                logger.debug("No snapshot found for resource type: \"%s\" in %s connector " % (node_resource_types[ms_id], get_field_value(mastersnapshot, "source")))
                 if ms_id not in snapshot_data:
                     snapshot_data[ms_id] = node_list
 
