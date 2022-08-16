@@ -28,7 +28,9 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/l
     "compliance": "Mastertest file name/ compliance name",
     "count" : 3,
     "index" : 0,
-    "search" : <search_text>
+    "search" : <search_text>,
+    "download": true,
+    "timezone": "Asia/Kolkata"
 }
 ```
 
@@ -40,6 +42,8 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/l
   - **container:** Name of the container, container name list will receive in response when call API without any filter or filter by startdate/enddate.
   - **compliance:** A valid list of compliance for filter the policy. See [Default - tags](/prancer-ent-apis/tags) API for get valid compliance list.
   - **search:** Search reports by title of the report.
+  - **download:** Boolean to download csv file of log list.
+  - **timezone:** To change the timings from UTC to localtime in csv file.
 
  **NOTE:**
 
@@ -168,14 +172,20 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/l
     "log_name": "logs_20220421130000_jwlyh_3384",
     "count" : 3,
     "index" : 0,
+    "download": true,
+    "timezone": "Asia/Kolkata"
 }
 ```
 
 - **Explanation:**
 
-    All Fields are Required.
+    Required Fields.
   - **log_name:** Name of the log file to check details.
 
+    Other Fields.
+  - **download:** Boolean to download csv file of log details.
+  - **timezone:** To change the timings from UTC to localtime in csv file.
+      
  **NOTE:**
 
 - `index` and `count` parameters are useful for pagination. If no index pass then it will return all the records.
