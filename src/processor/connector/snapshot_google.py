@@ -466,15 +466,10 @@ def generate_gce(google_data, project, user):
     logger.info("Generating GCE")
     gce = {
         "type": get_field_value(user, "type"),
-        "project_id": get_field_value(project, "project-id"),
         "private_key_id": get_field_value(user, "private_key_id"),
         "private_key": get_field_value(user, "private_key"),
         "client_email": get_field_value(user, "client_email"),
         "client_id": get_field_value(user, "client_id"),
-        "auth_uri": get_field_value(google_data, "auth_uri"),
-        "token_uri": get_field_value(google_data, "token_uri"),
-        "auth_provider_x509_cert_url": get_field_value(google_data, "auth_provider_x509_cert_url"),
-        "client_x509_cert_url": get_field_value(user, "client_x509_cert_url"),
     }
 
     # Read the private key from the key path
