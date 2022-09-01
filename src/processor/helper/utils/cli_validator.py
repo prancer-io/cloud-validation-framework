@@ -483,11 +483,12 @@ Run prancer for a list of snapshots
                 retval = 0 if status else 1
             else:
                 retval = 1
-            check_send_notification(args.container, args.db)
 
             if fs:
                 dump_output_results([], args.container, test_file="", snapshot="", filesystem=fs, status="Completed")
             current_progress = 'COMPLIANCECOMPLETE'
+
+            check_send_notification(args.container, args.db)
     except (Exception, KeyboardInterrupt) as ex:
         if current_progress == 'CRAWLERSTART':
             from processor.crawler.master_snapshot import update_crawler_run_status
