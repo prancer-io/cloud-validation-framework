@@ -266,8 +266,8 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
             elif data_filter in data:
                 db_record['items'] = data[data_filter]
             
-            snapshot_data["project-id"] = project_id
-            snapshot_data["request_url"] = request_url
+            # snapshot_data["project-id"] = project_id
+            # snapshot_data["request_url"] = request_url
 
             set_snapshot_data(node, db_record['items'], snapshot_data)
 
