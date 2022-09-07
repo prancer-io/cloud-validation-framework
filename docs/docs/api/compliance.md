@@ -133,6 +133,7 @@ curl -X POST \
     "test":"CRAWLER",
     "crawler":true,
     "pac" : true,
+    "job_type" : "pac"
     "webhook" : {
 		"webhook_url" : "https://portal.prancer.io/prancer-customer1/api/run/compliance",
 		"webhook_data" : {
@@ -168,6 +169,7 @@ curl -X POST \
     `Optional Fields`
 
     - **pac** : Boolean field to represent the scheduler is set for PAC. `collection` attribute is optional if `pac` is true.
+    - **job_type** : Valid value for this field is `iac`, `cspm` and `pac`. if value of `pac` is not set or is false then default value of `job_type` is `iac` and if value of `pac` is true then default value of `job_type` is `pac`.
     - **webhook** : If you want to get the callback on any API server then you can define the webhook.
         - **webhook_url** : API url which you want to call while scheduler run.
 		- **webhook_data** : Data in JSON format, which you want to pass in callback API.
@@ -361,7 +363,8 @@ curl -X GET \
                 "next_run_time": "2021-05-13 15:30:00",
                 "recur": "2",
                 "schedule": "Hourly@15:00 date@12/05/2021",
-                "test": "BOTH"
+                "test": "BOTH",
+                "job_type": "cspm"
             }
         ]
     },
