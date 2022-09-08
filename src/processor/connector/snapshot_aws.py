@@ -177,6 +177,7 @@ def get_node(awsclient, node, snapshot_source, snapshot):
             if function_to_call and callable(function_to_call):
                 kwargs = {"node": node}
                 params = _get_function_kwargs(arn_str, each_method_str, json_to_put, kwargs)
+                # print('params: ', params)
                 try:
                     data = function_to_call(**params)
                     if data:
@@ -477,6 +478,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 list_kwargs = _get_list_function_kwargs(awsclient.meta._service_model.service_name, list_function_name)
                 response = list_function(**list_kwargs)
                 list_of_resources = _get_resources_from_list_function(response, list_function_name, awsclient.meta._service_model.service_name)
+                # print('list_of_resources: ', list_of_resources)
             except Exception as ex:
                 list_of_resources = []
             detail_methods = get_field_value(node, 'detailMethods')
@@ -721,6 +723,11 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
             "VersionId": existing_json["Policy"]["DefaultVersionId"]
         }
     
+    elif client_str == "iam" and function_name == "list_attached_user_policies":
+        return {
+            'UserName': resource_id
+        }
+        
     elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key",]:
         return {
             'KeyId': resource_id

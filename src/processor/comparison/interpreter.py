@@ -330,7 +330,7 @@ class ComparatorV01:
                         snapshot_doc_list.append(snapshot_doc)
                     input = {ms_id: snapshot_doc_list}
                     inputjson.update(input)
-            # print(inputjson)
+            # print('inputjson: ', inputjson)
             if inputjson:
                 results = self.generating_result_for_rego_testcase(inputjson, tid, testId, opa_exe, rule_expr, results, resource_sid)
             else:
