@@ -74,8 +74,23 @@ curl -X GET https://portal.prancer.io/prancer-customer1/api/collection/list -H '
 - **Param:**
 
 ```
-- search: <search by collection name>
+{
+	"search" : "<search by collection name>",
+	"container_type" : "iac"
+}
 ```
+- **Explanation:**
+
+    `Required Fields`
+
+    - **NONE:**
+
+    `Optional Fields`
+
+    - **container_type:** Valid values are `iac` and `cspm`.
+        - `iac:` To filter only IAC collections.
+        - `cspm:` To filter only CSPM collections.
+
 
 **Response:**
 

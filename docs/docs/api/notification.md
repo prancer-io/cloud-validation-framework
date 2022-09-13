@@ -79,7 +79,7 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/m
 - **CURL Sample**
 
 ``` curl
-curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/manage/notification/?id=62f08ba3d6104952c348827d' \
+curl --location --request DELETE 'https://portal.prancer.io/prancer-customer1/api/manage/notification/?notification_name=sample_notification_file&container=check_notification' \
 --header '<JWT Bearer Token>'
 ```
 
@@ -96,14 +96,16 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/m
 
 ``` json
 {
-    "id": "62f08ba3d6104952c348827d"
+    "container": "check_notification",
+    "notification_name": "sample_notification_file"
 }
 ```
 
 - **Explanation:**
 
     All Fields are Required.
-  - **notification_id:** Notification id of the notification file to delete it.
+  - **container:** Name of the container in which notification file is present.
+  - **notification_name:** Name of the notification file which you want to delete.
 
 
 **Response:**
