@@ -135,12 +135,15 @@ curl -X POST \
     "pac" : true,
     "job_type" : "pac"
     "webhook" : {
-		"webhook_url" : "https://portal.prancer.io/prancer-customer1/api/run/compliance",
+		"webhook_url" : "<PAC url>",
 		"webhook_data" : {
 			"config_id" : "620e24b4a3ddf04e384543b9"
 		},
-		"webhook_method" : "POST",
-		"webhook_headers" : {}
+		"webhook_method" : "GET",
+		"webhook_headers": {
+            "token_name":"scheduler-notify-1662959297881",
+            "token_id":"631ebec1c5d1d17f93aa0b45"
+        }
 	}
 }
 ```
@@ -535,6 +538,10 @@ curl -X GET \
     "status": 200
 }
 ```
+**Compliance - Delete Queued Tasks**
+---
+
+- **CURL Sample**
 
 ```curl
 curl --location --request DELETE 'https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue' \
