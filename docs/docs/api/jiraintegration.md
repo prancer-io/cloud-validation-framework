@@ -9,7 +9,18 @@ Jira Integration APIs help in integrating Jira with Prancer at the collections l
 - **CURL Sample**
 
 ```curl 
-curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST 'https://portal.prancer.io/prancer-customer1/api/jira?container=new_container' \
+curl --location --request POST 'http://0.0.0.0:8080/api/jira' \
+--header 'Authorization: Bearer <JWT Bearer Token>' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "url": "https://abinayamahalingam.atlassian.net",
+    "username": "abinaya.mahalingam10@gmail.com",
+    "authtoken": "dv2chGBHwoFZfU9Nz0en2B2F",
+    "organisation": "Prancer",
+    "project": "IP",
+    "severity" : "3",
+    "container" : "new_container"
+}'
 ```
 
 - **URL:** <https://portal.prancer.io/prancer-customer1/api/jira>
@@ -26,7 +37,7 @@ curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/
 
 ``` json
 {
-  "container":"Container Name"
+        "container":"Container Name"
 	"url" : "https://accounname.atlassian.net",
 	"username" : "Email to Jira login.",
 	"authtoken" : "User's API token.",
@@ -70,7 +81,13 @@ curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/
 - **CURL Sample**
 
 ``` curl 
-curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue?container=new_container&project=ip \'
+curl --location --request POST 'http://0.0.0.0:8080/api/jira/issue' \
+ --header 'Authorization: Bearer <JWT Bearer Token>' \
+ --header 'Content-Type: application/json' \
+ --data-raw '{
+     "container" : "new_container",
+     "project" : "IP"
+ }'
 ```
 
 - **URL: https://portal.prancer.io/prancer-customer1/api/jira**
@@ -119,7 +136,15 @@ curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/
 - **CURL Sample**
 
 ```curl
-curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/jira/issue?container=new_container
+curl --location --request GET 'http://0.0.0.0:8080/api/jira/issue' \
+ --header 'Authorization: Bearer <JWT Bearer Token>' \
+ --header 'Content-Type: application/json' \
+ --header 'Cookie: session=eyJfcGVybWFuZW50Ijp0cnVlfQ.YyRJBA.4Wil0vmWHwVcTw4eUYTY99-nHd8' \
+ --data-raw '{
+     "container" : "new_container",
+     "project" : "IP"
+}'
+
 ```
  
 - **URL: <https://portal.prancer.io/prancer-customer1/api/jira/issue>**
