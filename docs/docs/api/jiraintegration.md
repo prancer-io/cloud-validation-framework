@@ -9,8 +9,7 @@ Jira Integration APIs help in integrating Jira with Prancer at the collections l
 - **CURL Sample**
 
 ```curl 
-curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST 
-"https://portal.prancer.io/prancer-customer1/api/jira?container=new_container”
+curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST 'https://portal.prancer.io/prancer-customer1/api/jira?container=new_container' \
 ```
 
 - **URL:** <https://portal.prancer.io/prancer-customer1/api/jira>
@@ -38,8 +37,7 @@ curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/
 }
 ```
 - **Explanation:**
-
-    **Required Fields**
+    `All of the fields are required.`
     
     - **"container"**: Name of the container,
     - **“url"** : Jira URL of the user,
@@ -72,7 +70,7 @@ curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/
 - **CURL Sample**
 
 ``` curl 
-curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/jira/issue?container=new_container
+curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue?container=new_container&project=ip \'
 ```
 
 - **URL: https://portal.prancer.io/prancer-customer1/api/jira**
@@ -100,13 +98,18 @@ curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/
 
 ``` json
 {
-    "data": {"results": "{"self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10000", "id": "10000", "name": "Active Directory", "description": "Created by Jira Service Management", "isAssigneeTypeValid": false}" },
-   "error_list": [],
-    "error":"",
+    "data": {"results": 
+               "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10000", 
+                "id": "10000", 
+               "name": "Active Directory", 
+               "description": "Created by Jira Service Management"},
+    "error":""
+    "error_list": [],
     "message": "",
     "metadata": {},
     "status": 200
 }
+ 
 ```
 
 **POST method.**
@@ -159,13 +162,13 @@ curl -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/
     
 }
 ```
- 
 - **Explanation:**
-	  `All of the fields are required.`
-- **“Container”** : container name
-- **"Title"** : Title that has be provided as summary of the issue.
-- **"Severity"** : Severity that has to be set.
-- **"Tags"**: Lables that has to be given by the user.
+    `All of the fields are required.`
+	  
+     - **“Container”** : container name
+     - **"Title"** : Title that has be provided as summary of the issue.
+     - **"Severity"** : Severity that has to be set.
+     - **"Tags"**: Lables that has to be given by the user.
  
  
 - **Response for single issue creation:**
