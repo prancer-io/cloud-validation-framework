@@ -9,17 +9,17 @@ Jira Integration APIs help in integrating Jira with Prancer at the collections l
 - **CURL Sample**
 
 ```curl 
-curl --location --request POST 'http://0.0.0.0:8080/api/jira' \
+curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/jira' \
 --header 'Authorization: Bearer <JWT Bearer Token>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "url": "https://abinayamahalingam.atlassian.net",
-    "username": "abinaya.mahalingam10@gmail.com",
-    "authtoken": "dv2chGBHwoFZfU9Nz0en2B2F",
-    "organisation": "Prancer",
-    "project": "IP",
-    "severity" : "3",
-    "container" : "new_container"
+    "url": "https://accountname.atlassian.net",
+    "username": "User_Email",
+    "authtoken": "Authtoken",
+    "organisation": "User_Organisation ",
+    "project": "Project_Key",
+    "severity" : "Severity",
+    "container" : "Container_Name"
 }'
 ```
 
@@ -81,12 +81,12 @@ curl --location --request POST 'http://0.0.0.0:8080/api/jira' \
 - **CURL Sample**
 
 ``` curl 
-curl --location --request POST 'http://0.0.0.0:8080/api/jira/issue' \
+curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' \
  --header 'Authorization: Bearer <JWT Bearer Token>' \
  --header 'Content-Type: application/json' \
  --data-raw '{
-     "container" : "new_container",
-     "project" : "IP"
+     "container" : "Container_Name",
+     "project" : "Project_Key"
  }'
 ```
 
@@ -116,7 +116,7 @@ curl --location --request POST 'http://0.0.0.0:8080/api/jira/issue' \
 ``` json
 {
     "data": {"results": 
-               "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10000", 
+               "self": "https://accountname.atlassian.net/rest/api/2/component/{issueid}", 
                 "id": "10000", 
                "name": "Active Directory", 
                "description": "Created by Jira Service Management"},
@@ -136,13 +136,12 @@ curl --location --request POST 'http://0.0.0.0:8080/api/jira/issue' \
 - **CURL Sample**
 
 ```curl
-curl --location --request GET 'http://0.0.0.0:8080/api/jira/issue' \
+curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/jira/issue' \
  --header 'Authorization: Bearer <JWT Bearer Token>' \
  --header 'Content-Type: application/json' \
- --header 'Cookie: session=eyJfcGVybWFuZW50Ijp0cnVlfQ.YyRJBA.4Wil0vmWHwVcTw4eUYTY99-nHd8' \
  --data-raw '{
-     "container" : "new_container",
-     "project" : "IP"
+     "container" : "Container_Name",
+     "project" : "Project_Key"
 }'
 
 ```
@@ -161,90 +160,65 @@ curl --location --request GET 'http://0.0.0.0:8080/api/jira/issue' \
  
 ``` json
 {
-    "container": "Container_Name",
-    "Title" : "Title to be given on the issue",
-    "Severity":"3",
-    "Tags" : "[lables to be given by the user]"
-  
-    
+	"container":"Container_Name"
+}
+{
+	"fields": {
+		"summary": "Title for the issue",
+		"issuetype": {
+			"id": "Task/Epic/Story/Bug"
+		},
+		"project": {
+			"key": "Project_key"
+		},
+
+		"labels": [
+			"Labels",
+			"blitz_test"
+		]
+	}
 }
 ```
 - **Param for creating a multiple issues:**
  
 ``` json
 {
-    "container": "Container_Name",
-    "Title" : "Title to be given on the issue",
-    "Severity":"3",
-    "Tags" : "[lables to be given by the user]",
-    "Title1" : "Title to be given on the issue",
-    "Severity1":"3",
-    "Tags1" : "[lables to be given by the user]",
-    "Title2" : "Title to be given on the issue",
-    "Severity2":"3",
-    "Tags2" : "[lables to be given by the user]"
-  
-    
+	"container":"Container_Name"
 }
-```
-- **Explanation:**
-    `All of the fields are required.`
-	  
-     - **“Container”** : container name
-     - **"Title"** : Title that has be provided as summary of the issue.
-     - **"Severity"** : Severity that has to be set.
-     - **"Tags"**: Lables that has to be given by the user.
- 
- 
-- **Response for single issue creation:**
- 
-
-``` json
 {
-    "data": {},
-    "results":{
-        "id": "10034",
-        "key","IP-17",
-        "self":"https://abinayamahalingam.atlassian.net/rest/api/2/issue/10034"
-    "error":""
-    "error_list": [],
-    "message": "",
-    "metadata": {},
-    "status": 200
-}
-```
+	"issueUpdates": [{
+			"fields": {
+				"summary": "Title for the issue",
+				"issuetype": {
+					"id": "Task/Epic/Story/Bug"
+				},
+				"project": {
+					"key": "Project_key"
+				},
 
+				"labels": [
+					"Labels",
+					"blitz_test"
+				]
+			}
+		},
+		{
+			"fields": {
+				"summary": "Title for the issue",
+				"issuetype": {
+					"id": "Task/Epic/Story/Bug"
+				},
+				"project": {
+					"key": "Project_key"
+				},
 
-
-- **Response for bulk issues creation:**
-
-``` json
-{
-    "data": {},
-    "results":{
-    "issues":[
-     {
-        "id": "10034",
-        "key","IP-18",
-        "self":"https://abinayamahalingam.atlassian.net/rest/api/2/issue/10035"
-      },
-        {
-        "id": "10034",
-        "key","IP-19",
-        "self":"https://abinayamahalingam.atlassian.net/rest/api/2/issue/10036"
-      },
-        {
-        "id": "10034",
-        "key","IP-20",
-        "self":"https://abinayamahalingam.atlassian.net/rest/api/2/issue/10037"
-      }
-     ]
-    },
-    "error":""
-    "error_list": [],
-    "message": "",
-    "metadata": {},
-    "status": 200
+				"labels": [
+					"Labels",
+					"blitz_test"
+				]
+			}
+		}
+	]
 }
 ```
 
