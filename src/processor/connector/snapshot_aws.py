@@ -445,6 +445,8 @@ def _get_resources_from_list_function(response, method, service_name=None):
         return [x.get("VpcEndpointId") for x in response.get('VpcEndpoints', [])]
     elif method == 'describe_workspace_directories':
         return [x.get("DirectoryId") for x in response.get('Directories', [])]
+    elif method == 'list_apps':
+        return [x.get("appId") for x in response.get('apps', [])]
     else:
         return []
         
@@ -973,6 +975,10 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
                 "Name": "certificate-id",
                 "Values": [resource_id]
             }]
+        }
+    elif client_str == "amplify" and function_name == "get_app":
+        return {
+            'appId': resource_id
         }
     else:
         return {}
