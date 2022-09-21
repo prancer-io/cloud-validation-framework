@@ -9,18 +9,7 @@ Jira Integration APIs help in integrating Jira with Prancer at the collections l
 - **CURL Sample**
 
 ```curl 
-curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/jira' \
---header 'Authorization: Bearer <JWT Bearer Token>' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "url": "https://accountname.atlassian.net",
-    "username": "User_Email",
-    "authtoken": "Authtoken",
-    "organisation": "User_Organisation ",
-    "project": "Project_Key",
-    "severity" : "Severity",
-    "container" : "Container_Name"
-}'
+curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira' -H 'Authorization: Bearer <JWT Bearer Token>' -d '{"url": "https://accountname.atlassian.net","username": "User_Email","authtoken": "Authtoken","organisation": "User_Organisation ","project": "Project_Key",  "severity" : "Severity","container" : "Container_Name"}'
 ```
 
 - **URL:** <https://portal.prancer.io/prancer-customer1/api/jira>
@@ -81,16 +70,10 @@ curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/
 - **CURL Sample**
 
 ``` curl 
-curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' \
- --header 'Authorization: Bearer <JWT Bearer Token>' \
- --header 'Content-Type: application/json' \
- --data-raw '{
-     "container" : "Container_Name",
-     "project" : "Project_Key"
- }'
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Authorization: Bearer <JWT Bearer Token>' 
 ```
 
-- **URL: https://portal.prancer.io/prancer-customer1/api/jira**
+- **URL: https://portal.prancer.io/prancer-customer1/api/jira/issue**
 - **Method: GET**
 - **Header:**
 
@@ -115,12 +98,123 @@ curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/
 
 ``` json
 {
-    "data": {"results": 
-               "self": "https://accountname.atlassian.net/rest/api/2/component/{issueid}", 
-                "id": "10000", 
-               "name": "Active Directory", 
-               "description": "Created by Jira Service Management"},
-    "error":""
+    "data": {
+        "results": [
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10000",
+                "isAssigneeTypeValid": false,
+                "name": "Active Directory",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10000"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10001",
+                "isAssigneeTypeValid": false,
+                "name": "Analytics and Reporting Service",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10001"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10002",
+                "isAssigneeTypeValid": false,
+                "name": "Billing Services",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10002"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10003",
+                "isAssigneeTypeValid": false,
+                "name": "Cloud Storage Services",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10003"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10004",
+                "isAssigneeTypeValid": false,
+                "name": "Data Center Services",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10004"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10005",
+                "isAssigneeTypeValid": false,
+                "name": "Email and Collaboration Services",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10005"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10006",
+                "isAssigneeTypeValid": false,
+                "name": "Financial Services",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10006"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10007",
+                "isAssigneeTypeValid": false,
+                "name": "HR Services",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10007"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10008",
+                "isAssigneeTypeValid": false,
+                "name": "Intranet",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10008"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10009",
+                "isAssigneeTypeValid": false,
+                "name": "Jira",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10009"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10010",
+                "isAssigneeTypeValid": false,
+                "name": "Office Network",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10010"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10011",
+                "isAssigneeTypeValid": false,
+                "name": "Payroll Services",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10011"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10012",
+                "isAssigneeTypeValid": false,
+                "name": "Printers",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10012"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10013",
+                "isAssigneeTypeValid": false,
+                "name": "Public Website",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10013"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10014",
+                "isAssigneeTypeValid": false,
+                "name": "VPN Server",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10014"
+            },
+            {
+                "description": "Created by Jira Service Management",
+                "id": "10015",
+                "isAssigneeTypeValid": false,
+                "name": "Webstore Purchasing Services",
+                "self": "https://abinayamahalingam.atlassian.net/rest/api/2/component/10015"
+            }
+        ]
+    },
+    "error": "",
     "error_list": [],
     "message": "",
     "metadata": {},
@@ -128,21 +222,18 @@ curl --location --request POST 'https://portal.prancer.io/prancer-customer1/api/
 }
  
 ```
-
-**POST method.**
+**POST method**
 ---
-   - The POST method is to create a single or multiple issues.  If the user provided a single data set, it creates a single issue. Creates bulk incase of multiple data sets. 
-   
+ - The POST method is to create a single or multiple issues.  If the user provided a single data set, it creates a single issue. Creates bulk incase of multiple data sets. 
+
+
+**POST method-For creating a single issue**
+---
+
 - **CURL Sample**
 
 ```curl
-curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/jira/issue' \
- --header 'Authorization: Bearer <JWT Bearer Token>' \
- --header 'Content-Type: application/json' \
- --data-raw '{
-     "container" : "Container_Name",
-     "project" : "Project_Key"
-}'
+curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Authorization: Bearer <JWT Bearer Token>' -d {"container":"new_container","project":"IP","issues":{"title" : "title for the issue","tags"["test","label"]}}
 
 ```
  
@@ -160,65 +251,104 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/api/j
  
 ``` json
 {
-	"container":"Container_Name"
-}
-{
-	"fields": {
-		"summary": "Title for the issue",
-		"issuetype": {
-			"id": "Task/Epic/Story/Bug"
-		},
-		"project": {
-			"key": "Project_key"
-		},
+    "container":"new_container",
+    "project":"IP",
 
-		"labels": [
-			"Labels",
-			"blitz_test"
-		]
-	}
+    "issues":
+     {
+         "title" : "title for the issue",
+         "tags":["test","label"]
+     }
 }
 ```
+- **Response:**
+
+```json
+{
+    "data": {
+        "results": {
+            "id": "10061",
+            "key": "IP-44",
+            "self": "https://abinayamahalingam.atlassian.net/rest/api/2/issue/10061"
+        }
+    },
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**POST method-For creating bulk issues**
+---
+  
+   
+- **CURL Sample**
+
+```curl
+curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Authorization: Bearer <JWT Bearer Token>' -d {"container":"new_container","project":"IP","issues":{"title" : "title for the issue","tags"["test","label"]},"issues1":{"title" : "title for the issue1","tags":["test","label"]}}
+
+```
+ 
+- **URL: <https://portal.prancer.io/prancer-customer1/api/jira/issue>**
+- **Method:POST**
+- **Header:**
+
+``` code
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+
+```
+
 - **Param for creating a multiple issues:**
  
 ``` json
 {
-	"container":"Container_Name"
+    "container":"new_container",
+    "project":"IP",
+
+    "issues":
+     {
+         "title" : "title for the issue",
+         "tags":["test","label"]
+     },
+    
+     "issues1":
+     {
+         "title" : "title for the issue1",
+         "tags":["test","label"]
+     }
+     
 }
+```
+
+- **Response:**
+
+``` json
 {
-	"issueUpdates": [{
-			"fields": {
-				"summary": "Title for the issue",
-				"issuetype": {
-					"id": "Task/Epic/Story/Bug"
-				},
-				"project": {
-					"key": "Project_key"
-				},
-
-				"labels": [
-					"Labels",
-					"blitz_test"
-				]
-			}
-		},
-		{
-			"fields": {
-				"summary": "Title for the issue",
-				"issuetype": {
-					"id": "Task/Epic/Story/Bug"
-				},
-				"project": {
-					"key": "Project_key"
-				},
-
-				"labels": [
-					"Labels",
-					"blitz_test"
-				]
-			}
-		}
-	]
+    "data": {
+        "results": {
+            "errors": [],
+            "issues": [
+                {
+                    "id": "10055",
+                    "key": "IP-38",
+                    "self": "https://abinayamahalingam.atlassian.net/rest/api/2/issue/10055"
+                },
+                {
+                    "id": "10056",
+                    "key": "IP-39",
+                    "self": "https://abinayamahalingam.atlassian.net/rest/api/2/issue/10056"
+                }
+            ]
+        }
+    },
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
 }
 ```
 
