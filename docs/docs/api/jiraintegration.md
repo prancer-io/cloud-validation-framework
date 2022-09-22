@@ -307,18 +307,15 @@ curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Au
 {
     "container":"new_container",
     "project":"IP",
-
-    "issues":
+    "issues":[
      {
          "title" : "title for the issue",
          "tags":["test","label"]
-     },
-    
-     "issues1":
-     {
+    },
+    {
          "title" : "title for the issue1",
          "tags":["test","label"]
-     }
+    }]
      
 }
 ```
