@@ -9,7 +9,7 @@ Jira Integration APIs help in integrating Jira with Prancer at the collections l
 - **CURL Sample**
 
 ```curl 
-curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira' -H 'Authorization: Bearer <JWT Bearer Token>' -d '{"url": "https://accountname.atlassian.net","username": "User_Email","authtoken": "Authtoken","organisation": "User_Organisation ","project": "Project_Key",  "severity" : "Severity","container" : "Container_Name"}'
+curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira' -H 'Authorization: Bearer <JWT Bearer Token>' --data-raw '{"url": "https://accountname.atlassian.net","username": "User_Email","authtoken": "Authtoken","organisation": "User_Organisation ","project": "Project_Key",  "severity" : "Severity","container" : "Container_Name"}'
 ```
 
 - **URL:** <https://portal.prancer.io/prancer-customer1/api/jira>
@@ -70,7 +70,7 @@ curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira' -H 'Authoriz
 - **CURL Sample**
 
 ``` curl 
-curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Authorization: Bearer <JWT Bearer Token>' 
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Authorization: Bearer <JWT Bearer Token>' --data-raw '{ "container":"new_container","project":"IP" }'
 ```
 
 - **URL: https://portal.prancer.io/prancer-customer1/api/jira/issue**
@@ -233,7 +233,7 @@ curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Aut
 - **CURL Sample**
 
 ```curl
-curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Authorization: Bearer <JWT Bearer Token>' -d {"container":"new_container","project":"IP","issues":{"title" : "title for the issue","tags"["test","label"]}}
+curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Authorization: Bearer <JWT Bearer Token>' --data-raw {"container":"new_container","project":"IP","issues":[{"title" : "title for the issue","tags"["test","label"]}]}
 
 ```
  
@@ -254,11 +254,11 @@ curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Au
     "container":"new_container",
     "project":"IP",
 
-    "issues":
+    "issues":[
      {
          "title" : "title for the issue",
          "tags":["test","label"]
-     }
+     }]
 }
 ```
 - **Response:**
@@ -287,8 +287,9 @@ curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Au
 - **CURL Sample**
 
 ```curl
-curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Authorization: Bearer <JWT Bearer Token>' -d {"container":"new_container","project":"IP","issues":{"title" : "title for the issue","tags"["test","label"]},"issues1":{"title" : "title for the issue1","tags":["test","label"]}}
-
+curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Authorization: Bearer <JWT Bearer Token>' --data-raw '{
+    "container":"new_container",
+    "project":"IP","issues":[{ "title" : "title for the issue","tags":["test","label"]},{ "title" : "title for the issue1","tags":["test","label"]}]}'
 ```
  
 - **URL: <https://portal.prancer.io/prancer-customer1/api/jira/issue>**
