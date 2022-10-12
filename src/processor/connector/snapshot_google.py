@@ -119,6 +119,41 @@ def get_api_path(node_type):
                 api_url = request_url
     return api_url
 
+
+def requested_get_method_url(base_url, params, url_params):
+
+    """Generate request url for base url if only 'get_method' present in Master-snapshot file."""
+    try:
+        first_var = ''.join(url_params[0])
+        if len(url_params) == 1:
+            if first_var in base_url:
+                updated_base_url = base_url.replace(first_var, params)
+            
+        elif len(url_params) >= 1:
+            second_var = ''.join(url_params[1])
+            if first_var and second_var in base_url:
+                updated_base_url = base_url.replace(first_var, params)
+                updated_base_url = updated_base_url.replace(second_var, params)
+
+        # logger.error("updated_base_url %s", updated_base_url)
+        return updated_base_url
+    except:
+        logger.error("Invalid api url")
+        return None
+
+def get_method_api_path(node_type):
+    """
+    Get api path for populate snapshot
+    """
+    api_url = None
+    params = get_google_parameters()
+    if params and "GoogleGetApis" in params:
+        for method, request_url in params['GoogleGetApis'].items():
+            print('method: ', method)
+            if method == node_type:
+                api_url = request_url
+    return api_url
+
 def get_node(credentials, node, snapshot_source, snapshot):
     """
     Fetch node from google using connection. In this case using google client API's
@@ -283,6 +318,7 @@ def set_snapshot_data(node, items, snapshot_data):
 
     # create the node type for sub resources
     node_type = get_field_value(node, "type")
+    check_var = get_field_value(node, "get_method")
     node_type_list = node_type.split(".")
     resource_node_type = node_type
     if len(node_type_list) > 1:
@@ -327,12 +363,27 @@ def set_snapshot_data(node, items, snapshot_data):
 
     for item in resource_items:
         count += 1
-        if "selfLink" in item.keys():
-            request_url = item['selfLink']
-        elif "id" in item.keys():
-            request_url = request_url+"/"+item["id"].split(":")[-1]
-        elif "name" in item.keys():
-            request_url = request_url+"/"+item["name"]
+
+        if check_var:
+            request_url = get_method_api_path(check_var)
+            new_url = request_url.split('/')
+            url_var = list()
+            for elements in new_url:
+                if re.match(r'^{\w}$', elements):
+                    url_var.append(elements)
+                    print('url_var: ', url_var)
+                else:
+                  pass
+            resource_name = item['name']
+            request_url = requested_get_method_url(request_url, resource_name, url_var)
+        else:
+                
+            if "selfLink" in item.keys():
+                request_url = item['selfLink']
+            elif "id" in item.keys():
+                request_url = request_url+"/"+item["id"].split(":")[-1]
+            elif "name" in item.keys():
+                request_url = request_url+"/"+item["name"]
 
         path_list = request_url.split("https://")
 
