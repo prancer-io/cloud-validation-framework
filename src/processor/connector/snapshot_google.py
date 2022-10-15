@@ -122,31 +122,16 @@ def get_api_path(node_type):
     return api_url
 
 
-def requested_get_method_url(base_url, params, url_params):
+def requested_get_method_url(base_url, params):
     """Generate request url for base url if only 'get_method' present in Master-snapshot file."""
     try:
         logger.info("base_url %s", base_url)
-        
-        if len(url_params) == 1:
-            first_var_url = ''.join(url_params[0])
-            first_val_url = ''.join(params[0])
-            if first_var_url in base_url:
-                updated_base_url = base_url.replace(first_var_url, first_val_url)
-            
-        elif len(url_params) > 1:
-            url_var_list = []
-            if params and url_params:
-                url_var_list.append(params)
-                url_var_list.append(url_params)
-                for item in range(len(url_var_list)):
-                    if (item+1) >= len(url_var_list): 
-                        updated_base_url = updated_base_url.replace(url_var_list[item][item] , url_var_list[item-1][item])
-                        
-                    else:  
-                        updated_base_url = base_url.replace(url_var_list[item+1][item], url_var_list[item][item])
+        for item in params:
+            if item in base_url:
+                base_url = base_url.replace(item, params[item])
 
-        logger.info("updated_base_url %s", updated_base_url)
-        return updated_base_url
+        logger.warning("updated_base_url %s", base_url)
+        return base_url
     except:
         logger.error("Invalid api url")
         return None
@@ -158,26 +143,32 @@ def get_method_api_path(node_type):
     api_url = None
     params = get_google_parameters()
     if params and "GoogleGetApis" in params:
-        for method, request_url in params['GoogleGetApis'].items():
-            if method == node_type:
-                for methods, url in request_url.items():
-                    if methods == 'url': 
-                        api_url = url
+        google_get_apis = params['GoogleGetApis']
+        if node_type in google_get_apis:
+            api_url = google_get_apis.get(node_type, {}).get("url", "")
+            request_method = google_get_apis.get(node_type, {}).get("method", "GET")
+            return api_url, request_method
+        else:
+            logger.error("Node Type not found: %s", node_type)
+            return None
 
-                    elif methods == 'method':
-                        method_var = url
-    return api_url , method_var
 
-def get_params_for_get_method(response, node_type):
-    params = []
-    if "cloudresourcemanager/projects.getIamPolicy" == node_type:
-        params.append(response['projectId'])
-    elif "storage/b_iam.get" == node_type:
-        params.append(response['name'])
-    elif "compute/projects.get" == node_type:
-        params.append(response['projectId'])
-    return params
-    
+
+def get_params_for_get_method(response, node_type, url_var):
+    """
+    Get params value to substitute variable in url
+    """
+    params = {}
+    try:
+        for item in url_var:
+            if item == r'{bucket}':
+                params[item] = response['name']
+            else:
+                params[item] = response['projectId']
+        return params
+    except Exception as ex:
+        logger.error('Value not found: %s', ex)
+        return params
 
 def get_node(credentials, node, snapshot_source, snapshot):
     """
@@ -428,17 +419,12 @@ def set_snapshot_data(node, items, snapshot_data):
             url_list = request_url.split('/')
             url_var = []
             for elements in url_list:
-                if elements.startswith('{'):
-                    if elements.endswith('}'):
-                        url_var.append(elements)
-                    else:
-                        temp_list = elements.split('}')
-                        del temp_list[1]
-                        temp_list.append('}')
-                        url_var.append(temp_list[0] + temp_list[1])                    
+                element = ''.join(re.findall(r'(?<={)[\d\D]*(?=})', elements))
+                if element:
+                    url_var.append('{'+str(element)+'}')                    
 
-            params = get_params_for_get_method(item ,get_method)
-            request_url = requested_get_method_url(request_url, params, url_var)
+            params = get_params_for_get_method(item ,get_method, url_var)
+            request_url = requested_get_method_url(request_url, params)
              
 
         else:
