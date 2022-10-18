@@ -33,6 +33,8 @@ from processor.database.database import insert_one_document, sort_field, get_doc
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
+import requests
+
 
 logger = getlogger()
 google_parameters = None
@@ -119,6 +121,55 @@ def get_api_path(node_type):
                 api_url = request_url
     return api_url
 
+
+def requested_get_method_url(base_url, params):
+    """Generate request url for base url if only 'get_method' present in Master-snapshot file."""
+    try:
+        logger.info("base_url %s", base_url)
+        for item in params:
+            if item in base_url:
+                base_url = base_url.replace(item, params[item])
+
+        logger.warning("updated_base_url %s", base_url)
+        return base_url
+    except:
+        logger.error("Invalid api url")
+        return None
+
+def get_method_api_path(node_type):
+    """
+    Get api path for populate snapshot
+    """
+    api_url = None
+    params = get_google_parameters()
+    if params and "GoogleGetApis" in params:
+        google_get_apis = params['GoogleGetApis']
+        if node_type in google_get_apis:
+            api_url = google_get_apis.get(node_type, {}).get("url", "")
+            request_method = google_get_apis.get(node_type, {}).get("method", "GET")
+            return api_url, request_method
+        else:
+            logger.error("Node Type not found: %s", node_type)
+            return None
+
+
+
+def get_params_for_get_method(response, node_type, url_var):
+    """
+    Get params value to substitute variable in url
+    """
+    params = {}
+    try:
+        for item in url_var:
+            if item == r'{bucket}':
+                params[item] = response['name']
+            else:
+                params[item] = response['projectId']
+        return params
+    except Exception as ex:
+        logger.error('Value not found: %s', ex)
+        return params
+
 def get_node(credentials, node, snapshot_source, snapshot):
     """
     Fetch node from google using connection. In this case using google client API's
@@ -128,6 +179,7 @@ def get_node(credentials, node, snapshot_source, snapshot):
     parts = snapshot_source.split('.')
     project_id = get_field_value_with_default(snapshot, 'project-id',"")
     path = get_field_value_with_default(node, 'path',"")
+    get_method = get_field_value_with_default(node, 'get_method',"")
     zone = re.findall(r"(?<=zones\/)[a-zA-Z0-9\-]*(?=\/)", path)
     session_id = get_from_currentdata("session_id")
     db_record = {
@@ -154,19 +206,52 @@ def get_node(credentials, node, snapshot_source, snapshot):
             "Authorization" : ("Bearer %s" % access_token)
         }
 
-        node_type = node['type'] if node and 'type' in node else ""
-        base_node_type_list = node_type.split("/")
-        if len(base_node_type_list) > 1:
-            base_node_type = base_node_type_list[0]
+        if get_method:
+            node_type = node['get_method'] if node and 'get_method' in node else ""
+            _, method = get_method_api_path(node_type)
+            base_node_type_list = node_type.split("/")
+            if len(base_node_type_list) > 1:
+                base_node_type = base_node_type_list[0]
+            else:
+                logger.error("Invalid node type %s", node_type)
+                return db_record
+            if method == "POST":
+                base_url = "%s%s" % (base_node_type, ".googleapis.com")
+                request_url = "https://%s/%s" % (base_url, path)
+                logger.info("Invoke request for get snapshot: %s", request_url)
+                temp_data_var = requests.post(url=request_url, headers=header)
+                data = temp_data_var.json()
+                status = temp_data_var.status_code
+                logger.info('Get snapshot status: %s', status)
+            elif method == "GET":
+                node_type = node['type'] if node and 'type' in node else ""
+                base_node_type_list = node_type.split("/")
+                if len(base_node_type_list) > 1:
+                    base_node_type = base_node_type_list[0]
+                else:
+                    logger.error("Invalid node type %s", node_type)
+                    return db_record
+            
+                base_url = "%s%s" % (base_node_type, ".googleapis.com")
+                request_url = "https://%s/%s" % (base_url, path)
+                logger.info("Invoke request for get snapshot: %s", request_url)
+                status, data = http_get_request(request_url, header)
+                logger.info('Get snapshot status: %s', status)
         else:
-            logger.error("Invalid node type %s", node_type)
-            return db_record
+
+            node_type = node['type'] if node and 'type' in node else ""
+            base_node_type_list = node_type.split("/")
+            if len(base_node_type_list) > 1:
+                base_node_type = base_node_type_list[0]
+            else:
+                logger.error("Invalid node type %s", node_type)
+                return db_record
         
-        base_url = "%s%s" % (base_node_type, ".googleapis.com")
-        request_url = "https://%s/%s" % (base_url, path)
-        logger.info("Invoke request for get snapshot: %s", request_url)
-        status, data = http_get_request(request_url, header)
-        logger.info('Get snapshot status: %s', status)
+            base_url = "%s%s" % (base_node_type, ".googleapis.com")
+            request_url = "https://%s/%s" % (base_url, path)
+            logger.info("Invoke request for get snapshot: %s", request_url)
+            status, data = http_get_request(request_url, header)
+            logger.info('Get snapshot status: %s', status)
         
         if status and isinstance(status, int) and status == 200:
             if data:
@@ -268,7 +353,7 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
             
             # snapshot_data["project-id"] = project_id
             # snapshot_data["request_url"] = request_url
-
+            
             set_snapshot_data(node, db_record['items'], snapshot_data)
 
             checksum = get_checksum(data)
@@ -283,6 +368,7 @@ def set_snapshot_data(node, items, snapshot_data):
 
     # create the node type for sub resources
     node_type = get_field_value(node, "type")
+    get_method = get_field_value(node, "get_method")
     node_type_list = node_type.split(".")
     resource_node_type = node_type
     if len(node_type_list) > 1:
@@ -327,12 +413,27 @@ def set_snapshot_data(node, items, snapshot_data):
 
     for item in resource_items:
         count += 1
-        if "selfLink" in item.keys():
-            request_url = item['selfLink']
-        elif "id" in item.keys():
-            request_url = request_url+"/"+item["id"].split(":")[-1]
-        elif "name" in item.keys():
-            request_url = request_url+"/"+item["name"]
+
+        if get_method:
+            request_url, _ = get_method_api_path(get_method)
+            url_list = request_url.split('/')
+            url_var = []
+            for elements in url_list:
+                element = ''.join(re.findall(r'(?<={)[\d\D]*(?=})', elements))
+                if element:
+                    url_var.append('{'+str(element)+'}')                    
+
+            params = get_params_for_get_method(item ,get_method, url_var)
+            request_url = requested_get_method_url(request_url, params)
+             
+
+        else:
+            if "selfLink" in item.keys():
+                request_url = item['selfLink']
+            elif "id" in item.keys():
+                request_url = request_url+"/"+item["id"].split(":")[-1]
+            elif "name" in item.keys():
+                request_url = request_url+"/"+item["name"]
 
         path_list = request_url.split("https://")
 
