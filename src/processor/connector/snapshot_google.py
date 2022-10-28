@@ -153,22 +153,76 @@ def get_method_api_path(node_type):
             return None
 
 
-
-def get_params_for_get_method(response, node_type, url_var):
+def get_params_for_get_method(response, url_var, project_id):
     """
     Get params value to substitute variable in url
     """
     params = {}
     try:
         for item in url_var:
-            if item == r'{bucket}':
+            if item == r"{bucket}" or item == r"{policy}":
                 params[item] = response['name']
-            else:
-                params[item] = response['projectId']
+            elif item == r"{project}":
+                try: 
+                    params[item] = response['projectId']
+                except:
+                    params[item] = project_id
+            elif item == r"{account}":
+                try:
+                    params[item] = response['email']
+                except:
+                    account = response['name']
+                    account_val = account.split('/')[-3]
+                    params[item] = account_val
+
+            elif item == r"{key}":
+                key_before_split = response['name']
+                key = key_before_split.split('/')[-1]
+                params[item] = key
+
         return params
     except Exception as ex:
         logger.error('Value not found: %s', ex)
         return params
+
+def get_request_url_get_method(get_method, item, project_id):
+    request_url, _ = get_method_api_path(get_method)
+    url_list = request_url.split('/')
+    url_var = []
+    for elements in url_list:
+        element = ''.join(re.findall(r'(?<={)[\d\D]*(?=})', elements))
+        if element:
+            url_var.append('{'+str(element)+'}')                    
+
+    params = get_params_for_get_method(item , url_var, project_id)
+    request_url = requested_get_method_url(request_url, params)
+    return request_url
+
+def get_request_url_list_method(get_method, list_method, item, project_id, credentials):
+    request_url = get_api_path(list_method)
+    url_list = request_url.split('/')
+    url_var = []
+    for elements in url_list:
+        element = ''.join(re.findall(r'(?<={)[\d\D]*(?=})', elements))
+        if element:
+            url_var.append('{'+str(element)+'}')                    
+
+    params = get_params_for_get_method(item , url_var, project_id)
+    request_url = requested_get_method_url(request_url, params)
+
+    access_token = credentials.get_access_token().access_token
+    header = {
+        "Authorization" : ("Bearer %s" % access_token)
+    }
+    list_data_response = requests.get(url=request_url, headers=header)
+    data = list_data_response.json()
+    resource_items =[]
+    resource_items = data['keys']
+    if resource_items:
+        for item in resource_items:
+            request_url = get_request_url_get_method(get_method, item, project_id)
+            return request_url
+
 
 def get_node(credentials, node, snapshot_source, snapshot):
     """
@@ -208,6 +262,9 @@ def get_node(credentials, node, snapshot_source, snapshot):
 
         if get_method:
             node_type = node['get_method'] if node and 'get_method' in node else ""
+            if isinstance(node_type, list):
+                node_type = str(node_type[0])
+                list_method = str(node_type[1])
             _, method = get_method_api_path(node_type)
             base_node_type_list = node_type.split("/")
             if len(base_node_type_list) > 1:
@@ -240,6 +297,9 @@ def get_node(credentials, node, snapshot_source, snapshot):
         else:
 
             node_type = node['type'] if node and 'type' in node else ""
+            if isinstance(node_type, list):
+                node_type = str(node_type[0])
+                list_method = str(node_type[1])
             base_node_type_list = node_type.split("/")
             if len(base_node_type_list) > 1:
                 base_node_type = base_node_type_list[0]
@@ -276,6 +336,7 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
     project_id = get_field_value_with_default(snapshot, 'project-id',"")
+    list_method = get_field_value(node, 'list_method')
     node_type = get_field_value_with_default(node, 'type',"")
     session_id = get_from_currentdata("session_id")
     db_record = {
@@ -298,6 +359,9 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
     }
 
     if node_type:
+        if isinstance(node_type, list):
+            node_type = str(node_type[0])
+            list_method = str(node_type[1])
         access_token = credentials.get_access_token().access_token
         header = {
             "Authorization" : ("Bearer %s" % access_token)
@@ -322,7 +386,9 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
 
         fn_str_list = ""
         if node and 'type' in node and node['type']:
-            fn_str_list = get_field_value(node, 'type').split(".")
+            fn_str_list = get_field_value(node, 'type')
+            if isinstance(fn_str_list, list):
+                fn_str_list = str(fn_str_list[0]).split(".")
         
         response_param = ""
         if fn_str_list and len(fn_str_list) > 1:
@@ -348,13 +414,29 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
 
                 if not db_record['items']:
                     db_record['items'] = data['items']
+            elif "policies" in data:
+                if isinstance(data['policies'], dict):
+                    for name, scoped_dict in data['policies'].items():
+                        if response_param in scoped_dict:
+                            db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
+
+                if not db_record['items']:
+                    db_record['items'] = data['policies']
+            elif "accounts" in data:
+                if isinstance(data['accounts'], dict):
+                    for name, scoped_dict in data['accounts'].items():
+                        if response_param in scoped_dict:
+                            db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
+
+                if not db_record['items']:
+                    db_record['items'] = data['accounts']
             elif data_filter in data:
                 db_record['items'] = data[data_filter]
             
             # snapshot_data["project-id"] = project_id
             # snapshot_data["request_url"] = request_url
             
-            set_snapshot_data(node, db_record['items'], snapshot_data)
+            set_snapshot_data(node, db_record['items'], snapshot_data, project_id, credentials)
 
             checksum = get_checksum(data)
             if checksum:
@@ -362,19 +444,25 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
 
     return db_record
 
-def set_snapshot_data(node, items, snapshot_data):
+def set_snapshot_data(node, items, snapshot_data, project_id, credentials):
     if node['masterSnapshotId'] not in snapshot_data or not isinstance(snapshot_data[node['masterSnapshotId']], list):
         snapshot_data[node['masterSnapshotId']] =  []
 
     # create the node type for sub resources
     node_type = get_field_value(node, "type")
-    get_method = get_field_value(node, "get_method")
-    node_type_list = node_type.split(".")
-    resource_node_type = node_type
-    if len(node_type_list) > 1:
-        del node_type_list[-1]
-        node_type_list.append("get")
-        resource_node_type = ".".join(node_type_list)
+    if isinstance(node_type, str):
+        get_method = get_field_value(node, "get_method")
+        list_method = get_field_value(node, "list_method")
+        node_type_list = node_type.split(".")
+        resource_node_type = node_type
+        if len(node_type_list) > 1:
+            del node_type_list[-1]
+            node_type_list.append("get")
+            resource_node_type = ".".join(node_type_list)
+    elif isinstance(node_type, list):
+        get_method = get_field_value(node, "get_method")
+        resource_node_type = str(node_type[0])
+        list_method = str(node_type[1])
 
     count = 0
     resource_items = []
@@ -414,18 +502,11 @@ def set_snapshot_data(node, items, snapshot_data):
     for item in resource_items:
         count += 1
 
-        if get_method:
-            request_url, _ = get_method_api_path(get_method)
-            url_list = request_url.split('/')
-            url_var = []
-            for elements in url_list:
-                element = ''.join(re.findall(r'(?<={)[\d\D]*(?=})', elements))
-                if element:
-                    url_var.append('{'+str(element)+'}')                    
-
-            params = get_params_for_get_method(item ,get_method, url_var)
-            request_url = requested_get_method_url(request_url, params)
-             
+        if get_method and not list_method:
+            request_url = get_request_url_get_method(get_method, item, project_id)
+        
+        elif list_method:
+            request_url = get_request_url_list_method(get_method, list_method, item, project_id, credentials)
 
         else:
             if "selfLink" in item.keys():
