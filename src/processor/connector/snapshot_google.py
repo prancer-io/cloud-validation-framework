@@ -444,7 +444,7 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
 
     return db_record
 
-def set_snapshot_data(node, items, snapshot_data, project_id, credentials):
+def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=None):
     if node['masterSnapshotId'] not in snapshot_data or not isinstance(snapshot_data[node['masterSnapshotId']], list):
         snapshot_data[node['masterSnapshotId']] =  []
 
