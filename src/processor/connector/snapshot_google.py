@@ -160,7 +160,7 @@ def get_params_for_get_method(response, url_var, project_id):
     params = {}
     try:
         for item in url_var:
-            if item == r"{bucket}" or item == r"{policy}":
+            if item == r"{bucket}" or item == r"{policy}" or item == r"{policy_name}":
                 params[item] = response['name']
             elif item == r"{project}":
                 try: 
@@ -406,32 +406,30 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
             db_record['json'] = data
             data_filter = response_param.split("/")[-1]
 
-            if "items" in data:
-                if isinstance(data['items'], dict):
-                    for name, scoped_dict in data['items'].items():
-                        if response_param in scoped_dict:
-                            db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
+            key_list = ["items", "policies", "accounts", "keys"]
+            for key in key_list:
+                if key in data:
+                    if isinstance(data[key], dict):
+                        for name, scoped_dict in data[key].items():
+                            if response_param in scoped_dict:
+                                db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
 
-                if not db_record['items']:
-                    db_record['items'] = data['items']
-            elif "policies" in data:
-                if isinstance(data['policies'], dict):
-                    for name, scoped_dict in data['policies'].items():
-                        if response_param in scoped_dict:
-                            db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
+                    if not db_record['items']:
+                        db_record['items'] = data[key]
+                elif data:
+                    response_data = {"item" : list(data)}
+                    if isinstance(response_data["item"], dict):
+                        for name, scoped_dict in response_data.items():
+                            print('response_param: ', response_param)
+                            if response_param in scoped_dict:
+                                print('check_node_type: ', check_node_type)
+                                db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
+                                print("db_record['items']: ", db_record['items'])
 
-                if not db_record['items']:
-                    db_record['items'] = data['policies']
-            elif "accounts" in data:
-                if isinstance(data['accounts'], dict):
-                    for name, scoped_dict in data['accounts'].items():
-                        if response_param in scoped_dict:
-                            db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
-
-                if not db_record['items']:
-                    db_record['items'] = data['accounts']
-            elif data_filter in data:
-                db_record['items'] = data[data_filter]
+                    if not db_record['items']:
+                        db_record['items'] = response_data["item"]
+                elif data_filter in data:
+                    db_record['items'] = data[data_filter]
             
             # snapshot_data["project-id"] = project_id
             # snapshot_data["request_url"] = request_url
