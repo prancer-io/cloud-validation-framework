@@ -159,14 +159,17 @@ def get_params_for_get_method(response, url_var, project_id):
     """
     params = {}
     try:
+        var_list = [r"{bucket}", r"{policy}", r"{policy_name}"]
         for item in url_var:
-            if item == r"{bucket}" or item == r"{policy}" or item == r"{policy_name}":
+            if item in var_list:
                 params[item] = response['name']
-            elif item == r"{project}":
+            elif item == r"{project}" or item == r"{resource}":
                 try: 
                     params[item] = response['projectId']
                 except:
                     params[item] = project_id
+            elif item == r"{dataset}":
+                params[item] = response["datasetReference"]["datasetId"]
             elif item == r"{account}":
                 try:
                     params[item] = response['email']
@@ -175,7 +178,7 @@ def get_params_for_get_method(response, url_var, project_id):
                     account_val = account.split('/')[-3]
                     params[item] = account_val
 
-            elif item == r"{key}":
+            elif item == r"{key}" or item == r"{service_name}":
                 key_before_split = response['name']
                 key = key_before_split.split('/')[-1]
                 params[item] = key
@@ -185,7 +188,7 @@ def get_params_for_get_method(response, url_var, project_id):
         logger.error('Value not found: %s', ex)
         return params
 
-def get_request_url_get_method(get_method, item, project_id):
+def get_request_url_get_method(get_method, item, project_id=None):
     request_url, _ = get_method_api_path(get_method)
     url_list = request_url.split('/')
     url_var = []
@@ -198,7 +201,7 @@ def get_request_url_get_method(get_method, item, project_id):
     request_url = requested_get_method_url(request_url, params)
     return request_url
 
-def get_request_url_list_method(get_method, list_method, item, project_id, credentials):
+def get_request_url_list_method(get_method, list_method, item, project_id=None, credentials=None):
     request_url = get_api_path(list_method)
     url_list = request_url.split('/')
     url_var = []
@@ -406,7 +409,7 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
             db_record['json'] = data
             data_filter = response_param.split("/")[-1]
 
-            key_list = ["items", "policies", "accounts", "keys"]
+            key_list = ["items", "policies", "accounts", "keys", "services", "projects", "datasets"]
             for key in key_list:
                 if key in data:
                     if isinstance(data[key], dict):
@@ -416,20 +419,15 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
 
                     if not db_record['items']:
                         db_record['items'] = data[key]
-                elif data:
-                    response_data = {"item" : list(data)}
-                    if isinstance(response_data["item"], dict):
-                        for name, scoped_dict in response_data.items():
-                            print('response_param: ', response_param)
-                            if response_param in scoped_dict:
-                                print('check_node_type: ', check_node_type)
-                                db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
-                                print("db_record['items']: ", db_record['items'])
-
-                    if not db_record['items']:
-                        db_record['items'] = response_data["item"]
                 elif data_filter in data:
                     db_record['items'] = data[data_filter]
+                    
+                elif key not in data:
+                    list_var = []
+                    list_var.append(data)
+                    response_data = {"item" : list_var}
+            if not db_record['items']:
+                db_record['items'] = response_data["item"]
             
             # snapshot_data["project-id"] = project_id
             # snapshot_data["request_url"] = request_url
