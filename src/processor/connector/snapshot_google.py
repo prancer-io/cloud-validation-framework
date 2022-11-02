@@ -409,25 +409,24 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
             db_record['json'] = data
             data_filter = response_param.split("/")[-1]
 
-            key_list = ["items", "policies", "accounts", "keys", "services", "projects", "datasets"]
-            for key in key_list:
-                if key in data:
-                    if isinstance(data[key], dict):
-                        for name, scoped_dict in data[key].items():
-                            if response_param in scoped_dict:
+            if "items" in data:
+                if isinstance(data["items"], dict):
+                    for name, scoped_dict in data["items"].items():
+                        if response_param in scoped_dict or data_filter in scoped_dict:
+                            try:
                                 db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
-
-                    if not db_record['items']:
-                        db_record['items'] = data[key]
-                elif data_filter in data:
-                    db_record['items'] = data[data_filter]
-                    
-                elif key not in data:
-                    list_var = []
-                    list_var.append(data)
-                    response_data = {"item" : list_var}
-            if not db_record['items']:
-                db_record['items'] = response_data["item"]
+                            except:
+                                db_record['items'] = db_record['items'] + scoped_dict[data_filter]
+                elif not db_record['items']:
+                    db_record['items'] = data["items"]
+            elif data_filter in data:
+                db_record['items'] = data[data_filter]
+                
+            elif "items" not in data and data_filter not in data:
+                list_var = []
+                list_var.append(data)
+                response_data = {"items" : list_var}
+                db_record['items'] = response_data["items"]
             
             # snapshot_data["project-id"] = project_id
             # snapshot_data["request_url"] = request_url
