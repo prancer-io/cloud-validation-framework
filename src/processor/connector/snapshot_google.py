@@ -443,7 +443,7 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
     # create the node type for sub resources
     node_type = get_field_value(node, "type")
     get_method = get_field_value(node, "get_method")
-    list_method = get_field_value(node, "list_method")
+    list_method = None
     if isinstance(get_method, list):
         if len(get_method) > 1:
             list_method = ''.join(get_method[0])
