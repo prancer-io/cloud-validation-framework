@@ -266,8 +266,9 @@ def get_node(credentials, node, snapshot_source, snapshot):
         if get_method:
             node_type = node['get_method'] if node and 'get_method' in node else ""
             if isinstance(node_type, list):
-                node_type = str(node_type[0])
-                list_method = str(node_type[1])
+                if len(node_type) > 1:
+                    node_type = ''.join(node_type[1])
+                node_type = ''.join(node_type)
             _, method = get_method_api_path(node_type)
             base_node_type_list = node_type.split("/")
             if len(base_node_type_list) > 1:
@@ -301,8 +302,9 @@ def get_node(credentials, node, snapshot_source, snapshot):
 
             node_type = node['type'] if node and 'type' in node else ""
             if isinstance(node_type, list):
-                node_type = str(node_type[0])
-                list_method = str(node_type[1])
+                if len(node_type) > 1:
+                    get_method = ''.join(node_type[1])
+                node_type = ''.join(node_type)
             base_node_type_list = node_type.split("/")
             if len(base_node_type_list) > 1:
                 base_node_type = base_node_type_list[0]
@@ -339,7 +341,6 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
     collection = node['collection'] if 'collection' in node else COLLECTION
     parts = snapshot_source.split('.')
     project_id = get_field_value_with_default(snapshot, 'project-id',"")
-    list_method = get_field_value(node, 'list_method')
     node_type = get_field_value_with_default(node, 'type',"")
     session_id = get_from_currentdata("session_id")
     db_record = {
@@ -362,9 +363,6 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
     }
 
     if node_type:
-        if isinstance(node_type, list):
-            node_type = str(node_type[0])
-            list_method = str(node_type[1])
         access_token = credentials.get_access_token().access_token
         header = {
             "Authorization" : ("Bearer %s" % access_token)
@@ -412,12 +410,11 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
             if "items" in data:
                 if isinstance(data["items"], dict):
                     for name, scoped_dict in data["items"].items():
-                        if response_param in scoped_dict or data_filter in scoped_dict:
-                            try:
-                                db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
-                            except:
-                                db_record['items'] = db_record['items'] + scoped_dict[data_filter]
-                elif not db_record['items']:
+                        if response_param in scoped_dict:
+                            db_record['items'] = db_record['items'] + scoped_dict[check_node_type]
+                        elif data_filter in scoped_dict:
+                            db_record['items'] = db_record['items'] + scoped_dict[data_filter]
+                elif "items" in data and not db_record['items']:
                     db_record['items'] = data["items"]
             elif data_filter in data:
                 db_record['items'] = data[data_filter]
@@ -445,19 +442,18 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
 
     # create the node type for sub resources
     node_type = get_field_value(node, "type")
-    if isinstance(node_type, str):
-        get_method = get_field_value(node, "get_method")
-        list_method = get_field_value(node, "list_method")
-        node_type_list = node_type.split(".")
-        resource_node_type = node_type
-        if len(node_type_list) > 1:
-            del node_type_list[-1]
-            node_type_list.append("get")
-            resource_node_type = ".".join(node_type_list)
-    elif isinstance(node_type, list):
-        get_method = get_field_value(node, "get_method")
-        resource_node_type = str(node_type[0])
-        list_method = str(node_type[1])
+    get_method = get_field_value(node, "get_method")
+    list_method = get_field_value(node, "list_method")
+    if len(get_method) > 1:
+        list_method = ''.join(get_method[0])
+        get_method = ''.join(get_method[1])
+    get_method = ''.join(get_method)
+    node_type_list = node_type.split(".")
+    resource_node_type = node_type
+    if len(node_type_list) > 1:
+        del node_type_list[-1]
+        node_type_list.append("get")
+        resource_node_type = ".".join(node_type_list)
 
     count = 0
     resource_items = []
