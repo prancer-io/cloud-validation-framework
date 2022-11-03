@@ -444,10 +444,11 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
     node_type = get_field_value(node, "type")
     get_method = get_field_value(node, "get_method")
     list_method = get_field_value(node, "list_method")
-    if len(get_method) > 1:
-        list_method = ''.join(get_method[0])
-        get_method = ''.join(get_method[1])
-    get_method = ''.join(get_method)
+    if isinstance(get_method, list):
+        if len(get_method) > 1:
+            list_method = ''.join(get_method[0])
+            get_method = ''.join(get_method[1])
+        get_method = ''.join(get_method)
     node_type_list = node_type.split(".")
     resource_node_type = node_type
     if len(node_type_list) > 1:
