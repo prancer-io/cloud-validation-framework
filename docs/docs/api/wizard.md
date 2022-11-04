@@ -64,8 +64,12 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 - **Param:**
 ```
 - provider: GCP (or gcp, google)
-- state: <customer>
+- customer: customer id
 - code: <code passed by google's oauth app>
+- private_key_id: Private key Id <from service account json>
+- private_key: Private key <from service account json>
+- client_email: Client email <from service account json>
+- client_id: Client Id <from service account json>
 ```
 
 **Response:**
