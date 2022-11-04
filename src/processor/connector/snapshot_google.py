@@ -269,7 +269,8 @@ def get_node(credentials, node, snapshot_source, snapshot):
             node_type = node['get_method'] if node and 'get_method' in node else ""
             if isinstance(node_type, list) and len(node_type) > 1:
                 node_type = ''.join(node_type[1])
-            node_type = ''.join(node_type)
+            elif isinstance(node_type, list) and len(node_type) == 1:
+                node_type = ''.join(node_type)
             _, method = get_method_api_path(node_type)
             base_node_type_list = node_type.split("/")
             if len(base_node_type_list) > 1:
@@ -444,7 +445,8 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
     if isinstance(get_method, list) and len(get_method) > 1:
         list_method = ''.join(get_method[0])
         get_method = ''.join(get_method[1])
-    get_method = ''.join(get_method)
+    elif isinstance(get_method, list) and len(get_method) == 1:
+        get_method = ''.join(get_method)
     node_type_list = node_type.split(".")
     resource_node_type = node_type
     if len(node_type_list) > 1:
