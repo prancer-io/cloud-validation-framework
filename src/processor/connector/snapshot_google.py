@@ -177,13 +177,11 @@ def get_params_for_get_method(response, url_var, project_id):
                     params[item] = response['email']
                 except:
                     account = response['name']
-                    account_val = account.split('/')[-3]
-                    params[item] = account_val
+                    params[item] = account.split('/')[-3]
 
             elif item == r"{key}" or item == r"{service_name}":
                 key_before_split = response['name']
-                key = key_before_split.split('/')[-1]
-                params[item] = key
+                params[item] = key_before_split.split('/')[-1]
 
         return params
     except Exception as ex:
