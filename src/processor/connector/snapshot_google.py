@@ -163,6 +163,8 @@ def get_params_for_get_method(response, url_var, project_id):
         for item in url_var:
             if item in var_list:
                 params[item] = response['name']
+            elif item == r"{location}":
+                params[item] = response['metadata']['labels']['cloud.googleapis.com/location']
             elif item == r"{project}" or item == r"{resource}":
                 try: 
                     params[item] = response['projectId']
@@ -175,13 +177,11 @@ def get_params_for_get_method(response, url_var, project_id):
                     params[item] = response['email']
                 except:
                     account = response['name']
-                    account_val = account.split('/')[-3]
-                    params[item] = account_val
+                    params[item] = account.split('/')[-3]
 
             elif item == r"{key}" or item == r"{service_name}":
                 key_before_split = response['name']
-                key = key_before_split.split('/')[-1]
-                params[item] = key
+                params[item] = key_before_split.split('/')[-1]
 
         return params
     except Exception as ex:
@@ -265,9 +265,9 @@ def get_node(credentials, node, snapshot_source, snapshot):
 
         if get_method:
             node_type = node['get_method'] if node and 'get_method' in node else ""
-            if isinstance(node_type, list):
-                if len(node_type) > 1:
-                    node_type = ''.join(node_type[1])
+            if isinstance(node_type, list) and len(node_type) > 1:
+                node_type = ''.join(node_type[1])
+            elif isinstance(node_type, list) and len(node_type) == 1:
                 node_type = ''.join(node_type)
             _, method = get_method_api_path(node_type)
             base_node_type_list = node_type.split("/")
@@ -301,10 +301,6 @@ def get_node(credentials, node, snapshot_source, snapshot):
         else:
 
             node_type = node['type'] if node and 'type' in node else ""
-            if isinstance(node_type, list):
-                if len(node_type) > 1:
-                    get_method = ''.join(node_type[1])
-                node_type = ''.join(node_type)
             base_node_type_list = node_type.split("/")
             if len(base_node_type_list) > 1:
                 base_node_type = base_node_type_list[0]
@@ -444,10 +440,10 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
     node_type = get_field_value(node, "type")
     get_method = get_field_value(node, "get_method")
     list_method = None
-    if isinstance(get_method, list):
-        if len(get_method) > 1:
-            list_method = ''.join(get_method[0])
-            get_method = ''.join(get_method[1])
+    if isinstance(get_method, list) and len(get_method) > 1:
+        list_method = ''.join(get_method[0])
+        get_method = ''.join(get_method[1])
+    elif isinstance(get_method, list) and len(get_method) == 1:
         get_method = ''.join(get_method)
     node_type_list = node_type.split(".")
     resource_node_type = node_type
