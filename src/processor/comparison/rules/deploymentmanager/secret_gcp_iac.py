@@ -1,6 +1,6 @@
 import json
 import re
-import collections
+import collections.abc as collections
 import traceback
 import math
 
