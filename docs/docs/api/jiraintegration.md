@@ -2,6 +2,50 @@
 ===
 Jira Integration APIs help in integrating Jira with Prancer at the collections level. The user can set project keys to view and create issues on the same.
 
+**Collection Configuration API.**
+---
+  	This API is to check the existing integrations status. 
+
+- **CURL Sample**
+
+``` curl 
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/collection/configuration?container=<container_name' -H 'Authorization: Bearer <JWT Bearer Token>' 
+```
+
+- **URL: https://portal.prancer.io/prancer-customer1/api/collection/configuration**
+- **Method: GET**
+- **Header:**
+
+``` code
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+
+``` json
+    "container": "Container_Name",
+
+```
+
+- **Explanation:**
+	`The Container field is mandatory.`
+
+- **Response:**
+
+``` json
+{
+    "data": {
+        "jira": "integrated"
+    },
+    "error": "",
+    "error_list": [],
+    "message": "Configuration data.",
+    "metadata": {},
+    "status": 200
+}
+```
+
+
 **JiraIntegration API.**
 ---
   	This API is to initiate the integration by getting the details from the user. 
@@ -60,9 +104,312 @@ curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira' -H 'Authoriz
 }
 ```
 
+**Get Issuetypes API.**
+---
+  	This API is to list the issue types available. 
+
+- **CURL Sample**
+
+``` curl 
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/issuetype?container=<container_name>' -H 'Authorization: Bearer <JWT Bearer Token>' 
+```
+
+- **URL: https://portal.prancer.io/prancer-customer1/api/jira/issuetype**
+- **Method: GET**
+- **Header:**
+
+``` code
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+
+``` json
+    "container": "Container_Name",
+
+```
+
+- **Explanation:**
+	`The Container field is mandatory.`
+
+- **Response:**
+
+``` json
+{
+    "data": {
+        "issuetypes": [
+            "Task",
+            "Epic",
+            "Subtask"
+       ]
+    },
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
+}
+```
+**Get Status API.**
+---
+  	This API is to list the statuses available for the user. 
+
+- **CURL Sample**
+
+``` curl 
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/status?container=<container_name>' -H 'Authorization: Bearer <JWT Bearer Token>' 
+```
+
+- **URL: https://portal.prancer.io/prancer-customer1/api/jira/status**
+- **Method: GET**
+- **Header:**
+
+``` code
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+
+``` json
+    "container": "Container_Name",
+
+```
+
+- **Explanation:**
+	`The Container field is mandatory.`
+
+- **Response:**
+
+``` json
+{
+    "data": {
+        "status": [
+            "IN_PROGRESS",
+            "DONE",
+            "TODO"
+        ]
+    },
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
+}
+```
+**Get Labels API.**
+---
+  	This API is to list the labels available for the user. 
+
+- **CURL Sample**
+
+``` curl 
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/label?container=<container_name>' -H 'Authorization: Bearer <JWT Bearer Token>' 
+```
+
+- **URL: https://portal.prancer.io/prancer-customer1/api/jira/label**
+- **Method: GET**
+- **Header:**
+
+``` code
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+
+``` json
+    "container": "Container_Name",
+
+```
+
+- **Explanation:**
+	`The Container field is mandatory.`
+
+- **Response:**
+
+``` json
+{
+    "data": {
+        "Labels": [
+            "blitz_test",
+            "bugfix",
+            "cspm",
+            "iac",
+            "label",
+            "new_release",
+            "pentest",
+            "sample-space",
+            "test"
+        ]
+    },
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**Jira Configuration API.**
+---
+  	This API has three methods,POST,GET and PUT. This API is to collect data from user input, save it and fetch when required and also can be edited. The fields are, issuetype,openstatus,closestatus,labels,container. The detailed explanation are below: 
+
+**POST method.**
+---
+  	This method is to post the data received. 
+	
+- **CURL Sample**
+
+``` curl 
+curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/configuration' -H 'Authorization: Bearer <JWT Bearer Token>' --data-raw {
+    "issuetype": "Task","openstatus": "TODO","closestatus": "InProgress","labels": ["testfix"],"container":<container_name}'
+```
+
+- **URL: https://portal.prancer.io/prancer-customer1/api/jira/configuration**
+- **Method: POST**
+- **Header:**
+
+``` code
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```	
+
+- **Param:**
+
+``` json
+{
+    "issuetype": "10007",
+    "openstatus": "TODO",
+    "closestatus": "InProgress",
+    "labels": "[testjira]",
+    "container":"new_container"
+}
+```
+- **Explanation:**
+    `All of the fields are required.`
+    - **"issuetype"**: Issue type as set by the user,
+    - **“openstatus"** : Openstatus value as set by the user,
+    - **"closestatus"** : Closestatus value as set by the user,
+    - **"labels"** : Label values as set by the user,
+    - **"container"** : Name of the container.
+
+- **Response:**
+
+``` json
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Jira configuration is added.",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**GET method.**
+---
+  	This API is to fetch the data, which were set by the user. 
+
+- **CURL Sample**
+
+``` curl 
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/configuration?container=<container_name>' -H 'Authorization: Bearer <JWT Bearer Token>' 
+```
+
+- **URL: https://portal.prancer.io/prancer-customer1/api/jira/configuration**
+- **Method: GET**
+- **Header:**
+
+``` code
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+
+``` json
+    "container": "Container_Name",
+```
+- **Explanation:**
+	`The Container field is mandatory.`
+
+- **Response:**
+
+``` json
+{
+    "data": {
+        "closestatus": "InProgress",
+        "configid": "632ad6c37dd27c6b720fb751",
+        "container": "new_container",
+        "issuetype": "10007",
+        "labels": "[testjira]",
+        "openstatus": "TODO",
+        "project": "INT",
+        "url": "https://abinayamahalingam.atlassian.net"
+    },
+    "error": "",
+    "error_list": [],
+    "message": "Jira configuration as added.",
+    "metadata": {},
+    "status": 200
+}
+```
+**PUT method.**
+---
+  	This method is to be able to edit the data. 
+	
+- **CURL Sample**
+
+``` curl 
+curl -X PUT 'https://portal.prancer.io/prancer-customer1/api/jira/configuration' -H 'Authorization: Bearer <JWT Bearer Token>' --data-raw {
+    "issuetype": "Task","openstatus": "TODO","closestatus": "InProgress","labels": ["testfix"],"container":<container_name}'
+```
+
+- **URL: https://portal.prancer.io/prancer-customer1/api/jira/configuration**
+- **Method: PUT**
+- **Header:**
+
+``` code
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```	
+
+- **Param:**
+
+``` json
+{
+    "issuetype": "10007",
+    "openstatus": "TODO",
+    "closestatus": "InProgress",
+    "labels": "[testjira]",
+    "container":"new_container"
+}
+```
+- **Explanation:**
+    `The container field is required. All other fields are optional.`
+    - **"issuetype"**: Issue type as set by the user,
+    - **“openstatus"** : Openstatus value as set by the user,
+    - **"closestatus"** : Closestatus value as set by the user,
+    - **"labels"** : Label values as set by the user,
+    - **"container"** : Name of the container.
+
+- **Response:**
+
+``` json
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Jira configuration is modified.",
+    "metadata": {},
+    "status": 200
+}
+```
+
+
+    
+    
 **JiraIssues API.**
 ===
-   This API has  GET and POST methods. A user can list the issues available in the project he mentions. He can create a single or bulk issues with the POST method.
+   This API has  GET and POST methods. A user can list the issues available in the project mentioned. Creating a single or bulk issues can be done with the POST method.
 
 **GET method.**
 ---
@@ -70,7 +417,7 @@ curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira' -H 'Authoriz
 - **CURL Sample**
 
 ``` curl 
-curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Authorization: Bearer <JWT Bearer Token>' --data-raw '{ "container":"new_container","project":"IP" }'
+curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/issue?container=<container_name>&project=<project_key>'' -H 'Authorization: Bearer <JWT Bearer Token>' 
 ```
 
 - **URL: https://portal.prancer.io/prancer-customer1/api/jira/issue**
@@ -85,14 +432,12 @@ curl -X GET 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Aut
 - **Param:**
 
 ``` json
-{
     "container": "Container_Name",
     "project": "Project_Key"
-}
 ```
 
 - **Explanation:**
-	`The Container field is mandatory. The Project field can be optional`
+	`The Container field is mandatory. The Project field can be optional.`
 
 - **Response:**
 
@@ -261,6 +606,11 @@ curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Au
      }]
 }
 ```
+
+- **Explanation:**
+	`The Container and issues fields are mandatory. The title in the issues is a required field.Tags and issuetype are optional.The Project field can be optional.`
+
+
 - **Response:**
 
 ```json
@@ -320,6 +670,10 @@ curl -X POST 'https://portal.prancer.io/prancer-customer1/api/jira/issue' -H 'Au
      
 }
 ```
+
+- **Explanation:**
+	`The Container and issues fields are mandatory. The title in the issues is a required field.Tags and issuetype are optional.The Project field can be optional.`
+
 
 - **Response:**
 
