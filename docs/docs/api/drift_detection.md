@@ -7,7 +7,7 @@
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/prancer-customer1/api/drift_detection/find_drift/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{"cloud_container": "aws_jaimin"}'
+curl -X POST https://portal.prancer.io/prancer-customer1/api/drift_detection/find_drift/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{"cloud_container": "aws_cloud"}'
 ```
 
 - **URL:** https://portal.prancer.io/prancer-customer1/api/drift_detection/find_drift/
