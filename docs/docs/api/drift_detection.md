@@ -20,7 +20,7 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/drift_detection/fin
 - **Param:**
 ```
 {
-    "cloud_container": "aws_jaimin"
+    "cloud_container": "aws_cloud"
 }
 ```
 
