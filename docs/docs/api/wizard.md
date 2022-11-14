@@ -162,7 +162,7 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
   "data": {
     "data": {
       "provider": "gitlab",
-      "url": "[https://github.com/login/oauth/authorize?state=customer1&client_id=85df68d715d9c49877](https://gitlab.com/oauth/authorize?client_id=714be9e110cc8a4cb5b**&redirect_uri=https%3A%2F%2Fportaldev.prancer.io%2Fcallback%2Fgitlab&response_type=code&state=customer1&scope=read_api%20write_repository)"
+      "url": "https://gitlab.com/oauth/authorize?client_id=714be9e110cc8a4cb5b**&redirect_uri=https%3A%2F%2Fportaldev.prancer.io%2Fcallback%2Fgitlab&response_type=code&state=customer1&scope=read_api%20write_repository"
      },
      "error": null
   },
