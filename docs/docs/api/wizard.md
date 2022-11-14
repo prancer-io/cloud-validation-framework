@@ -133,6 +133,86 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
 }
 ```
 
+** Gitlab Wizard Redirection API.**
+---
+- API to get the gitlab redirect URL for dev, qa or prod gitlab oauth app. 
+
+**CURL Sample**
+```
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/prancer-customer1/api/wizardredirect?provider=gitlab&state=customer1"
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardredirect
+- **Method:** GET
+- **Header:**
+```
+    - content-type: application/json
+    - space-id: 101
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+```
+- provider: gitlab
+- state: <customer>
+```
+
+**Response:**
+```
+{
+  "data": {
+    "data": {
+      "provider": "gitlab",
+      "url": "[https://github.com/login/oauth/authorize?state=customer1&client_id=85df68d715d9c49877](https://gitlab.com/oauth/authorize?client_id=714be9e110cc8a4cb5b**&redirect_uri=https%3A%2F%2Fportaldev.prancer.io%2Fcallback%2Fgitlab&response_type=code&state=customer1&scope=read_api%20write_repository)"
+     },
+     "error": null
+  },
+  "error": "",
+    "error_list": [],
+  "message": "",
+  "metadata": {},
+  "status": 200
+}
+```
+** Bitbucket Wizard Redirection API.**
+---
+- API to get the bitbucket redirect URL for dev, qa or prod github oauth app. 
+
+**CURL Sample**
+```
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "https://portal.prancer.io/prancer-customer1/api/wizardredirect?provider=bitbucket&state=customer1"
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardredirect
+- **Method:** GET
+- **Header:**
+```
+    - content-type: application/json
+    - space-id: 101
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+```
+- provider: bitbucket
+- state: <customer>
+```
+
+**Response:**
+```
+{
+    "data": {
+        "data": {
+            "provider": "bitbucket",
+            "url": "https://bitbucket.org/site/oauth2/authorize?client_id=TVXMH4WGZhUttqa5mw&response_type=code&state=None"
+        },
+        "error": null
+    },
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
+}
+```
 ** Github Wizard provider API.**
 ---
 - API to get the github list of repositories using github oauth app. 
@@ -166,6 +246,90 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
     "results": [
       "git@github.com:<gituser>/<repository_name>.git",
       "git@github.com:<organization>/<repository_name>.git",
+    ]
+  },
+  "error": "",
+    "error_list": [],
+  "message": "",
+  "metadata": {},
+  "status": 200
+}
+```
+** Gitlab Wizard provider API.**
+---
+- API to get the gitlab list of repositories using gitlab oauth app. 
+
+**CURL Sample**
+```
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizardproviders" -d'{"provider": "git", "type": "gitlab", "state": "customer1", "code": "<gitlab Access Code>"}'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardproviders
+- **Method:** POST
+- **Header:**
+```
+    - content-type: application/json
+    - space-id: 101
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+```
+- provider: git
+- type: gitlab
+- state: <customer>
+- code: <code in the callback from gitlab>
+```
+
+**Response:**
+```
+{
+  "data": {
+    "error": null,
+    "results": [
+      "git@gitlab.com:<gituser>/<repository_name>.git",
+      "git@gitlab.com:<organization>/<repository_name>.git",
+    ]
+  },
+  "error": "",
+    "error_list": [],
+  "message": "",
+  "metadata": {},
+  "status": 200
+}
+```
+** Bitbucket Wizard provider API.**
+---
+- API to get the bitbucket list of repositories using bitbucket oauth app. 
+
+**CURL Sample**
+```
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X POST "https://portal.prancer.io/prancer-customer1/api/wizardproviders" -d'{"provider": "git", "type": "bitbucket", "state": "customer1", "code": "<bitbucket Access Code>"}'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizardproviders
+- **Method:** POST
+- **Header:**
+```
+    - content-type: application/json
+    - space-id: 101
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+```
+- provider: git
+- type: bitbucket
+- state: <customer>
+- code: <code in the callback from bitbucket>
+```
+
+**Response:**
+```
+{
+  "data": {
+    "error": null,
+    "results": [
+      "git@bitbucket.com:<gituser>/<repository_name>.git",
+      "git@bitbucket.com:<organization>/<repository_name>.git",
     ]
   },
   "error": "",
@@ -264,6 +428,90 @@ curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content
   "message": "",
   "metadata": {},
   "status": 200
+}
+```
+
+** Gitlab Wizard Branch list API.**
+---
+- API to get the gitlab list of branches in the respository. 
+
+**CURL Sample**
+```
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "'http://localhost:8080/api/wizard/branches?provider=gitlab&repo=git@gitlab.com:<gituser>/<repository_name>.git'"}'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizard/branches
+- **Method:** GET
+- **Header:**
+```
+    - content-type: application/json
+    - space-id: 101
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+```
+- provider: gitlab
+- repo: <git@gitlab.com:<gituser>/<repository_name>.git>
+```
+
+**Response:**
+```
+{
+    "data": {
+        "error": null,
+        "results": [
+            "main",
+            "testbranch1",
+            "testbranch2"
+        ]
+    },
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
+}
+```
+
+** Bitbucket Wizard Branch list API.**
+---
+- API to get the bitbucket list of branches in the respository. 
+
+**CURL Sample**
+```
+curl -H "space-id:101" -H "Authorization: Bearer <JWT Bearer Token>" -H "Content-Type:application/json" -X GET "'http://localhost:8080/api/wizard/branches?provider=bitbucket&repo=git@bitbucket.com:<gituser>/<repository_name>.git'"}'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/wizard/branches
+- **Method:** GET
+- **Header:**
+```
+    - content-type: application/json
+    - space-id: 101
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+```
+- provider: bitbucket
+- repo: <git@bitbucket.com:<gituser>/<repository_name>.git>
+```
+
+**Response:**
+```
+{
+    "data": {
+        "error": null,
+        "results": [
+            "main",
+            "testbranch1",
+            "testbranch2"
+        ]
+    },
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
 }
 ```
 
