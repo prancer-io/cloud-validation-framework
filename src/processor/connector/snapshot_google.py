@@ -383,9 +383,7 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
 
         fn_str_list = ""
         if node and 'type' in node and node['type']:
-            fn_str_list = get_field_value(node, 'type')
-            if isinstance(fn_str_list, list):
-                fn_str_list = str(fn_str_list[0]).split(".")
+            fn_str_list = get_field_value(node, 'type').split(".")
         
         response_param = ""
         if fn_str_list and len(fn_str_list) > 1:
