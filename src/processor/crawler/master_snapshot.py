@@ -221,14 +221,15 @@ def mastersnapshots_used_in_mastertests_filesystem(container):
     return list(set(snapshots))  # set so that unique list of files are returned.
 
 
-def generate_container_mastersnapshots_filesystem(container):
+def generate_container_mastersnapshots_filesystem(container, mastersnapshotfile=None):
     """
     Using the mastersnapshot files from the container with storage system as filesystem.
     The path for looking into the container is configured in the config.ini, for the
     default location configuration is $SOLUTIONDIR/realm/validation/<container>
     """
     snapshots_status = {}
-    snapshot_dir, snapshot_files = get_container_snapshot_json_files(container, mastersnapshot=True)
+    snapshot_dir, snapshot_files = get_container_snapshot_json_files(container, mastersnapshot=True, name=mastersnapshotfile)
+    mastersnapshotfile_name_json = mastersnapshotfile + ".json" if mastersnapshotfile else None
     if not snapshot_files:
         logger.error("No mastersnapshot files in %s, exiting!...", snapshot_dir)
         return snapshots_status
@@ -238,7 +239,7 @@ def generate_container_mastersnapshots_filesystem(container):
     for snapshot_file in snapshot_files:
         logger.info('\tMASTERSNAPSHOT:%s', snapshot_file)
         parts = snapshot_file.rsplit('/', 1)
-        if parts[-1] in snapshots:
+        if parts[-1] in snapshots or parts[-1] == mastersnapshotfile_name_json:
             if parts[-1] not in populated:
                 # Take the snapshot and crawl for the  resource types.
                 snapshot_file_data, snapshot_json_data = generate_snapshots_from_mastersnapshot_file(snapshot_file)
@@ -283,7 +284,7 @@ def mastersnapshots_used_in_mastertests_database(container):
     return list(set(snapshots))
 
 
-def generate_container_mastersnapshots_database(container):
+def generate_container_mastersnapshots_database(container, mastersnapshotfile=None):
     """
     Get the mastersnapshot files from the container with storage system as database.
     The table or collection and database is configured in the config.ini, for the default
@@ -294,8 +295,10 @@ def generate_container_mastersnapshots_database(container):
     collection = config_value(DATABASE, collectiontypes[MASTERSNAPSHOT])
     snp_collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
     generate_crawler_run_output(container)
-    
+
     qry = {'container': container}
+    if mastersnapshotfile:
+        qry['name'] = mastersnapshotfile
     sort = [sort_field('timestamp', False)]
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
     try:
@@ -312,7 +315,7 @@ def generate_container_mastersnapshots_database(container):
                             logger.info("Failed to populate master snapshot json from the git repository")
                             break
 
-                    if snapshot in snapshots:
+                    if snapshot in snapshots or snapshot == mastersnapshotfile:
                         if snapshot not in populated:
                             snp_collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
                             snp_name = '%s_gen' % snapshot
@@ -377,7 +380,7 @@ def set_snapshot_activate_and_validate_data(snapshot_data, snapshot_doc_data):
                             node["status"] = doc_node["status"] if "status" in doc_node else node["status"]
 
 
-def generate_container_mastersnapshots(container, dbsystem=True):
+def generate_container_mastersnapshots(container, dbsystem=True, mastersnapshotfile=None):
     """
     All master snapshots are also contained in a workspace(which is called as a container) along with regular snapshots .
     So for a crawler operation of a container, the mastersnapshots generate snapshots after crawling the resources using
@@ -391,9 +394,9 @@ def generate_container_mastersnapshots(container, dbsystem=True):
     logger.info("\tCollection: %s,  Type: %s",
                     container, "DATABASE" if dbsystem  else "FILESYSTEM")
     if dbsystem:
-        return generate_container_mastersnapshots_database(container)
+        return generate_container_mastersnapshots_database(container, mastersnapshotfile)
     else:
-        return generate_container_mastersnapshots_filesystem(container)
+        return generate_container_mastersnapshots_filesystem(container, mastersnapshotfile)
 
 def generate_crawler_run_output(container):
     """
