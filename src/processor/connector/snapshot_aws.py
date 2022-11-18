@@ -489,7 +489,10 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                 if "arn:" in each_resource:
                     resource_arn = each_resource
                 else:
-                    resource_arn = arn_string %(awsclient.meta._service_model.service_name,
+                    if awsclient.meta._service_model.service_name == "s3":
+                        resource_arn = arn_string %(awsclient.meta._service_model.service_name,"", each_resource)
+                    else:
+                        resource_arn = arn_string %(awsclient.meta._service_model.service_name,
                         awsclient.meta.region_name, each_resource)
 
                 for each_method_str in detail_methods:
