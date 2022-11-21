@@ -490,7 +490,7 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                     resource_arn = each_resource
                 else:
                     if awsclient.meta._service_model.service_name == "s3":
-                        resource_arn = arn_string %(awsclient.meta._service_model.service_name,"", each_resource)
+                        resource_arn = arn_string %(awsclient.meta._service_model.service_name, "", each_resource)
                     else:
                         resource_arn = arn_string %(awsclient.meta._service_model.service_name,
                         awsclient.meta.region_name, each_resource)
@@ -728,7 +728,7 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
             "VersionId": existing_json["Policy"]["DefaultVersionId"]
         }
     
-    elif client_str == "iam" and function_name == "list_attached_user_policies":
+    elif client_str == "iam" and function_name == "list_attached_user_policies" or "get_user":
         return {
             'UserName': resource_id
         }
