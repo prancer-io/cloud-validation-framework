@@ -185,7 +185,6 @@ def get_params_for_get_method(response, url_var, project_id):
 
         return params
     except Exception as ex:
-        logger.error('Value not found: %s', ex)
         return params
 
 def get_request_url_get_method(get_method, item, project_id=None):
@@ -503,9 +502,15 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
                 request_url = request_url+"/"+item["name"]
 
         path_list = request_url.split("https://")
+        
+        if  '/{' in request_url or '}/' in request_url:
+            return snapshot_data
 
-        path_list = path_list[1].split('/')
-        path = "/".join(path_list[1:])
+        if len(path_list) > 1:
+            path_list = path_list[1].split('/')
+            path = "/".join(path_list[1:])
+        else:
+            return snapshot_data
 
         found_old_record = False
         for snapshot_list in snapshot_data.values():
