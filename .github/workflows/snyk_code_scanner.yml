@@ -1,7 +1,7 @@
 name: Snyk code scan
 on:
   push:
-  #pull_request:
+  #pull_request:#
     branches:
       - master
 jobs:
