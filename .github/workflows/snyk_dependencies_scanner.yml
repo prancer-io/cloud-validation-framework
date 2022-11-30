@@ -1,0 +1,25 @@
+
+name: Snyk dependencies scan 
+on:
+  push:
+  pull_request:
+    branches:
+      - master
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Node 14
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: install Snyk CLI
+        run: npm install -g snyk
+      - name: run Snyk requirements.txt pip installation
+        run: pip install -r cloud-validation-framework/utilities/json2md/requirements.txt
+      - name: run Snyk requirements.txt pip installation
+        run: pip install -r cloud-validation-framework/utilities/json2md/requirements.txt
+      - name: run Snyk dependencies Test
+        run:  snyk auth ${{ secrets.SNYK_TOKEN }} && snyk test  --all-projects
+        #--severity-threshold=high
