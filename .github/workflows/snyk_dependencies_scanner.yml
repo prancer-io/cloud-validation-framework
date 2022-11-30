@@ -1,7 +1,6 @@
 
 name: Snyk dependencies scan 
 on:
-  push:
   pull_request:
     branches:
       - master
@@ -21,5 +20,5 @@ jobs:
       - name: run Snyk requirements.txt pip installation
         run: pip install -r utilities/json2md/requirements.txt
       - name: run Snyk dependencies Test
-        run:  snyk auth ${{ secrets.SNYK_TOKEN }} && snyk test  --all-projects
-        #--severity-threshold=high
+        run:  snyk auth ${{ secrets.SNYK_TOKEN }} && snyk test --severity-threshold=high --all-projects
+        
