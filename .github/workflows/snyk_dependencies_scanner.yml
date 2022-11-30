@@ -17,9 +17,9 @@ jobs:
       - name: install Snyk CLI
         run: npm install -g snyk
       - name: run Snyk requirements.txt pip installation
-        run: pip install -r cloud-validation-framework/utilities/json2md/requirements.txt
+        run: pip install -r requirements.txt
       - name: run Snyk requirements.txt pip installation
-        run: pip install -r cloud-validation-framework/utilities/json2md/requirements.txt
+        run: pip install -r utilities/json2md/requirements.txt
       - name: run Snyk dependencies Test
         run:  snyk auth ${{ secrets.SNYK_TOKEN }} && snyk test  --all-projects
         #--severity-threshold=high
