@@ -502,11 +502,11 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                     each_method = getattr(awsclient, each_method_str, None)
                     if each_method and callable(each_method):
                         type_list.append(each_method_str)
-                        db_record = copy.deepcopy(d_record)
-                        db_record['detailMethods'] = type_list
-                        db_record['arn'] = resource_arn
-                        db_record['boto_type'] = node.get('boto_type', "")
-                        db_records.append(db_record)
+                db_record = copy.deepcopy(d_record)
+                db_record['detailMethods'] = type_list
+                db_record['arn'] = resource_arn
+                db_record['boto_type'] = node.get('boto_type', "")
+                db_records.append(db_record)
         else:
             logger.warning("list_function %s is not callable", list_function)
 
