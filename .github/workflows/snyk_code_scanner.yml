@@ -1,0 +1,20 @@
+name: Snyk code scan
+on:
+  #push:
+  pull_request:
+    branches:
+      - master
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Node 14
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: install Snyk CLI
+        run: npm install -g snyk
+      - name: run Snyk Code Test
+        run:  snyk auth ${{ secrets.SNYK_TOKEN }} && snyk code test
+        #--severity-threshold=high
