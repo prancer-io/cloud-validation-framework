@@ -279,13 +279,13 @@ def _get_resources_from_list_function(response, method, service_name=None):
     elif method == "describe_images":
         return [x["ImageId"] for x in response.get("Images", [])]
     elif method == 'describe_db_instances':
-        return [x['DBInstanceIdentifier'] for x in response.get('DBInstances', [])]
+        return [(x['DBInstanceIdentifier'], x.get("DBInstanceArn")) for x in response.get('DBInstances', [])]
     elif method == 'describe_db_clusters':
-        return [x['DBClusterIdentifier'] for x in response.get('DBClusters', [])]
+        return [(x['DBClusterIdentifier'], x.get("DBClusterArn")) for x in response.get('DBClusters', [])]
     elif method == 'describe_db_parameter_groups':
-        return [x['DBParameterGroupName'] for x in response.get('DBParameterGroups', [])]
+        return [(x['DBParameterGroupName'], x.get("DBParameterGroupArn")) for x in response.get('DBParameterGroups', [])]
     elif method == 'describe_global_clusters':
-        return [x['GlobalClusterIdentifier'] for x in response.get('GlobalClusters', [])]
+        return [(x['GlobalClusterIdentifier'], x.get("GlobalClusterArn")) for x in response.get('GlobalClusters', [])]
     elif method == 'describe_target_groups':
         return [x['TargetGroupArn'] for x in response.get('TargetGroups', [])]
     elif method == 'describe_load_balancers':
@@ -296,25 +296,25 @@ def _get_resources_from_list_function(response, method, service_name=None):
     elif method == 'list_certificates':
         return [x['CertificateArn'] for x in response.get('CertificateSummaryList', [])]     
     elif method == 'list_backup_vaults':
-        return [x['BackupVaultName'] for x in response.get('BackupVaultList', [])]
+        return [(x['BackupVaultName'], x.get('BackupVaultArn')) for x in response.get('BackupVaultList', [])]
     elif method == 'list_servers':
-        return [x['ServerId'] for x in response.get('Servers', [])]          
+        return [(x['ServerId'], x.get('Arn')) for x in response.get('Servers', [])]          
     elif method == 'list_stacks':
         return [x['StackName'] for x in response.get('StackSummaries', [])]        
     elif method == 'list_trails':
-        return [x['Name'] for x in response.get('Trails', [])]        
+        return [(x['Name'], x.get('TrailARN')) for x in response.get('Trails', [])]        
     elif method in ['describe_stacks', 'list_trails']:
-        return [x['StackName'] for x in response.get('Stacks', [])]        
+        return [(x['StackName'], x.get("StackId")) for x in response.get('Stacks', [])]        
     elif method == 'get_rest_apis':
         return [x['id'] for x in response.get('items', [])]   
     elif method == 'list_users':
-        return [x['UserName'] for x in response.get('Users', [])]
+        return [(x['UserName'], x.get("Arn")) for x in response.get('Users', [])]
     elif method == 'list_roles':
-        return [x['RoleName'] for x in response.get('Roles', [])]     
+        return [(x['RoleName'], x.get("Arn")) for x in response.get('Roles', [])]     
     elif method == 'list_hosted_zones':
         return [x['Id'] for x in response.get('HostedZones', [])]
     elif method == 'list_keys':
-        return [x.get('KeyId') for x in response.get('Keys', [])]
+        return [(x.get('KeyId'), x.get('KeyArn')) for x in response.get('Keys', [])]
     elif method == 'list_tables':
         return response.get("TableNames", [])
     elif method == 'list_backups':
@@ -332,14 +332,14 @@ def _get_resources_from_list_function(response, method, service_name=None):
         logger.info("*****************%s", clusters)
         return clusters
     elif method == 'describe_replication_groups':
-        return [x.get('ReplicationGroupId') for x in response.get('ReplicationGroups', [])]
+        return [(x.get('ReplicationGroupId'), x.get("ARN")) for x in response.get('ReplicationGroups', [])]
     elif method == 'list_streams':
         return response.get("StreamNames", [])
     elif method == 'list_functions':
-        return [x.get('FunctionName',"") for x in response.get('Functions', [])]
+        return [(x.get('FunctionName',""), x.get("FunctionArn")) for x in response.get('Functions', [])]
     elif method == 'describe_clusters':
         clusters = []
-        clusters.extend([x.get('ClusterIdentifier', x.get("ClusterName", "")) for x in response.get('Clusters', [])])
+        clusters.extend([(x.get('ClusterIdentifier', x.get("ClusterName", "")), x.get("ClusterArn")) for x in response.get('Clusters', [])])
         return clusters
     elif method == 'list_topics':
         return [x.get('TopicArn',"") for x in response.get('Topics', [])]
@@ -352,11 +352,11 @@ def _get_resources_from_list_function(response, method, service_name=None):
     elif method == 'describe_configuration_recorders':
         return [x.get('name') for x in response.get('ConfigurationRecorders', [])] 
     elif method == 'list_distributions':
-        return [x.get('Id') for x in response.get('DistributionList', [])['Items']]
+        return [(x.get('Id'), x.get('ARN')) for x in response.get('DistributionList', [])['Items']]
     elif method == 'describe_vpn_gateways':
         return [x.get('VpnGatewayId') for x in response.get('VpnGateways', [])]
     elif method == 'describe_file_systems':
-        return [x.get('FileSystemId') for x in response.get('FileSystems', [])]
+        return [(x.get('FileSystemId'), x.get('FileSystemArn')) for x in response.get('FileSystems', [])]
     elif method == 'describe_parameters':
         return [x.get('Name') for x in response.get('Parameters', [])]
     elif method == 'describe_cache_subnet_groups':
@@ -366,31 +366,31 @@ def _get_resources_from_list_function(response, method, service_name=None):
     elif method == 'describe_network_acls':
         return [x.get('NetworkAclId') for x in response.get('NetworkAcls', [])]
     elif method == 'describe_event_subscriptions':
-        return [x.get('EventSubscriptionArn').split(':')[-1] for x in response.get('EventSubscriptionsList', [])]
+        return [(x.get('EventSubscriptionArn').split(':')[-1], x.get("EventSubscriptionArn")) for x in response.get('EventSubscriptionsList', [])]
     elif method == 'describe_db_snapshots':
-        return [x.get('DBInstanceIdentifier') for x in response.get('DBSnapshots', [])]
+        return [(x.get('DBInstanceIdentifier'), x.get("DBSnapshotArn")) for x in response.get('DBSnapshots', [])]
     elif method == 'list_web_acls':
-        return [x.get("Name") for x in response.get('WebACLs', [])]
+        return [(x.get("Name"), x.get("ARN")) for x in response.get('WebACLs', [])]
     elif method == 'describe_repositories':
-        return [x.get("repositoryName") for x in response.get('repositories', [])]
+        return [(x.get("repositoryName"), x.get("repositoryArn")) for x in response.get('repositories', [])]
     elif method == 'list_ledgers':
         return [x.get("Name") for x in response.get('Ledgers', [])]
     elif method == 'describe_db_cluster_parameter_groups':
-        return [x.get("DBClusterParameterGroupName") for x in response.get('DBClusterParameterGroups', [])]
+        return [(x.get("DBClusterParameterGroupName"), x.get("DBClusterParameterGroupArn")) for x in response.get('DBClusterParameterGroups', [])]
     elif method == 'list_work_groups':
         return [x.get("Name") for x in response.get('WorkGroups', [])]
     elif method == 'list_databases':
-        return [x.get("DatabaseName") for x in response.get('Databases', [])]
+        return [(x.get("DatabaseName"),x.get("Arn")) for x in response.get('Databases', [])]
     elif method == 'describe_endpoints':
-        return [x.get("EndpointIdentifier") for x in response.get('Endpoints', [])]
+        return [(x.get("EndpointIdentifier"), x.get("EndpointArn")) for x in response.get('Endpoints', [])]
     elif method == 'describe_replication_instances':
-        return [x.get("ReplicationInstanceIdentifier") for x in response.get('ReplicationInstances', [])]
+        return [(x.get("ReplicationInstanceIdentifier"), x.get("ReplicationInstanceArn")) for x in response.get('ReplicationInstances', [])]
     elif method == 'describe_security_groups':
         return [x.get("GroupId") for x in response.get('SecurityGroups', [])]
     elif method == 'list_secrets':
-        return [x.get("Name") for x in response.get('SecretList', [])]
+        return [(x.get("Name"), x.get("ARN")) for x in response.get('SecretList', [])]
     elif method == 'describe_log_groups':
-        return [x.get("logGroupName") for x in response.get('logGroups', [])]
+        return [(x.get("logGroupName"), x.get("arn")) for x in response.get('logGroups', [])]
     elif method == 'describe_workspaces':
         return [x.get("WorkspaceId") for x in response.get('Workspaces', [])]
     elif method == 'get_data_catalog_encryption_settings':
@@ -398,7 +398,7 @@ def _get_resources_from_list_function(response, method, service_name=None):
     elif method == 'get_security_configurations':
         return [x.get("Name") for x in response.get('SecurityConfigurations', [])]
     elif method == 'describe_launch_configurations':
-        return [x.get("LaunchConfigurationName") for x in response.get('LaunchConfigurations', [])]
+        return [(x.get("LaunchConfigurationName"), x.get("LaunchConfigurationARN")) for x in response.get('LaunchConfigurations', [])]
     elif method == 'describe_auto_scaling_groups':
         return [x.get("AutoScalingGroupName") for x in response.get('AutoScalingGroups', [])]
     elif method == 'describe_configuration_aggregators':
@@ -408,11 +408,11 @@ def _get_resources_from_list_function(response, method, service_name=None):
     elif method == 'list_streams':
         return response.get("StreamNames", [])
     elif method == 'list_brokers':
-        return [x.get("BrokerId") for x in response.get('BrokerSummaries', [])]
+        return [(x.get("BrokerId"), x.get("BrokerArn")) for x in response.get('BrokerSummaries', [])]
     elif method == 'list_hosted_zones':
         return [x.get("Id") for x in response.get('HostedZones', [])]
     elif method == 'list_notebook_instances':
-        return [x.get("NotebookInstanceName") for x in response.get('NotebookInstances', [])]
+        return [(x.get("NotebookInstanceName"), x.get("NotebookInstanceArn")) for x in response.get('NotebookInstances', [])]
     elif method == 'list_projects':
         return response.get("projects", [])
     elif method == 'list_pipelines':
@@ -430,9 +430,9 @@ def _get_resources_from_list_function(response, method, service_name=None):
     elif method == 'describe_configuration_recorder_status':
         return [x.get("name") for x in response.get('ConfigurationRecordersStatus', [])]
     elif method == 'describe_certificates':
-        return [x.get("CertificateIdentifier") for x in response.get('Certificates', [])]
+        return [(x.get("CertificateIdentifier"), x.get("CertificateArn")) for x in response.get('Certificates', [])]
     elif method == 'describe_cache_clusters':
-        return [x.get("CacheClusterId") for x in response.get('CacheClusters', [])]
+        return [(x.get("CacheClusterId"), x.get("ARN")) for x in response.get('CacheClusters', [])]
     elif method == 'get_account_authorization_details':
         return [x.get("Arn") for x in response.get('UserDetailList', [])]
     elif method == 'describe_option_groups':
@@ -446,7 +446,7 @@ def _get_resources_from_list_function(response, method, service_name=None):
     elif method == 'describe_workspace_directories':
         return [x.get("DirectoryId") for x in response.get('Directories', [])]
     elif method == 'list_apps':
-        return [x.get("appId") for x in response.get('apps', [])]
+        return [(x.get("appId"), x.get("appArn")) for x in response.get('apps', [])]
     else:
         return []
         
@@ -486,14 +486,17 @@ def get_all_nodes(awsclient, node, snapshot, connector):
             detail_methods = get_field_value(node, 'detailMethods')
             for each_resource in list_of_resources:
                 type_list = []
-                if "arn:" in each_resource:
-                    resource_arn = each_resource
+                if isinstance(each_resource, tuple):
+                    resource_arn = each_resource[1]
                 else:
-                    if awsclient.meta._service_model.service_name == "s3":
-                        resource_arn = arn_string %(awsclient.meta._service_model.service_name, "", each_resource)
+                    if "arn:" in each_resource:
+                        resource_arn = each_resource
                     else:
-                        resource_arn = arn_string %(awsclient.meta._service_model.service_name,
-                        awsclient.meta.region_name, each_resource)
+                        if awsclient.meta._service_model.service_name == "s3":
+                            resource_arn = arn_string %(awsclient.meta._service_model.service_name, "", each_resource)
+                        else:
+                            resource_arn = arn_string %(awsclient.meta._service_model.service_name,
+                            awsclient.meta.region_name, each_resource)
 
                 for each_method_str in detail_methods:
                     each_method = getattr(awsclient, each_method_str, None)

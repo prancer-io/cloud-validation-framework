@@ -17,3 +17,4 @@ jobs:
         run: npm install -g snyk
       - name: run Snyk Code Test
         run:  snyk auth ${{ secrets.SNYK_TOKEN }} && snyk code test  --severity-threshold=high
+
