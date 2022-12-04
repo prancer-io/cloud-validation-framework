@@ -1,6 +1,6 @@
 name: Snyk docker scan
 on:
-  push:
+  #push:
   pull_request:
     branches:
       - master
