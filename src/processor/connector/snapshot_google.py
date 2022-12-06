@@ -660,7 +660,7 @@ def populate_google_snapshot(snapshot, container=None):
                                 snapshot_dir = make_snapshots_dir(container)
                                 if snapshot_dir:
                                     store_snapshot(snapshot_dir, data)
-                    
+                       
                             if 'masterSnapshotId' in node:
                                 snapshot_data[node['snapshotId']] = node['masterSnapshotId']
                             else:
