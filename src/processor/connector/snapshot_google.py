@@ -328,6 +328,23 @@ def get_node(credentials, node, snapshot_source, snapshot):
     
     return db_record
 
+def check_include_path_validation(path, include_paths, include_regex_list):
+    
+    if include_paths or include_regex_list:
+        include_path = False
+        include_regex = False
+    else:
+        include_path = True
+        include_regex = True
+
+    if include_paths and path and \
+        any((include_path in path or path in include_path) for include_path in include_paths):
+        include_path = True
+
+    if include_regex_list and path and any(re.match(regex, path) for regex in include_regex_list):
+        include_regex = True
+
+    return include_path or include_regex
 
 def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
     """
@@ -484,6 +501,21 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
                 if 'paths' in exclusion and isinstance(exclusion['paths'], list):
                     resourceExclusions[tuple(exclusion['paths'])] = exclusion
 
+    exclude_paths = []
+    exclude_regex = []
+    include_paths = []
+    include_regex = []
+
+    exclude = node.get('exclude')
+    if exclude and isinstance(exclude, dict):
+        exclude_paths += exclude.get("paths", [])
+        exclude_regex += exclude.get("regex", [])
+    
+    include = node.get('include')
+    if include and isinstance(include, dict):
+        include_paths += include.get("paths", [])
+        include_regex += include.get("regex", [])
+
     for item in resource_items:
         count += 1
 
@@ -527,6 +559,19 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
                             node['masterSnapshotId'])
 
         if not found_old_record:
+            
+            if isinstance(path, str) and path in exclude_paths:
+                logger.warning("Excluded : %s", path)
+                continue
+            
+            if isinstance(path, str) and path and any(re.match(regex, path) for regex in exclude_regex):
+                logger.warning("Excluded : %s", path)
+                continue
+
+            if not check_include_path_validation(path, include_paths, include_regex):
+                logger.warning("Path does not exist in include Regex : %s", path)
+                continue
+
             if isinstance(path, str):
                 key = tuple([path])
             else:

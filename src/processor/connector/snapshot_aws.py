@@ -108,6 +108,23 @@ def get_aws_describe_function(node):
         describe_fn_str = 'describe_%s' % node['type']
     return describe_fn_str
 
+def check_include_path_validation(path, include_paths, include_regex_list):
+    
+    if include_paths or include_regex_list:
+        include_path = False
+        include_regex = False
+    else:
+        include_path = True
+        include_regex = True
+
+    if include_paths and path and \
+        any((include_path in path or path in include_path) for include_path in include_paths):
+        include_path = True
+
+    if include_regex_list and path and any(re.match(regex, path) for regex in include_regex_list):
+        include_regex = True
+
+    return include_path or include_regex
 
 def get_node(awsclient, node, snapshot_source, snapshot):
     """
@@ -472,6 +489,22 @@ def get_all_nodes(awsclient, node, snapshot, connector):
         "collection": collection.replace('.', '').lower(),
         "json": {}
     }
+
+    exclude_paths = []
+    exclude_regex = []
+    include_paths = []
+    include_regex = []
+
+    exclude = node.get('exclude')
+    if exclude and isinstance(exclude, dict):
+        exclude_paths += exclude.get("paths", [])
+        exclude_regex += exclude.get("regex", [])
+    
+    include = node.get('include')
+    if include and isinstance(include, dict):
+        include_paths += include.get("paths", [])
+        include_regex += include.get("regex", [])
+
     list_function_name = get_field_value(node, 'listMethod')
     if list_function_name:
         list_function = getattr(awsclient, list_function_name, None)
@@ -497,6 +530,18 @@ def get_all_nodes(awsclient, node, snapshot, connector):
                         else:
                             resource_arn = arn_string %(awsclient.meta._service_model.service_name,
                             awsclient.meta.region_name, each_resource)
+
+                if resource_arn in exclude_paths:
+                    logger.warning("Excluded : %s", resource_arn)
+                    continue
+                    
+                if resource_arn and any(re.match(regex, resource_arn) for regex in exclude_regex):
+                    logger.warning("Excluded : %s", resource_arn)
+                    continue
+                
+                if not check_include_path_validation(resource_arn, include_paths, include_regex):
+                    logger.warning("Path does not exist in include Regex : %s", resource_arn)
+                    continue
 
                 for each_method_str in detail_methods:
                     each_method = getattr(awsclient, each_method_str, None)
@@ -731,12 +776,12 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
             "VersionId": existing_json["Policy"]["DefaultVersionId"]
         }
     
-    elif client_str == "iam" and function_name == "list_attached_user_policies" or "get_user":
+    elif client_str == "iam" and function_name in ["list_attached_user_policies", "get_user"]:
         return {
             'UserName': resource_id
         }
         
-    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key",]:
+    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key", "list_resource_tags"]:
         return {
             'KeyId': resource_id
         }

@@ -66,6 +66,8 @@ class TemplateProcessor:
         ]
         self.exclude_paths = []
         self.exclude_regex = []
+        self.include_paths = []
+        self.include_regex = []
         self.paths = []
         self.dir_path = ""
         self.template_files = []
@@ -350,6 +352,24 @@ class TemplateProcessor:
             nodes.append(node_dict)
         return nodes, count
     
+    def check_include_path_validation(self, path):
+
+        if self.include_paths or self.include_regex:
+            include_path = False
+            include_regex = False
+        else:
+            include_path = True
+            include_regex = True
+
+        if self.include_paths and path and \
+            any((include_path in path or path in include_path) for include_path in self.include_paths):
+            include_path = True
+
+        if self.include_regex and path and any(re.match(regex, path) for regex in self.include_regex):
+            include_regex = True
+
+        return include_path or include_regex
+    
     def generate_template_and_parameter_file_list(self, file_path, template_file, parameter_file_list, generated_template_file_list):
         """
         process template and parameter files and returns the generated template file list
@@ -471,6 +491,15 @@ class TemplateProcessor:
                         if template_file in self.exclude_paths:
                             logger.warning("Excluded from resource exclusions: %s", template_file)
                             continue
+                        
+                        if not self.check_include_path_validation(template_file):
+                            logger.warning("Path does not exist in include paths : %s", template_file)
+                            continue
+                            
+                        if template_file and any(re.match(regex, template_file) for regex in self.exclude_regex):
+                            logger.warning("Excluded : %s", template_file)
+                            continue
+
                         # template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
                         if parameter_file_list:
                             self.generate_template_and_parameter_file_list(file_path, template_file, parameter_file_list, generated_template_file_list)
@@ -521,6 +550,14 @@ class TemplateProcessor:
                             logger.warning("Excluded from resource exclusions: %s", sensitive_file)
                             continue
                         # template_file_path = str('%s/%s' % (base_dir_path, template_file)).replace('//', '/')
+
+                        if not self.check_include_path_validation(sensitive_file):
+                            logger.warning("Path does not exist in include paths : %s", sensitive_file)
+                            continue
+
+                        if sensitive_file and any(re.match(regex, sensitive_file) for regex in self.exclude_regex):
+                            logger.warning("Excluded : %s", sensitive_file)
+                            continue
                         
                         self.processed_template = {}
                         
@@ -587,6 +624,11 @@ class TemplateProcessor:
             if exclude and isinstance(exclude, dict):
                 self.exclude_paths += exclude.get("paths", [])
                 self.exclude_regex += exclude.get("regex", [])
+            
+            include = self.node.get('include')
+            if include and isinstance(include, dict):
+                self.include_paths += include.get("paths", [])
+                self.include_regex += include.get("regex", [])
 
             exclusions = get_from_currentdata(EXCLUSION).get('exclusions', [])
             for exclusion in exclusions:

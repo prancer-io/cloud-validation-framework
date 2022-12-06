@@ -89,6 +89,22 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
     # version = get_version_for_type(node)
     version = node.get("version")
     # if sub_id and token and node and version:
+
+    exclude_paths = []
+    exclude_regex = []
+    include_paths = []
+    include_regex = []
+
+    exclude = node.get('exclude')
+    if exclude and isinstance(exclude, dict):
+        exclude_paths += exclude.get("paths", [])
+        exclude_regex += exclude.get("regex", [])
+    
+    include = node.get('include')
+    if include and isinstance(include, dict):
+        include_paths += include.get("paths", [])
+        include_regex += include.get("regex", [])
+
     nodetype = None
     if node and 'type' in node and node['type']:
         nodetype = node['type']
@@ -119,6 +135,19 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         if resources:
             for idx, value in enumerate(resources):
                 if nodetype.lower() == value.get('type', "").lower():
+
+                    if value['id'] in exclude_paths:
+                        logger.warning("Excluded : %s", value['id'])
+                        continue
+                    
+                    if value['id'] and any(re.match(regex, value['id']) for regex in exclude_regex):
+                        logger.warning("Excluded : %s", value['id'])
+                        continue
+
+                    if not check_include_path_validation(value["id"], include_paths, include_regex):
+                        logger.warning("Path does not exist in include Regex : %s", value['id'])
+                        continue
+
                     db_record = copy.deepcopy(d_record)
                     db_record['snapshotId'] = '%s%s' % (node['masterSnapshotId'], str(idx))
                     db_record['path'] = value['id']
@@ -249,6 +278,24 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
         db_record = {}
         logger.info('Get requires valid subscription, token and path.!')
     return db_record
+
+def check_include_path_validation(path, include_paths, include_regex_list):
+
+    if include_paths or include_regex_list:
+        include_path = False
+        include_regex = False
+    else:
+        include_path = True
+        include_regex = True
+
+    if include_paths and path and \
+        any((include_path in path or path in include_path) for include_path in include_paths):
+        include_path = True
+
+    if include_regex_list and path and any(re.match(regex, path) for regex in include_regex_list):
+        include_regex = True
+
+    return include_path or include_regex
 
 
 def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
