@@ -731,12 +731,12 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
             "VersionId": existing_json["Policy"]["DefaultVersionId"]
         }
     
-    elif client_str == "iam" and function_name == "list_attached_user_policies" or "get_user":
+    elif client_str == "iam" and function_name in ["list_attached_user_policies", "get_user"]:
         return {
             'UserName': resource_id
         }
         
-    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key",]:
+    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key", "list_resource_tags"]:
         return {
             'KeyId': resource_id
         }
