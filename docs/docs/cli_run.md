@@ -4,8 +4,7 @@ We are providing different examples of running the Crawler and Compliance of Pra
 To start, make sure you have installed Prancer CLI and clone the Hello World application.
 
 - Clone this repository, [https://github.com/prancer-io/prancer-hello-world](https://github.com/prancer-io/prancer-hello-world)
-- Check the `config.ini file`, here you can see the value of `containerFolder` in `TESTS` section is `./validation/`.
-It means all the test cases are stored inside the `validation` directory.
+- Check the file `config.ini`, here you can see the value of `containerFolder` in `TESTS` section is `./validation/`(i.e. All the test cases are stored inside the `validation` directory).
 
 Run the prancer help
 
@@ -28,6 +27,8 @@ prancer -h
 &emsp;&emsp;[--apitoken APITOKEN]   
 &emsp;&emsp;[--gittoken GITTOKEN]  
 &emsp;&emsp;[--company COMPANY]  
+&emsp;&emsp;[--createsnapshot]  
+&emsp;&emsp;[--mastersnapshotfile MASTERSNAPSHOTFILE]  
 &emsp;&emsp;[collection]  
 
 #### positional arguments:
@@ -42,14 +43,14 @@ prancer -h
 |----|-------------|-------------|
 | -h | --help | show this help message and exit |
 | -v | --version| Show prancer version |
-|    | --db {NONE,SNAPSHOT,FULL,REMOTE} | NONE - Database will not be used, all the files reside on file system<br />SNAPSHOT - Resource snapshots will be stored in db, everything else will be on file system<br />FULL - tests, configurations, outputs and snapshots will be stored in the database<br />REMOTE - Connect to Prancer Enterprise solution to get the configuration files and send the results back.|
+|    | --db {*NONE*, *SNAPSHOT*, *FULL*, *REMOTE*} | *NONE* - Database will not be used, all the files reside on file system <br/> <br/>*SNAPSHOT* - Resource snapshots will be stored in db, everything else will be on file system<br/> <br/>*FULL* - tests, configurations, outputs and snapshots will be stored in the database<br/> <br/>*REMOTE* - Connect to Prancer Enterprise solution to get the configuration files and send the results back.|
 |    | --crawler | Crawls the target environment and generates snapshot configuration file |
 |    | --compliance | Run only compliance tests based on the available snapshot configuration file |
 |    | --file_content FILE_CONTENT | The path of the file to be used as snapshost |
 |    | --mastertestid MASTERTESTID | Run the framework only for the master test Ids or compliance Ids mentioned here |
 |    | --mastersnapshotid MASTERSNAPSHOTID | Run the framework only for the master snapshot Ids mentioned here |
 |    | --snapshotid SNAPSHOTID | Run the framework only for the snapshot Ids mentioned here |
-|    | --env {DEV,QA,PROD,LOCAL} | DEV - API server is in dev environment<br />QA - API server is in qa environment<br />PROD - API server is in prod environment<br />LOCAL - API server is in local environment. |
+|    | --env {DEV,QA,PROD,LOCAL} | DEV - API server is in dev environment<br/><br/>QA - API server is in qa environment<br/><br/>PROD - API server is in prod environment<br/><br/>LOCAL - API server is in local environment. |
 |    | --apitoken APITOKEN | API token to access prancer saas solution. (This argument is needed only when the --db is REMOTE). |
 |    | --gittoken GITTOKEN | github/enterprise/internal github API token to access repositories. (This argument is optional only when the --db is REMOTE) |
 |    | --company COMPANY | company name of the prancer saas solution (This argument is needed only when the --db is REMOTE) |
