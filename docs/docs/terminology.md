@@ -63,7 +63,7 @@ The **Collection** is a powerful concept that can be used based on the organizat
 These files should follow your development project that would usually contain **infrastructure as code** files such as:
 
 * **AWS CloudFormation** templates
-* **AWS ARM** templates
+* **Azure ARM** templates
 * **Terraform** scripts
 * etc
 
