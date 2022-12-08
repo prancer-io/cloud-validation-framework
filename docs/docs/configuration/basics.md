@@ -1,12 +1,13 @@
 # Files and Folders Structure
-## Prancer project directory
+### Prancer project directory
 
 The files to operate **Prancer** should be put into a project directory. It is recommended to have a source control mechanism for this folder to keep track of changes. All the **Prancer** files should be stored in a sub-directory of your choice, we recommend something like `tests/prancer/`. To create it, you can run something like:
 
-> Most of these folder names and locations are configurable in `config.ini` file
 
     mkdir -p tests/prancer
     cd tests/prancer
+
+> Most of these folder names and locations are configurable in `config.ini` file.
 
 ### Validation directory
 
@@ -18,7 +19,7 @@ Under the `validation` directory lives Collection directories. Each collection i
 
     mkdir -p validation/container1
 
-You can create as many as needed, and there is no specific naming convention. The only requirement is to respect your filesystem's requirements.
+You can create as many as needed, and there is no specific naming convention. The only prerequisite is to respect your filesystem's requirements.
 
 ### Project configuration file
 
@@ -32,13 +33,13 @@ At the root of the **Prancer** project directory, you will be putting the `confi
     key = value
     key = value
 
-Look at the next sections to understand what you can put in this file.
+Look at the following sections to understand what you can put in this file.
 
 ### Reporting folder
-**Prancer** requires you to specify where it should output its output files after running tests. You can use the same directory as your `TESTS`, but it will create a separate structure if you don't. Depending on your artifact-building approach, you might want to split them or keep them together.
+**Prancer** requires you to specify a path where output files should be stored after running tests. You can use the same directory as your `TESTS`, but it will create a separate structure if you don't. Depending on your artifact-building approach, you might want to split them or keep them together.
 
 ### Collection folder
-**Prancer** requires you to specify where your snapshot configuration files and test files are when using the filesystem storage-based approach. This section of the configuration defines where to find those.
+**Prancer** requires you to specify where your snapshot configuration files and test files are when using the filesystem storage-based approach. This section of the configuration defines where to find those files.
 
 ### Snapshot folder
 When you are using Filesystem to store the result of snapshots, **Prancer** creates a folder inside the collection to store the snapshots.
