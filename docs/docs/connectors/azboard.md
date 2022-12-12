@@ -6,18 +6,7 @@ Here is a sample of the Azure Board structure file:
 
 ```json
     {
-        "_id": {
-            "$oid": "63844e7f34f186aa98b1c05e"
-        },
-        "checksum": "",
-        "collection": "structures",
-        "container": "azure_board_container",
-        "name": "azureboard_connector",
-        "timestamp": {
-            "$numberLong": "1669615231678"
-        },
-        "type": "structure",
-        "json": {
+        {
             "fileType": "structure",
             "type": "azureboard",
             "url": "https://dev.azure.com/wildkloud",
@@ -29,37 +18,29 @@ Here is a sample of the Azure Board structure file:
         }
     }
 ```
-<!-- 
+
 | Key           |Value Description |
 | ------------- |:-------------:   |
 |filetype |structure|
-|type|kubernetes|
-|company-name|your company name|
-|cluster-name|your cluster name|
-|cluster-url|use url like this `https://<IP>:6443` or you can use domain|
-|namespace|use namespace which we need to connect for getting data|
-|service-account-name|the service account name which has access to namespace|
-|secret|the token of secret|
+|type|azureboard|
+|url| URL to the azure board  `https://dev.azure.com/wildkloud`|
+|username|your username of azure cloud|
+|authtoken|AuthToken of the azure board|
+|organisation|Name of the organization (example: prancer)|
+|project|Name of your project.|
+|severity|Type of severity you want to assign to this particular task.(Options: High, Low, Medium)|
 
 sample file:
 
 ```json
 {
-    "filetype": "structure",
-    "type": "kubernetes",
-    "companyName": "Company Name",
-    "clusterName": "prancer-prod-prod-eastus2-aksprod01",
-    "clusterUrl": "https://prancer-kube:6443",
-    "namespaces": [
-        {
-            "namespace": "default",
-            "serviceAccounts": [
-                {
-                    "name": "prancer_ro",
-                    "secret":"<someToken>"
-                }
-            ]
-        }
-    ]
+    "fileType": "structure",
+    "type": "azureboard",
+    "url": "https://dev.azure.com/wildkloud",
+    "username": "ishan.pansuriya@prancer.io",
+    "authtoken": "ishan-pansuriya-prancer-io-customer-accesstoken-azureboard",
+    "organisation": "prancer",
+    "project": "NextGen Cloud",
+    "severity": "high"
 }
-``` -->
+```
