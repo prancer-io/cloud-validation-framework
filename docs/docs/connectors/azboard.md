@@ -9,7 +9,7 @@ Here is a sample of the Azure Board structure file:
         {
             "fileType": "structure",
             "type": "azureboard",
-            "url": "https://dev.azure.com/wildkloud",
+            "url": "<azureboard-endpoint-url>",
             "username": "<username>",
             "authtoken":"azureboard-accesstoken",
             "organisation": "prancer",
@@ -21,14 +21,11 @@ Here is a sample of the Azure Board structure file:
 
 | Key           |Value Description |
 | ------------- |:-------------:   |
-|filetype |structure|
-|type|azureboard|
-|url| URL to the azure board  `https://dev.azure.com/wildkloud`|
+|url| URL to the azure board|
 |username|your username of azure cloud|
 |authtoken|AuthToken of the azure board|
-|organisation|Name of the organization (example: prancer)|
 |project|Name of your project.|
-|severity|Type of severity you want to assign to this particular task.(Options: High, Low, Medium)|
+|severity|Type of severity you want to assign to this particular task.(Options: High, Medium, Low)|
 
 sample file:
 
