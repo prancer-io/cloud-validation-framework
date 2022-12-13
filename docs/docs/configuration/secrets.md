@@ -20,12 +20,11 @@ To support this, the `secret` must not be set in the connector's configuration f
 
 
 # Putting secrets in CyberArk
-**CyberArk** (http://www.cyberark.com) Application Access Manager for DevOps provides a secret management solution tailored specifically to the unique requirements of native-cloud and DevOps environments. The solution manages secrets and credentials used by non-human identities, including DevOps and PaaS tools, and containers. **Prancer** validation framework supports secrets to be read from the **CyberArk**. Here are the steps:
+**CyberArk** (<http://www.cyberark.com>) Application Access Manager for DevOps provides a secret management solution tailored specifically to the unique requirements of native-cloud and DevOps environments. The solution manages secrets and credentials used by non-human identities, including DevOps and PaaS tools, and containers. **Prancer** validation framework supports secrets to be read from the **CyberArk** by following these steps.
 
 1. DevOps Engineer starts the **Prancer** validation framework.
-2. **Prancer** validation framework is integrated with CyberArk to retrieve secrets
-    a. CyberArk Agent has to be installed and configured on the respective servers (containers) and the firewall ports have to be opened 
-3. The **Prancer** validation framework runs the cyberArk agent cli and connects to the CyberArk safe to fetch the Password for the account.
+2. **Prancer** validation framework is integrated with CyberArk to retrieve secrets <br/>*a)* CyberArk Agent has to be installed and configured on the respective servers (containers) and the firewall ports have to be opened 
+3. The **Prancer** validation framework runs the CyberArk agent cli and connects to the CyberArk safe to fetch the password for the account.
 4. CyberArk passes the retrieved password to the modules that need the secret during the validation process
 5. If any errors occur (due to CyberArk not being installed properly or any other errors) then **Prancer** validation framework checks for the other ways to retireve the secret
 
@@ -58,4 +57,4 @@ keyvault = 'Keyvault where secrets are stored'
 
 If none of the previous methods worked, the system will ask for the password using the interactive command line. 
 
-* **Note**: This means **you cannot use this method in a non-interactive way**.
+> **Note**: This means **you cannot use this method in a non-interactive way**.

@@ -5,14 +5,14 @@ We have two options to get up and running with the Prancer platform:
     - Easy way
     - Hard way
 
-# prancer workflow: the easy way
+# Prancer workflow: The Easy way
 The easiest way (recommended way) is to clone the `Hello World!` application and build your project around that.
 
-> you can find the detail of the `Hello World` application [here](https://github.com/prancer-io/prancer-hello-world)
+> you can find the detail of the `Hello World` application [here.](https://github.com/prancer-io/prancer-hello-world)
 
 You can modify the files in the `Hello World` application and add your files based on the project you are working on. This is the easiest and fastest way to get you up and running with the Prancer platform
 
-# prancer workflow: the hard way
+# Prancer workflow: The Hard way
 Based on your project structure, you can create the required files and folders and put the config files there.
 
 
