@@ -1,4 +1,4 @@
-Today, generating comprehensive log information is a must, and **Prancer** doesn't stray away from this. Every single operation is captured by the logging system and is timestamped when caught.
+Nowadays, generating comprehensive log information is a must, and **Prancer** doesn't stray away from this. Every single operation is captured by the logging system and is timestamped when caught.
 
 # Configuration
 
@@ -6,7 +6,7 @@ To configure the logging behavior, consult the [Configuration](config.md) sectio
 
 # Logging level
 
-**Prancer** supports the classic four levels of logging:
+**Prancer** supports the classic five levels of logging:
 
 * ERROR
 * WARNING
