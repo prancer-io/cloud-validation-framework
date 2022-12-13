@@ -2,23 +2,21 @@ The **Google** connector allows you to inspect your **Google Cloud** infrastruct
 
 # Google Cloud Platform Service Account
 
-A service account is a special kind of account used by an application or a virtual machine (VM) instance, not a person. Applications use service accounts to make authorized API calls. To learn more about the Service Account, you can [review Google Cloud Platform documentation](https://cloud.google.com/iam/docs/service-accounts)
+A service account is a special kind of account used by an application or a virtual machine (VM) instance, not a person. Applications use service accounts to make authorized API calls. To learn more about the Service Account, you can [review Google Cloud Platform documentation][GCP-Doc]
 
-To grant access to the prancer cloud validation framework to browse your Google Cloud Platform, you need to create a Service Account. It is highly recommended to follow [official google cloud platform documentation](https://cloud.google.com/iam/docs/creating-managing-service-accounts)
+To grant access to the prancer cloud validation framework to browse your Google Cloud Platform, you need to create a Service Account. It is highly recommended to follow [official google cloud platform documentation][svc-gcp-doc]
 
 Here are the recommended steps to creating such a user if you don't have one yet:
 
-1. Open the Service Accounts page in the Cloud Console.[click here to access](https://console.cloud.google.com/iam-admin/serviceaccounts)
+1. Open the Service Accounts page in the Cloud Console. [Click here to Access][admin-svc]
 
-2. Open the Service Accounts page
+2. Click `Select a project`, choose your project, and click `Open`.
 
-3. Click Select a project, choose your project, and click Open.
+3. Click `Create Service Account`.
 
-4. Click Create Service Account.
+4. Enter a service account name (friendly display name), an optional description, select a role you wish to grant to the service account, and then click `Save`.
 
-5. Enter a service account name (friendly display name), an optional description, select a role you wish to grant to the service account, and then click Save.
-
-6. create a new key by selecting `create key`. Select the json as the type of key and it will be downloaded to your local disk. All the information you need is in that json file.
+5. Create a new key by selecting `create key`. Select the `json` as the type of key and it will be downloaded to your local disk. All the information you need is in that json file.
 
 # Connector configuration file
 
@@ -26,6 +24,7 @@ Here are the recommended steps to creating such a user if you don't have one yet
 >
 > This file can be named anything you want but we suggest `googleConnector.json`
 
+```json
     {
         "organization": "company1",
         "type": "google",
@@ -52,10 +51,11 @@ Here are the recommended steps to creating such a user if you don't have one yet
             }
         ]
     }
+```
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | What to put there |
 |-----|-------------------|
 | project-name | The name of the project in the Google Cloud |
 | project-id | project id in the google cloud|
@@ -67,9 +67,8 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | client_id | client id |
 | client_x509_cert_url | client x509 cert url, you get this info from the key json output |
 
-
 > It is not recommended to put any secret in the `connector` file. This is good just for testing purposes.
-
+>
 > You should use either `private_key` or `private_key_path`
 
 # Projects and Service Accounts
@@ -79,12 +78,19 @@ The **Google Cloud Platform** `connector` supports multiple projects and multipl
 # Private Key
 
 There are three options available to store the private key for the service account:
- - In connector file as a key
- - In connector file as a path
- - In a vault
 
- Keeping the private key in the `connector` file is good only for testing purposes. 
+- In connector file as a key
+- In connector file as a path
+- In a vault
+
+ Keeping the private key in the `connector` file is good only for testing purposes.
 
  You can keep the path to the private key in your connector file.
 
-Keeping the private key in the vault is the most secure and recommended way of keeping the secret in prancer framework. To learn more visit [secrets section](../configuration/secrets.md)
+Keeping the private key in the vault is the most secure and recommended way of keeping the secret in prancer framework. To learn more visit [secrets section][secrets-section]
+
+<!-- All links from this page -->
+[GCP-Doc]:          https://cloud.google.com/iam/docs/service-accounts
+[svc-gcp-doc]:      https://cloud.google.com/iam/docs/creating-managing-service-accounts
+[admin-svc]:        https://console.cloud.google.com/iam-admin/serviceaccounts
+[secrets-section]:  ../configuration/secrets.md

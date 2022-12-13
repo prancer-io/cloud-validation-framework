@@ -1,8 +1,10 @@
-## Kubernetes structure file 
+# Kubernetes structure file
+
 The **Kubernetes** connector allows you to inspect your **Kubernetes** cluster using their API. The connector is a wrapper around the **Kubernetes** ReST API.
 
 Here is a sample of the Kubernetes structure file:
-```
+
+```json
 {
     "filetype": "<file-type>",
     "type": "<type-of-structure>",
@@ -29,14 +31,14 @@ Here is a sample of the Kubernetes structure file:
 |type|kubernetes|
 |company-name|your company name|
 |cluster-name|your cluster name|
-|cluster-url|use url like this https://<ip>:6443 or you can use domain|
+|cluster-url|use url like this `https://<IP>:6443` or you can use domain|
 |namespace|use namespace which we need to connect for getting data|
 |service-account-name|the service account name which has access to namespace|
 |secret|the token of secret|
 
-
 sample file:
-```
+
+```json
 {
     "filetype": "structure",
     "type": "kubernetes",

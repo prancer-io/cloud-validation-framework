@@ -110,7 +110,7 @@ Because the **AWS** connector is not ready to work with stacks and **CloudFormat
 
 **CloudFormation** exposes several tags to you when you create a stack. With those tags, you can select the proper resource you want to inspect:
 
-| tag | What it is used for |
+| Tag | What it is used for |
 |-----|---------------------|
 | aws:cloudformation:stack-name | Name of the stack that you are looking for |
 | aws:cloudformation:logical-id | Name of the resource in the **CloudFormation** template |

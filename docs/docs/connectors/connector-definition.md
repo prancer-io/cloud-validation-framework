@@ -9,3 +9,9 @@ Currently, the following providers are supported in the connector configuration 
 - AWS
 - Google Cloud
 - Kubernetes Cluster
+- Azure Board
+- Jira
+- GitLab
+- Slack
+- Microsoft Teams
+- BitBucket

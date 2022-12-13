@@ -27,6 +27,7 @@ nav:
     - Filesystem connector: connectors/git.md
     - AWS connector: connectors/aws.md
     - Azure connector: connectors/azure.md
+    - Azure Board connector: connectors/azboard.md
     - Google connector: connectors/google.md
     - Kubernetes connector: connectors/kubernetes.md
   - Crawler:
