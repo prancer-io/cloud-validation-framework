@@ -249,6 +249,8 @@ Run prancer for a list of snapshots
     cmd_parser.add_argument('--apitoken', action='store', default=None, help='API token to access prancer saas solution. (This argument is needed only when the --db is REMOTE).')
     cmd_parser.add_argument('--gittoken', action='store', default=None, help='github/enterprise/internal github API token to access repositories. (This argument is optional only when the --db is REMOTE)')
     cmd_parser.add_argument('--company', action='store', default=None, help='company name of the prancer saas solution (This argument is needed only when the --db is REMOTE)')
+    cmd_parser.add_argument('--createsnapshot', action='store_true', default=False, help='To generate all the snapshots after crawler is completed.')
+    cmd_parser.add_argument('--mastersnapshotfile', action='store', default="", help='To rum crawler for the specific mastersnapshot file.')
 
     args = cmd_parser.parse_args(arg_vals)
 
@@ -402,6 +404,11 @@ Run prancer for a list of snapshots
         else:
             put_in_currentdata("ONLYSNAPSHOTS", False)
             put_in_currentdata("ONLYSNAPSHOTIDS", [])
+        if args.createsnapshot:
+            put_in_currentdata("createsnapshot", True)
+        if args.mastersnapshotfile:
+            put_in_currentdata("mastersnapshotfile", args.mastersnapshotfile)
+
         
         # if args.db == DBVALUES.index(FULL):
         #     from processor.logging.log_handler import get_dblogger
@@ -465,7 +472,10 @@ Run prancer for a list of snapshots
                 put_in_currentdata("run_type", CRAWL)
             logger.info("Updating %s container is_run status", args.container)
             update_collection_run_status(args.db, args.container)
-            generate_container_mastersnapshots(args.container, fs)
+            generate_container_mastersnapshots(args.container, fs, args.mastersnapshotfile)
+            if args.createsnapshot and args.mastersnapshotfile and args.crawler:
+                snapshot_status = populate_container_snapshots(args.container, fs, args.mastersnapshotfile)
+                logger.debug(json.dumps(snapshot_status, indent=2))
             current_progress = 'CRAWLERCOMPLETE'
         
         if args.compliance or crawl_and_run:
@@ -483,11 +493,12 @@ Run prancer for a list of snapshots
                 retval = 0 if status else 1
             else:
                 retval = 1
-            check_send_notification(args.container, args.db)
 
             if fs:
                 dump_output_results([], args.container, test_file="", snapshot="", filesystem=fs, status="Completed")
             current_progress = 'COMPLIANCECOMPLETE'
+
+            check_send_notification(args.container, args.db)
     except (Exception, KeyboardInterrupt) as ex:
         if current_progress == 'CRAWLERSTART':
             from processor.crawler.master_snapshot import update_crawler_run_status

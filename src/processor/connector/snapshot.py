@@ -133,7 +133,7 @@ def populate_snapshots_from_file(snapshot_file, container):
     return snapshot_data
 
 
-def populate_container_snapshots(container, dbsystem=True):
+def populate_container_snapshots(container, dbsystem=True, mastersnapshotfile=None):
     """
     All snapshots are contained in a workspace which is called as a container.
     So tests are run for a container. The snapshots can be present in a filesystem or
@@ -152,7 +152,7 @@ def populate_container_snapshots(container, dbsystem=True):
             dbsnapshot = DBSnapshot(container, snapshot_refactored_fns)
             return dbsnapshot.get_snapshots()
         else:
-            return populate_container_snapshots_database(container)
+            return populate_container_snapshots_database(container, mastersnapshotfile)
     else:
         if refactor_flag and refactor_flag == 'true':
             from processor.connector.snapshot_fs import FSSnapshot
@@ -161,17 +161,19 @@ def populate_container_snapshots(container, dbsystem=True):
             fssnapshot = FSSnapshot(container, snapshot_refactored_fns)
             return fssnapshot.get_snapshots()
         else:
-            return populate_container_snapshots_filesystem(container)
+            return populate_container_snapshots_filesystem(container, mastersnapshotfile)
 
 
-def populate_container_snapshots_filesystem(container):
+def populate_container_snapshots_filesystem(container, mastersnapshotfile=None):
     """
     Get the snapshot files from the container with storage system as filesystem.
     The path for looking into the container is configured in the config.ini, for the
     default location configuration is $SOLUTIONDIR/relam/validation/<container>
     """
     snapshots_status = {}
-    snapshot_dir, snapshot_files = get_container_snapshot_json_files(container)
+    mastersnapshotfile_name = mastersnapshotfile + "_gen" if mastersnapshotfile else None
+    mastersnapshotfile_name_json = mastersnapshotfile + "_gen" + ".json" if mastersnapshotfile else None
+    snapshot_dir, snapshot_files = get_container_snapshot_json_files(container, name=mastersnapshotfile_name)
     if not snapshot_files:
         logger.error("ERROR: No Snapshot files in %s, exiting!...", snapshot_dir)
         return snapshots_status
@@ -185,7 +187,7 @@ def populate_container_snapshots_filesystem(container):
     for snapshot_file in snapshot_files:
         logger.info('\tSNAPSHOT:%s', snapshot_file)
         parts = snapshot_file.rsplit('/', 1)
-        if parts[-1] in snapshots:
+        if parts[-1] in snapshots or parts[-1] == mastersnapshotfile_name_json:
             if parts[-1] not in populated:
                 # Take the snapshot and populate whether it was successful or not.
                 # Then pass it back to the validation tests, so that tests for those
@@ -201,7 +203,7 @@ def populate_container_snapshots_filesystem(container):
     return snapshots_status
 
 
-def populate_container_snapshots_database(container):
+def populate_container_snapshots_database(container, mastersnapshotfile=None):
     """
     Get the snapshot files from the container with storage system as database.
     The table or collection and database is configured in the config.ini, for the default
@@ -210,7 +212,10 @@ def populate_container_snapshots_database(container):
     snapshots_status = {}
     dbname = config_value(DATABASE, DBNAME)
     collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
+    mastersnapshotfile_name = mastersnapshotfile + "_gen" if mastersnapshotfile else None
     qry = {'container': container}
+    if mastersnapshotfile:
+        qry["name"] = mastersnapshotfile_name
     sort = [sort_field('timestamp', False)]
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, _id=True)
     if docs and len(docs):
@@ -232,7 +237,7 @@ def populate_container_snapshots_database(container):
                         if not pull_response:
                             break
 
-                    if snapshot in snapshots:
+                    if snapshot in snapshots or snapshot == mastersnapshotfile_name:
                         if snapshot not in populated:
                             # Take the snapshot and populate whether it was successful or not.
                             # Then pass it back to the validation tests, so that tests for those

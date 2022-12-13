@@ -133,13 +133,17 @@ curl -X POST \
     "test":"CRAWLER",
     "crawler":true,
     "pac" : true,
+    "job_type" : "pac"
     "webhook" : {
-		"webhook_url" : "https://portal.prancer.io/prancer-customer1/api/run/compliance",
+		"webhook_url" : "<PAC url>",
 		"webhook_data" : {
 			"config_id" : "620e24b4a3ddf04e384543b9"
 		},
-		"webhook_method" : "POST",
-		"webhook_headers" : {}
+		"webhook_method" : "GET",
+		"webhook_headers": {
+            "token_name":"scheduler-notify-1662959297881",
+            "token_id":"631ebec1c5d1d17f93aa0b45"
+        }
 	}
 }
 ```
@@ -148,7 +152,7 @@ curl -X POST \
 
     `Required Fields`
 
-    - **collection:** Name of the collection for which you want to scheduler a Job. Optional if `pac` is true.
+    - **collection:** Name of the collection for which you want to schedule a Job. Optional if `pac` is true.
     - **schedule:** We can schedule the following types of Schedulers.
         - Once ( Ex. `once@11:00 date@10/26/2019` )
         - Hourly ( Ex. `hourly@11:00 date@10/26/2019` )
@@ -168,6 +172,7 @@ curl -X POST \
     `Optional Fields`
 
     - **pac** : Boolean field to represent the scheduler is set for PAC. `collection` attribute is optional if `pac` is true.
+    - **job_type** : Valid value for this field is `iac`, `cspm` and `pac`. if value of `pac` is not set or is false then default value of `job_type` is `iac` and if value of `pac` is true then default value of `job_type` is `pac`.
     - **webhook** : If you want to get the callback on any API server then you can define the webhook.
         - **webhook_url** : API url which you want to call while scheduler run.
 		- **webhook_data** : Data in JSON format, which you want to pass in callback API.
@@ -316,7 +321,7 @@ curl -X PUT \
 **CURL Sample**
 ```
 curl -X GET \
-  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/ \
+  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/?collection=aws_cspm_test&count=3&index=0 \
   -H 'authorization: Bearer <JWT Bearer Token>' \
   -H 'content-type: application/json'
 ```
@@ -330,8 +335,22 @@ curl -X GET \
 ```
 - **Param:**
 ```
-- No Parameters
+{
+    "collection": "azure_cloud",
+    "count" : 3,
+    "index" : 0
+}
 ```
+- **Explanation:**
+
+    `Optional Fields`
+
+    - **collection:** Name of the collection for which you want to filter the Jobs.
+    - **index:** determines from which index have to start populating of the data.
+    - **count:** determines the number of records per page need to populate in response.
+
+**NOTE:** 
+ - `index` and `count` parameters are useful for pagination. If no index pass then it will return all the records.
 
 **Response:**
 ```
@@ -347,7 +366,8 @@ curl -X GET \
                 "next_run_time": "2021-05-13 15:30:00",
                 "recur": "2",
                 "schedule": "Hourly@15:00 date@12/05/2021",
-                "test": "BOTH"
+                "test": "BOTH",
+                "job_type": "cspm"
             }
         ]
     },
@@ -464,28 +484,18 @@ curl -X DELETE \
 - **CURL Sample**
 
 ```curl
-curl -X DELETE \
-  https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/ \
-  -H 'authorization: Bearer <JWT Bearer Token>' \
-  -H 'content-type: application/json' \
-  -d '{
-    "id" : "azure_cloud_nbyrl_9441"
-}'
-
-
-curl --location --request GET 'https://portal.prancer.io/prancer-customer1/prancer-vatsal/api/tasks/' \
+curl -X GET \
+   'https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue' \
 -H 'authorization: Bearer <JWT Bearer Token>' \
--H 'space-id: 102' \
 -H 'content-type: application/json' \
 ```
 
-- **URL:** https://portal.prancer.io/prancer-customer1/prancer-vatsal/api/tasks/
+- **URL:** https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue
 - **Method:** GET
 - **Header:**
 
 ```text
     - content-type: application/json
-    - space-id: 102
     - Authorization: Bearer <JWT Bearer Token>
 ```
 
@@ -493,17 +503,84 @@ curl --location --request GET 'https://portal.prancer.io/prancer-customer1/pranc
 
 ```json
 {
-    "msg": "Tasks list",
-    "status": "OK",
-    "tasks": [
-        {
-            "container": "aws_cloud",
-            "logname": "logs_20220524115353_pawgl_0578",
-            "name": "invoke_manual_compliance",
-            "start": 1653393233398,
-            "state": "RUNNING",
-            "taskid": "task_aws_cloud_nbxfkrfd_26571274"
-        }
-    ]
+    "data": {
+        "results": [
+            {
+                "container": "aws_cloud",
+                "logname": "logs_20220617115442_qtrke_7132",
+                "name": "invoke_manual_crawler",
+                "start": 1655466882334,
+                "state": "INITIALIZED",
+                "taskid": "task_aws_cloud_zpnaxzgm_40529109"
+            },
+            {
+                "container": "azure_cloud",
+                "logname": "logs_20220617115441_evdoc_5283",
+                "name": "invoke_manual_crawler",
+                "start": 1655466881315,
+                "state": "INITIALIZED",
+                "taskid": "task_aws_cloud_cgbaygqq_84586401"
+            },
+            {
+                "container": "aws_cloud",
+                "logname": "logs_20220617113000_uumoz_5498",
+                "name": "invoke_schedule_crawler_and_test",
+                "start": 1655465400349,
+                "state": "RUNNING",
+                "taskid": "task_aws_cloud_mgxlaxwy_33110286"
+            }
+        ]
+    },
+    "error": "",
+    "error_list": [],
+    "message": "Tasks list",
+    "metadata": {},
+    "status": 200
+}
+```
+**Compliance - Delete Queued Tasks**
+---
+
+- **CURL Sample**
+
+```curl
+curl --location --request DELETE 'https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue' \
+-H 'authorization: Bearer <JWT Bearer Token>' \
+-H 'content-type: application/json' \
+-d '{
+    "taskid" : "task_aws_cloud_cgbaygqq_84586401"
+}'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/compliance/scheduler/queue
+- **Method:** DELETE
+- **Header:**
+
+```text
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+
+- **Param:**
+```
+{
+    "taskid" : "task_aws_cloud_cgbaygqq_84586401"
+}
+```
+- **Explanation:**
+
+    `Required Fields`
+
+    - **taskid:** Id of the task which is currently exist in the queue.
+
+**Response:**
+```
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Task cancelled",
+    "metadata": {},
+    "status": 200
 }
 ```

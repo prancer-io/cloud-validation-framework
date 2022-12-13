@@ -203,24 +203,29 @@ def get_container_dir(container, tabs=1):
     return container_dir
 
 
-def get_container_snapshot_json_files(container, mastersnapshot=False):
+def get_container_snapshot_json_files(container, mastersnapshot=False, name=None):
     """Return list of snapshot files in the container."""
     container_dir = get_container_dir(container)
     if mastersnapshot:
-        snapshot_files = get_json_files(container_dir, MASTERSNAPSHOT)
+        snapshot_files = get_json_files(container_dir, MASTERSNAPSHOT, name)
     else:
-        snapshot_files = get_json_files(container_dir, SNAPSHOT)
+        snapshot_files = get_json_files(container_dir, SNAPSHOT, name)
     if not snapshot_files:
         snapshot_files = []
     return container_dir, snapshot_files
 
 
-def get_json_files(json_dir, file_type):
+def get_json_files(json_dir, file_type, name=None):
     """Return list of json files based on the file type."""
     file_list = []
     # logger.info('JSON dir:%s, filetype: %s', json_dir, file_type)
+    globalllll= glob.glob('%s/*.json' % json_dir.replace('//', '/'))
+    if name:
+        name = json_dir + "/" + name + ".json"
     if json_dir and file_type:
         for filename in glob.glob('%s/*.json' % json_dir.replace('//', '/')):
+            if name and name != filename:
+                continue
             json_data = json_from_file(filename)
             if json_data and 'fileType' in json_data and json_data['fileType'] == file_type:
                 file_list.append(filename)

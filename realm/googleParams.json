@@ -1,0 +1,111 @@
+{
+    "GoogleApis": {
+        "acceleratorTypes.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/acceleratorTypes",
+        "addresses.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/addresses",
+        "autoscalers.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/autoscalers",
+        "backendServices.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/backendServices",
+        "diskTypes.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/diskTypes",
+        "disks.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/disks",
+        "forwardingRules.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/forwardingRules",
+        "operations.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/operations",
+        "healthChecks.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/healthChecks",
+        "instanceGroupManagers.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/instanceGroupManagers",
+        "instanceGroups.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/instanceGroups",
+        "instances.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/instances",
+        "interconnectAttachments.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/interconnectAttachments",
+        "machineTypes.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/machineTypes",
+        "networkEndpointGroups.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/networkEndpointGroups",
+        "nodeGroups.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/nodeGroups",
+        "nodeTemplates.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/nodeTemplates",
+        "nodeTypes.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/nodeTypes",
+        "commitments.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/commitments",
+        "reservations.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/reservations",
+        "resourcePolicies.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/resourcePolicies",
+        "routers.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/routers",
+        "sslCertificates.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/sslCertificates",
+        "subnetworks.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/subnetworks",
+        "targetHttpProxies.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/targetHttpProxies",
+        "targetHttpsProxies.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/targetHttpsProxies",
+        "targetInstances.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/targetInstances",
+        "targetPools.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/targetPools",
+        "targetVpnGateways.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/targetVpnGateways",
+        "urlMaps.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/urlMaps",
+        "vpnGateways.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/vpnGateways",
+        "vpnTunnels.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/vpnGateways",
+        "backendBuckets.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendBuckets",
+        "externalVpnGateways.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/externalVpnGateways",
+        "firewalls.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/firewalls",
+        "httpHealthChecks.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/httpHealthChecks",
+        "httpsHealthChecks.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/httpsHealthChecks",
+        "images.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/images",
+        "instanceTemplates.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/instanceTemplates",
+        "interconnectLocations.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/interconnectLocations",
+        "interconnects.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/interconnects",
+        "licenses.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/licenses",
+        "networks.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/networks",
+        "routes.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/routes",
+        "securityPolicies.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/securityPolicies",
+        "snapshots.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/snapshots",
+        "sslPolicies.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/sslPolicies",
+        "targetSslProxies.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/targetSslProxies",
+        "targetTcpProxies.list": "https://compute.googleapis.com/compute/v1/projects/{project}/global/targetTcpProxies",
+        "projects.zones.clusters.list": "https://container.googleapis.com/v1/projects/{projectId}/zones/{zone}/clusters",
+        "topics.list": "https://pubsub.googleapis.com/v1/projects/{project}/topics",
+        "functions.list": "https://cloudfunctions.googleapis.com/v1/projects/{project}/locations/-/functions",
+        "datasets.list": "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets",
+        "instances.list": "https://sqladmin.googleapis.com/sql/v1beta4/projects/{project}/instances",
+        "managedZones.list": "https://dns.googleapis.com/dns/v1/projects/project/managedZones",
+        "metrics.list": "https://logging.googleapis.com/v2/projects/{project}/metrics",
+        "storage/b.list": "https://storage.googleapis.com/storage/v1/b?project={project}",
+        "projects.list": "https://cloudresourcemanager.googleapis.com/v1/projects",
+        "services.list" :"https://serviceusage.googleapis.com/v1/projects/{project}/services",
+        "projects.accounts.list":"https://iam.googleapis.com/v1/projects/{project}/serviceAccounts",
+        "projects.accounts.keys.list":"https://iam.googleapis.com/v1/projects/{project}/serviceAccounts/{account}/keys",
+        "dns.policies.list": "https://dns.googleapis.com/dns/v1/projects/{project}/policies",
+        "keys.list": "https://apikeys.googleapis.com/v2/projects/{project}/locations/global/keys",
+        "apps.list": "https://appengine.googleapis.com/v1/apps/{project}",
+        "gcp.services.list" : "https://serviceusage.googleapis.com/v1/projects/{project}/services?filter=state:ENABLED",
+        "CloudRun.list": "https://run.googleapis.com/v1/projects/{project}/locations/-/services"
+
+    },
+    "GoogleGetApis": {
+        "storage/b_iam.get":{
+            "url" : "https://storage.googleapis.com/storage/v1/b/{bucket}/iam"
+        },
+        "cloudresourcemanager/projects.getIamPolicy" :{
+            "url" : "https://cloudresourcemanager.googleapis.com/v1/projects/{project}:getIamPolicy",
+            "method" : "POST"
+        },
+        "iam/projects.accounts.get":{
+            "url" : "https://iam.googleapis.com/v1/projects/{project}/serviceAccounts/{account}"
+        },
+        "iam/projects.accounts.keys.get":{
+            "url" : "https://iam.googleapis.com/v1/projects/{project}/serviceAccounts/{account}/keys/{key}"
+        },
+        "compute/projects.get" : {
+            "url" : "https://compute.googleapis.com/compute/v1/projects/{project}"
+        },
+        "dns/dns.policies.get" : {
+            "url" : "https://dns.googleapis.com/dns/v1/projects/{project}/policies/{policy}"
+        },
+        "apikeys/keys.get": {
+            "url" : "https://apikeys.googleapis.com/v2/projects/{project}/locations/global/keys/{key}"
+        },
+        "appengine/apps.get": {
+            "url": "https://appengine.googleapis.com/v1/apps/{project}"
+        },
+        "compute/securityPolicies.get": {
+            "url": "https://compute.googleapis.com/compute/v1/projects/{project}/global/securityPolicies/{policy_name}"
+        },
+        "serviceusage/gcp.services.get" :{
+            "url" : "https://serviceusage.googleapis.com/v1/projects/{project}/services/{service_name}"
+        },
+        "bigquery/datasets.get": {
+            "url" : "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}"
+        },
+        "run/CloudRun.get": {
+            "url" : "https://run.googleapis.com/v1/projects/{project}/locations/{location}/services"
+        }
+
+    }
+}

@@ -6,7 +6,7 @@ import copy
 import os
 import glob
 import re
-from processor.helper.json.json_utils import get_field_value, json_from_file, save_json_to_file
+from processor.helper.json.json_utils import json_from_file, save_json_to_file
 from processor.logging.log_handler import getlogger
 from processor.templates.base.template_parser import TemplateParser
 
@@ -182,21 +182,32 @@ class AzureTemplateParser(TemplateParser):
         # print(json.dumps(gvariables, indent=2))
         # print('@' * 50)
         # print(variables_expr)
-        val = variables_expr.strip().replace("'", "")
+        
+        ex_params = None
+        exmatch = re.match(r'^(\(.*\))(.*)', variables_expr, re.I)
+        if exmatch:
+            field, ex_params = exmatch.groups()
+            val = field[1:-1].strip().replace("'", "")
+        else:
+            val = variables_expr.strip().replace("'", "")
         # if val == 'diagStorageAccName':
         #     print(val)
         if val in self.gvariables:
             # print(json.dumps(gvariables[val], indent=2))
             # return True, gvariables[val]
-            success = False
-            value = self.gvariables[val]
-            if isinstance(value, str):
-                eval_expr = self.eval_expression(value)
-                if eval_expr:
-                    func_name, func_params = self.func_details(eval_expr)
-                    if func_name in self.function_handlers:
-                        success, updated_value = self.function_handlers[func_name](func_params)
-                        return success, updated_value
+            if ex_params:
+                success = True
+                value = self.get_field_value(self.gvariables[val], ex_params)
+            else:
+                success = False
+                value = self.gvariables[val]
+                if isinstance(value, str):
+                    eval_expr = self.eval_expression(value)
+                    if eval_expr:
+                        func_name, func_params = self.func_details(eval_expr)
+                        if func_name in self.function_handlers:
+                            success, updated_value = self.function_handlers[func_name](func_params)
+                            return success, updated_value
             return True, value
         else:
             logger.warning("%s variable does not exist" % val)
@@ -219,11 +230,11 @@ class AzureTemplateParser(TemplateParser):
             # print(json.dumps(gparams[val], indent=2))
             if 'value' in self.gparams[val]:
                 if ex_params:
-                    return True, get_field_value(self.gparams[val]['value'], ex_params)
+                    return True, self.get_field_value(self.gparams[val]['value'], ex_params)
                 return True, self.gparams[val]['value']
             elif 'defaultValue' in self.gparams[val]:
                 if ex_params:
-                    return True, get_field_value(self.gparams[val]['defaultValue'], ex_params)
+                    return True, self.get_field_value(self.gparams[val]['defaultValue'], ex_params)
                 return True, self.gparams[val]['defaultValue']
         else:
             logger.warning("%s does not exist" % val)
@@ -351,8 +362,36 @@ class AzureTemplateParser(TemplateParser):
                     resource_str = json.dumps(resource)
                     match_str = "copyIndex('%s')" % is_copy
                     resource_str = resource_str.replace(match_str, '%d' % i)
+                    resource_str = resource_str.replace("copyIndex()", '%d' % i)
                     new_resource = json.loads(resource_str)
                     del new_resource['copy']
                     resources.append(new_resource)
                 return True, resources
         return False, resource
+    
+    def get_field_value(self, data, parameter):
+        """get json value for a nested attribute."""
+        retval = None
+        parameter = parameter[1:] if parameter and parameter.startswith('.') else parameter
+        fields = parameter.split('.') if parameter else None
+        if data and fields:
+            retval = data
+            for field in fields:
+                match = re.match(r'(.*)\[(\d+)\]', field, re.I)
+                if match:
+                    field, index = match.groups()
+                    isupdated = False
+                    if retval and field in retval and isinstance(retval, dict):
+                        isupdated = True
+                        retval = retval[field]
+
+                    i = int(index)
+                    if retval and isinstance(retval, list) and i < len(retval):
+                        isupdated = True
+                        retval = retval[i]
+                    
+                    if not isupdated:
+                        retval = None
+                else:
+                    retval = retval[field] if retval and field in retval and isinstance(retval, dict) else None
+        return retval

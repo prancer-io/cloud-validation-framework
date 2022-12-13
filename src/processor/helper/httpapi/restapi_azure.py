@@ -249,7 +249,7 @@ def get_uami_vault_access_token():
         # logger.info('Get Azure UAMI token REST API invoked!')
         print('Get Azure UAMI token REST API invoked!')
         status, data = http_get_request(url, headers=hdrs)
-        print(data)
+        # print(data)
         if status and isinstance(status, int) and status == 200:
             vaulttoken = data['access_token']
             expiry_time = data['expires_on']
@@ -273,7 +273,8 @@ def get_keyvault_secret(keyvault, secret_key, vaulttoken):
     logger.debug('Get Id status: %s', status)
 
     if status and isinstance(status, int) and status == 200:
-        logger.debug('Data: %s', data)
+        # logger.debug('Data: %s', data)
+        pass
     else:
         put_in_currentdata('errors', data)
         logger.info("Get Id returned invalid status: %s", status)
@@ -292,7 +293,7 @@ def get_all_secrets(keyvault, vaulttoken):
     while url != None:
         status, data = http_get_request(url, hdrs)
         if status and isinstance(status, int) and status == 200:
-            logger.debug('Data: %s', data)
+            # logger.debug('Data: %s', data)
             values = data.get("value", [])
             url = data.get("nextLink",None)
             keys_response.extend(values)
@@ -323,7 +324,7 @@ def set_keyvault_secret(keyvault, vaulttoken, secret_key, value):
     status, data = http_put_request(url, request_data, headers=hdrs, json_type=True)
     logger.info('Set Id status: %s', status)
     if status and isinstance(status, int) and status == 200:
-        logger.debug('Data: %s', data)
+        # logger.debug('Data: %s', data)
         return True
     else:
         put_in_currentdata('errors', data)
@@ -355,7 +356,7 @@ def delete_keyvault_secret(keyvault, secret_key, vaulttoken):
     status, data = http_delete_request(url, headers=hdrs)
     logger.info('Delete Id status: %s', status)
     if status and isinstance(status, int) and status == 200:
-        logger.debug('Data: %s', data)
+        # logger.debug('Data: %s', data)
         success = True
     else:
         put_in_currentdata('errors', data)

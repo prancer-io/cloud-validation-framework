@@ -244,9 +244,12 @@ class ComparatorV01:
         else:
             self.format = None
 
-    def log_compliance_info(self, test_id):
+    def log_compliance_info(self, test_id, sid_pair=None):
         logger.critical('\tTESTID: %s', test_id)
-        logger.critical('\t\tSNAPSHOTID: %s', self.testcase['snapshotId'][0])
+        if sid_pair:
+            logger.critical('\t\tSNAPSHOTID: %s', sid_pair)
+        else:
+            logger.critical('\t\tSNAPSHOTID: %s', self.testcase['snapshotId'][0])
         if self.snapshots:
             snapshot = self.snapshots[0]
             logger.critical('\t\tPATHS: ')
@@ -272,166 +275,174 @@ class ComparatorV01:
         elif 'masterTestId' in self.testcase:
             testId = self.testcase['masterTestId']
             isMasterTest = True
-        sid = self.testcase['snapshotId'][0]
-        toExclude, snapshot_doc = self.get_snaphotid_doc(sid, testId, isMasterTest)
-        if toExclude:
-            logger.warn('\t\tWARN: Excluded test case: %s' % testId)
-            logger.warn('\t\tRESULT: SKIPPED')
-            # msg = 'Excluded testcase because of testId: %s' % testId
-            # results.append({'eval': 'data.rule.rulepass', 'result': 'skipped', 'message': msg})
-            return results
 
                             
         # logger.critical('\t\tEVAL: %s', rule_expr)
-        opa_exe = opa_binary()        
+        opa_exe = opa_binary()
         if not opa_exe:
             # print('*' * 50)
             logger.error('\t\tERROR: OPA binary not found!')
             logger.error('\t\tRESULT: FAILED')
             results.append({'eval': 'data.rule.rulepass', 'result': "passed" if result else "failed", 'message': ''})
             return results
+
         if len(self.testcase['snapshotId'])==1:
+            sid = self.testcase['snapshotId'][0]
+            toExclude, snapshot_doc = self.get_snaphotid_doc(sid, testId, isMasterTest)
+            if toExclude:
+                logger.warn('\t\tWARN: Excluded test case: %s' % testId)
+                logger.warn('\t\tRESULT: SKIPPED')
+                # msg = 'Excluded testcase because of testId: %s' % testId
+                # results.append({'eval': 'data.rule.rulepass', 'result': 'skipped', 'message': msg})
+                return results
             inputjson = snapshot_doc
             if inputjson is None:
                 logger.info('\t\tERROR: Missing snapshot')
+            results = []
+            if inputjson:
+                results = self.generating_result_for_rego_testcase(inputjson, tid, testId, opa_exe, rule_expr, results)
+            else:
+                results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                self.log_result(results[-1])
+            return results
         else:
             # ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
             # logger.info("ms_id")
-            # logger.info(ms_id)
-            
-            snapshot_json = {}
+            # logger.info(ms_id) 
             self.snapshots = []
-            for sid in self.testcase['snapshotId']:
-                master_snap_id = ""
-                for master_snapshot_id in self.testcase['masterSnapshotId']:
-                    if sid.startswith(master_snapshot_id):
-                        master_snap_id = master_snapshot_id
-                        break
-                toExclude, snapshot_doc = self.get_snaphotid_doc(sid, testId, isMasterTest)
-                if toExclude:
-                    logger.error('Excluded testcase because of testId: %s' % testId)
-                else:
-                    if inputjson.get("resources") and isinstance(inputjson.get("resources"), list) \
-                        and snapshot_doc and snapshot_doc.get("resources") and isinstance(snapshot_doc.get("resources"), list):
-                        inputjson["resources"] += snapshot_doc.get("resources")
-                    else:
-                        inputjson.update(snapshot_doc)
-            #         if master_snap_id in snapshot_json:
-            #             snapshot_json[master_snap_id].append(snapshot_doc)
-            #         else:
-            #             snapshot_json[master_snap_id] = [snapshot_doc]        
-            # inputjson.update(snapshot_json)
-
-        results = []
-        if inputjson:
-            save_json_to_file(inputjson, '/tmp/input_%s.json' % tid)
-            rego_rule = self.rule
-            rego_match=re.match(r'^file\((.*)\)$', rego_rule, re.I)
-            if rego_match:
-                rego_file = self.rego_rule_filename(rego_match.groups()[0], self.container)
-                if rego_file:
-                    pass
-                else:
-                    rego_file = None
+            resource_sid = []
+            for mastersnapshot_id in self.testcase['masterSnapshotId']:
+                msid = []
+                for sid in self.testcase['snapshotId']:
+                    if sid.startswith(mastersnapshot_id):
+                        msid.append(sid)
+                resource_sid.append({mastersnapshot_id:msid})
+            inputjson = {}
+            for sid_pair in resource_sid:    
+                for ms_id, s_id_list in sid_pair.items():
+                    snapshot_doc_list = []
+                    for s_id in s_id_list:
+                        toExclude, snapshot_doc = self.get_snaphotid_doc(s_id, testId, isMasterTest)
+                        if toExclude:
+                            logger.warn('\t\tWARN: Excluded test case: %s' % testId)
+                            logger.warn('\t\tRESULT: SKIPPED')
+                            return results
+                        snapshot_doc_list.append(snapshot_doc)
+                    input = {ms_id: snapshot_doc_list}
+                    inputjson.update(input)
+            # print('inputjson: ', inputjson)
+            if inputjson:
+                results = self.generating_result_for_rego_testcase(inputjson, tid, testId, opa_exe, rule_expr, results, resource_sid)
             else:
-                rego_txt = [
-                    "package rule",
-                    "default rulepass = false",
-                    "rulepass = true{",
-                    "   %s" % rego_rule,
-                    "}", ""
-                ]
-                rego_file = '/tmp/input_%s.rego' % tid
-                open(rego_file, 'w').write('\n'.join(rego_txt))
-            if rego_file:
-                if isinstance(rule_expr, list):
-                    result = os.system('%s eval -i /tmp/input_%s.json -d %s "data.rule" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, tid))
-                    if result != 0 :
-                        self.log_compliance_info(testId)
-                        logger.error("\t\tERROR: have problem in running opa binary")
-                        self.log_rego_error(json_from_file("/tmp/a_%s.json" % tid, object_pairs_hook=None))
-                else:
-                    result = os.system('%s eval -i /tmp/input_%s.json -d %s "%s" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, rule_expr, tid))
-                    if result != 0 :
-                        self.log_compliance_info(testId)
-                        logger.error("\t\tERROR: have problem in running opa binary")
-                        self.log_rego_error(json_from_file("/tmp/a_%s.json" % tid, object_pairs_hook=None))
+                results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                self.log_result(results[-1])
+            return results
 
-                resultval = json_from_file('/tmp/a_%s.json' % tid)
-                if resultval and "errors" in resultval and resultval["errors"]:
-                    if isinstance(rule_expr, list):
-                        if rule_expr[0] and "eval" in rule_expr[0]:
-                            results.append({'eval': rule_expr[0].get("eval"), 'result': "failed", 'message': ''})
-                        else:
-                            results.append({'eval': "data.rule", 'result': "failed", 'message': ''})
-                    else:
-                        results.append({'eval': rule_expr, 'result': "failed", 'message': ''})
+    def generating_result_for_rego_testcase(self, inputjson, tid, testId, opa_exe, rule_expr, results, sid_pair=None):
+        save_json_to_file(inputjson, '/tmp/input_%s.json' % tid)
+        rego_rule = self.rule
+        rego_match=re.match(r'^file\((.*)\)$', rego_rule, re.I)
+        if rego_match:
+            rego_file = self.rego_rule_filename(rego_match.groups()[0], self.container)
+            if rego_file:
+                pass
+            else:
+                rego_file = None
+        else:
+            rego_txt = [
+                "package rule",
+                "default rulepass = false",
+                "rulepass = true{",
+                "   %s" % rego_rule,
+                "}", ""
+            ]
+            rego_file = '/tmp/input_%s.rego' % tid
+            open(rego_file, 'w').write('\n'.join(rego_txt))
+        if rego_file:
+            if isinstance(rule_expr, list):
+                result = os.system('%s eval -i /tmp/input_%s.json -d %s "data.rule" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, tid))
+                if result != 0 :
                     self.log_compliance_info(testId)
-                    logger.critical('\t\tTITLE: %s', self.testcase.get('title', ""))
-                    logger.critical('\t\tDESCRIPTION: %s', self.testcase.get('description', ""))
-                    logger.critical('\t\tRULE: %s', self.testcase.get('rule', ""))
-                    logger.critical('\t\tERROR: %s', str(resultval["errors"]))
-                    logger.critical('\t\tREMEDIATION: %s', self.testcase.get('remediation_description', ""))
-                    logger.error('\t\tRESULT: FAILED')
-                    # logger.error(str(resultval["errors"]))
-                elif resultval:
-                    if isinstance(rule_expr, list):
-                        resultdict = resultval['result'][0]['expressions'][0]['value']
-                        for val in rule_expr:
-                            if 'eval' in val: 
-                                evalfield = val['eval'].rsplit('.', 1)[-1]
-                                evalmessage = val['message'].rsplit('.', 1)[-1] if "message" in val else ""
-                                if evalfield in resultdict:
-                                    if isinstance(resultdict[evalfield], bool):
-                                        result = parsebool(resultdict[evalfield])
-                                    else:
-                                        if logger.level == logging.DEBUG:
-                                            self.log_compliance_info(testId)
-                                            logger.warning('\t\tRESULT: SKIPPED')
-                                        continue
-                                elif evalmessage in resultdict:
-                                    result = False
+                    logger.error("\t\tERROR: have problem in running opa binary")
+                    self.log_rego_error(json_from_file("/tmp/a_%s.json" % tid, object_pairs_hook=None))
+            else:
+                result = os.system('%s eval -i /tmp/input_%s.json -d %s "%s" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, rule_expr, tid))
+                if result != 0 :
+                    self.log_compliance_info(testId)
+                    logger.error("\t\tERROR: have problem in running opa binary")
+                    self.log_rego_error(json_from_file("/tmp/a_%s.json" % tid, object_pairs_hook=None))
+
+            resultval = json_from_file('/tmp/a_%s.json' % tid)
+            if resultval and "errors" in resultval and resultval["errors"]:
+                if isinstance(rule_expr, list):
+                    if rule_expr[0] and "eval" in rule_expr[0]:
+                        results.append({'eval': rule_expr[0].get("eval"), 'result': "failed", 'message': ''})
+                    else:
+                        results.append({'eval': "data.rule", 'result': "failed", 'message': ''})
+                else:
+                    results.append({'eval': rule_expr, 'result': "failed", 'message': ''})
+                self.log_compliance_info(testId)
+                logger.critical('\t\tTITLE: %s', self.testcase.get('title', ""))
+                logger.critical('\t\tDESCRIPTION: %s', self.testcase.get('description', ""))
+                logger.critical('\t\tRULE: %s', self.testcase.get('rule', ""))
+                logger.critical('\t\tERROR: %s', str(resultval["errors"]))
+                logger.critical('\t\tREMEDIATION: %s', self.testcase.get('remediation_description', ""))
+                logger.error('\t\tRESULT: FAILED')
+                # logger.error(str(resultval["errors"]))
+            elif resultval:
+                if isinstance(rule_expr, list):
+                    resultdict = resultval['result'][0]['expressions'][0]['value']
+                    for val in rule_expr:
+                        if 'eval' in val: 
+                            evalfield = val['eval'].rsplit('.', 1)[-1]
+                            evalmessage = val['message'].rsplit('.', 1)[-1] if "message" in val else ""
+                            if evalfield in resultdict:
+                                if isinstance(resultdict[evalfield], bool):
+                                    result = parsebool(resultdict[evalfield])
                                 else:
                                     if logger.level == logging.DEBUG:
                                         self.log_compliance_info(testId)
                                         logger.warning('\t\tRESULT: SKIPPED')
                                     continue
-                                msg = resultdict[evalmessage] if not result and evalmessage in resultdict else ""
-                                results.append({
-                                    'eval': val["eval"], 
-                                    'result': "passed" if result else "failed", 
-                                    'message': msg,
-                                    'id' : val.get("id"),
-                                    'remediation_description' : val.get("remediationDescription"),
-                                    'remediation_function' : val.get("remediationFunction"),
-                                })
-                                # logger.info('\t\tERROR: %s', resultval)
-                                self.log_compliance_info(testId)
-                                self.log_result(results[-1])
-                    else:
-                        resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
-                        result = parsebool(resultbool)
-                        results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-                        # logger.info('\t\tERROR: %s', resultval)
-                        self.log_compliance_info(testId)
-                        self.log_result(results[-1])
-                        if results[-1]['result'] == 'failed':
-                            logger.error('\t\tERROR: %s', json.dumps(dict(resultval)))
-
-            else:
-                if logger.level == logging.DEBUG:
+                            elif evalmessage in resultdict:
+                                result = False
+                            else:
+                                if logger.level == logging.DEBUG:
+                                    self.log_compliance_info(testId)
+                                    logger.warning('\t\tRESULT: SKIPPED')
+                                continue
+                            msg = resultdict[evalmessage] if not result and evalmessage in resultdict else ""
+                            results.append({
+                                'eval': val["eval"], 
+                                'result': "passed" if result else "failed", 
+                                'message': msg,
+                                'id' : val.get("id"),
+                                'remediation_description' : val.get("remediationDescription"),
+                                'remediation_function' : val.get("remediationFunction"),
+                            })
+                            # logger.info('\t\tERROR: %s', resultval)
+                            self.log_compliance_info(testId, sid_pair)
+                            self.log_result(results[-1])
+                else:
+                    resultbool = resultval['result'][0]['expressions'][0]['value'] # [get_field_value(resultval, 'result[0].expressions[0].value')
+                    result = parsebool(resultbool)
+                    results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                    # logger.info('\t\tERROR: %s', resultval)
                     self.log_compliance_info(testId)
-                    logger.info('\t\tERROR: %s missing', rego_match.groups()[0])
-                    logger.warning('\t\tRESULT: SKIPPED')
-                # results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-                # self.log_result(results[-1])
-            remove_file('/tmp/input_%s.json' % tid)
-            remove_file('/tmp/a_%s.json' % tid)
-        else:
-            results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-            self.log_result(results[-1])
-        return results
+                    self.log_result(results[-1])
+                    if results[-1]['result'] == 'failed':
+                        logger.error('\t\tERROR: %s', json.dumps(dict(resultval)))
 
+        else:
+            if logger.level == logging.DEBUG:
+                self.log_compliance_info(testId)
+                logger.info('\t\tERROR: %s missing', rego_match.groups()[0])
+                logger.warning('\t\tRESULT: SKIPPED')
+            # results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+            # self.log_result(results[-1])
+        remove_file('/tmp/input_%s.json' % tid)
+        remove_file('/tmp/a_%s.json' % tid)
+        return results
 
     def process_python_test_case(self) -> list:
         # setting path of tmp to allow import from temp

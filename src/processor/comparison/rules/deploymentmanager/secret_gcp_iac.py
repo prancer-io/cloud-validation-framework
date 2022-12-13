@@ -100,14 +100,14 @@ def google_password_leak(generated_snapshot: dict, kwargs={}) -> dict:
         generated_snapshot, PASSWORD_VALUE_RE, PASSWORD_KEY_RE, EXCLUDE_RE=EXCLUDE_REGEX)
 
     if output["issue"] == True:
-        output["google_password_leak"] = "Ensure no hardcoded password set in the template"
+        output["google_password_leak_err"] = "Ensure no hardcoded password set in the template"
 
     elif output["issue"] == None:
-        output["google_password_leak"] = output["err"]
+        output["google_password_leak_err"] = output["err"]
         output.pop("err")
 
     elif output["issue"] == False:
-        output["google_password_leak"] = ""
+        output["google_password_leak_err"] = ""
     return output
 
 
