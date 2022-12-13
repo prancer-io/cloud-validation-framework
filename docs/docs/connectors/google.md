@@ -94,3 +94,5 @@ Keeping the private key in the vault is the most secure and recommended way of k
 [svc-gcp-doc]:      https://cloud.google.com/iam/docs/creating-managing-service-accounts
 [admin-svc]:        https://console.cloud.google.com/iam-admin/serviceaccounts
 [secrets-section]:  ../configuration/secrets.md
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/eRE-TZ74xt0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

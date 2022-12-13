@@ -155,3 +155,5 @@ Other connectors such as **AWS** and **Azure** allow you to configure multiple u
 
 <!-- All Links from this page -->
 [vault-config]: ../configuration/secrets.md
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/UKeRdakxYao" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

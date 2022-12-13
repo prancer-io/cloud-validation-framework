@@ -27,6 +27,9 @@ Here are the recommended steps to creating such a user if you don't have one yet
 >
 > Prancer cloud validation framework supports multiple SPNs to connect to the Azure. By doing that, you can have different permissions set for each SPN to run various validation scenarios!
 
+# Azure api versions
+
+**Prancer** requires a special configuration to support calling the **Azure** apis. To understand more, go to the [Azure api configuration](../configuration/basics.md) section.
 # Connector configuration file
 
 To configure the `Azure` connector, copy the following code to a file named `azureConnector.json` in your **Prancer** project folder.
@@ -111,3 +114,7 @@ Keeping the client secret in the vault is the most secure and recommended way of
 [secrets-section]:           ../configuration/secrets.md
 [Azure-Active-Directory]:    https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview
 [App-registrations]:         https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps
+
+Keeping the client secret in the vault is the most secure and recommended way of keeping the secret in prancer framework. To learn more visit [secrets section](../configuration/secrets.md)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/T1Y9k-B6muw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
