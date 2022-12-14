@@ -7,7 +7,7 @@ Currently, the following providers are supported in the connector configuration 
 - Filesystem
 - Azure
 - AWS
-- Google Cloud
+- Google
 - Kubernetes Cluster
 - Azure Board
 - Jira
