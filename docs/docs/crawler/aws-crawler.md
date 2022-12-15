@@ -1,10 +1,6 @@
-# AWS Crawler
-Following are the components of an aws crawler. 
-The code for aws crawler lies in **/cloud-validation-framework/realm/awscrawler**. You can find mastersnapshot and mastertest configuration files here. 
+# AWS Structure
 
 AWS Structure is the connector configuration file has information about how to connect to that provider and the credential.
-    
-### AWS Structure
 
 ```json
 {
@@ -41,7 +37,7 @@ AWS Structure is the connector configuration file has information about how to c
 |region|Region where service instance is to be searched(Optional)|us-west-1|
 |client|AWS service name(Optional)|EC2, S3 etc|
 
-### Basic Structure of a mastersnapshot
+## Basic Structure of a mastersnapshot
 
 ```json
 {
@@ -81,7 +77,7 @@ AWS Structure is the connector configuration file has information about how to c
 | listMethod        |          This includes a list method that can be called on boto client of particular service and returns various ids and other data in reponse. *For example*, describe_instances returns image_id in response along with other data. |      describe_instances      |
 | detailMethods     |       Every detail method uses response of list method(id or some other data) and gives detailed information for that particular service. Here describe_images used image_id from list method response and returns detailed image response. |    "describe_instances", "describe_images",                  "describe_volumes"    |
 
-### Sample Mastersnapshot
+## Sample Mastersnapshot
 
 ```json
 {
@@ -118,7 +114,7 @@ AWS Structure is the connector configuration file has information about how to c
 >
 > If we have two mastersnapshots with same **ARN**, and **detailMethods**, then snapshots for these mastersnapshots will be common with the list of mastersnapshot ids
 
-### Basic mastertest Structure
+## Basic mastertest Structure
 
 ```json
 {
@@ -129,7 +125,7 @@ AWS Structure is the connector configuration file has information about how to c
  "masterSnapshot": "awssnapshot",
  "testSet": [
   {
-   "masterTestName": "test3",
+   "masterTestName": "<master-test-name>",
    "version": "0.1",
    "cases": [
     {
@@ -149,7 +145,7 @@ AWS Structure is the connector configuration file has information about how to c
 | rule       |        Programmatic representation of the rule we want to test |     {AWS_EC2_01}.Reservations[0].Instances[0].SecurityGroups[0].GroupName='launch-wizard-1'     |
 
 
-### Sample Test
+## Sample Test
 
 ```json
 {
@@ -175,14 +171,14 @@ AWS Structure is the connector configuration file has information about how to c
 }
 ```
 
-### Steps to run aws crawler
+## Steps to run aws crawler
 
 - `populate_json lq --file ./realm/awsStructure.json --type structure`: Stores aws srtucture in mongodb collection named structures
 - `populate_json crawlertest --dir ./realm/validation/awscrawler`: loads entire directory in mongodb
 - `prancer --crawler crawlertest --db FULL`: Generates snapshots from mastersnapshot
 - prancer crawlertest --db FULL: Fetches snapshots and runs tests from mastertests on them.
 
-### Support for using multiple services in a single rego test case
+## Support for using multiple services in a single rego test case
 
 Here's the testcase format:
 

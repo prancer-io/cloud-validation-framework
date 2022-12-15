@@ -1,11 +1,6 @@
-# GCP Crawler
-
-Following are the components of an gcp crawler.
-The code for gcp crawler lies in **/cloud-validation-framework/realm/gcpcrawler**. You can find mastersnapshot and mastertest configuration files here.
+# GCP Structure
 
 GCP Structure is the connector configuration file has information about how to connect to that provider and the credential.
-
-### GCP Structure
 
 ```json
 {
@@ -38,7 +33,7 @@ GCP Structure is the connector configuration file has information about how to c
 |client_email|GCP service account email|1131198831-compute@developer.gserviceaccount.com|
 |client_id|GCP service account client-id for the perticular service account |123456789012345678901|
 
-### Basic Structure of a mastersnapshot
+## Basic Structure of a mastersnapshot
 
 ```json
 {
@@ -82,7 +77,7 @@ GCP Structure is the connector configuration file has information about how to c
 | collection|        It represents the name of the collection in mongo db. |     project_iam_user|
 | service|        It represents the name of the service in GCP. |     compute|
 
-### Sample Mastersnapshot
+## Sample Mastersnapshot
 
 ```json
 {
@@ -118,9 +113,9 @@ GCP Structure is the connector configuration file has information about how to c
 
 > <Notetitle>Note:</Notetitle>
 >
-> Here, **get_method** attribute is only required for limited api types. To check the supported get api for **get_method**, please check the file **googleParams.json/GoogleGetApis**
+> Here, **get_method** attribute is only required for limited api types. To check the supported get api for **get_method**, please check the file **googleParams.json/GoogleGetApis** in our [prancer-hello-world](https://github.com/prancer-io/prancer-hello-world) repository.
 
-### Basic mastertest Structure
+## Basic mastertest Structure
 
 ```json
 {
@@ -130,7 +125,7 @@ GCP Structure is the connector configuration file has information about how to c
   "notification": [],
   "testSet": [
     {
-      "masterTestName": "TEST_CLOUD_GOOGLE",
+      "masterTestName": "<master-test-name>",
       "version": "0.1",
       "cases": [
             {
@@ -150,7 +145,7 @@ GCP Structure is the connector configuration file has information about how to c
 | rule       |        Programmatic representation of the rule we want to test |     {PR_GCP_CLD_PRIF_001}.input[0].commonInstanceMetadata.items[0].key='enable-oslogin'     |
 
 
-### Sample Test
+## Sample Test
 
 ```json
 {
@@ -173,14 +168,14 @@ GCP Structure is the connector configuration file has information about how to c
 }
 ```
 
-### Steps to run gcp crawler
+## Steps to run gcp crawler
 
 - `populate_json lq --file ./realm/gcpStructure.json --type structure`:  Stores gcp srtucture in mongodb collection named structures
 - `populate_json crawlertest --dir ./realm/validation/gcpcrawler`: loads entire directory in mongodb
 - `prancer --crawler crawlertest --db FULL`: Generates snapshots from mastersnapshot
 - `prancer crawlertest --db FULL`: Fetches snapshots and runs tests from mastertests on them.
 
-### Support for using multiple services in a single rego test case
+## Support for using multiple services in a single rego test case
 
 Here's the testcase format:
 

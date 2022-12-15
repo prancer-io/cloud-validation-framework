@@ -1,11 +1,6 @@
-# Azure Crawler
-
-Following are the components of an gcp crawler.
-The code for gcp crawler lies in **/cloud-validation-framework/realm/azurecrawler**. You can find mastersnapshot and mastertest configuration files here.
+# Azure Structure
 
 Azure Structure is the connector configuration file has information about how to connect to that provider and the credential.
-
-## Azure Structure
 
 ```json
 {
@@ -19,6 +14,7 @@ Azure Structure is the connector configuration file has information about how to
                 {
                     "subscription_name": "<subscription(account)-name>",
                     "subscription_description": "<subscription(account)-description>",
+                    "subscription_id": "<subscription(account)-id>",
                     "users": [
                         {
                             "name": "<username>"
@@ -35,108 +31,89 @@ Azure Structure is the connector configuration file has information about how to
 | Key | Value | Example |
 |:-----------|:------------|:------------:|
 |subscription_name|Azure account(subscription) name|prancer-test|
-|subscription_description|Azure account(subscription) description | #### |
+|subscription_description|Azure account(subscription) description | |
+|subscription_id|Azure account(subscription) id | |
 
-<!-- ## Basic Structure of a mastersnapshot
+## Basic Structure of a mastersnapshot
 
 ```json
 {
-  "contentVersion": "1.0.0.0",
   "fileType": "masterSnapshot",
   "snapshots": [
     {
-      "type": "google",
-      "source": "<name-of-connector-file>",
-      "testUser": "<test-username>",
-      "project-id": "<project-id>",
+      "type": "azure",
+      "testUser": "<username>",
+      "subscriptionId": "<subscription-id>",
+      "source": "<Azure-connector-file-name>",
       "nodes": [
         {
-          "masterSnapshotId": "<mastersnapshot-id>",
-          "type": "<list-api-from-googleParmas>",
-          "get_method": ["<get-api-from-googleParams-if-there-is-any>"],
-          "collection": "<name of collection in mongo db>",
-          "tags": [
-            {
-              "cloud": "GCP",
-              "service": [
-                "<GCP-service-name>"
-              ]
-            }
-          ]
+          "masterSnapshotId":"<mastersnapshot-id>",
+          "type": "<Azure-api-from-azureApiVersions>",
+          "collection": "<Collection-name>",
+          "version": "<Azure-api-version-from->"
         }
       ]
     }
   ],
-  "type":"google"
+  "type": "azure",
 }
 ```
 
 | Key|Value| Example|
 |:---------------- |:------------|:------------|
-| source| GCP connector file name |googleConnector|
-| project-id        |Project Id from the GCP console|      my-project-1234567890      |
-| masterSnapshotId  |        Name of the snapshot to be used  in test files |     GOOGLE_PROJECTS_IAM|
-| type| API type from googleParams.json/GoogleApis(Supported API types are in googleParams.json)|"compute/projects.list",</br> "gcp.services.list",</br> "projects.accounts.list"|
-| get_method|Get API methods from the googleParams.json/GoogleGetApis. </br>There can be multiple value.(Supported API types are in googleParams.json)|    "cloudresourcemanager/projects.getIamPolicy",</br> "serviceusage/gcp.services.get", </br> "iam/projects.accounts.get"    |
-| collection|        It represents the name of the collection in mongo db. |     project_iam_user|
-| service|        It represents the name of the service in GCP. |     compute|
+| source| Azure connector file name |azureConnector|
+| masterSnapshotId  |        ID of the snapshot to be used  in test files |     AZRSNP_274|
+| type| API type from azureApiVersions.json(Supported API types are in azureApiVersions.json)|"Microsoft.Compute/virtualMachines",</br> "Microsoft.Sql/instancePools",</br> "Microsoft.HealthcareApis/services"|
+| collection|        It represents the name of the collection in mongo db. |Microsoft.Compute|
+| version|API version from azureApiVersions.json(Supported API versions are in azureApiVersions.json)|  2021-07-01|
 
 ## Sample Mastersnapshot
 
 ```json
 {
-  "contentVersion": "1.0.0.0",
-  "fileType": "masterSnapshot",
-  "snapshots": [
-    {
-      "type": "google",
-      "source": "googleConnector",
-      "testUser": "<IAM username>",
-      "project-id":"<your project id>",
-      "nodes": [
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "fileType": "masterSnapshot",
+    "snapshots": [
         {
-          "masterSnapshotId": "GOOGLE_PROJECTS_IAM",
-          "type": "compute/projects.list",
-          "get_method": ["cloudresourcemanager/projects.getIamPolicy"],
-          "collection": "project_iam_user",
-          "tags": [
-            {
-              "cloud": "GCP",
-              "service": [
-                "compute"
-              ]
-            }
-          ]
+            "type": "azure",
+            "subscriptionId": "7a19-4458-f038bb7760c1",
+            "testUser": "prancer_ro",
+            "source": "azureConnector",
+            "nodes": [
+                {
+                    "masterSnapshotId": "AZRSNP_274",
+                    "type": "Microsoft.Compute/virtualMachines",
+                    "collection": "Microsoft.Compute",
+                    "version": "2021-07-01",
+                }
+            ]
         }
-      ]
-    }
-  ],
- "type": "google"
+    ]
 }
 ```
 
 > <Notetitle>Note:</Notetitle>
 >
-> Here, **get_method** attribute is only required for limited api types. To check the supported get api for **get_method**, please check the file **googleParams.json/GoogleGetApis**
+> To check the supported  **type**, please check the file **azureApiVersions.json** in our [prancer-hello-world](https://github.com/prancer-io/prancer-hello-world) repository.
 
-### Basic mastertest Structure
+## Basic mastertest Structure
 
 ```json
 {
-  "contentVersion": "1.0.0.0",
   "fileType": "mastertest",
-  "masterSnapshot": "master-snapshot",
+  "masterSnapshot": "<master-snapshot-name>",
   "notification": [],
   "testSet": [
     {
-      "masterTestName": "TEST_CLOUD_GOOGLE",
+      "masterTestName": "<master-test-name>",
       "version": "0.1",
       "cases": [
-            {
-            "masterTestId": "<test id>",
-            "rule": "<rule>"
-            }
-        ]
+        {
+          "masterTestId": "<master-test-id>",
+          "rule": "<rule>"
+        }
+      ]
     }
   ]
 }
@@ -145,49 +122,48 @@ Azure Structure is the connector configuration file has information about how to
 | Key        | Value       | Example |
 |:-----------|:------------|:------------|
 | cases       |        All the test cases are written under this section |     The json enclosed in cases block (Refer below)    |
-| masterTestId     |      The id of the master test case |    PR-GCP-CLD-PRIF-001    |
-| rule       |        Programmatic representation of the rule we want to test |     {PR_GCP_CLD_PRIF_001}.input[0].commonInstanceMetadata.items[0].key='enable-oslogin'     |
+| masterTestId     |      The id of the master test case |    PR-AZR-CLD-KV-001    |
+| rule       |        Programmatic representation of the rule we want to test | {PR_AZR_CLD_KV_001}.input.resources[_].properties.enableSoftDelete != true |
 
 ## Sample Test
 
 ```json
 {
-  "contentVersion": "1.0.0.0",
   "fileType": "mastertest",
-  "masterSnapshot": "master-snapshot",
+  "masterSnapshot": "mastersnapshot_azure_cloud",
   "notification": [],
   "testSet": [
     {
-      "masterTestName": "TEST_CLOUD_GOOGLE",
+      "masterTestName": "AZURE_Cloud_TEST",
       "version": "0.1",
       "cases": [
-            {
-            "masterTestId": "PR-GCP-CLD-PRIF-001",
-            "rule": "{PR_GCP_CLD_PRIF_001}.input[0].commonInstanceMetadata.items[0].key='enable-oslogin'"
-            }
-        ]
+        {
+          "masterTestId": "PR-AZR-CLD-KV-001",
+          "rule": "{PR_AZR_CLD_KV_001}.input.resources[_].properties.enableSoftDelete != true",
+        }
+      ]
     }
   ]
 }
 ```
 
-### Steps to run gcp crawler
+## Steps to run azure crawler
 
-- `populate_json lq --file ./realm/gcpStructure.json --type structure`:  Stores gcp srtucture in mongodb collection named structures
-- `populate_json crawlertest --dir ./realm/validation/gcpcrawler`: loads entire directory in mongodb
+- `populate_json lq --file ./realm/azureStructure.json --type structure`:  Stores gcp srtucture in mongodb collection named structures
+- `populate_json crawlertest --dir ./realm/validation/azurecrawler`: loads entire directory in mongodb
 - `prancer --crawler crawlertest --db FULL`: Generates snapshots from mastersnapshot
 - `prancer crawlertest --db FULL`: Fetches snapshots and runs tests from mastertests on them.
 
-### Support for using multiple services in a single rego test case
+## Support for using multiple services in a single rego test case
 
 Here's the testcase format:
 
 ```json  
 {           
-    "masterTestId": "PR-GCP-CLD-PRIF-001",
+    "masterTestId": "PR-AZR-CLD-KV-001",
     "type": "rego",
     "rule": "file(iam.rego)",
-    "masterSnapshotId": ["GOOGLE_PROJECT_INFO"],
+    "masterSnapshotId": ["AZRSNP_228"],
     "eval": "data.rule.rulepass"
 }
 ```
@@ -197,7 +173,6 @@ Here's the rego rule:
 	package rule
 	default rulepass = false
 	rulepass = true{
-	    contains(input.commonInstanceMetadata.items[_].key, "enable-oslogin")
-	    lower(input.commonInstanceMetadata.items[_].value) == "false"}
+	    {PR_AZR_CLD_KV_001}.input.resources[_].properties.enableSoftDelete != true}
 
-To include multiple services in a single test case, we need to provide the mastersnapshot Ids of all the services in **masterSnapshotId** in testcase and then access the response using mastersnapshot ids in rego file. -->
+To include multiple services in a single test case, we need to provide the mastersnapshot Ids of all the services in **masterSnapshotId** in testcase and then access the response using mastersnapshot ids in rego file.
