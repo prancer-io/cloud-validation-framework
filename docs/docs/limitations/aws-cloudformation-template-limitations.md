@@ -5,7 +5,6 @@
 
 #### Here is the [link](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/rules-section-structure.html) of AWS Cloudformation supported Functions<br/><br/>
 
-
 **List of Unsupported Scenarios**
 | Function Name | Note |
 | ------------- | ---- |

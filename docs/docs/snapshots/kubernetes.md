@@ -1,7 +1,9 @@
-## Kubernetes snapshot configuration 
+## Kubernetes snapshot configuration
+
 We have to setup snapshot configuration file for getting snapshot from kubernetes cluster information.
 Here is the snapshot configuration file template for kubernetes post deployment:
-```
+
+```json
 {
     "fileType": "<file-type>",
     "snapshots": [
@@ -22,8 +24,8 @@ Here is the snapshot configuration file template for kubernetes post deployment:
         }
     ]
 }
+```
 
-```   
 | Key           |Value Description |
 | ------------- |:-------------:   |
 |file-type|snapshot|
@@ -33,10 +35,11 @@ Here is the snapshot configuration file template for kubernetes post deployment:
 |snapshotId|should be unique for each node|
 |type|the type of kubernetes object we want to get snapshot from them|
 |path|api path of that object should get snapshot|
-|collection|mongo collection that we want to save snapshot if use prancer as full db mode|
+|collection|mongo collection that we want to save snapshot if use **prancer** as full db mode|
 
 example file :
-```
+
+```json
 {
     "fileType": "snapshot",
     "snapshots": [
@@ -163,7 +166,8 @@ example file :
 ## Kubernetes master snapshot configuration 
 We have to setup master snapshot configuration file for getting snapshot from kubernetes cluster information.
 Here is the master snapshot configuration file template for kubernetes post deployment:
-```
+
+```json
 {
     "fileType": "<file-type>",
     "snapshots": [
@@ -187,9 +191,8 @@ Here is the master snapshot configuration file template for kubernetes post depl
         } 
     ]
 }
+```
 
-
-```   
 | Key           |Value Description |
 | ------------- |:-------------:   |
 |file-type|masterSnapshot|
@@ -199,10 +202,11 @@ Here is the master snapshot configuration file template for kubernetes post depl
 |masterSnapshotId|should be unique for each node|
 |type|the type of kubernetes object we want to get snapshot from them|
 |path|api path of that object should get snapshot|
-|collection|mongo collection that we want to save snapshot if use prancer as full db mode|
+|collection|mongo collection that we want to save snapshot if use **prancer** as full db mode|
 
 example file:
-```
+
+```json
 {
     "fileType": "masterSnapshot",
     "snapshots": [

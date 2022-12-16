@@ -42,7 +42,7 @@ To configure the **Filesystem** connector, copy the following code to a file nam
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| Tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | path-to-folder | Absolute path to the folder  |
 
@@ -64,7 +64,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| Tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | url-to-repository | Enter the HTTPS or SSH url to the repository |
 | branch | Branch to checkout |
@@ -95,7 +95,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| Tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | url-to-repository | Enter the HTTPS or SSH url to the repository |
 | branch | Branch to checkout |
@@ -123,7 +123,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| Tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | url-to-repository | Enter the HTTPS or SSH url to the repository |
 | branch | Branch to checkout |

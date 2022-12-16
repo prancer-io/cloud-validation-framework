@@ -55,7 +55,7 @@ Here are the recommended steps to creating such a user if you don't have one yet
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| Tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | project-name | The name of the project in the Google Cloud |
 | project-id | project id in the google cloud|

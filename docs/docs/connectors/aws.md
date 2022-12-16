@@ -56,7 +56,7 @@ To configure the **AWS** connector, copy the following code to a file named `aws
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| Tag | What to put there | Suggestion |
+| Tag | Value Description | Suggestion |
 |-----|-------------------|-------------|
 | account-id | Your **AWS** account id, find this in the **AWS console** account menu drop-down.| [AWS docs][AWS-docs] |
 | iam-user | Name of the **IAM** user| we recommend `prancer_ro` |

@@ -1,6 +1,6 @@
 In a master test file, we are defining the test cases against the resource types rather than individual resources. it works in tandem with the master snapshot configuration file.
 
-```
+```json
 {
     "fileType": "mastertest",
     "notification": [<notifications>],
@@ -22,17 +22,18 @@ In a master test file, we are defining the test cases against the resource types
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | notifications | the name of the notification file we want to use along with this test file |
 | master-Snapshot-name | the name of the master snapshot configuration file we want to use along with this test file |
 | master-Test-Name | the name of the master test name for this section |
-| version | the version of the rule engine. current version is `0.1` |
+| version | The version of the rule engine. Current version is `0.1` |
 | master-Test-Id | the id of the master test case |
 | rule | the rule we want to examine |
 
 Here is an example of that:
-```
+
+```json
 {
     "fileType": "mastertest",
     "notification": [],
