@@ -103,3 +103,5 @@ Keeping the secret access in the vault is the most secure and recommended way of
 [AWS-docs]: https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html
 [secrets-section]: ../configuration/secrets.md
 [IAM-console]:https://console.aws.amazon.com/iam/home
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/jYnqi9qbZhg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

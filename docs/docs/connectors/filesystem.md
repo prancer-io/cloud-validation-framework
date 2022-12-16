@@ -1,7 +1,7 @@
-The **Filesystem** connector allows you to connect to files from a local file system or a git repository. This is the main connector we use for **Infrastructure as Code** (IaC) Static Code Analysis (SCA) and security validation. The **Filesystem** connector will help to inspect a static file committed into your project. Therefore, you should use this connector to preemptively validate your cloud management templates before applying your infrastructure changes.
+The **Filesystem** connector allows you to connect to files from a local file system or a git/bitbucket repository. This is the main connector we use for **Infrastructure as Code** (IaC) Static Code Analysis (SCA) and security validation. The **Filesystem** connector will help to inspect a static file committed into your project. Therefore, you should use this connector to preemptively validate your cloud management templates before applying your infrastructure changes.
 
 # Connecting with the FileSystem Provider
-Prancer supports two methods to connect to a remote git provider:
+Prancer supports two methods to connect to a remote git/bitbucket provider:
 
 * SSH configuration
 * HTTPS configuration
@@ -72,11 +72,10 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | httpsAccessToken | Secret key require for connect to private git repository. |
 
 * **httpsAccessToken:**
-    - If you are connecting the private repository then additionally you have to export the git access token in environment variable. 
-    - For example, you want to connect private github repository then geneate the new Github Access Token and export the new environment variable, where **key** is the value of `httpsAccessToken` and **value** is Github Access Token.
+    - If you are connecting the private repository then additionally you have to export the git access token in environment variable.
+    - For example, you want to connect private Github/GitLab/BitBucket repository then geneate the new Github/GitLab/BitBucket Access Token and export the new environment variable, where **key** is the value of `httpsAccessToken` and **value** is Github/GitLab/BitBucket Access Token.
 
-> **Note**: Path expansions are not implemented yet, you need to provide full paths!
-
+> **Note**: Path expansions are not implemented yet, you need to provide full paths!  
 
 **Private SSH example** 
 
@@ -155,3 +154,5 @@ Other connectors such as **AWS** and **Azure** allow you to configure multiple u
 
 <!-- All Links from this page -->
 [vault-config]: ../configuration/secrets.md
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/UKeRdakxYao" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

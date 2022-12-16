@@ -29,4 +29,6 @@ If we target the Premium Edition
 
 # Overview of documentation
 
-The first few pages of the documentation are for the general workflow, installation, and terminology. After that, each section will focus on specific aspects of the platform and various configuration options available for you. 
+The first few pages of the documentation are for the general workflow, installation, and terminology. After that, each section will focus on specific aspects of the platform and various configuration options available for you.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/9Fr-6UCOYas" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
