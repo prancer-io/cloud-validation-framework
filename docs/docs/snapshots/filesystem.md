@@ -1,9 +1,10 @@
 This snapshot configuration file type is used along with the **filesystem** connector. It allows you to take snaphots of entire files as resources to test.
 
-# Supported IaC file types.
+# Supported IaC file types
+
 1. `json:` Crawl and process valid JSON files.
 2. `yaml:` Crawl and process valid YAML files.
-3. `arm:` Azure arm template.
+3. `arm:` Azure ARM template.
 4. `cloudformation:` AWS Cloud​Formation template.
 5. `deploymentmanager:` Google cloud deploymentmanager.
 6. `terraform:` Terraform files.
@@ -21,6 +22,7 @@ To setup a **filesystem** snapshot configuration file, copy the following code t
 >
 > This file can be named anything you want but we suggest `snapshot.json`
 
+```json
     {
         "fileType": "snapshot",
         "snapshots": [
@@ -42,10 +44,11 @@ To setup a **filesystem** snapshot configuration file, copy the following code t
             }
         ]
     }
+```
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | name-of-connector | name of the **filesystem** connector configuration file |
 | user-to-use-on-connector | Same username as defined in the **filesystem** connector configuration file |
@@ -56,11 +59,12 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | relative-paths-to-file | Path to the file to read, relative to the root of the repository that the connector checks out |
 
 # Master Snapshot configuration file
-We use master snapshot configuration file to read all the files in a directory with the **filesystem** connector. 
+We use master snapshot configuration file to read all the files in a directory with the **filesystem** connector.
 > <NoteTitle>Notes: Naming conventions</NoteTitle>
 >
 > This file can be named anything you want but we suggest `snapshot.json`
 
+```json
     {
         "fileType": "masterSnapshot",
         "snapshots": [
@@ -88,10 +92,11 @@ We use master snapshot configuration file to read all the files in a directory w
             }
         ]
     }
+```
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | name-of-connector | name of the **filesystem** connector configuration file |
 | user-to-use-on-connector | Same username as defined in the **filesystem** connector configuration file |
@@ -101,4 +106,4 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | collection-name | Name of the **NoSQL** database collection used to store snapshots of this file |
 | relative-paths-to-file | Path to the file to read, relative to the root of the repository that the connector checks out |
 | exclude-paths-to-file | Path to the file to exclude, relative to the root of the repository that the connector checks out |
-| regular-expression-to-exclude-file | regular expression which matches with the filename or directory path to exclude  |
+| regular-expression-to-exclude-file | regular expression which matches with the filename or directory path to exclude|

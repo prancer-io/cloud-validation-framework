@@ -68,7 +68,7 @@ To configure the `Azure` connector, copy the following code to a file named `azu
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| Tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | tenant-id | The tenant id of the application you create in the **Active Directory** |
 | subscription-id | Your subscription id, you can find it in the [Subscriptions][subscriptions]|

@@ -1,12 +1,15 @@
 # Snapshot configuration file
 
+The Azure snapshot configuration file type is used along with the **Azure** connector. It allows you to take snapshots of ReST api calls to the **Azure** api.
+
 To setup an **Azure** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
 
 > <NoteTitle>Notes: Naming conventions</NoteTitle>
 >
 > This file can be named anything you want but we suggest `snapshot.json`
 
-    {
+```json
+   {
         "fileType": "snapshot",
         "snapshots": [
             {
@@ -18,16 +21,18 @@ To setup an **Azure** snapshot configuration file, copy the following code to a 
                         "snapshotId": "<snapshot-name>",
                         "type": "<resource-provider>",
                         "collection": "<collection-name>",
-                        "path": "<resource-id>"
+                        "path": "<resource-id>",
+                        "status": "<status>"
                     }
                 ]
             }
         ]
     }
+```
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | azure-connector | Name of the **Azure Connector** file you want to use to connect to Azure backend |
 | spn-username | Name of the **SPN** user to connect to the Azure backend, must be present in the **Azure** connector file |
@@ -36,12 +41,13 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | resource-provider | Type of resource being queried for, see below for more information |
 | collection-name | Name of the **NoSQL** db collection used to store snapshots of this file |
 | resource-id | The id that corresponds to the resource you want to take snapshot, see Paths below |
+| status | It could be active or inactive. If it is inactive then the snapshot is not taken from the provider |
 
 ### Azure Resource Provider
 
 The **resource-provider** parameter refers to a very wide list. Let's see how the **Azure** connector works to know how to properly set it up!
 
-The **Azure** connector is a wrapper around the **Azure** ReST api. **Prancer** will call a **GET** operation on the api using the **type-of-node** and **path**. For example:
+The **Azure** connector is a wrapper around the **Azure** ReST API. **Prancer** will call a **GET** operation on the API using the **type-of-node** and **path**. For example:
 
 | What you need | Type of node |
 |---------------|--------------|
@@ -49,7 +55,7 @@ The **Azure** connector is a wrapper around the **Azure** ReST api. **Prancer** 
 | Virtual machines | Microsoft.Compute/virtualMachines |
 | MySQL databases | Microsoft.DBforMySQL/servers/{replaceThisWithServerName}/databases |
 
-The important part to remember is that if you find an **Azure** api endpoint in the documentation, you usually just need to copy and paste everything after the `providers/` in the endpoint and paste it in the node type.
+The important part to remember is that if you find an **Azure** api endpoint in the documentation, you usually just need to copy and paste everything after the `providers/` in the endpoint and paste it in the node type. For more information, you can check the [Azure documentation](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-services-resource-providers)
 
 ### Resource id
 
@@ -60,11 +66,10 @@ You can get the resource id from the URL in the Azure portal, or from the Azure 
 
 # Master Snapshot Configuration File
 Master Snapshot Configuration File is to define **resource types**. We do not have individual resources in the Master Snapshot Configuration File, instead we have the type of resources.
-Prancer validation framework is using the Master Snapshot Configuration File in the crawler functionality to find new resources.
+**Prancer** validation framework is using the Master Snapshot Configuration File in the crawler functionality to find new resources.
 
-```
+```json
 {
-    "contentVersion": "1.0.0.0",
     "fileType":"masterSnapshot",
     "snapshots": [
         {
@@ -82,9 +87,10 @@ Prancer validation framework is using the Master Snapshot Configuration File in 
     ]
 }
 ```
+
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | azure-connector | Name of the **Azure Connector** file you want to use to connect to Azure backend |
 | spn-username | Name of the **SPN** user to connect to the Azure backend, must be present in the **Azure** connector file |
@@ -98,7 +104,7 @@ It is possible to centrally manage your master snapshot configuration files from
 
 The format for the remote git master snapshot configuration file is like this:
 
-```
+```json
     {
     "$schema": "",
     "contentVersion": "1.0.0.0",
@@ -114,4 +120,3 @@ The format for the remote git master snapshot configuration file is like this:
     ]
     }
 ```
-
