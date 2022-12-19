@@ -522,12 +522,13 @@ curl -X PUT 'https://portal.prancer.io/prancer-customer1/api/azboard/configurati
 - **CURL Sample**
 
 ```curl
-curl -X POST 'https://portal.prancer.io/prancer-customer1/api/azboard/issue' -H 'Authorization: Bearer <JWT Bearer Token>' --data-raw '{"container": "aws_tf_rds","issues":[{"title": "Bulk issue creation 3"}]}'
+curl -X POST 'https://portal.prancer.io/prancer-customer1/api/azboard/ticket/create/' -H 'Authorization: Bearer <JWT Bearer Token>'  --data-raw '{"container":"aws_cloud_specific", "pac_alert_ids": ["62b59d9105c659f779127df4", "62b9af0d0f8908d3969b39b6", "62b9af0d0f8908d3969b39f0"]}
 
 ```
  
-- **URL: <https://portal.prancer.io/prancer-customer1/api/azboard/issue>**
-- **Method:POST**- **Header:**
+- **URL: <https://portal.prancer.io/prancer-customer1/api/azboard/ticket/create>**
+- **Method:POST**
+- **Header:**
 
 ``` code
     - content-type: application/json
@@ -539,18 +540,34 @@ curl -X POST 'https://portal.prancer.io/prancer-customer1/api/azboard/issue' -H 
  
 ``` json
 {
-    "container": "aws_tf_rds",
-    "issues": [
-        {
-            "title": "Issue creation"
-        }
-    ]
+    "container":"aws_cloud_specific",
+    "pac_alert_ids": [
+        "62b59d9105c659f779127df4", 
+        "62b9af0d0f8908d3969b39b6", 
+        "62b9af0d0f8908d3969b39f0"
+        ]
 }
 ```
 
 - **Explanation:**
-	`The Container and issues fields are mandatory. 
 
+    `Required Fields`
+
+    - **container:** Name of the cloud container for which you want want to create Jira tickets.
+
+    **For Creating Ticket for Infra findings:**
+    - **result_id:** Result id of the infra output.
+    - **output_id:** Output id of the infra output.
+    - **test_id:** Test id of the failed testcase of the infra output.
+    - **snapshot_id:** Snapshot id of the failed testcase in infra output.
+    
+    **For Creating Ticket for App findings:**
+    - **pac_alert_ids:** Alert id list for which ticket needs to be created.
+
+
+    `Optional Fields`
+
+    - **matching_testcase:** : Valid values are `true` and `false`. To create the a single ticket for all similar failed testcases on the Infra findings if `true`
 
 - **Response:**
 
