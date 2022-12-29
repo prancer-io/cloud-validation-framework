@@ -261,6 +261,13 @@ curl -X GET 'https://portal.prancer.io/prancer-customer1/api/resource/dashboard?
                 "old_resource_time": "2021-02-24 11:17:05"
             }
         ],
+        "drift_output": {
+            "container": "aws_drift_tf",
+            "drift_output_id": "63aad93b76780fb0b1913033",
+            "drift_result": "drifted",
+            "drift_result_id": "awsdrifttf_TEST_IAM_050_1672141115",
+            "timestamp": 1672141115547
+        },
         "fail_count": 5,
         "first_crawl": "2021-01-19 09:14:12",
         "pass_count": 7,
