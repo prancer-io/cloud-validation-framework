@@ -455,7 +455,7 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/manage/config/uploa
 - **form-data:**
 
 ```
-- files - <Multiple files: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuration">
+- files - <Multiple files: "connector", "snapshot", "mastersnapshot", "test", "mastertest", "collection_configuration", "notifications", "drift_config">
 - container_name - <Name of the container>
 ```
 
