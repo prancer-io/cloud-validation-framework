@@ -5,4 +5,4 @@ There are three ways to communicate with the framework.
 - Application Programming Interface (API)
 - Web Interface
 
-> Prancer Basic supports only the CLI method, Prancer Enterprise, and Premium support all the above methods
+> Prancer Basic supports only the CLI method, Prancer Enterprise, and Premium support all of the above methods.

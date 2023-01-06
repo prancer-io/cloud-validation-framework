@@ -11,8 +11,9 @@ There are known limitations that we are addressing as of today regarding the bet
 
 # Most if not all responses yield an array of items
 
-Here is an example of what the **JSON** structure of most if not all **AWS** resources look like: 
+Here is an example of what the **JSON** structure of most if not all **AWS** resources look like:
 
+```json
     {
         "ResponseMetadata": {
             "HTTPHeaders": {
@@ -49,6 +50,7 @@ Here is an example of what the **JSON** structure of most if not all **AWS** res
             }
         ]
     }
+```
 
 As previously stated, you can see a section in this snapshot called `ResponseMetadata`. This is an artifact of the api that appears for now in beta but should not appear in later versions of the container.
 
@@ -110,7 +112,7 @@ Because the **AWS** connector is not ready to work with stacks and **CloudFormat
 
 **CloudFormation** exposes several tags to you when you create a stack. With those tags, you can select the proper resource you want to inspect:
 
-| tag | What it is used for |
+| Tag | What it is used for |
 |-----|---------------------|
 | aws:cloudformation:stack-name | Name of the stack that you are looking for |
 | aws:cloudformation:logical-id | Name of the resource in the **CloudFormation** template |

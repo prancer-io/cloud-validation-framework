@@ -1,101 +1,147 @@
-This snapshot configuration file type is used along with the **AWS** connector. It allows you to take snapshots of ReST api calls to the **AWS** api.
-
-> <NoteTitle>Notes: Limitations</NoteTitle>
->
-> As of now, the response of the api is always an array of items and this makes the testing a little more complex than expected. We are working on a fix!
-
 # Snapshot configuration file
 
+The aws snapshot configuration file type is used along with the **AWS** connector. It allows you to take snapshots of ReST API calls to the **AWS** API.
 To setup an **AWS** snapshot configuration file, copy the following code to a file named `snapshot.json` in your container's folder.
 
 > <NoteTitle>Notes: Naming conventions</NoteTitle>
 >
 > This file can be named anything you want but we suggest `snapshot.json`
 
+```json
     {
         "fileType": "snapshot",
         "snapshots": [
             {
-                "source": "awsConnector",
+                "source": "<connector-name>",
                 "type": "aws",
                 "testUser": "<iam-user>",
+                "accountId": "<account-id>",
                 "nodes": [
                     {
                         "snapshotId": "<snapshot-name>",
-                        "type": "<type-of-node>",
+                        "arn": "<resource-arn>",
                         "collection": "<collection-name>",
-                        "region": "<region>",
-                        "client": "EC2",
-                        "id": {
-                            <selectors>
-                        }
+                        "listMethod": "<list-method>",
+                        "detailMethods": [
+                                    "<list-of-detail-methods>"
+                                ]
                     }
                 ]
             }
         ]
     }
+```
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
+| connector-name | Name of the **AWS** connector file |
 | iam-user | Name of the **IAM** user, must be present in **AWS** connector file |
+| account-id | Name of the **IAM** account id, must be present in **AWS** connector file |
 | snapshot-name | Name of the snapshot, you will use this in test files |
-| type-of-node | Type of resource being queried for, see below for more information |
+| resource-arn | AWS resource ARN you want to monitor |
 | collection-name | Name of the **MongoDB** collection used to store snapshots of this file |
-| selectors | A complex object that defines what it is you want to extract and snapshot, see below for more information |
-| region | Region of the instance (Optional). Overrides the region provided in Connector File. |
-| client | Type of client AWS client (Optional). Overrides the client provided in Connector File. |
+| list-method | the name of the AWS function which lists all the available resources. review `AWS SDK for Python` for more info. |
+| list-of-detail-methods | a list of detail methods to get the attribute of the resource. review `AWS SDK for Python` for more info. |
 
-# Types of nodes
 
-The **type-of-node** parameter refers to a very wide list. Let's see how the **AWS** connector works to know how to properly set it up!
+## AWS Resource ARN
+Amazon Resource Names (ARNs) uniquely identify AWS resources. We require an ARN when you need to specify a resource unambiguously in a snapshot configuration file. To understand more about ARN, you can [read AWS official documentations](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
 
-The **AWS** connector is a wrapper around the **AWS** ReST api. You can also use the **AWS cli** with the exact same approach. **Prancer** will call `aws ec2 describe-xyz` operations on the api and simply substitute the `xyz` for the **type of node**. For example:
+# Master Snapshot Configuration File
+Master Snapshot Configuration File is to define **resource types**. We do not have individual resources in the Master Snapshot Configuration File, instead we have the type of resources.
+**Prancer** validation framework is using the Master Snapshot Configuration File in the crawler functionality to find new resources.
+To setup an **AWS** master snapshot configuration file, copy the following code to a file named `masterSnapshot.json` in your container's folder.
 
-| What you need | Type of node |
-|---------------|--------------|
-| EC2 machine details | instances | 
-| Subnets of a VPC | subnets |
-| Key pairs for EC2 instanciations | key_pairs |
-| Security groups | security_groups |
-
-The important part to remember is that if you find an `aws ec2 cli` describe operation, we'll build the corresponding describe operation for you using the type of node. If you find the describe operation in the **AWS cli**, just change the hyphens `-` for underscores `_` and we'll do the rest.
-
-> <NoteTitle>Notes: Limitations</NoteTitle>
+> <NoteTitle>Notes: Naming conventions</NoteTitle>
 >
-> Note: We are in the process of re-thinking our approach for the **AWS** connector. We'll adopt a more flexible approach soon so you can query any kind of service and not just EC2 services.
+> This file can be named anything you want but we suggest `masterSnapshot.json`
 
-In case you client does not have a describe method. Like in case of S3, then this field should be populated with the method that has from the boto3 client object.
+```json
+{
+    "fileType": "masterSnapshot",
+    "snapshots": [
+        {
+            "type": "aws",
+            "testUser": "<iam-user>",
+            "accountId": "<account-id>",
+            "nodes": [
+                {
+                    "masterSnapshotId": "<master-snapshot-name>",
+                    "arn": "<resource-arn>",
+                    "collection": "snapshot-collection",
+                    "listMethod": "<list-method>",
+                    "detailMethods": [
+                        "<list-of-detail-methods>"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+```
 
-# Selectors
+Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-Selectors are necessary because a node can only be 1 item at a time. To properly describe the result that should be snapshotted, you need to give parameters in the selector block that will identify a single unique resource produced by the describe operation.
+| Tag | Value Description |
+|-----|-------------------|
+| connector-name | Name of the **AWS** connector file |
+| iam-user | Name of the **IAM** user, must be present in **AWS** connector file |
+| account-id | Name of the **IAM** account id, must be present in **AWS** connector file |
+| master-snapshot-name | Name of the master snapshot, you will use this in master test files |
+| resource-type-arn | AWS resource type ARN you want to monitor |
+| collection-name | Name of the **MongoDB** collection used to store snapshots of this file |
+| list-method | the name of the AWS function which lists all the available resources. review `AWS SDK for Python` for more info. |
+| list-of-detail-methods | a list of detail methods to get the attribute of the resource. review `AWS SDK for Python` for more info. |
 
-The `id` block will contain different parameters that are specific to the `describe-xyz` operation being used. To know what to use, just lookup the **AWS cli** describe operation on the **AWS** documentation and look at the parameters. Any parameter that you can pass to the command line tool can be used in there but you need to use a "PascalCase" version of it. Here are a few examples:
 
-| Type of node | Cli version | Prancer version | Example value |
-|--------------|-------------|-----------------|---------------|
-| instances | --instance-ids | InstanceIds | `["i-3945hf923h492345h"]` |
-| vpcs | --vpc-ids | VpcIds | `["vpc-3923h492345h"]` |
-| security_groups | --group-ids | GroupIds | `["sg-3h492345h"]` |
+## AWS Resource Type ARN
+Amazon Resource Names (ARNs) uniquely identify AWS resources. We require a resource type ARN when you need to specify a resource type unambiguously in a master snapshot configuration file. 
+The resource type ARN is not a complete ARN, it is a subset of a full ARN which provides a list of resources rather than an individual resource. 
+This is an example of a resource type ARN:
 
-# Using filters
+    "arn": "arn:aws:ec2:us-west-1::"
 
-**AWS** selectors will often feature filters. You can also leverage this from **Prancer**. A common reason to use `Filters` in the `id` block is to query using tags which makes more sense than using fixed ids. This is especially true when using infrastructure frameworks such as **Terraform** or **CloudFormation**.
+notice that this is **not a complete ARN**.
 
-To use filters, add and format a `Filters` node in the `id` node using the following example:
+To understand more about ARN, you can [read AWS official documentations](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
 
-    "id": {
-        "Filters": [
-            {
-                "Name": "tag:aws:cloudformation:stack-name",
-                "Values": ["some-stack"]
-            },
-            {
-                "Name": "tag:aws:cloudformation:logical-id",
-                "Values": ["resource-name"]
-            }
-        ]
-    }
+# AWS SDK for Python
+Boto3 is the Amazon Web Services (AWS) Software Development Kit (SDK) for Python, which allows Python developers to write software that makes use of services like Amazon S3 and Amazon EC2. You can find the latest, most up to date, [documentation at Boto3 site](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html), including a list of services that are supported.
+Prancer validation framework use Boto3 library to list AWS resources and get the detail of those resources. In AWS Snapshot configuration file **listMethod** and **detailMethods** attribute values are name of the Boto3 functions from [Available Services](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/index.html).
 
+ > - **listMethod** is a method which capable of output a list of resources in ARN format.
+ >
+ > - **detailMethod** is a method which capable of accepting ARN as an input and output a json detail of a specific resource.
+For example, if I want to get information of the AWS instances, i can use  `EC2.Client.describe_instances` function of the Boto3 framework. The function details are [available here](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.Client.describe_instances). My snapshot will look like this:
+
+```json
+{
+    "snapshotId": "AWS_EC2_01",
+    "arn": "arn:aws:ec2:us-east-2:128391368173667260:instance/i-0e7679edefaf34e00",
+    "collection": "ec2",
+    "listMethod": "describe_instances",
+    "detailMethods": [
+    "describe_instances"
+    ]
+}
+```
+
+It is possible to use multiple `detailMethods` here if the attributes we are looking for are from multiple detailed functions. For example:
+
+```json
+{
+    "snapshotId": "AWS_EC2_01",
+    "arn": "arn:aws:ec2:us-east-2:128391368173667260:instance/i-0e7679edefaf34e00",
+    "collection": "ec2",
+    "listMethod": "describe_instances",
+    "detailMethods": [
+    "describe_instances",
+    "monitor_instances",
+    "describe_account_attributes"
+    ]
+}
+```
+
+you can see here we are using three Boto3 functions to get all the attributes we want for the EC2 instance. The result of those detailed functions will be merged in to one JSON file as a snapshot available for tests.

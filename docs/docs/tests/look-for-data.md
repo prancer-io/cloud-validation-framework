@@ -31,9 +31,10 @@ This will output a lot of information. (or maybe nothing at all if you haven't r
 
 When you look at the data from the collection, you should see a rather complete and complex **JSON** document that would look something like this:
 
+```json
     {
-        "_id" : ObjectId("5cb483ef7554c1573a4d3402"),
-        "checksum" : "cac2c001358b0c67247bb34bc21235bf",
+        "_id" : ObjectId("5cb483egsdf54c1573a4d3402"),
+        "checksum" : "cac2c001358bdfksdn7bb34bc21235bf",
         "collection" : "security_groups",
         "json" : {
             "ResponseMetadata" : {
@@ -44,7 +45,7 @@ When you look at the data from the collection, you should see a rather complete 
                     "server" : "AmazonEC2"
                 },
                 "HTTPStatusCode" : 200,
-                "RequestId" : "e0806089-4215-479c-99b3-87f5a52bb273",
+                "RequestId" : "esdvfsdsd089-4215-479c-99b3-87f5a52bb273",
                 "RetryAttempts" : 0
             },
             "SecurityGroups" : [
@@ -52,8 +53,8 @@ When you look at the data from the collection, you should see a rather complete 
                     "Description" : "prancer-tutorial-sg",
                     "GroupName" : "prancer-tutorial-sg",
                     "IpPermissions" : [ ],
-                    "OwnerId" : "667095293603",
-                    "GroupId" : "sg-0125a7610cd1dd391",
+                    "OwnerId" : "667095sdkvjsdij3603",
+                    "GroupId" : "sg-sds5a7610cd1dd391",
                     "IpPermissionsEgress" : [
                         {
                             "IpProtocol" : "-1",
@@ -67,7 +68,7 @@ When you look at the data from the collection, you should see a rather complete 
                             "UserIdGroupPairs" : [ ]
                         }
                     ],
-                    "VpcId" : "vpc-050b8b70e3593efd2"
+                    "VpcId" : "vpc-050sdkjbsd70e3593efd2"
                 }
             ]
         },
@@ -87,32 +88,36 @@ When you look at the data from the collection, you should see a rather complete 
         "snapshotId" : 2,
         "source" : "awsStructure",
         "structure" : "aws",
-        "timestamp" : NumberLong("1555334127715")
+        "timestamp" : NumberLong("15521342124127715")
     }
+```
 
-This document is what **Prancer** stores on each validation run for each snapshot.
+This document is what **Prancer** stores on each validation run for every snapshot.
 
-In each document, you can find a property called `json`. The content of this property is what is made available to you when you refer to a snapshot from a rule. For example:
+In each document, you can find a property called `json`. The content of this property is what is made available to you when you refer to a snapshot from a rule. </br>For example:
 
     {2}.SecurityGroups[0].Description = 'Some description'
 
 Is the equivalent of:
-
+```r
     {"ResponseMetadata":{"HTTPHeaders":{"content-length":"1042","content-type":"text/xml;charset=UTF-8","date":"Mon, 15 Apr 2019 13:15:27 GMT","server":"AmazonEC2"},"HTTPStatusCode":200,"RequestId":"e0806089-4215-479c-99b3-87f5a52bb273","RetryAttempts":0},"SecurityGroups":[{"Description":"prancer-tutorial-sg","GroupName":"prancer-tutorial-sg","IpPermissions":[],"OwnerId":"667095293603","GroupId":"sg-0125a7610cd1dd391","IpPermissionsEgress":[{"IpProtocol":"-1","IpRanges":[{"CidrIp":"0.0.0.0/0"}],"Ipv6Ranges":[],"PrefixListIds":[],"UserIdGroupPairs":[]}],"VpcId":"vpc-050b8b70e3593efd2"}]}.SecurityGroups[0].Description = 'Some description'
+```
 
-or in a simpler form:
+Or in a simpler form:
 
+```r
     {"Description":"prancer-tutorial-sg","GroupName":"prancer-tutorial-sg","IpPermissions":[],"OwnerId":"667095293603","GroupId":"sg-0125a7610cd1dd391","IpPermissionsEgress":[{"IpProtocol":"-1","IpRanges":[{"CidrIp":"0.0.0.0/0"}],"Ipv6Ranges":[],"PrefixListIds":[],"UserIdGroupPairs":[]}],"VpcId":"vpc-050b8b70e3593efd2"}.Description = 'Some description'
+```
 
-and in the simplest form possible:
+And in the simplest form possible:
 
     'prancer-tutorial-sg' = 'Some description'
 
-Which would result in a `False` result and fail the test.
+Which would result in a <strong style="color:red;"> False </strong> and <strong style="color: red;">fail</strong> the test.
 
 # Writing complex queries
 
-Because your **MongoDB** database will get fat pretty fast, it is important to learn how to properly query it. We will not go into a lot of details here, you can consult the [Mongo Query Document](https://docs.mongodb.com/manual/tutorial/query-documents/) documentation page to know more.
+Because your **MongoDB** database will get fat pretty fast, it is important to learn how to properly query it. We will not go into a lot of details here, you can consult the [Mongo Query Document](https://docs.mongodb.com/manual/tutorial/query-documents/) page to know more.
 
 Here are a few approaches to finding the proper data in your database.
 
@@ -120,8 +125,8 @@ To query for all snapshot data of a specific snapshot definition you could issue
 
     db.security_groups.find({node:{snapshotId:2}).pretty()
 
-If you want only the latest item you can use the `_id` field's automatic datation using:
+If you want only the latest item, you can use the `_id` field's automatic datetime using:
 
     db.security_groups.find({node:{snapshotId:2}).sort({_id:1}).limit(1).pretty()
 
-There are many different ways you can use the `mongo` shell to inspect your data. Keep in mind that the [Mongo Query Document](https://docs.mongodb.com/manual/tutorial/query-documents/) documentation page is your best friend in this case.
+There are many different ways you can use the `mongo` shell to inspect your data. Keep in mind that the [Mongo Query Document](https://docs.mongodb.com/manual/tutorial/query-documents/) page is your best friend in this case.

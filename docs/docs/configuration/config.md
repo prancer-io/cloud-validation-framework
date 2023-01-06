@@ -1,6 +1,6 @@
 # Project configuration - config.ini
 
-At the root of the **Prancer** project directory, you will be putting the `config.ini` file that tells **Prancer** how to behave for the current project. The configuration of **Prancer** is detailed in the following sections. It consists of sections and key-value pairs, just like in any `INI` files. Here is an example:
+At the root of the **Prancer** project directory, you will be putting the `config.ini` file that tells **Prancer** how to behave for the current project. The configuration of **Prancer** is detailed in the upcoming sections. It consists of sections and key-value pairs, just like in any `INI` files. Here is an example:
 
     [section]
     key = value
@@ -10,11 +10,11 @@ At the root of the **Prancer** project directory, you will be putting the `confi
     key = value
     key = value
 
-# [Default] section
+## [Default] section
 
 **Prancer** supports a variety of APIs in the enterprise edition. To access these APIs, some extra parameters need to be set.
 
-The `INI` section to use in the configuration file is `[DEFAULT]` and here are all the possible configurations you can use:
+The `INI` section to use in the configuration file is `[DEFAULT]`, and here are all the possible configurations you can use:
 
 | Key | Possible values | Explanation |
 |------|:-------:|----------|
@@ -25,16 +25,16 @@ Example:
     [DEFAULT]
     space_id = 50973a54-16a7-4590-bcc0-755d0e83c7c9
 
-# [Azure] section
+## [Azure] section
 
-**Prancer**  it is possible to specify where Prancer searches for Azure connectors.
+In **Prancer**, it is possible to specify where **Prancer** searches for Azure connectors.
 
 Example:
 
     [AZURE]
     azureStructureFolder = realm/
 
-# [Database] section
+## [Database] section
 
 We use **MongoDB** to store data. You must configure the server's location through this section plus a few other behaviors.
 
@@ -51,6 +51,7 @@ The `INI` section to use in the configuration file is `[MONGODB]`, and here are 
 | MASTERTEST | *string* | Name of the collection where master test configurations are stored in database driven mode |
 | STRUCTURE | *string* | Name of the collection where connector configurations are stored in database driven mode |
 | OUTPUT | *string* | Name of the collection where test results are stored in database driven mode |
+|COLLECTION| *string* | Name of the collection|
 
 Example:
 
@@ -62,6 +63,7 @@ Example:
     TEST = prancertest
     STRUCTURE = prancerstructure
     OUTPUT = pranceroutput
+    COLLECTION = prancercollection
 
 > <NoteTitle>Notes: Collection configurations</NoteTitle>
 >
@@ -69,7 +71,7 @@ Example:
 >
 > If you want to use the `--db` switch when testing, you need to provide the other values such as: `SNAPSHOT`, `NOTIFICATIONS`, `TEST`, `STRUCTURE` and `OUTPUT`. More on this feature in the [Enterprise edition documentation](../enterprise/basics.md)
 
-# [Logging] section
+## [Logging] section
 
 You can configure logging to use either **MongoDB** or the filesystem.
 
@@ -92,7 +94,7 @@ Example:
     logFolder = logs
     dbname = logs
 
-# [Notification] section
+## [Notification] section
 
 **Prancer** supports notifications when using the [Enterprise edition documentation](../enterprise/basics.md). This section allows you to turn on or off the notifications engine.
 
@@ -107,7 +109,7 @@ Example:
     [NOTIFICATION]
     enabled = false
 
-# [Reporting] section
+## [Reporting] section
 
 **Prancer** requires you to specify where it should output its output files after tests are running. You can use the same directory as your `TESTS`, but it will create a separate structure if you don't. Depending on your artifact-building approach, you might want to split them or keep them together.
 
@@ -122,7 +124,7 @@ Example:
     [REPORTING]
     reportOutputFolder = validation
 
-# [Vault] section
+## [Vault] section
 
 **Prancer** supports **Azure key vaults** or **CyberArk** (<http://www.cyberark.com>) Application Access Manager to store secrets that you might need for your infrastructure inspections.
 
@@ -145,16 +147,16 @@ Example:
     client_id = gimwioj-n945hyw0-84h5tgwoerh6-08w4o58ghyqw04
     keyvault = vaultname
 
-# [Tests] section
+## [Tests] section
 
-**Prancer** requires you to specify where your containers, snapshot configuration files, and test files are when using the filesystem storage-based approach. This section of the configuration defines where to find those.
+**Prancer** requires you to specify where your containers, snapshot configuration files, and test files are when using the filesystem storage-based approach. This section of the configuration defines where to find those files.
 
 The `INI` section to use in the configuration file is `[TESTS]` and here are all the possible configurations you can use:
 
 | Key | Possible values | Explanation |
 |------|:-------:|----------|
 | containerFolder | directory | Name of the directory to look into for snapshot configuration files and test files |
-| database | *string* | Could be `NONE` , `SNAPSHOT` or `FULL` you can also set this behavior at the runtime by `--db` argument. If it set to `NONE` then all the data will be read and written to the filesystem. if it is `SNAPSHOT` then the configuration files (snapshot config / compliance tests) will be read from filesystem, output file will be written to filesystem, but the snapshots will be kept in the database. if set to `FULL` then all the configuration files, snapshots and outputs will be read and written to database |
+| database | *string* | Could be `NONE` , `SNAPSHOT` or `FULL` you can also set this behavior at the runtime by `--db` argument.<br/> <br/>If it set to `NONE` then all the data will be read and written to the filesystem. <br/><br/>If it is `SNAPSHOT` then the configuration files (snapshot config / compliance tests) will be read from filesystem, output file will be written to filesystem, but the snapshots will be kept in the database. <br/><br/>If set to `FULL` then all the configuration files, snapshots and outputs will be read and written to database |
 
 Example:
 
@@ -162,7 +164,7 @@ Example:
     containerFolder = validation
     database = FULL
 
-# [Indexes] section
+## [Indexes] section
 
 Specify which attributes could be indexed in the database.
 
@@ -171,7 +173,7 @@ Example:
     [INDEXES]
     OUTPUT = name, container, timestamp
 
-# [RESULT] section
+## [RESULT] section
 
 Specify result related configurations
 

@@ -1,24 +1,25 @@
-The **Filesystem** connector allows you to connect to files from a local file system or a git repository. This is the main connector we use for **Infrastructure as Code** (IaC) Static Code Analysis (SCA) and security validation. The **Filesystem** connector will help to inspect a static file committed into your project. Therefore, you should use this connector to preemptively validate your cloud management templates before applying your infrastructure changes.
+The **Filesystem** connector allows you to connect to files from a local file system or a git/bitbucket repository. This is the main connector we use for **Infrastructure as Code** (IaC) Static Code Analysis (SCA) and security validation. The **Filesystem** connector will help to inspect a static file committed into your project. Therefore, you should use this connector to preemptively validate your cloud management templates before applying your infrastructure changes.
 
 # Connecting with the FileSystem Provider
-Prancer supports two methods to connect to a remote git ptovider.
- * SSH configuration
- * HTTPS configuration
+Prancer supports two methods to connect to a remote git/bitbucket provider:
+
+* SSH configuration
+* HTTPS configuration
  
 ## SSH user configuration
 
 To use SSH as a checkout mechanism for the source code, you will need a repository on a hosted solution that is reachable by **Prancer** and supports SSH-based checkouts. A common example would be to use **GitHub**, **GitLab**, **BitBucket** or **CodeCommit**. Depending on the private or public nature of your repository:
 
-- You only need the url and branch name if the repository is public
-- You need to provide the path to the SSH key file if the repository is private
-- You need to provide a username if you want to use **Prancer** to create branches or tags
+* You only need the url and branch name if the repository is public
+* You need to provide the path to the SSH key file if the repository is private
+* You need to provide a username if you want to use **Prancer** to create branches or tags
 
 ## HTTPS user configuration
 
 To use HTTPS as a checkout mechanism for the source code, you will need a repository on a hosted solution that is reachable by **Prancer** and that supports HTTPS based checkouts. A common example would be to use **GitHub**, **GitLab**, **BitBucket** or **CodeCommit**. Depending on the private or public nature of your repository:
 
-- You only need the url and branch name if the repository is public
-- You need to provide the username and password if the repository is private
+* You only need the url and branch name if the repository is public
+* You need to provide the username and password if the repository is private
 
 # Connector configuration file
 
@@ -30,7 +31,7 @@ To configure the **Filesystem** connector, copy the following code to a file nam
 
 **local filesystem example**
 
-```
+```json
     {
         "fileType": "structure",
         "type": "filesystem",
@@ -38,17 +39,18 @@ To configure the **Filesystem** connector, copy the following code to a file nam
         "folderPath": "<path-to-folder>"
     }
 ```
+
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | path-to-folder | Absolute path to the folder  |
 
-* **Note**: Path expansions are not implemented yet, you need to provide full paths!
-
+> **Note**: Path expansions are not implemented yet, you need to provide full paths!
 
 **Public HTTPS or SSH example**
 
+```json
     {
         "fileType": "structure",
         "type": "filesystem",
@@ -58,10 +60,11 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
         "httpsAccessToken": "secret-git-key",
         "private": false,
     }
+```
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | url-to-repository | Enter the HTTPS or SSH url to the repository |
 | branch | Branch to checkout |
@@ -69,14 +72,14 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | httpsAccessToken | Secret key require for connect to private git repository. |
 
 * **httpsAccessToken:**
-    - If you are connecting the private repository then additionally you have to export the git access token in environment variable. 
-    - For example, you want to connect private github repository then geneate the new Github Access Token and export the new environment variable, where **key** is the value of `httpsAccessToken` and **value** is Github Access Token.
+    - If you are connecting the private repository then additionally you have to export the git access token in environment variable.
+    - For example, you want to connect private Github/GitLab/BitBucket repository then geneate the new Github/GitLab/BitBucket Access Token and export the new environment variable, where **key** is the value of `httpsAccessToken` and **value** is Github/GitLab/BitBucket Access Token.
 
-* **Note**: Path expansions are not implemented yet, you need to provide full paths!
+> **Note**: Path expansions are not implemented yet, you need to provide full paths!  
 
+**Private SSH example** 
 
-**Private SSH example**
-
+```json
     {
         "fileType": "structure",
         "type": "filesystem",
@@ -88,10 +91,11 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
         "sshHost": "<hostname-of-repo>",
         "private": true
     }
+```
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | url-to-repository | Enter the HTTPS or SSH url to the repository |
 | branch | Branch to checkout |
@@ -100,10 +104,11 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | path-to-private-ssh-key-file | Path to the private key file when using a private SSH repository. this should be an absolute path. do not use `~` for home directory |
 | private | Boolean value stating if the repository is private or public |
 
-* **Note**: Path expansions are not implemented yet, you need to provide full paths!
+> **Note**: Path expansions are not implemented yet, you need to provide full paths!
 
 **Private HTTPS example**
 
+```json
     {
         "fileType": "structure",
         "type": "filesystem",
@@ -114,10 +119,11 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
         "httpsPassword": "<password>",
         "private": true
     }
+```
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | url-to-repository | Enter the HTTPS or SSH url to the repository |
 | branch | Branch to checkout |
@@ -130,15 +136,23 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 > Putting the `httpsPassword` in the connector file is only good for testing purposes. We recommend moving the `httpsPassword` out of the connector file in production scenario. 
 
 To move the `httpsPassword` out of the connector file, you have two options:
- - set the environment variable to store the password
- - using vault [vault configuration](../configuration/secrets.md)
+
+* Set the environment variable to store the password
+* Using [vault configuration][vault-config]
 
 To set an environment variable, you should export the `username` and assign the `password` value. For example, if your username is `prancer-git` and your password is `password`:
 
+```bash
     export prancer-git=password
+```
 
 When you run the prancer, it will automatically read the value from the environment variable.
 
 # Users
 
-Other connectors such as **AWS** and **Azure** allow you to configure multiple users, the **filesystem** connector doesn't as it doesn't have permissions other than reading. This means that you must always use the same username defined in the **filesystem** connector file in the snapshot configuration files.
+Other connectors such as **AWS** and **Azure** allow you to configure multiple users, the **filesystem** connector doesn't, as it doesn't have permissions other than reading. This means that you must always use the same username defined in the **filesystem** connector file in the snapshot configuration files.
+
+<!-- All Links from this page -->
+[vault-config]: ../configuration/secrets.md
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/UKeRdakxYao" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

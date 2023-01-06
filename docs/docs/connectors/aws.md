@@ -1,4 +1,4 @@
-The **AWS** (Amazon Web Services) connector allows you to inspect your **AWS** infrastructure using their API. The connector is a wrapper around the **AWS** ReST API and command-line tool. It leverages inspection of the infrastructure using various AWS verbs like `describe-xyz` `get-xyz` `list-xyz` ... operations available for each service provider.
+The **AWS** (Amazon Web Services) connector allows you to inspect your **AWS** infrastructure using their API. The connector is a wrapper around the **AWS** ReST API and command-line tool. It leverages inspection of the infrastructure using various AWS verbs like `describe-xyz`, `get-xyz`, `list-xyz` ... operations available for each service provider.
 
 # IAM user configuration
 
@@ -6,7 +6,7 @@ To connect using the **AWS** connector, you must create a user in **IAM** and co
 
 Here are steps to creating such a user if you don't have one yet:
 
-1. Visit the [IAM console](https://console.aws.amazon.com/iam/home)
+1. Visit the [IAM console][IAM-console]
 2. Click on the `Users` section on the left menu
 3. Click on `Add user`
 4. Name the user anything you want, we suggest `prancer_ro`
@@ -29,6 +29,7 @@ To configure the **AWS** connector, copy the following code to a file named `aws
 >
 > This file can be named anything you want but we suggest `awsConnector.json`
 
+```json
     {
         "organization": "Organization name",
         "type": "aws",
@@ -51,17 +52,18 @@ To configure the **AWS** connector, copy the following code to a file named `aws
             }
         ]
     }
+```
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
-|-----|-------------------|
-| account-id | Your **AWS** account id, find this in the **AWS console** account menu drop-down. [AWS docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html) |
-| iam-user | Name of the **IAM** user, we suggest `prancer_ro` |
+| Tag | Value Description | Suggestion |
+|-----|-------------------|-------------|
+| account-id | Your **AWS** account id, find this in the **AWS console** account menu drop-down.| [AWS docs][AWS-docs] |
+| iam-user | Name of the **IAM** user| we recommend `prancer_ro` |
 | iam-access-key | The programmatic **access key** associated to that user |
 | secret-access-key | The programmatic **secret** associated to the access key |
-| region       |        default region where service instance is to be searched. Its optional|     us-west-1     |
-| client     |      default AWS service name. Its optional|    EC2, S3 etc    |
+| region       |        default region where service instance is to be searched.(Optional)|us-west-1|
+| client     |      default AWS service name. (Optional)|    EC2, S3 etc    |
 
 If you do not have access to an **access key** or to the **secret** you will have to create a new access key and decommission the old one.
 
@@ -83,14 +85,23 @@ If you want to link multiple accounts together in your tests or want different u
 
 There are three options available to store the secret access for an IAM account: 
 
-- In the AWS connector file 
-- In the Environment variable 
+- In the AWS connector file
+- In the Environment variable
 - In a vault
 
 Keeping the secret access in the connector file is suitable only for testing purposes.
 
-You can keep the secret access as an environment variable. The name of the environment variable will be the name of the IAM account. For example, if the name of the IAM account is prancer_iam and the secret is a1b2c3 :
+You can keep the secret access as an environment variable. The name of the environment variable will be the name of the IAM account. For example, if the name of the IAM account is `prancer_iam` and the secret is `a1b2c3` :
 
+```bash
     export prancer_iam=a1b2c3
+```
 
-Keeping the secret access in the vault is the most secure and recommended way of keeping the secret in the prancer framework. To learn more visit [secrets section](../configuration/secrets.md)
+Keeping the secret access in the vault is the most secure and recommended way of keeping the secret in the prancer framework. To learn more, visit [secrets section.][secrets-section]
+
+<!-- -----------------------All links from this page------------------------------------- -->
+[AWS-docs]: https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html
+[secrets-section]: ../configuration/secrets.md
+[IAM-console]:https://console.aws.amazon.com/iam/home
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/jYnqi9qbZhg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

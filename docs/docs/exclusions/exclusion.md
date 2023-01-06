@@ -2,12 +2,11 @@ In an exclusion file, we are defining the test cases that need to be skipped bas
 
 There are three types of exclusions supported:
 
-- test exclusion: The exclusionType is set to `test` and fieldvalue is set in `masterTestID`
-- resource exclusion: The exclusionType is set to `resource` and the fieldvalue is an array set in `paths`
+- test exclusion: The exclusionType is set to `test` and field-value is set in `masterTestID`
+- resource exclusion: The exclusionType is set to `resource` and the field-value is an array set in `paths`
 - single exclusion: The exclusionType is set to `single` and both `masterTestID` and `paths` fields should be present to have combination of these two for exclusion.
 
-
-```
+``` json
 {
   "companyName": "",
   "container": <collection>,
@@ -36,13 +35,14 @@ There are three types of exclusions supported:
 
 Remember to substitute all values in this file that looks like a `<tag>` such as:
 
-| tag | What to put there |
+| Tag | Value Description |
 |-----|-------------------|
 | path of the resource | the path of the resource |
 | TEST_ID | the masterTestID to be used to exclude |
 
 Here is an example of that:
-```
+
+```json
 {
   "companyName": "",
   "container": <collection>,
@@ -56,7 +56,7 @@ Here is an example of that:
     },
     {
       "exclusionType": "single",
-      "masterTestID": "TEST_POD_1"
+      "masterTestID": "TEST_POD_1",
       "paths": [
         "/deployment/deployment-definition.yaml"
       ]

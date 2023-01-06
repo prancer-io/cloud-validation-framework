@@ -161,7 +161,7 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/drift_detection/rep
 
 **CURL Sample**
 ```
-curl -X POST https://portal.prancer.io/prancer-customer1/api/drift_detection/report/detail/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{"container": "aws_cloud_1", "iac_snapshot_data":{"snapshot_id":"CFR_TEMPLATE_SNAPSHOTbZdbl1","snapshot_collection":"cloudformation","session_id":"session_1669340640559"}, "cloud_snapshot_data":{"snapshot_id":"TEST_IAM_050","snapshot_collection":"aws_iam","session_id":"session_1669340617681"},"result_id": "awscloud1_1669360442"}
+curl -X POST https://portal.prancer.io/prancer-customer1/api/drift_detection/report/detail/ -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' -d '{"drift_output_id": "63aad93b76780fb0b1913033","drift_result_id": "awsdrifttf_TEST_IAM_050_1672141115","container": "aws_drift_tf"}
 ```
 
 - **URL:** https://portal.prancer.io/prancer-customer1/api/drift_detection/report/detail/
@@ -174,18 +174,9 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/drift_detection/rep
 - **Param:**
 ```
 {
-    "container": "aws_cloud_1",
-    "iac_snapshot_data":{
-          "snapshot_id":"CFR_TEMPLATE_SNAPSHOTbZdbl1",
-          "snapshot_collection":"cloudformation",
-          "session_id":"session_1669340640559"
-        },
-    "cloud_snapshot_data":{
-          "snapshot_id":"TEST_IAM_050",
-          "snapshot_collection":"aws_iam",
-          "session_id":"session_1669340617681"
-        },
-    "result_id": "awscloud1_1669360442"
+    "drift_output_id": "63aad93b76780fb0b1913033",
+    "drift_result_id": "awsdrifttf_TEST_IAM_050_1672141115",
+    "container": "aws_drift_tf"
 }
 ```
 
@@ -194,119 +185,302 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/drift_detection/rep
     `Required Fields`
 
     - **container:** Name of the cloud container for which you want drift detection output detail.
-    - **iac_snapshot_data:** IAC snapshot data to get IAC snapshot.
-        - **snapshot_id:** IAC snapshot id.
-        - **snapshot_collection:** IAC snapshot collection.
-        - **session_id:** IAC snapshot session ID.
-    - **cloud_snapshot_data:** Cloud snapshot data to get cloud snapshot.
-        - **snapshot_id:** Cloud snapshot id.
-        - **snapshot_collection:** Cloud snapshot collection.
-        - **session_id:** Cloud snapshot session ID.
-    - **result_id:** Result id of the drift detection output.
+    - **drift_output_id:** Output id of the drift detection output record.
+    - **drift_result_id:** Result id of the drift detection output result.
 
     
 **Response:**
 ```
 {
     "data": {
-        "cloud_snapshot": [
-            {
-                "json": {
-                    "User": {
-                        "Arn": "arn:aws:iam::arnarn",
-                        "CreateDate": "Fri, 17 Jun 2022 08:56:17 GMT",
-                        "PasswordLastUsed": "Wed, 16 Nov 2022 10:08:45 GMT",
-                        "Path": "/",
-                        "Tags": [
-                            {
-                                "Key": "prancer_unique_id",
-                                "Value": "c3b370c9-a596-416b-bf2c-265a6bd1c056"
-                            },
-                            {
-                                "Key": "resource_type",
-                                "Value": "aws::iam::user"
-                            }
-                        ],
-                        "UserId": "XXXXXXXXXXXXXXXX",
-                        "UserName": "test"
+        "cloud_snapshot": {
+            "ResponseMetadata": {
+                "HTTPHeaders": {
+                    "content-length": "686",
+                    "content-type": "text/xml",
+                    "date": "Tue, 27 Dec 2022 09:43:25 GMT",
+                    "x-amzn-requestid": "8cdc318d-c156-427c-b9ce-cad7898fbdb3"
+                },
+                "HTTPStatusCode": 200,
+                "RequestId": "8cdc318d-c156-427c-b9ce-cad7898fbdb3",
+                "RetryAttempts": 0
+            },
+            "User": {
+                "Arn": "arn:aws:iam::155603667260:user/ajeyk",
+                "CreateDate": "Fri, 17 Jun 2022 08:56:17 GMT",
+                "PasswordLastUsed": "Wed, 16 Nov 2022 10:08:45 GMT",
+                "Path": "/",
+                "Tags": [
+                    {
+                        "Key": "prancer_unique_id",
+                        "Value": "c3b370c9-a596-416b-bf2c-265a6bd1c056"
                     }
-                }
+                ],
+                "UserId": "AIDASIOVTRE6FVNW5G6TU",
+                "UserName": "ajeyk"
             }
-        ],
-        "drift_detection_result": [
-            {
-                "_id": "63806b3a73577a9f3ed00a8e",
-                "container": "aws_cloud_1",
-                "json": {
-                    "container": "aws_cloud_1",
-                    "results": {
-                        "cloud_snapshot_data": {
-                            "paths": "arn:aws:iam:arnarn",
-                            "session_id": "session_1669340617681",
-                            "snapshot_collection": "aws_iam",
-                            "snapshot_id": "TEST_IAM_050"
-                        },
-                        "drifted_attributes": [
-                            {
-                                "cloud_attribute": "User.UserName",
-                                "cloud_attribute_value": "test",
-                                "cloudformation_attribute": "Properties.UserName",
-                                "cloudformation_attribute_value": "testuser"
-                            }
-                        ],
-                        "iac_snapshot_data": {
-                            "paths": [
-                                "/iam/iam.yaml"
+        },
+        "container": "aws_drift_tf",
+        "drift_result": {
+            "cloud_snapshot_data": {
+                "paths": "arn:aws:iam::155603667260:user/ajeyk",
+                "session_id": "session_1672114403721",
+                "snapshot_collection": "aws_iam",
+                "snapshot_id": "TEST_IAM_050"
+            },
+            "drifted_attributes": [
+                {
+                    "cloud_attribute": "User.UserName",
+                    "cloud_attribute_value": "ajeyk",
+                    "iac_attribute": "properties.name",
+                    "iac_attribute_value": "testuser"
+                }
+            ],
+            "iac_snapshot_data": {
+                "paths": [
+                    "/aws/iam/main.tf"
+                ],
+                "session_id": "session_1672114397231",
+                "snapshot_collection": "terraformtemplate",
+                "snapshot_id": "TRF_TEMPLATE_SNAPSHOTZjVey1"
+            },
+            "resource_type": "aws_iam_user",
+            "result": "drifted",
+            "result_id": "awsdrifttf_TEST_IAM_050_1672141115",
+            "tags": {
+                "prancer_unique_id": "c3b370c9-a596-416b-bf2c-265a6bd1c056",
+                "resource_type": "aws_iam_user"
+            },
+            "undrifted_attributes": [
+                {
+                    "cloud_attribute": "User.Path",
+                    "cloud_attribute_value": "/",
+                    "iac_attribute": "properties.path",
+                    "iac_attribute_value": "/"
+                }
+            ]
+        },
+        "iac_snapshot": {
+            "resources": [
+                {
+                    "name": "test_role",
+                    "properties": {
+                        "assume_role_policy": {
+                            "Statement": [
+                                {
+                                    "Action": "sts:AssumeRole",
+                                    "Effect": "Allow",
+                                    "Principal": {
+                                        "Service": "ec2.amazonaws.com"
+                                    },
+                                    "Sid": ""
+                                }
                             ],
-                            "session_id": "session_1669340640559",
-                            "snapshot_collection": "cloudformation",
-                            "snapshot_id": "CFR_TEMPLATE_SNAPSHOTbZdbl1"
+                            "Version": "2012-10-17"
                         },
-                        "resource_type": "AWS::IAM::User",
-                        "result": "drifted",
-                        "result_id": "awscloud1_1669360442",
+                        "compiletime_identity": "aws_iam_role.test_role",
+                        "name": "test_role",
                         "tags": {
-                            "prancer_unique_id": "c3b370c9-a596-416b-bf2c-265a6bd1c056",
-                            "resource_type": "aws::iam::user"
+                            "tag-key": "tag-value"
                         }
                     },
-                    "timestamp": 1669360442651
+                    "type": "aws_iam_role"
                 },
-                "timestamp": 1669360442651,
-                "type": "drift_output"
-            }
-        ],
-        "iac_snapshot": [
-            {
-                "json": {
-                    "AWSTemplateFormatVersion": "2010-09-09",
-                    "Resources": [
-                        {
-                            "Name": "CFNUser",
-                            "Properties": {
-                                "LoginProfile": {
-                                    "Password": "Test@1234"
-                                },
-                                "Path": "/",
-                                "Tags": [
-                                    {
-                                        "Key": "prancer_unique_id",
-                                        "Value": "c3b370c9-a596-416b-bf2c-265a6bd1c056"
-                                    },
-                                    {
-                                        "Key": "resource_type",
-                                        "Value": "aws::iam::user"
-                                    }
-                                ],
-                                "UserName": "testuser"
-                            },
-                            "Type": "AWS::IAM::User"
+                {
+                    "name": "policy",
+                    "properties": {
+                        "compiletime_identity": "aws_iam_policy.policy",
+                        "description": "My test policy",
+                        "name": "test_policy",
+                        "path": "/",
+                        "policy": "jsonencode({'Version': '2012-10-17', 'Statement': [{'Action': ['ec2:Describe*'], 'Effect': 'Allow', 'Resource': '*']})}"
+                    },
+                    "type": "aws_iam_policy"
+                },
+                {
+                    "name": "policy_one",
+                    "properties": {
+                        "compiletime_identity": "aws_iam_policy.policy_one",
+                        "name": "policy-618033",
+                        "policy": "jsonencode({'Version': '2012-10-17', 'Statement': [{'Action': ['ec2:Describe*'], 'Effect': 'Allow', 'Resource': '*']})}"
+                    },
+                    "type": "aws_iam_policy"
+                },
+                {
+                    "name": "policy_two",
+                    "properties": {
+                        "compiletime_identity": "aws_iam_policy.policy_two",
+                        "name": "policy-381966",
+                        "policy": "jsonencode({'Version': '2012-10-17', 'Statement': [{'Action': ['s3:ListAllMyBuckets', 's3:ListBucket', 's3:HeadBucket'], 'Effect': 'Allow', 'Resource': '*']})}"
+                    },
+                    "type": "aws_iam_policy"
+                },
+                {
+                    "name": "Test",
+                    "properties": {
+                        "compiletime_identity": "aws_iam_user.Test",
+                        "name": "testuser",
+                        "path": "/",
+                        "tags": {
+                            "prancer_unique_id": "c3b370c9-a596-416b-bf2c-265a6bd1c056",
+                            "resource_type": "aws_iam_user"
                         }
-                    ]
+                    },
+                    "type": "aws_iam_user"
                 }
-            }
-        ]
+            ]
+        },
+        "timestamp": 1672141115547
     },
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**Drift detection - Upload Drift configuration**
+---
+- API to manage drift detection configuration of a container. This API has two methods POST and DELETE.
+
+**POST method.**
+---
+  	POST method to submit the drift detection configuration. 
+	
+- **CURL Sample**
+
+``` curl 
+curl -X POST 'https://portal.prancer.io/prancer-customer1/api/drift_detection/config/' -H 'Authorization: Bearer <JWT Bearer Token>' --data-raw '{
+    "container": "container_name",
+    "is_drift_detection_active": false,
+    "iac_mastersnapshot": "master_iac_snapshot_name",
+    "cloud_mastersnapshot": "master_cloud_snapshot_name"
+}'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/drift_detection/config/
+- **Method:** POST
+- **Header:**
+
+``` code
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```	
+
+- **Param:**
+
+``` json
+{
+    "container": "container_name",
+    "is_drift_detection_active": false,
+    "iac_mastersnapshot": "master_iac_snapshot_name",
+    "cloud_mastersnapshot": "master_cloud_snapshot_name"
+}
+```
+- **Explanation:**
+    `All of the fields are required.`
+    - **is_drift_detection_active**: To run drift detection whenever we run crawl and compliance. Valid values are true or false,
+    - **iac_mastersnapshot** : Name of the IAC mastersnapshot,
+    - **cloud_mastersnapshot** : Name of the cloud mastersnapshot.
+    - **container** : Name of the container.
+
+- **Response:**
+
+``` json
+{
+    "data": {
+        "cloud_mastersnapshot": "master_iac_snapshot_name",
+        "iac_mastersnapshot": "master_cloud_snapshot_name",
+        "is_drift_detection_active": false
+    },
+    "error": "",
+    "error_list": [],
+    "message": "Drift detection configuration is succesfully added.",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**DELETE method.**
+---
+  	DELETE method to delete the existing drift detection configuration. 
+	
+**CURL Sample**
+```
+curl -X DELETE https://portal.prancer.io/prancer-customer1/api/drift_detection/config/?container=container_name -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' 
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/drift_detection/config/
+- **Method:** DELETE
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+
+```
+    "container": "container_name"
+```
+- **Explanation:**
+    `All of the fields are required.`
+    - **container** : Name of the container.
+
+- **Response:**
+
+``` json
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Drift detection configuration deleted successfully.",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**Drift detection - mastersnapshot list**
+---
+- API to get mastersnapshot list for a container..
+
+**CURL Sample**
+```
+curl -X GET https://portal.prancer.io/prancer-customer1/api/mastersnapshot/list/?container=container_name -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/mastersnapshot/list/
+- **Method:** GET
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+```
+{
+    "container": "container_name"
+}
+```
+
+- **Explanation:**
+
+    `Required Fields`
+
+    - **container:** Name of the container.
+
+    
+**Response:**
+```
+{
+    "data": [
+        {
+            "name": "master_azure_snapshot"
+        },
+        {
+            "name": "master_iac_snapshot"
+        }
+    ],
     "error": "",
     "error_list": [],
     "message": "",

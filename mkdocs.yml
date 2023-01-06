@@ -24,14 +24,20 @@ nav:
     - Secrets: configuration/secrets.md
   - Connectors:
     - Definition: connectors/connector-definition.md
-    - Filesystem connector: connectors/git.md
+    - Filesystem connector: connectors/filesystem.md
     - AWS connector: connectors/aws.md
     - Azure connector: connectors/azure.md
+    - Azure Board connector: connectors/azboard.md
+    - Jira connector: connectors/jira.md
+    - Slack connector: connectors/slack.md
+    - Teams connector: connectors/teams.md
     - Google connector: connectors/google.md
     - Kubernetes connector: connectors/kubernetes.md
   - Crawler:
     - Definition: crawler/crawler-definition.md
+    - Azure Crawler: crawler/azure-crawler.md
     - AWS Crawler: crawler/aws-crawler.md
+    - GCP Crawler: crawler/gcp-crawler.md
   - Snapshots:
     - Definition: snapshots/snapshot-definition.md
     - AWS snapshot: snapshots/aws.md
