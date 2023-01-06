@@ -340,6 +340,155 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/drift_detection/rep
 }
 ```
 
+**Drift detection - Upload Drift configuration**
+---
+- API to manage drift detection configuration of a container. This API has two methods POST and DELETE.
+
+**POST method.**
+---
+  	POST method to submit the drift detection configuration. 
+	
+- **CURL Sample**
+
+``` curl 
+curl -X POST 'https://portal.prancer.io/prancer-customer1/api/drift_detection/config/' -H 'Authorization: Bearer <JWT Bearer Token>' --data-raw '{
+    "container": "container_name",
+    "is_drift_detection_active": false,
+    "iac_mastersnapshot": "master_iac_snapshot_name",
+    "cloud_mastersnapshot": "master_cloud_snapshot_name"
+}'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/drift_detection/config/
+- **Method:** POST
+- **Header:**
+
+``` code
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```	
+
+- **Param:**
+
+``` json
+{
+    "container": "container_name",
+    "is_drift_detection_active": false,
+    "iac_mastersnapshot": "master_iac_snapshot_name",
+    "cloud_mastersnapshot": "master_cloud_snapshot_name"
+}
+```
+- **Explanation:**
+    `All of the fields are required.`
+    - **is_drift_detection_active**: To run drift detection whenever we run crawl and compliance. Valid values are true or false,
+    - **iac_mastersnapshot** : Name of the IAC mastersnapshot,
+    - **cloud_mastersnapshot** : Name of the cloud mastersnapshot.
+    - **container** : Name of the container.
+
+- **Response:**
+
+``` json
+{
+    "data": {
+        "cloud_mastersnapshot": "master_iac_snapshot_name",
+        "iac_mastersnapshot": "master_cloud_snapshot_name",
+        "is_drift_detection_active": false
+    },
+    "error": "",
+    "error_list": [],
+    "message": "Drift detection configuration is succesfully added.",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**DELETE method.**
+---
+  	DELETE method to delete the existing drift detection configuration. 
+	
+**CURL Sample**
+```
+curl -X DELETE https://portal.prancer.io/prancer-customer1/api/drift_detection/config/?container=container_name -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json' 
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/drift_detection/config/
+- **Method:** DELETE
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+
+```
+    "container": "container_name"
+```
+- **Explanation:**
+    `All of the fields are required.`
+    - **container** : Name of the container.
+
+- **Response:**
+
+``` json
+{
+    "data": {},
+    "error": "",
+    "error_list": [],
+    "message": "Drift detection configuration deleted successfully.",
+    "metadata": {},
+    "status": 200
+}
+```
+
+**Drift detection - mastersnapshot list**
+---
+- API to get mastersnapshot list for a container..
+
+**CURL Sample**
+```
+curl -X GET https://portal.prancer.io/prancer-customer1/api/mastersnapshot/list/?container=container_name -H 'authorization: Bearer <JWT Bearer Token>' -H 'content-type: application/json'
+```
+
+- **URL:** https://portal.prancer.io/prancer-customer1/api/mastersnapshot/list/
+- **Method:** GET
+- **Header:**
+```
+    - content-type: application/json
+    - Authorization: Bearer <JWT Bearer Token>
+```
+- **Param:**
+```
+{
+    "container": "container_name"
+}
+```
+
+- **Explanation:**
+
+    `Required Fields`
+
+    - **container:** Name of the container.
+
+    
+**Response:**
+```
+{
+    "data": [
+        {
+            "name": "master_azure_snapshot"
+        },
+        {
+            "name": "master_iac_snapshot"
+        }
+    ],
+    "error": "",
+    "error_list": [],
+    "message": "",
+    "metadata": {},
+    "status": 200
+}
+```
+
 
 **Drift detection - Get tag**
 ---
