@@ -194,143 +194,40 @@ curl -X POST https://portal.prancer.io/prancer-customer1/api/drift_detection/rep
 {
     "data": {
         "cloud_snapshot": {
-            "ResponseMetadata": {
-                "HTTPHeaders": {
-                    "content-length": "686",
-                    "content-type": "text/xml",
-                    "date": "Tue, 27 Dec 2022 09:43:25 GMT",
-                    "x-amzn-requestid": "8cdc318d-c156-427c-b9ce-cad7898fbdb3"
-                },
-                "HTTPStatusCode": 200,
-                "RequestId": "8cdc318d-c156-427c-b9ce-cad7898fbdb3",
-                "RetryAttempts": 0
-            },
-            "User": {
-                "Arn": "arn:aws:iam::155603667260:user/ajeyk",
-                "CreateDate": "Fri, 17 Jun 2022 08:56:17 GMT",
-                "PasswordLastUsed": "Wed, 16 Nov 2022 10:08:45 GMT",
-                "Path": "/",
-                "Tags": [
-                    {
-                        "Key": "prancer_unique_id",
-                        "Value": "c3b370c9-a596-416b-bf2c-265a6bd1c056"
-                    }
-                ],
-                "UserId": "AIDASIOVTRE6FVNW5G6TU",
-                "UserName": "ajeyk"
-            }
-        },
-        "container": "aws_drift_tf",
-        "drift_result": {
-            "cloud_snapshot_data": {
-                "paths": "arn:aws:iam::155603667260:user/ajeyk",
-                "session_id": "session_1672114403721",
-                "snapshot_collection": "aws_iam",
-                "snapshot_id": "TEST_IAM_050"
-            },
-            "drifted_attributes": [
-                {
-                    "cloud_attribute": "User.UserName",
-                    "cloud_attribute_value": "ajeyk",
-                    "iac_attribute": "properties.name",
-                    "iac_attribute_value": "testuser"
+            "name": "prancerWebApp",
+            "properties": {
+                "httpsOnly": true,
+                "siteConfig": {
+                    "minTlsCipherSuite": null,
+                    "minTlsVersion": null,
+                    "linuxFxVersion": "DOTNETCORE|3.0"
                 }
-            ],
-            "iac_snapshot_data": {
-                "paths": [
-                    "/aws/iam/main.tf"
-                ],
-                "session_id": "session_1672114397231",
-                "snapshot_collection": "terraformtemplate",
-                "snapshot_id": "TRF_TEMPLATE_SNAPSHOTZjVey1"
             },
-            "resource_type": "aws_iam_user",
-            "result": "drifted",
-            "result_id": "awsdrifttf_TEST_IAM_050_1672141115",
-            "tags": {
-                "prancer_unique_id": "c3b370c9-a596-416b-bf2c-265a6bd1c056",
-                "resource_type": "aws_iam_user"
-            },
-            "undrifted_attributes": [
-                {
-                    "cloud_attribute": "User.Path",
-                    "cloud_attribute_value": "/",
-                    "iac_attribute": "properties.path",
-                    "iac_attribute_value": "/"
-                }
-            ]
+            "type": "Microsoft.Web/sites"
         },
+        "cloud_type": "azure",
+        "container": "azure_drift_tf",
         "iac_snapshot": {
-            "resources": [
-                {
-                    "name": "test_role",
-                    "properties": {
-                        "assume_role_policy": {
-                            "Statement": [
-                                {
-                                    "Action": "sts:AssumeRole",
-                                    "Effect": "Allow",
-                                    "Principal": {
-                                        "Service": "ec2.amazonaws.com"
-                                    },
-                                    "Sid": ""
-                                }
-                            ],
-                            "Version": "2012-10-17"
-                        },
-                        "compiletime_identity": "aws_iam_role.test_role",
-                        "name": "test_role",
-                        "tags": {
-                            "tag-key": "tag-value"
-                        }
-                    },
-                    "type": "aws_iam_role"
-                },
-                {
-                    "name": "policy",
-                    "properties": {
-                        "compiletime_identity": "aws_iam_policy.policy",
-                        "description": "My test policy",
-                        "name": "test_policy",
-                        "path": "/",
-                        "policy": "jsonencode({'Version': '2012-10-17', 'Statement': [{'Action': ['ec2:Describe*'], 'Effect': 'Allow', 'Resource': '*']})}"
-                    },
-                    "type": "aws_iam_policy"
-                },
-                {
-                    "name": "policy_one",
-                    "properties": {
-                        "compiletime_identity": "aws_iam_policy.policy_one",
-                        "name": "policy-618033",
-                        "policy": "jsonencode({'Version': '2012-10-17', 'Statement': [{'Action': ['ec2:Describe*'], 'Effect': 'Allow', 'Resource': '*']})}"
-                    },
-                    "type": "aws_iam_policy"
-                },
-                {
-                    "name": "policy_two",
-                    "properties": {
-                        "compiletime_identity": "aws_iam_policy.policy_two",
-                        "name": "policy-381966",
-                        "policy": "jsonencode({'Version': '2012-10-17', 'Statement': [{'Action': ['s3:ListAllMyBuckets', 's3:ListBucket', 's3:HeadBucket'], 'Effect': 'Allow', 'Resource': '*']})}"
-                    },
-                    "type": "aws_iam_policy"
-                },
-                {
-                    "name": "Test",
-                    "properties": {
-                        "compiletime_identity": "aws_iam_user.Test",
-                        "name": "testuser",
-                        "path": "/",
-                        "tags": {
-                            "prancer_unique_id": "c3b370c9-a596-416b-bf2c-265a6bd1c056",
-                            "resource_type": "aws_iam_user"
-                        }
-                    },
-                    "type": "aws_iam_user"
+            "name": "prancerWebApp",
+            "properties": {
+                "httpsOnly": false,
+                "siteConfig": {
+                    "minTlsCipherSuite": null,
+                    "minTlsVersion": 1.1,
+                    "linuxFxVersion": "PYTHON|3.10"
                 }
-            ]
+            },
+            "type": "Microsoft.Web/sites"
         },
-        "timestamp": 1672141115547
+        "iac_type": "terraform",
+        "resource_type": "azurerm_app_service",
+        "result": "drifted",
+        "result_id": "azuredrifttf_AZRSNP_100171_1673936853",
+        "tags": {
+            "prancer_unique_id": "9b0b53c1-6619-47ac-b646-599b6bc5ae02",
+            "resource_type": "azurerm_app_service"
+        },
+        "timestamp": 1673936853888
     },
     "error": "",
     "error_list": [],
