@@ -23,6 +23,22 @@ div.logo img {
     border-radius: 0;
 }
 
+p {
+    color: #11337b;
+}
+
+li {
+    color: #11337b;
+}
+
+h1 {
+    color: #ea171a;
+}
+
+h2 {
+    color: #11337b;
+}
+
 a {
     color: #9d0406;
 }
@@ -32,7 +48,16 @@ a:active, a:hover, a:visited {
 }
 
 .toctree-l1 a {
-    color: #838383;
+    color: white;
+}
+
+.toctree-l1:hover {
+    background: #e7f2fa;
+    color: #9d0406;
+}
+
+.wy-menu-vertical li.current {
+    background: #e7f2fa !important;
 }
 
 .wy-side-nav-search input[type=text] {
@@ -71,4 +96,12 @@ a:active, a:hover, a:visited {
 
 .rst-content blockquote p:last-of-type {
     margin-bottom: 0;
+}
+
+.wy-nav-side {
+    background: #08408e !important;
+}
+
+.wy-nav-content {
+    max-width: 100% !important; 
 }
