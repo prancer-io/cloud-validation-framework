@@ -207,6 +207,9 @@ def get_node(awsclient, node, snapshot_source, snapshot):
                 db_record['error'] = 'Invalid function exception: %s' % str(function_to_call)
             set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, each_method_str)
         db_record['json'] = json_to_put
+        checksum = get_checksum(json_to_put)
+        if checksum:
+            db_record['checksum'] = checksum
     return db_record
 
 def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, each_method_str):
