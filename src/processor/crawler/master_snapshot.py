@@ -101,7 +101,7 @@ def generate_snapshot(snapshot_json_data, snapshot_file_data):
             snapshot_json_data["fileType"] = "snapshot"
 
 
-def generate_mastersnapshot(mastersnapshot):
+def generate_mastersnapshot(mastersnapshot, container=None):
     """
     Every mastersnapshot should have collection of nodes which are to be populated.
     Each node in the nodes list of the snapshot shall have a unique id in this
@@ -118,7 +118,7 @@ def generate_mastersnapshot(mastersnapshot):
         if 'nodes' not in mastersnapshot or not mastersnapshot['nodes']:
             logger.error("No nodes in snapshot to be backed up!...")
             return snapshot_data
-        snapshot_data = mastersnapshot_fns[snapshot_type](mastersnapshot)
+        snapshot_data = mastersnapshot_fns[snapshot_type](mastersnapshot, container)
     # logger.info('Snapshot: %s', snapshot_data)
     logger.info('\tSnapshot:')
     for key,value in snapshot_data.items():
@@ -127,7 +127,7 @@ def generate_mastersnapshot(mastersnapshot):
     return snapshot_data
 
 
-def generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_data):
+def generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_data, container=None):
     """
     Get the masternapshot and validate list of snapshots in the json.
     The json could be from the database or from a filesystem.
@@ -143,7 +143,7 @@ def generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_d
         for nd in mastersnapshot.get('nodes', []):
             if 'masterSnapshotId' in nd and 'type' in  nd:
                 node_resource_types[nd['masterSnapshotId']] = nd['type']
-        current_data = generate_mastersnapshot(mastersnapshot)
+        current_data = generate_mastersnapshot(mastersnapshot, container)
         # snapshot_data.update(current_data)
         for ms_id, node_list in current_data.items():
             if isinstance(node_list, list):
@@ -327,7 +327,7 @@ def generate_container_mastersnapshots_database(container, mastersnapshotfile=No
                                 logger.info('Number of snapshot Documents: %s', len(snp_docs))
                                 snp_json_data = snp_docs[0]
                             # Take the mastersnapshot and populate the mastersnapshot
-                            snapshot_file_data = generate_mastersnapshots_from_json(doc['json'], snp_json_data)
+                            snapshot_file_data = generate_mastersnapshots_from_json(doc['json'], snp_json_data, container=container)
                             # Insert or update the new generated snapshot document with name='*_gen' and same container name.
                             generate_snapshot(doc['json'], snapshot_file_data)
                             if snp_json_data:
