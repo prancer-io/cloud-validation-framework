@@ -46,7 +46,7 @@ def _validate_client_name(client_name):
     return client_name is not None and client_name.lower() in _valid_service_names
 
 
-def get_aws_data(snapshot_source):
+def get_aws_data(snapshot_source, container=None):
     """
     The AWS source object to be fetched from database or the filesystem
     The initial configuration for database is 'validator' and collection
@@ -59,6 +59,8 @@ def get_aws_data(snapshot_source):
         collection = config_value(DATABASE, collectiontypes[STRUCTURE])
         parts = snapshot_source.split('.')
         qry = {'name': parts[0]}
+        if container:
+            qry["container"] = container
         sort = [sort_field('timestamp', False)]
         docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
         logger.info('Number of AWS structure Documents: %d', len(docs))
@@ -1077,7 +1079,7 @@ def populate_aws_snapshot(snapshot, container=None):
     snapshot_source = get_field_value(snapshot, 'source')
     snapshot_user = get_field_value(snapshot, 'testUser')
     account_id = get_field_value(snapshot, 'accountId')
-    sub_data = get_aws_data(snapshot_source)
+    sub_data = get_aws_data(snapshot_source, container)
     snapshot_nodes = get_field_value(snapshot, 'nodes')
     snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     # valid_snapshotids = True

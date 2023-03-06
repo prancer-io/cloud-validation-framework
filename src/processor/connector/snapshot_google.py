@@ -64,7 +64,7 @@ def get_google_parameters():
                 google_parameters = json_from_file(params_file)
     return google_parameters
 
-def get_google_data(snapshot_source):
+def get_google_data(snapshot_source, container=None):
     """
     The Google source object to be fetched from database or the filesystem
     The initial configuration for database is 'validator' and collection
@@ -77,6 +77,8 @@ def get_google_data(snapshot_source):
         collection = config_value(DATABASE, collectiontypes[STRUCTURE])
         parts = snapshot_source.split('.')
         qry = {'name': parts[0]}
+        if container:
+            qry["container"] = container
         sort = [sort_field('timestamp', False)]
         docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
         logger.info('Number of Google structure Documents: %d', len(docs))
@@ -616,7 +618,7 @@ def populate_google_snapshot(snapshot, container=None):
     snapshot_source = get_field_value(snapshot, 'source')
     snapshot_user = get_field_value(snapshot, 'testUser')
     project_id = get_field_value(snapshot, 'project-id')
-    sub_data = get_google_data(snapshot_source)
+    sub_data = get_google_data(snapshot_source, container)
     snapshot_nodes = get_field_value(snapshot, 'nodes')
     snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     if valid_snapshotids and sub_data and snapshot_nodes:

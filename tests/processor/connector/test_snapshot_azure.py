@@ -44,10 +44,10 @@ def mock_empty_get_access_token():
 def mock_get_vault_data(client_id=None):
     return None
 
-def mock_get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
+def mock_get_web_client_data(snapshot_type, snapshot_source, snapshot_user, container):
     return 'client_id', None, 'sub_name', 'sub_id', 'tenant_id'
 
-def mock1_get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
+def mock1_get_web_client_data(snapshot_type, snapshot_source, snapshot_user, container):
     if snapshot_user =='abcd':
         return 'client_id', None, 'sub_name', 'sub_id', 'tenant_id'
     return 'client_id', 'client_secret', 'sub_name', 'sub_id', 'tenant_id'
