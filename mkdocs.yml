@@ -56,6 +56,8 @@ nav:
     - Test ouput files: tests/outputs.md
   - Exclusions:
     - Exclusion file: exclusions/exclusion.md
+  - Notification:
+    - Notification file: notification/notification.md
   - Limitations & workarounds:
     - AWS resources: limitations/aws-limitations.md
     - AWS CloudFormation templates: limitations/aws-cloudformation-template-limitations.md
@@ -85,3 +87,9 @@ nav:
     - vault: api/vault.md
     - webhook: api/webhook.md
     - wizard: api/wizard.md
+    - logs: api/logs.md
+    - notification: api/notification.md
+    - azure board: api/azureboardintegration.md
+    - jira: api/jiraintegration.md
+    - sso: api/sso.md
+    - drift detection: api/drift_detection.md

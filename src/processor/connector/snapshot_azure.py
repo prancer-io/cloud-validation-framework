@@ -306,7 +306,7 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
     snapshot_nodes = get_field_value(snapshot, 'nodes')
     snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
     client_id, client_secret, sub_name, sub_id, tenant_id = \
-        get_web_client_data(snapshot_type, snapshot_source, snapshot_user)
+        get_web_client_data(snapshot_type, snapshot_source, snapshot_user, container)
     if not client_id:
         # logger.info("No client_id in the snapshot to access azure resource!...")
         raise Exception("No client id in the snapshot to access azure resource!...")

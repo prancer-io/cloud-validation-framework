@@ -32,13 +32,15 @@ JSONSOURCE = 'jsonsource'
 
 logger = getlogger()
 
-def get_azure_data(snapshot_source):
+def get_azure_data(snapshot_source, container=None):
     sub_data = {}
     if json_source():
         dbname = config_value(DATABASE, DBNAME)
         collection = config_value(DATABASE, collectiontypes[STRUCTURE])
         parts = snapshot_source.split('.')
         qry = {'name': parts[0]}
+        if container:
+            qry["container"] = container
         sort = [sort_field('timestamp', False)]
         docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
         logger.info('Number of Snapshot Documents: %s', len(docs))
@@ -55,7 +57,7 @@ def get_azure_data(snapshot_source):
     return sub_data
 
 
-def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
+def get_web_client_data(snapshot_type, snapshot_source, snapshot_user, container=None):
     client_id = None
     client_secret = None
     sub_id = None
@@ -63,7 +65,7 @@ def get_web_client_data(snapshot_type, snapshot_source, snapshot_user):
     tenant_id = None
     found = False
     if snapshot_type == 'azure':
-        sub_data = get_azure_data(snapshot_source)
+        sub_data = get_azure_data(snapshot_source, container)
         if sub_data:
             accounts = get_field_value_with_default(sub_data, 'accounts', [])
             for account in accounts:
