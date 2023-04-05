@@ -4,6 +4,7 @@ import time
 import os
 import random
 import string
+import datetime
 import threading
 from processor.helper.file.file_utils import exists_file, exists_dir
 
@@ -92,7 +93,13 @@ def framework_currentdata():
         global CURRENTDATA
         if CURRENTDATA:
             return CURRENTDATA
-        CURRENTDATA = '%s/rundata_%d_%s' % (framework_dir(), int(time.time() * 100000), generateid(None))
+        timestamp_now = int(time.time())
+        dt_object = datetime.datetime.fromtimestamp(timestamp_now)
+        path_add = '/%s/%s/%s' %(dt_object.year, dt_object.month, dt_object.day)
+        full_path = "".join([framework_dir(), "/rundata", path_add])
+        if not os.path.exists(full_path):
+            os.makedirs(full_path)
+        CURRENTDATA = '%s/rundata_%d_%s' % (full_path, (timestamp_now * 100000), generateid(None))
         return CURRENTDATA
 
 
