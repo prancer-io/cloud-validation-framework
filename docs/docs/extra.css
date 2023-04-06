@@ -52,7 +52,7 @@ a:active, a:hover, a:visited {
 }
 
 .toctree-l1:hover {
-    background: #e7f2fa;
+    background: #08408e;
     color: #9d0406;
 }
 
@@ -105,3 +105,7 @@ a:active, a:hover, a:visited {
 .wy-nav-content {
     max-width: 100% !important; 
 }
+
+code, .rst-content tt, .rst-content code {
+    white-space: pre;
+  }

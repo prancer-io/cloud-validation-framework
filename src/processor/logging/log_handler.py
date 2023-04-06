@@ -379,7 +379,15 @@ def add_file_logging(fwconfigfile, dbargs):
         return
     dblogname = os.getenv('DBLOG_NAME', None)
     logname  = dblogname if dblogname else datetime.datetime.today().strftime('%Y%m%d-%H%M%S')
-    FWLOGFILENAME = '%s/%s.log' % (log_config['logpath'], logname)
+    timestamp_now = int(time.time())
+    dt_object = datetime.datetime.fromtimestamp(timestamp_now)
+    path_add = '/%s/%s/%s' %(dt_object.year, dt_object.month, dt_object.day)
+    full_path = "".join([log_config['logpath'], path_add])
+    if not os.path.exists(full_path):
+        os.makedirs(full_path)
+    FWLOGFILENAME = '%s/%s.log' % (full_path, logname)
+    FWLOGFILENAME = FWLOGFILENAME.replace("//", "/")
+
     if not FWLOGGER:
         FWLOGGER = default_logging()
     handler = DefaultRoutingFileHandler(
