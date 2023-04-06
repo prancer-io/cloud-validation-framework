@@ -114,6 +114,7 @@ class TemplateProcessor:
             "node": self.node,
             "snapshotId": self.node['snapshotId'],
             "collection": collection.replace('.', '').lower(),
+            "container" : self.container,
             "json": self.processed_template,
             "session_id": session_id
             # "resourceTypes" : self.node.get("resourceTypes", [])

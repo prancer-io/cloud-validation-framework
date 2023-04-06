@@ -45,6 +45,7 @@ def create_output_entry(container, test_file="", filesystem=False):
     od["remote_run"] = isremote
     dblog = get_dblogger()
     od["log"] = dblog if dblog else ""
+    od["cloud_type"] = ""
     if not filesystem:
         od["test"] = test_file
         od["results"] = []
@@ -103,7 +104,12 @@ def dump_output_results(results, container, test_file, snapshot, filesystem=True
     else:
         update_value = {}
         if results:
+            result = results[0]
+            cloud_tags = result.get("tags", [])
+            cloud_type = cloud_tags[0].get("cloud", "") if cloud_tags else ""
             update_value["$push"] = { "json.results": { "$each" : results }}
+            if cloud_type:
+                update_value["$set"]= {"json.cloud_type": cloud_type}
         
         if status:
             update_value["$set"] = { "json.status": status }
