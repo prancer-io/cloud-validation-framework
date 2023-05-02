@@ -5,6 +5,7 @@ from processor.connector.vault import get_vault_data
 from processor.connector.snapshot_custom import get_custom_data, git_clone_dir
 from processor.logging.log_handler import getlogger
 from subprocess import Popen, PIPE
+import copy
 import tempfile
 import re
 import os
@@ -68,6 +69,7 @@ def validate_master_snapshot_data(master_snapshot_json, document_json, file_loca
         logger.error("Invalid json %s: 'Snapshots' field is not type list in snapshot configuration file." % file_location)
         return False
 
+    snapshot_list = []
     for snapshot in snapshots:
         if "type" not in snapshot:
             logger.error("Invalid json %s: 'type' field is not exists in snapshot configuration file." % file_location)
@@ -86,6 +88,7 @@ def validate_master_snapshot_data(master_snapshot_json, document_json, file_loca
                     for key, value in connector_user.items():
                         if key != "id":
                             snapshot[key] = value
+                    snapshot_list.append(copy.deepcopy(snapshot))
         
             if not found_connector_user:
                 logger.error("Invalid json %s: `testUser` in snapshot configuration file is not mactch with the 'connectorUser' in remote snapshot file." % file_location)
@@ -130,7 +133,7 @@ def validate_master_snapshot_data(master_snapshot_json, document_json, file_loca
         document_json.pop("connector")
         document_json.pop("remoteFile")
         document_json.pop("connectorUsers")
-        document_json["snapshots"] = master_snapshot_json["snapshots"]
+        document_json["snapshots"] = snapshot_list
     
     return validate    
 

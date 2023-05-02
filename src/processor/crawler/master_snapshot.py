@@ -45,6 +45,7 @@ from processor.connector.snapshot_kubernetes import populate_kubernetes_snapshot
 from processor.connector.populate_json import pull_json_data
 from processor.helper.file.file_utils import exists_file,remove_file
 from processor.template_processor.base.base_template_processor import set_processed_templates
+from processor.crawler.utils import check_container_for_all_accounts
 
 doc_id = None
 logger = getlogger()
@@ -60,6 +61,9 @@ mastersnapshot_fns = {
 REMOVE_SNAPSHOTGEN_FIELDS = [
     "exclude",
     "source",
+    "subscriptionId",
+    "account_id",
+    "project_id"
 ]
 
 def generate_snapshot(snapshot_json_data, snapshot_file_data):
@@ -84,8 +88,17 @@ def generate_snapshot(snapshot_json_data, snapshot_file_data):
                                     # if structure and structure == 'aws':
                                     #     newnode = {}
                                     # else:
+                                    snapshot_type = snapshot.get("type")
                                     if "source" in sid_data and sid_data["source"] != snapshot.get("source"):
                                         continue
+
+                                    if snapshot_type == "azure" and sid_data.get("subscriptionId") != snapshot.get("subscriptionId"):
+                                        continue
+                                    elif snapshot_type == "aws" and sid_data.get("account_id") != snapshot.get("accountId"):
+                                        continue
+                                    elif snapshot_type == "" and sid_data.get("project_id") != snapshot.get("project-id"):
+                                        continue
+
                                     newnode = copy.deepcopy(node)
                                     newnode.update(sid_data)
                                     
@@ -163,7 +176,7 @@ def generate_mastersnapshots_from_json(mastersnapshot_json_data, snapshot_json_d
     return snapshot_data
 
 
-def generate_snapshots_from_mastersnapshot_file(mastersnapshot_file):
+def generate_snapshots_from_mastersnapshot_file(mastersnapshot_file, container, file_name):
     """
     Each snapshot file from the filesystem is loaded as a json datastructue
      and generate all the nodes in this json datastructure.
@@ -174,6 +187,8 @@ def generate_snapshots_from_mastersnapshot_file(mastersnapshot_file):
     if not mastersnapshot_json_data:
         logger.error("masterSnapshot file %s looks to be empty, next!...", mastersnapshot_file)
         return {}, {}
+    
+    mastersnapshot_json_data = check_container_for_all_accounts(container, mastersnapshot_json_data, file_name)
 
     if "connector" in mastersnapshot_json_data and "remoteFile" in mastersnapshot_json_data and mastersnapshot_json_data["connector"] and mastersnapshot_json_data["remoteFile"]:
         _, pull_response = pull_json_data(mastersnapshot_json_data)
@@ -242,7 +257,7 @@ def generate_container_mastersnapshots_filesystem(container, mastersnapshotfile=
         if parts[-1] in snapshots or parts[-1] == mastersnapshotfile_name_json:
             if parts[-1] not in populated:
                 # Take the snapshot and crawl for the  resource types.
-                snapshot_file_data, snapshot_json_data = generate_snapshots_from_mastersnapshot_file(snapshot_file)
+                snapshot_file_data, snapshot_json_data = generate_snapshots_from_mastersnapshot_file(snapshot_file, container, parts[-1])
                 file_name = '%s.json' % snapshot_file if snapshot_file and not snapshot_file.endswith('.json') else snapshot_file
                 # snapshot_json_data = json_from_file(file_name)
                 generate_snapshot(snapshot_json_data, snapshot_file_data)
@@ -309,6 +324,7 @@ def generate_container_mastersnapshots_database(container, mastersnapshotfile=No
             for doc in docs:
                 if doc['json']:
                     snapshot = doc['name']
+                    doc['json'] = check_container_for_all_accounts(container, doc['json'], snapshot)
                     if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
                         _, pull_response = pull_json_data(doc['json'])
                         if not pull_response:

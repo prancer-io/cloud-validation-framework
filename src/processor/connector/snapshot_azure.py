@@ -227,7 +227,7 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
             exmatch = re.search(r'/subscriptions.*/resourceGroups/.*?/', node['path'], re.I)
             if exmatch:
                 export_template_url = 'https://management.azure.com%sexportTemplate?api-version=2021-04-01' % (exmatch.group(0).lower())
-                status, data = export_template(export_template_url, hdrs, node['path'])
+                status, data = export_template(export_template_url, hdrs, node['path'], retry_count=0)
                 
         db_record['path'] = node['path']
         
@@ -298,15 +298,7 @@ def check_include_path_validation(path, include_paths, include_regex_list):
     return include_path or include_regex
 
 
-def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
-    """ Populates the resources from azure."""
-    dbname = config_value('MONGODB', 'dbname')
-    snapshot_source = get_field_value(snapshot, 'source')
-    snapshot_user = get_field_value(snapshot, 'testUser')
-    snapshot_nodes = get_field_value(snapshot, 'nodes')
-    snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
-    client_id, client_secret, sub_name, sub_id, tenant_id = \
-        get_web_client_data(snapshot_type, snapshot_source, snapshot_user, container)
+def populate_client_secret(client_id, client_secret, snapshot_user):
     if not client_id:
         # logger.info("No client_id in the snapshot to access azure resource!...")
         raise Exception("No client id in the snapshot to access azure resource!...")
@@ -328,6 +320,20 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
 
     if not client_secret:
         raise Exception("No `client_secret` key in the connector file to access azure resource!...")
+    
+    return client_secret
+
+def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
+    """ Populates the resources from azure."""
+    dbname = config_value('MONGODB', 'dbname')
+    snapshot_source = get_field_value(snapshot, 'source')
+    snapshot_user = get_field_value(snapshot, 'testUser')
+    snapshot_nodes = get_field_value(snapshot, 'nodes')
+    snapshot_data, valid_snapshotids = validate_snapshot_nodes(snapshot_nodes)
+    client_id, client_secret, sub_name, sub_id, tenant_id = \
+        get_web_client_data(snapshot_type, snapshot_source, snapshot_user, container)
+    
+    client_secret = populate_client_secret(client_id, client_secret, snapshot_user)
 
     logger.info('\t\tSubscription: %s', sub_id)
     logger.info('\t\tTenant: %s', tenant_id)
@@ -447,7 +453,8 @@ def populate_azure_snapshot(snapshot, container=None, snapshot_type='azure'):
                                         'snapshotId': data['snapshotId'],
                                         'path': data['path'],
                                         'validate': validate,
-                                        'status': 'active'
+                                        'status': 'active',
+                                        'subscriptionId': sub_id
                                     })
 
         for data in all_data_records:
