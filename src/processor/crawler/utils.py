@@ -146,82 +146,6 @@ def get_azure_token(tenant_id, client_id, client_secret):
             logger.info("Get Azure token returned invalid status: %s", status)
     return token
 
-def populate_aws_accounts(container, source, structure_data):
-    account_list = []
-    dbname = config_value(DATABASE, DBNAME)
-    collection = config_value(DATABASE, collectiontypes[STRUCTURE])
-    all_account = False
-    if structure_data.get("accounts"):
-        account = structure_data.get("accounts")[0]
-        if account.get("users") and str(account.get("all-accounts")).lower() == "true":
-            all_account = True
-            user = account["users"][0]
-            access_key = user["access-key"]
-            secret_access = user["secret-access"]
-            aws_client = user["client"]
-            name = user["name"]
-            aws_region = user["region"]
-            name = re.sub(r"-\d+$", "", name)
-            account_list += get_aws_accounts(access_key, secret_access, aws_region, aws_client, name)
-    updated_data = copy.deepcopy(structure_data)
-    updated_data["accounts"] = account_list
-    update_collection_data(container, source, updated_data, dbname, collection)
-    return account_list, all_account
-
-def get_aws_accounts(access_key, secret_access, aws_region, aws_client, name):
-    """ Get aws accounts """
-    account_list = []
-    aws_region = aws_region if aws_region else 'us-east-2'
-    client_str='organizations'
-    if not secret_access:
-        new_secret_access = get_vault_data(access_key)
-    else:
-        new_secret_access = secret_access
-
-    if access_key and new_secret_access:
-        try:
-            awsclient = client(client_str.lower(), aws_access_key_id=access_key, aws_secret_access_key=new_secret_access, region_name=aws_region)
-            accounts = awsclient.list_accounts()
-            index = 1
-            for account in accounts['Accounts']:
-                account_list.append({
-                    "account-id": account['Id'],
-                    "account-name": account['Name'],
-                    "all-accounts" : True,
-                    "users": [
-                        {
-                            "access-key": access_key,
-                            "secret-access": secret_access if secret_access else "",
-                            "client": aws_client,
-                            "name": "%s-%s" % (name, index),
-                            "region": aws_region
-                        }
-                    ]
-                })
-                index += 1
-        except Exception as ex:
-            logger.info("Exception in aws account listing: %s" % ex)
-            try:
-                stsclient = client('sts', aws_access_key_id=access_key, aws_secret_access_key=secret_access, region_name=aws_region)
-                accountData = stsclient.get_caller_identity()
-                if accountData and 'Account' in accountData and accountData['Account']:
-                    account_list.append({
-                        "account-id": account['Id'],
-                        "account-name": account['Name'],
-                        "users": [
-                            {
-                                "access-key": access_key,
-                                "secret-access": secret_access if secret_access else "",
-                                "client": aws_client,
-                                "name": name,
-                                "region": aws_region
-                            }
-                        ]
-                    })
-            except Exception as stsex:
-                logger.info("Exception in aws account listing: %s" % str(stsex))
-    return account_list
-
 def populate_gcp_projects(container, source, structure_data):
     account_list = []
     dbname = config_value(DATABASE, DBNAME)
@@ -347,32 +271,6 @@ def check_container_for_all_accounts(container, mastersnapshot, file_name):
                     "type": snapshot.get("type"),
                     "subscriptionId": subscription["subscription_id"],
                     "testUser": "%s-%s" % (testUser, idx),
-                    "nodes": snapshot.get("nodes"),
-                })
-
-    elif structure_data.get("type") == "aws":
-        return mastersnapshot
-        # TODO: need to define the flow again for AWS
-        account_list, all_account = populate_aws_accounts(container, source, structure_data)
-        if not all_account:
-            return mastersnapshot
-
-        for idx, account in enumerate(account_list, start=1):
-            if remote_file:
-                testUser = re.sub(r"-\d+$", "", connector_user.get("testUser"))
-                connector_users.append({
-                    "id": connector_user.get("id"),
-                    "source": connector_user.get("source"),
-                    "accountId": account.get("account-id"),
-                    "testUser":  "%s-%s" % (testUser, idx)
-                })
-            else:
-                testUser = re.sub(r"-\d+$", "", snapshot.get("testUser"))
-                snapshots.append({
-                    "source": snapshot.get("source"),
-                    "type": snapshot.get("type"),
-                    "accountId": account.get("account-id"),
-                    "testUser":  "%s-%s" % (testUser, idx),
                     "nodes": snapshot.get("nodes"),
                 })
 
