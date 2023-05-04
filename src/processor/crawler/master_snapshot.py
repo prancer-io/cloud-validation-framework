@@ -96,7 +96,7 @@ def generate_snapshot(snapshot_json_data, snapshot_file_data):
                                         continue
                                     elif snapshot_type == "aws" and sid_data.get("account_id") != snapshot.get("accountId"):
                                         continue
-                                    elif snapshot_type == "" and sid_data.get("project_id") != snapshot.get("project-id"):
+                                    elif snapshot_type == "google" and sid_data.get("project_id") != snapshot.get("project-id"):
                                         continue
 
                                     newnode = copy.deepcopy(node)
