@@ -590,6 +590,7 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
                         "collection": node['collection'],
                         "path": path,
                         "status" : "active",
+                        'project_id': project_id,
                         "validate" : node['validate'] if 'validate' in node else True
                     })
     return snapshot_data

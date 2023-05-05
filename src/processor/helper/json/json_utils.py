@@ -218,8 +218,6 @@ def get_container_snapshot_json_files(container, mastersnapshot=False, name=None
 def get_json_files(json_dir, file_type, name=None):
     """Return list of json files based on the file type."""
     file_list = []
-    # logger.info('JSON dir:%s, filetype: %s', json_dir, file_type)
-    globalllll= glob.glob('%s/*.json' % json_dir.replace('//', '/'))
     if name:
         name = json_dir + "/" + name + ".json"
     if json_dir and file_type:
