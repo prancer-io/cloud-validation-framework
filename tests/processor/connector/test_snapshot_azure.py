@@ -210,4 +210,4 @@ def test_populate_azure_snapshot_crawler(monkeypatch):
     
     from processor.connector.snapshot_azure import populate_azure_snapshot
     val = populate_azure_snapshot(snapshot_crawler, 'azure')
-    assert val == {'31': [{'masterSnapshotId': ['31'], 'path': 'test_id', 'snapshotId': '310', 'status': 'active', 'validate': True}]}
+    assert val == {'31': [{'masterSnapshotId': ['31'], 'path': 'test_id', 'snapshotId': '310', 'status': 'active', 'validate': True,'subscriptionId': 'sub_id'}]}

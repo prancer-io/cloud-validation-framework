@@ -1202,6 +1202,7 @@ def populate_aws_snapshot(snapshot, container=None):
                                         'masterSnapshotId': node['masterSnapshotId'],
                                         'collection': data['collection'],
                                         'arn' : data['arn'],
+                                        'account_id': account_id,
                                         'status' : 'active'
                                     }
                                     if node.get("boto_type"):
