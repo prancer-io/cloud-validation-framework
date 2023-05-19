@@ -625,14 +625,13 @@ def populate_google_snapshot(snapshot, container=None):
     if valid_snapshotids and sub_data and snapshot_nodes:
         logger.debug(sub_data)
         try:
+            credentials = get_google_client_data(sub_data, snapshot_user, "", project_id)
+            if not credentials:
+                logger.info("No  GCE connection in the snapshot to access Google resource!...")
+                return snapshot_data
             for node in snapshot['nodes']:
                 validate = node['validate'] if 'validate' in node else True
                 logger.info(node)
-                node_type = get_field_value_with_default(node, 'type',"")
-                credentials = get_google_client_data(sub_data, snapshot_user, node_type, project_id)
-                if not credentials:
-                    logger.info("No  GCE connection in the snapshot to access Google resource!...")
-                    return snapshot_data
                 if 'snapshotId' in node:
                     if validate:
                         data = get_node(credentials, node, snapshot_source, snapshot)
