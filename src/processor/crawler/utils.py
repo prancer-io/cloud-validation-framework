@@ -160,7 +160,7 @@ def populate_gcp_projects(container, source, structure_data):
             client_id = user["client_id"]
             private_key_id = user["private_key_id"]
             name = user["name"]
-            private_key = user["private_key"]
+            private_key = user.get("private_key")
             name = re.sub(r"-\d+$", "", name)
             account_list += get_projects_list(private_key_id, private_key, client_email, client_id, name)
     updated_data = copy.deepcopy(structure_data)
@@ -201,7 +201,7 @@ def get_projects_list(private_key_id, private_key, client_email, client_id, test
         new_private_key = private_key
 
     if new_private_key:
-        access_token = access_token_from_service_account(private_key_id, private_key, client_email, client_id)
+        access_token = access_token_from_service_account(private_key_id, new_private_key, client_email, client_id)
         if access_token:
             hdrs = {"Accept": "application/json", "Authorization": "Bearer %s" % access_token }
             url = "https://cloudresourcemanager.googleapis.com/v1/projects"
