@@ -30,6 +30,10 @@ def mongoconnection(dbport=27017, to=TIMEOUT):
         MONGO = MongoClient(port=dbport, serverSelectionTimeoutMS=to)
     return MONGO
 
+def clean_mongo_client():
+    global MONGO
+    MONGO = None
+
 def get_dburl_from_cache():
     """ returns the database url from cache. if it is not preset in cache then it will return from vault """
     dburl = os.getenv('DBURL', None)
