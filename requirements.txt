@@ -12,7 +12,7 @@ pytest==4.0.1
 pytest-cov==2.6.0
 pytest-mock==1.10.0
 python-dateutil==2.7.5
-requests==2.25.1
+requests==2.31.0
 ply==3.10
 pyhcl==0.4.4
 python-hcl2==3.0.4
