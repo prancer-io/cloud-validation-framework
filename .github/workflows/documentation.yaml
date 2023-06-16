@@ -33,7 +33,8 @@ jobs:
         username: ${{ secrets.DOC_SERVER_USERNAME }}
         key: ${{ secrets.DOC_SERVER_SSH_KEY }}
         source: "docs/build/"
-        target: "/var/www/docs.prancer.io/public_html"
+        target: "/var/www/docs.prancer.io/public_html/web/"
+        strip_components: 2
 
     - name: Run commands on server
       uses: appleboy/ssh-action@master
