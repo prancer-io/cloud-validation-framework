@@ -27,14 +27,17 @@ def shannon_entropy(data):
 
 def get_paths(source):
     paths = []
-    if isinstance(source, collections.MutableMapping):
-        for k, v in source.items():
-            paths.append([k])
-            paths += [[k] + x for x in get_paths(v)]
-    elif isinstance(source, collections.Sequence) and not isinstance(source, str):
-        for i, v in enumerate(source):
-            paths.append([i])
-            paths += [[i] + x for x in get_paths(v)]
+    try:
+        if isinstance(source, collections.MutableMapping):
+            for k, v in source.items():
+                paths.append([k])
+                paths += [[k] + x for x in get_paths(v)]
+        elif isinstance(source, collections.Sequence) and not isinstance(source, str):
+            for i, v in enumerate(source):
+                paths.append([i])
+                paths += [[i] + x for x in get_paths(v)]
+    except Exception as ex:
+        logger.warning(" get_paths exception:%s" % ex)
     return paths
 
 

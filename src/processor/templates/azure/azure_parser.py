@@ -42,19 +42,20 @@ class AzureTemplateParser(TemplateParser):
             if 'parameters' not in template_json:
                 template_json['parameters'] = {}
             self.gparams = template_json['parameters']
-            for param in self.get_parameter():
-                param_json = json_from_file(param)
-                if 'parameters' in  param_json and param_json['parameters']:
-                    for key, value in param_json['parameters'].items():
-                        # if key in template_json['parameters']:
-                        if "value" in value:
-                            if key not in template_json['parameters']:
-                                template_json['parameters'][key] = {'value': value['value']}
+            if self.get_parameter():
+                for param in self.get_parameter():
+                    param_json = json_from_file(param)
+                    if 'parameters' in  param_json and param_json['parameters']:
+                        for key, value in param_json['parameters'].items():
+                            # if key in template_json['parameters']:
+                            if "value" in value:
+                                if key not in template_json['parameters']:
+                                    template_json['parameters'][key] = {'value': value['value']}
+                                else:
+                                    template_json['parameters'][key]['value'] = value['value']
                             else:
-                                template_json['parameters'][key]['value'] = value['value']
-                        else:
-                            logger.debug("Default value is not specified for %s parameter.", key)
-                gen_template_json['parameters'] = self.gparams
+                                logger.debug("Default value is not specified for %s parameter.", key)
+                    gen_template_json['parameters'] = self.gparams
             # print('%s Updated Parameters %s' % (stars, stars))
             # print(json.dumps(template_json['parameters'], indent=2))
             if 'variables' in template_json:
@@ -303,7 +304,7 @@ class AzureTemplateParser(TemplateParser):
             return False
         json_data = json_from_file(filename)
         if json_data and '$schema' in json_data and json_data['$schema']:
-            match =  re.match(r'.*deploymentTemplate.json#$', json_data['$schema'], re.I)
+            match =  re.match(r'.*eploymentTemplate.json#$', json_data['$schema'], re.I)
             return True if match else False
         return None
             
