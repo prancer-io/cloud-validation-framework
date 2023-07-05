@@ -68,7 +68,7 @@ class AzureTemplateProcessor(TemplateProcessor):
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "json":
             json_data = json_from_file(file_path)
             if json_data and '$schema' in json_data and json_data['$schema']:
-                match =  re.match(r'.*/deploymentTemplate.json#$', json_data['$schema'], re.I)
+                match =  re.match(r'.*eploymentTemplate.json#$', json_data['$schema'], re.I)
                 return True if match else False
         return False
 
@@ -102,9 +102,9 @@ class AzureTemplateProcessor(TemplateProcessor):
                         "Invalid json : does not contains '$schema' field in json.")
                     return template_json
                 else:
-                    if "deploymentTemplate.json" in json_data['$schema'].split("/")[-1]:
+                    if "eploymentTemplate.json" in json_data['$schema'].split("/")[-1]:
                         template_file_path = json_file_path
-                    elif "deploymentParameters.json" in json_data['$schema'].split("/")[-1]:
+                    elif "eploymentParameters.json" in json_data['$schema'].split("/")[-1]:
                         deployment_file_path = json_file_path
                     else:
                         logger.error("Invalid json : $schema does not contains the correct value")

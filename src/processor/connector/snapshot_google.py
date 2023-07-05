@@ -185,6 +185,9 @@ def get_params_for_get_method(response, url_var, project_id):
                 key_before_split = response['name']
                 params[item] = key_before_split.split('/')[-1]
 
+            elif item == r"{cloud_run_service}":
+                params[item] = response['metadata']['name']
+
         return params
     except Exception as ex:
         return params
@@ -533,18 +536,19 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
             elif "id" in item.keys():
                 request_url = request_url+"/"+item["id"].split(":")[-1]
             elif "name" in item.keys():
-                request_url = request_url+"/"+item["name"]
-
-        path_list = request_url.split("https://")
-        
+                request_url = item["name"]
         if  '/{' in request_url or '}/' in request_url:
             return snapshot_data
 
-        if len(path_list) > 1:
-            path_list = path_list[1].split('/')
-            path = "/".join(path_list[1:])
+        if request_url and request_url.startswith("https://"):
+            path_list = request_url.split("https://")
+            if len(path_list) > 1:
+                path_list = path_list[1].split('/')
+                path = "/".join(path_list[1:])
+            else:
+                return snapshot_data
         else:
-            return snapshot_data
+            path = request_url
 
         found_old_record = False
         for snapshot_list in snapshot_data.values():
