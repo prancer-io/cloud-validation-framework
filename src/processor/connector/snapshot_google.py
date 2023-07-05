@@ -729,6 +729,7 @@ def generate_gce(google_data, project, user):
     return gce
 
 
+
 def get_google_client_data(google_data, snapshot_user, node_type, project_id):
     """
     Generate Google Service Account credentials object from the google structure file.
