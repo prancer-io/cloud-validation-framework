@@ -11,6 +11,7 @@ import re
 import pymongo
 import os
 from processor.connector.special_crawler.azure_crawler import AzureCrawler
+from processor.connector.special_node_pull.azure_node_pull import AzureNodePull
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
@@ -68,6 +69,7 @@ def get_version_for_type(node):
 def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
     """ Fetch all nodes from azure portal using rest API."""
     collection = node['collection'] if 'collection' in node else COLLECTION
+    scope = node.get("scope")
     parts = snapshot_source.split('.')
     db_records = []
     d_record = {
@@ -130,7 +132,7 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
                 put_in_currentdata('errors', data)
                 logger.info("Get Id returned invalid status: %s", status)
         
-        azure_crawler = AzureCrawler(resources, token=token, apiversions=get_api_versions(), subscription_id=sub_id, version=version)
+        azure_crawler = AzureCrawler(resources, token=token, apiversions=get_api_versions(), subscription_id=sub_id, version=version, scope=scope)
         resources = azure_crawler.check_for_special_crawl(nodetype)
         if resources:
             for idx, value in enumerate(resources):
@@ -263,6 +265,9 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
                 #         if all_data_record["json"]["resources"][0].get("type") == main_resource_type:
                 #             if "%s/" % all_data_record["json"]["resources"][0].get("id") in node["path"]:
                 #                 all_data_record["json"]["resources"].append(data)
+
+                azure_node_pull = AzureNodePull(data, token=token, apiversions=get_api_versions())
+                data = azure_node_pull.check_for_node_pull(node.get('type', ""))
             
                 db_record['json']["subscription_id"] = sub_id
                 db_record['json']["resource_group"] = resource_group
