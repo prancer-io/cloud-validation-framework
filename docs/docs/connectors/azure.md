@@ -47,6 +47,7 @@ To configure the `Azure` connector, copy the following code to a file named `azu
         "accounts": [
             {
                 "department": "Unit/Department name",
+                "all-accounts" : false,
                 "subscription": [
                     {
                         "subscription_name": "Subscription (Account) name",
@@ -74,6 +75,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | subscription-id | Your subscription id, you can find it in the [Subscriptions][subscriptions]|
 | spn-client-id | Client id of the application you registered previously |
 | spn-client-secret | Secret key associated with client id previously created |
+| all-accounts | if the `all-account` set to true then it will fetch all the subscription list and crawl the resources from all the subscriptions. Default value is `false` |
 
 > It is not recommended to put the secret key in the `connector` file. This is only good for testing purposes.
 

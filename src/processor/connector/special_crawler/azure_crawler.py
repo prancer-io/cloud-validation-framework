@@ -10,9 +10,11 @@ class AzureCrawler(BaseCrawler):
         self.apiversions = kwargs.get("apiversions")
         self.subscription_id = kwargs.get("subscription_id")
         self.version = kwargs.get("version")
+        self.scope = kwargs.get("scope")
 
         self.special_resource_types = {
             "Microsoft.Authorization/roleDefinitions": self.crawl_role_definitions,
+            "Microsoft.Authorization/roleAssignments": self.crawl_role_assignments,
             "Microsoft.Storage/storageAccounts/blobServices/containers": self.crawl_blobservice_containers,
         }
     
@@ -67,7 +69,18 @@ class AzureCrawler(BaseCrawler):
         """
         version = self.get_version_of_resource_type(resource_type)
         if version:
-            url = 'https://management.azure.com/subscriptions/%s/providers/%s?api-version=%s' % (self.subscription_id, resource_type, version)
+            self.scope = self.scope if self.scope else "subscriptions/%s" % self.subscription_id
+            url = 'https://management.azure.com/%s/providers/%s?api-version=%s' % (self.scope, resource_type, version)
+            self.call_azure_api(url)
+    
+    def crawl_role_assignments(self, resource_type):
+        """
+        crawl "Microsoft.Authorization/roleAssignments" resource type
+        """
+        version = self.get_version_of_resource_type(resource_type)
+        if version:
+            self.scope = self.scope if self.scope else "subscriptions/%s" % self.subscription_id
+            url = 'https://management.azure.com/%s/providers/%s?api-version=%s' % (self.scope, resource_type, version)
             self.call_azure_api(url)
 
     def crawl_blobservice_containers(self, resource_type):
