@@ -67,7 +67,7 @@ Remember to substitute all values in this file that looks like a `<tag>` such as
 | client_email | client email |
 | client_id | client id |
 | client_x509_cert_url | client x509 cert url, you get this info from the key json output |
-| all-accounts | if the `all-account` parameter is configured as true, it will retrieve all the GCP projects and proceed to scan the resources across all GCP projects accessible to the service account. Default value is `false` |
+| all-accounts | if the `all-accounts` parameter is configured as true, it will retrieve all the GCP projects and proceed to scan the resources across all GCP projects accessible to the service account. Default value is `false` |
 
 > It is not recommended to put any secret in the `connector` file. This is good just for testing purposes.
 >
