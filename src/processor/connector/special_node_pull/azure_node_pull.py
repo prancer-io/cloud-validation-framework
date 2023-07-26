@@ -2,7 +2,9 @@ from processor.connector.special_node_pull.base_node_pull import BaseNodePull
 from processor.helper.httpapi.http_utils import http_get_request
 
 NODE_PULL_URL = {
-    "microsoft.graph.userRegistrationDetails" : "graph.microsoft.com"
+    "microsoft.graph.userRegistrationDetails" : "graph.microsoft.com",
+    "microsoft.graph.identitySecurityDefaultsEnforcementPolicy" : "graph.microsoft.com",
+    "microsoft.graph.authorizationPolicy" : "graph.microsoft.com",
 }
 
 class AzureNodePull(BaseNodePull):
@@ -15,6 +17,8 @@ class AzureNodePull(BaseNodePull):
         self.special_resource_types = {
             "Microsoft.Authorization/roleAssignments": self.pull_role_assignments,
             "microsoft.graph.userRegistrationDetails" : self.pull_user_registration,
+            "microsoft.graph.identitySecurityDefaultsEnforcementPolicy" : self.pull_default_enforcement_policy,
+            "microsoft.graph.authorizationPolicy" : self.pull_authorization_policy,
         }
     
     def get_version_of_resource_type(self, resource_type):
@@ -52,10 +56,30 @@ class AzureNodePull(BaseNodePull):
     
     def pull_user_registration(self):
         """
-        pull "Microsoft.Authorization/roleAssignments" resource type
+        pull "microsoft.graph.userRegistrationDetails" resource type
         """
         resource = {}
         resource["type"] = "microsoft.graph.userRegistrationDetails"
+        resource["properties"] = self.resource
+        resource["name"] = resource["properties"].get("id")
+        self.resource = resource
+    
+    def pull_default_enforcement_policy(self):
+        """
+        pull "microsoft.graph.identitySecurityDefaultsEnforcementPolicy" resource type
+        """
+        resource = {}
+        resource["type"] = "microsoft.graph.identitySecurityDefaultsEnforcementPolicy"
+        resource["properties"] = self.resource
+        resource["name"] = resource["properties"].get("id")
+        self.resource = resource
+    
+    def pull_authorization_policy(self):
+        """
+        pull "microsoft.graph.authorizationPolicy" resource type
+        """
+        resource = {}
+        resource["type"] = "microsoft.graph.authorizationPolicy"
         resource["properties"] = self.resource
         resource["name"] = resource["properties"].get("id")
         self.resource = resource
