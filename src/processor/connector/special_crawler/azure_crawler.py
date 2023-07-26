@@ -1,6 +1,7 @@
 from processor.helper.config.rundata_utils import get_from_currentdata, put_in_currentdata
 from processor.connector.special_crawler.base_crawler import BaseCrawler
 from processor.helper.httpapi.http_utils import http_get_request
+from processor.helper.httpapi.restapi_azure import get_access_token, GRAPH_TOKEN
 
 class AzureCrawler(BaseCrawler):
 
@@ -12,10 +13,19 @@ class AzureCrawler(BaseCrawler):
         self.version = kwargs.get("version")
         self.scope = kwargs.get("scope")
 
+        self.special_node_type_crwler = [
+            "microsoft.graph.userRegistrationDetails",
+            "microsoft.graph.identitySecurityDefaultsEnforcementPolicy",
+            "microsoft.graph.authorizationPolicy"
+        ]
+
         self.special_resource_types = {
             "Microsoft.Authorization/roleDefinitions": self.crawl_role_definitions,
             "Microsoft.Authorization/roleAssignments": self.crawl_role_assignments,
             "Microsoft.Storage/storageAccounts/blobServices/containers": self.crawl_blobservice_containers,
+            "microsoft.graph.userRegistrationDetails": self.crawl_user_registration_details,
+            "microsoft.graph.identitySecurityDefaultsEnforcementPolicy": self.crawl_default_enforcement_policy,
+            "microsoft.graph.authorizationPolicy": self.crawl_authorization_policy,
         }
     
     def check_for_special_crawl(self, resource_type):
@@ -100,3 +110,56 @@ class AzureCrawler(BaseCrawler):
                         for resource in data.get("value", []):
                             put_in_currentdata('resources', resource)
                         self.resources += data.get("value", [])
+
+    def crawl_user_registration_details(self, resource_type):
+        """
+        crawl "microsoft.graph.userRegistrationDetails" resource type
+        """        
+        version = self.get_version_of_resource_type(resource_type)
+        graph_token = get_access_token("https://graph.microsoft.com", token_key=GRAPH_TOKEN)
+        if version:
+            hdrs = {
+                'Authorization': 'Bearer %s' % graph_token
+            }
+            url = 'https://graph.microsoft.com/%s/reports/authenticationMethods/userRegistrationDetails' % version
+            status, data = http_get_request(url, hdrs, name='\tRESOURCE:')
+            self.resources = []
+            if status and isinstance(status, int) and status == 200:
+                for resource in data.get("value", []):
+                    resource["id"] = "/%s/reports/authenticationMethods/userRegistrationDetails/%s" % (
+                        version, resource.get("id", ""))
+                self.resources = data.get("value", [])
+    
+    def crawl_default_enforcement_policy(self, resource_type):
+        """
+        crawl "microsoft.graph.identitySecurityDefaultsEnforcementPolicy" resource type
+        """        
+        version = self.get_version_of_resource_type(resource_type)
+        graph_token = get_access_token("https://graph.microsoft.com", token_key=GRAPH_TOKEN)
+        if version:
+            hdrs = {
+                'Authorization': 'Bearer %s' % graph_token
+            }
+            url = 'https://graph.microsoft.com/%s/policies/identitySecurityDefaultsEnforcementPolicy' % version
+            status, resource = http_get_request(url, hdrs, name='\tRESOURCE:')
+            self.resources = []
+            if status and isinstance(status, int) and status == 200:
+                resource["id"] = "/%s/policies/identitySecurityDefaultsEnforcementPolicy" % (version)
+                self.resources = [resource]
+    
+    def crawl_authorization_policy(self, resource_type):
+        """
+        crawl "microsoft.graph.authorizationPolicy" resource type
+        """        
+        version = self.get_version_of_resource_type(resource_type)
+        graph_token = get_access_token("https://graph.microsoft.com", token_key=GRAPH_TOKEN)
+        if version:
+            hdrs = {
+                'Authorization': 'Bearer %s' % graph_token
+            }
+            url = 'https://graph.microsoft.com/%s/policies/authorizationPolicy' % version
+            status, resource = http_get_request(url, hdrs, name='\tRESOURCE:')
+            self.resources = []
+            if status and isinstance(status, int) and status == 200:
+                resource["id"] = "/%s/policies/authorizationPolicy" % (version)
+                self.resources = [resource]

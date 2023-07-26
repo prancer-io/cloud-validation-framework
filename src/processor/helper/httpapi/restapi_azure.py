@@ -16,6 +16,7 @@ from processor.database.database import DATABASE, DBNAME, sort_field, get_docume
 
 
 ACCESSTOKEN = 'token'
+GRAPH_TOKEN = 'graphToken'
 VAULTACCESSTOKEN = 'vaulttoken'
 UAMIVAULTACCESSTOKEN = 'uamivaulttoken'
 SUBSCRIPTION = 'subscriptionId'
@@ -151,12 +152,12 @@ def get_client_secret(key='CLIENTKEY', client_id=None):
                 client_secret = input('Enter the client secret for the app: ')
     return client_secret
 
-def get_access_token():
+def get_access_token(resource='https://management.azure.com', token_key=ACCESSTOKEN):
     """
     Get the access token if stored in rundata, otherwise get the token from
     management.azure.com portal for the webapp.
     """
-    token = get_from_currentdata(ACCESSTOKEN)
+    token = get_from_currentdata(token_key)
     if not token:
         tenant_id = get_tenant_id()
         client_id = get_client_id()
@@ -170,7 +171,7 @@ def get_access_token():
             'grant_type': 'client_credentials',
             'client_id': client_id,
             'client_secret': client_secret,
-            'resource': 'https://management.azure.com'
+            'resource': resource
         }
         hdrs = {
             'Cache-Control': "no-cache",
@@ -182,7 +183,7 @@ def get_access_token():
             status, data = http_post_request(url, data, headers=hdrs, json_type=True, name='\tAZURE TOKEN')
             if status and isinstance(status, int) and status == 200:
                 token = data['access_token']
-                put_in_currentdata(ACCESSTOKEN, token)
+                put_in_currentdata(token_key, token)
             else:
                 put_in_currentdata('errors', data)
                 logger.info("Get Azure token returned invalid status: %s", status)
