@@ -11,7 +11,7 @@ import re
 import pymongo
 import os
 from processor.connector.special_crawler.azure_crawler import AzureCrawler
-from processor.connector.special_node_pull.azure_node_pull import AzureNodePull
+from processor.connector.special_node_pull.azure_node_pull import AzureNodePull, NODE_PULL_URL
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 from processor.helper.config.rundata_utils import put_in_currentdata,\
@@ -19,7 +19,7 @@ from processor.helper.config.rundata_utils import put_in_currentdata,\
 from processor.helper.json.json_utils import get_field_value, json_from_file,\
     collectiontypes, STRUCTURE, make_snapshots_dir, save_json_to_file, store_snapshot
 from processor.helper.httpapi.restapi_azure import get_access_token,\
-    get_web_client_data, get_client_secret, json_source
+    get_web_client_data, get_client_secret, json_source, GRAPH_TOKEN
 from processor.connector.vault import get_vault_data
 from processor.helper.httpapi.http_utils import http_get_request
 from processor.helper.config.config_utils import config_value, framework_dir, CUSTOMER, EXCLUSION
@@ -136,8 +136,8 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         resources = azure_crawler.check_for_special_crawl(nodetype)
         if resources:
             for idx, value in enumerate(resources):
-                if nodetype.lower() == value.get('type', "").lower():
-
+                if nodetype.lower() == value.get('type', "").lower() or \
+                    nodetype in azure_crawler.special_node_type_crwler:
                     if value['id'] in exclude_paths:
                         logger.warning("Excluded : %s", value['id'])
                         continue
@@ -214,6 +214,11 @@ def get_node(token, sub_name, sub_id, node, user, snapshot_source, all_data_reco
         if node['path'].startswith('/subscriptions'):
             urlstr = 'https://management.azure.com%s?api-version=%s'
             url = urlstr % (node['path'], version)
+        elif node.get('type', "") in NODE_PULL_URL:
+            urlstr = 'https://%s%s'
+            url = urlstr % (NODE_PULL_URL[node.get('type')], node['path'])
+            graph_token = get_access_token("https://graph.microsoft.com", token_key=GRAPH_TOKEN)
+            hdrs["Authorization"] = 'Bearer %s' % graph_token
         else:
             parent_resource_json = {}
             urlstr = 'https://management.azure.com/subscriptions/%s%s?api-version=%s'
