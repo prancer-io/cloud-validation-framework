@@ -222,13 +222,15 @@ def get_request_url_list_method(get_method, list_method, item, project_id=None, 
         "Authorization" : ("Bearer %s" % access_token)
     }
     list_data_response = requests.get(url=request_url, headers=header)
-    data = list_data_response.json()
-    resource_items =[]
-    resource_items = data['keys']
-    if resource_items:
-        for item in resource_items:
-            request_url = get_request_url_get_method(get_method, item, project_id)
-            return request_url
+    if list_data_response.status_code == 200:
+        data = list_data_response.json()
+        resource_items =[]
+        resource_items = data['keys']
+        if resource_items:
+            for item in resource_items:
+                request_url = get_request_url_get_method(get_method, item, project_id)
+                return request_url
+    return None
 
 
 def get_node(credentials, node, snapshot_source, snapshot):
@@ -537,10 +539,14 @@ def set_snapshot_data(node, items, snapshot_data, project_id=None, credentials=N
                 request_url = request_url+"/"+item["id"].split(":")[-1]
             elif "name" in item.keys():
                 request_url = item["name"]
+
+        if not request_url:
+            continue
+
         if  '/{' in request_url or '}/' in request_url:
             return snapshot_data
 
-        if request_url and request_url.startswith("https://"):
+        if request_url.startswith("https://"):
             path_list = request_url.split("https://")
             if len(path_list) > 1:
                 path_list = path_list[1].split('/')
