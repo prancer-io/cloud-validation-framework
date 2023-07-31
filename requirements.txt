@@ -8,9 +8,9 @@ gitdb2==2.0.5
 GitPython==3.1.30
 pymongo==4.4.1
 attrs==23.1.0
-pytest==4.0.1
-pytest-cov==2.6.0
-pytest-mock==1.10.0
+pytest==7.4.0
+pytest-cov==4.1.0
+pytest-mock==3.11.1
 python-dateutil==2.8.2
 requests==2.31.0
 ply==3.10
