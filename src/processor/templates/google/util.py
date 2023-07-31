@@ -1,5 +1,5 @@
 from jinja2 import Undefined
-from jinja2._compat import implements_to_string, string_types
+# from jinja2._compat import implements_to_string, string_types
 from jinja2.utils import missing, object_type_repr
 from processor.logging.log_handler import getlogger
 
@@ -18,7 +18,7 @@ class ResourceContext(object):
         return value
 
 
-@implements_to_string
+# @implements_to_string
 class SilentUndefined(Undefined):
     '''
     handle undefined variables
@@ -27,7 +27,8 @@ class SilentUndefined(Undefined):
         if self._undefined_hint is None:
             if self._undefined_obj is missing:
                 hint = '%r is undefined' % self._undefined_name
-            elif not isinstance(self._undefined_name, string_types):
+            # elif not isinstance(self._undefined_name, string_types):
+            elif not isinstance(self._undefined_name, str):
                 hint = '%s has no element %r' % (
                     self._undefined_obj,
                     self._undefined_name
