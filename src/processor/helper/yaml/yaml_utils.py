@@ -48,7 +48,7 @@ def yaml_from_file(yamlfile, loader=None):
 def valid_yaml(yaml_input):
     """ Checks validity of the yaml """
     try:
-        data = yaml.load(yaml_input)
+        data = yaml.load(yaml_input, Loader=FullLoader)
         return isinstance(data, dict)
     except:
         print('Not a valid yaml: %s' % yaml_input)
