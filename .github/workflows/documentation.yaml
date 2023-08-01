@@ -33,7 +33,7 @@ jobs:
         username: ${{ secrets.DOC_SERVER_USERNAME }}
         key: ${{ secrets.DOC_SERVER_SSH_KEY }}
         source: "docs/build/"
-        target: "/var/www/docs.prancer.io/public_html/web/"
+        target: "/var/www/docs.prancer.io/public_html/"
         strip_components: 2
 
     - name: Run commands on server
