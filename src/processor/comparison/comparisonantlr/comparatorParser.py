@@ -1,90 +1,100 @@
-# Generated from comparator.g4 by ANTLR 4.13.0
+# Generated from comparator.g4 by ANTLR 4.7.1
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
+from typing.io import TextIO
 import sys
-if sys.version_info[1] > 5:
-	from typing import TextIO
-else:
-	from typing.io import TextIO
 
 def serializedATN():
-    return [
-        4,1,24,194,2,0,7,0,1,0,3,0,4,8,0,1,0,3,0,7,8,0,1,0,3,0,10,8,0,1,
-        0,3,0,13,8,0,1,0,1,0,3,0,17,8,0,1,0,1,0,3,0,21,8,0,1,0,3,0,24,8,
-        0,1,0,1,0,3,0,28,8,0,5,0,30,8,0,10,0,12,0,33,9,0,1,0,3,0,36,8,0,
-        1,0,1,0,1,0,1,0,1,0,1,0,1,0,3,0,45,8,0,1,0,3,0,48,8,0,1,0,3,0,51,
-        8,0,1,0,1,0,3,0,55,8,0,1,0,1,0,3,0,59,8,0,1,0,3,0,62,8,0,1,0,1,0,
-        3,0,66,8,0,5,0,68,8,0,10,0,12,0,71,9,0,1,0,1,0,3,0,75,8,0,1,0,3,
-        0,78,8,0,1,0,1,0,1,0,5,0,83,8,0,10,0,12,0,86,9,0,1,0,3,0,89,8,0,
-        3,0,91,8,0,1,0,1,0,1,0,1,0,3,0,97,8,0,1,0,1,0,1,0,1,0,3,0,103,8,
-        0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,5,0,112,8,0,10,0,12,0,115,9,0,1,0,
-        3,0,118,8,0,1,0,1,0,1,0,1,0,1,0,5,0,125,8,0,10,0,12,0,128,9,0,1,
-        0,1,0,1,0,1,0,1,0,3,0,135,8,0,1,0,1,0,1,0,1,0,1,0,5,0,142,8,0,10,
-        0,12,0,145,9,0,1,0,1,0,1,0,3,0,150,8,0,1,0,1,0,1,0,1,0,1,0,5,0,157,
-        8,0,10,0,12,0,160,9,0,1,0,1,0,1,0,3,0,165,8,0,1,0,1,0,1,0,1,0,1,
-        0,5,0,172,8,0,10,0,12,0,175,9,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,5,0,
-        184,8,0,10,0,12,0,187,9,0,1,0,3,0,190,8,0,3,0,192,8,0,1,0,0,0,1,
-        0,0,0,245,0,191,1,0,0,0,2,4,5,3,0,0,3,2,1,0,0,0,3,4,1,0,0,0,4,6,
-        1,0,0,0,5,7,5,1,0,0,6,5,1,0,0,0,6,7,1,0,0,0,7,9,1,0,0,0,8,10,5,3,
-        0,0,9,8,1,0,0,0,9,10,1,0,0,0,10,12,1,0,0,0,11,13,5,1,0,0,12,11,1,
-        0,0,0,12,13,1,0,0,0,13,14,1,0,0,0,14,16,5,7,0,0,15,17,5,2,0,0,16,
-        15,1,0,0,0,16,17,1,0,0,0,17,31,1,0,0,0,18,20,5,5,0,0,19,21,5,3,0,
-        0,20,19,1,0,0,0,20,21,1,0,0,0,21,23,1,0,0,0,22,24,5,1,0,0,23,22,
-        1,0,0,0,23,24,1,0,0,0,24,25,1,0,0,0,25,27,5,7,0,0,26,28,5,2,0,0,
-        27,26,1,0,0,0,27,28,1,0,0,0,28,30,1,0,0,0,29,18,1,0,0,0,30,33,1,
-        0,0,0,31,29,1,0,0,0,31,32,1,0,0,0,32,35,1,0,0,0,33,31,1,0,0,0,34,
-        36,5,2,0,0,35,34,1,0,0,0,35,36,1,0,0,0,36,44,1,0,0,0,37,38,5,6,0,
-        0,38,45,5,15,0,0,39,45,5,16,0,0,40,45,5,4,0,0,41,45,5,11,0,0,42,
-        45,5,12,0,0,43,45,5,13,0,0,44,37,1,0,0,0,44,39,1,0,0,0,44,40,1,0,
-        0,0,44,41,1,0,0,0,44,42,1,0,0,0,44,43,1,0,0,0,44,45,1,0,0,0,45,192,
-        1,0,0,0,46,48,5,3,0,0,47,46,1,0,0,0,47,48,1,0,0,0,48,50,1,0,0,0,
-        49,51,5,1,0,0,50,49,1,0,0,0,50,51,1,0,0,0,51,52,1,0,0,0,52,54,5,
-        7,0,0,53,55,5,2,0,0,54,53,1,0,0,0,54,55,1,0,0,0,55,69,1,0,0,0,56,
-        58,5,5,0,0,57,59,5,3,0,0,58,57,1,0,0,0,58,59,1,0,0,0,59,61,1,0,0,
-        0,60,62,5,1,0,0,61,60,1,0,0,0,61,62,1,0,0,0,62,63,1,0,0,0,63,65,
-        5,7,0,0,64,66,5,2,0,0,65,64,1,0,0,0,65,66,1,0,0,0,66,68,1,0,0,0,
-        67,56,1,0,0,0,68,71,1,0,0,0,69,67,1,0,0,0,69,70,1,0,0,0,70,90,1,
-        0,0,0,71,69,1,0,0,0,72,74,5,6,0,0,73,75,5,3,0,0,74,73,1,0,0,0,74,
-        75,1,0,0,0,75,77,1,0,0,0,76,78,5,1,0,0,77,76,1,0,0,0,77,78,1,0,0,
-        0,78,79,1,0,0,0,79,84,5,7,0,0,80,81,5,5,0,0,81,83,5,7,0,0,82,80,
-        1,0,0,0,83,86,1,0,0,0,84,82,1,0,0,0,84,85,1,0,0,0,85,88,1,0,0,0,
-        86,84,1,0,0,0,87,89,5,2,0,0,88,87,1,0,0,0,88,89,1,0,0,0,89,91,1,
-        0,0,0,90,72,1,0,0,0,90,91,1,0,0,0,91,192,1,0,0,0,92,96,5,7,0,0,93,
-        94,5,6,0,0,94,97,5,15,0,0,95,97,5,16,0,0,96,93,1,0,0,0,96,95,1,0,
-        0,0,96,97,1,0,0,0,97,192,1,0,0,0,98,102,5,7,0,0,99,100,5,6,0,0,100,
-        103,5,17,0,0,101,103,5,11,0,0,102,99,1,0,0,0,102,101,1,0,0,0,102,
-        103,1,0,0,0,103,192,1,0,0,0,104,117,5,7,0,0,105,106,5,6,0,0,106,
-        107,5,3,0,0,107,108,5,1,0,0,108,113,5,7,0,0,109,110,5,5,0,0,110,
-        112,5,7,0,0,111,109,1,0,0,0,112,115,1,0,0,0,113,111,1,0,0,0,113,
-        114,1,0,0,0,114,116,1,0,0,0,115,113,1,0,0,0,116,118,5,2,0,0,117,
-        105,1,0,0,0,117,118,1,0,0,0,118,192,1,0,0,0,119,120,5,3,0,0,120,
-        121,5,1,0,0,121,126,5,7,0,0,122,123,5,5,0,0,123,125,5,7,0,0,124,
-        122,1,0,0,0,125,128,1,0,0,0,126,124,1,0,0,0,126,127,1,0,0,0,127,
-        129,1,0,0,0,128,126,1,0,0,0,129,134,5,2,0,0,130,131,5,6,0,0,131,
-        135,5,15,0,0,132,135,5,16,0,0,133,135,5,4,0,0,134,130,1,0,0,0,134,
-        132,1,0,0,0,134,133,1,0,0,0,134,135,1,0,0,0,135,192,1,0,0,0,136,
-        137,5,3,0,0,137,138,5,1,0,0,138,143,5,7,0,0,139,140,5,5,0,0,140,
-        142,5,7,0,0,141,139,1,0,0,0,142,145,1,0,0,0,143,141,1,0,0,0,143,
-        144,1,0,0,0,144,146,1,0,0,0,145,143,1,0,0,0,146,149,5,2,0,0,147,
-        148,5,6,0,0,148,150,5,7,0,0,149,147,1,0,0,0,149,150,1,0,0,0,150,
-        192,1,0,0,0,151,152,5,3,0,0,152,153,5,1,0,0,153,158,5,7,0,0,154,
-        155,5,5,0,0,155,157,5,7,0,0,156,154,1,0,0,0,157,160,1,0,0,0,158,
-        156,1,0,0,0,158,159,1,0,0,0,159,161,1,0,0,0,160,158,1,0,0,0,161,
-        164,5,2,0,0,162,163,5,6,0,0,163,165,5,11,0,0,164,162,1,0,0,0,164,
-        165,1,0,0,0,165,192,1,0,0,0,166,167,5,3,0,0,167,168,5,1,0,0,168,
-        173,5,7,0,0,169,170,5,5,0,0,170,172,5,7,0,0,171,169,1,0,0,0,172,
-        175,1,0,0,0,173,171,1,0,0,0,173,174,1,0,0,0,174,176,1,0,0,0,175,
-        173,1,0,0,0,176,189,5,2,0,0,177,178,5,6,0,0,178,179,5,3,0,0,179,
-        180,5,1,0,0,180,185,5,7,0,0,181,182,5,5,0,0,182,184,5,7,0,0,183,
-        181,1,0,0,0,184,187,1,0,0,0,185,183,1,0,0,0,185,186,1,0,0,0,186,
-        188,1,0,0,0,187,185,1,0,0,0,188,190,5,2,0,0,189,177,1,0,0,0,189,
-        190,1,0,0,0,190,192,1,0,0,0,191,3,1,0,0,0,191,47,1,0,0,0,191,92,
-        1,0,0,0,191,98,1,0,0,0,191,104,1,0,0,0,191,119,1,0,0,0,191,136,1,
-        0,0,0,191,151,1,0,0,0,191,166,1,0,0,0,192,1,1,0,0,0,37,3,6,9,12,
-        16,20,23,27,31,35,44,47,50,54,58,61,65,69,74,77,84,88,90,96,102,
-        113,117,126,134,143,149,158,164,173,185,189,191
-    ]
+    with StringIO() as buf:
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\32")
+        buf.write("\u00c4\4\2\t\2\3\2\5\2\6\n\2\3\2\5\2\t\n\2\3\2\5\2\f\n")
+        buf.write("\2\3\2\5\2\17\n\2\3\2\3\2\5\2\23\n\2\3\2\3\2\5\2\27\n")
+        buf.write("\2\3\2\5\2\32\n\2\3\2\3\2\5\2\36\n\2\7\2 \n\2\f\2\16\2")
+        buf.write("#\13\2\3\2\5\2&\n\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\5\2/\n")
+        buf.write("\2\3\2\5\2\62\n\2\3\2\5\2\65\n\2\3\2\3\2\5\29\n\2\3\2")
+        buf.write("\3\2\5\2=\n\2\3\2\5\2@\n\2\3\2\3\2\5\2D\n\2\7\2F\n\2\f")
+        buf.write("\2\16\2I\13\2\3\2\3\2\5\2M\n\2\3\2\5\2P\n\2\3\2\3\2\3")
+        buf.write("\2\7\2U\n\2\f\2\16\2X\13\2\3\2\5\2[\n\2\5\2]\n\2\3\2\3")
+        buf.write("\2\3\2\3\2\5\2c\n\2\3\2\3\2\3\2\3\2\5\2i\n\2\3\2\3\2\3")
+        buf.write("\2\3\2\3\2\3\2\3\2\7\2r\n\2\f\2\16\2u\13\2\3\2\5\2x\n")
+        buf.write("\2\3\2\3\2\3\2\3\2\3\2\7\2\177\n\2\f\2\16\2\u0082\13\2")
+        buf.write("\3\2\3\2\3\2\3\2\3\2\5\2\u0089\n\2\3\2\3\2\3\2\3\2\3\2")
+        buf.write("\7\2\u0090\n\2\f\2\16\2\u0093\13\2\3\2\3\2\3\2\5\2\u0098")
+        buf.write("\n\2\3\2\3\2\3\2\3\2\3\2\7\2\u009f\n\2\f\2\16\2\u00a2")
+        buf.write("\13\2\3\2\3\2\3\2\5\2\u00a7\n\2\3\2\3\2\3\2\3\2\3\2\7")
+        buf.write("\2\u00ae\n\2\f\2\16\2\u00b1\13\2\3\2\3\2\3\2\3\2\3\2\3")
+        buf.write("\2\3\2\7\2\u00ba\n\2\f\2\16\2\u00bd\13\2\3\2\5\2\u00c0")
+        buf.write("\n\2\5\2\u00c2\n\2\3\2\2\2\3\2\2\2\2\u00f7\2\u00c1\3\2")
+        buf.write("\2\2\4\6\7\5\2\2\5\4\3\2\2\2\5\6\3\2\2\2\6\b\3\2\2\2\7")
+        buf.write("\t\7\3\2\2\b\7\3\2\2\2\b\t\3\2\2\2\t\13\3\2\2\2\n\f\7")
+        buf.write("\5\2\2\13\n\3\2\2\2\13\f\3\2\2\2\f\16\3\2\2\2\r\17\7\3")
+        buf.write("\2\2\16\r\3\2\2\2\16\17\3\2\2\2\17\20\3\2\2\2\20\22\7")
+        buf.write("\t\2\2\21\23\7\4\2\2\22\21\3\2\2\2\22\23\3\2\2\2\23!\3")
+        buf.write("\2\2\2\24\26\7\7\2\2\25\27\7\5\2\2\26\25\3\2\2\2\26\27")
+        buf.write("\3\2\2\2\27\31\3\2\2\2\30\32\7\3\2\2\31\30\3\2\2\2\31")
+        buf.write("\32\3\2\2\2\32\33\3\2\2\2\33\35\7\t\2\2\34\36\7\4\2\2")
+        buf.write("\35\34\3\2\2\2\35\36\3\2\2\2\36 \3\2\2\2\37\24\3\2\2\2")
+        buf.write(" #\3\2\2\2!\37\3\2\2\2!\"\3\2\2\2\"%\3\2\2\2#!\3\2\2\2")
+        buf.write("$&\7\4\2\2%$\3\2\2\2%&\3\2\2\2&.\3\2\2\2\'(\7\b\2\2(/")
+        buf.write("\7\21\2\2)/\7\22\2\2*/\7\6\2\2+/\7\r\2\2,/\7\16\2\2-/")
+        buf.write("\7\17\2\2.\'\3\2\2\2.)\3\2\2\2.*\3\2\2\2.+\3\2\2\2.,\3")
+        buf.write("\2\2\2.-\3\2\2\2./\3\2\2\2/\u00c2\3\2\2\2\60\62\7\5\2")
+        buf.write("\2\61\60\3\2\2\2\61\62\3\2\2\2\62\64\3\2\2\2\63\65\7\3")
+        buf.write("\2\2\64\63\3\2\2\2\64\65\3\2\2\2\65\66\3\2\2\2\668\7\t")
+        buf.write("\2\2\679\7\4\2\28\67\3\2\2\289\3\2\2\29G\3\2\2\2:<\7\7")
+        buf.write("\2\2;=\7\5\2\2<;\3\2\2\2<=\3\2\2\2=?\3\2\2\2>@\7\3\2\2")
+        buf.write("?>\3\2\2\2?@\3\2\2\2@A\3\2\2\2AC\7\t\2\2BD\7\4\2\2CB\3")
+        buf.write("\2\2\2CD\3\2\2\2DF\3\2\2\2E:\3\2\2\2FI\3\2\2\2GE\3\2\2")
+        buf.write("\2GH\3\2\2\2H\\\3\2\2\2IG\3\2\2\2JL\7\b\2\2KM\7\5\2\2")
+        buf.write("LK\3\2\2\2LM\3\2\2\2MO\3\2\2\2NP\7\3\2\2ON\3\2\2\2OP\3")
+        buf.write("\2\2\2PQ\3\2\2\2QV\7\t\2\2RS\7\7\2\2SU\7\t\2\2TR\3\2\2")
+        buf.write("\2UX\3\2\2\2VT\3\2\2\2VW\3\2\2\2WZ\3\2\2\2XV\3\2\2\2Y")
+        buf.write("[\7\4\2\2ZY\3\2\2\2Z[\3\2\2\2[]\3\2\2\2\\J\3\2\2\2\\]")
+        buf.write("\3\2\2\2]\u00c2\3\2\2\2^b\7\t\2\2_`\7\b\2\2`c\7\21\2\2")
+        buf.write("ac\7\22\2\2b_\3\2\2\2ba\3\2\2\2bc\3\2\2\2c\u00c2\3\2\2")
+        buf.write("\2dh\7\t\2\2ef\7\b\2\2fi\7\23\2\2gi\7\r\2\2he\3\2\2\2")
+        buf.write("hg\3\2\2\2hi\3\2\2\2i\u00c2\3\2\2\2jw\7\t\2\2kl\7\b\2")
+        buf.write("\2lm\7\5\2\2mn\7\3\2\2ns\7\t\2\2op\7\7\2\2pr\7\t\2\2q")
+        buf.write("o\3\2\2\2ru\3\2\2\2sq\3\2\2\2st\3\2\2\2tv\3\2\2\2us\3")
+        buf.write("\2\2\2vx\7\4\2\2wk\3\2\2\2wx\3\2\2\2x\u00c2\3\2\2\2yz")
+        buf.write("\7\5\2\2z{\7\3\2\2{\u0080\7\t\2\2|}\7\7\2\2}\177\7\t\2")
+        buf.write("\2~|\3\2\2\2\177\u0082\3\2\2\2\u0080~\3\2\2\2\u0080\u0081")
+        buf.write("\3\2\2\2\u0081\u0083\3\2\2\2\u0082\u0080\3\2\2\2\u0083")
+        buf.write("\u0088\7\4\2\2\u0084\u0085\7\b\2\2\u0085\u0089\7\21\2")
+        buf.write("\2\u0086\u0089\7\22\2\2\u0087\u0089\7\6\2\2\u0088\u0084")
+        buf.write("\3\2\2\2\u0088\u0086\3\2\2\2\u0088\u0087\3\2\2\2\u0088")
+        buf.write("\u0089\3\2\2\2\u0089\u00c2\3\2\2\2\u008a\u008b\7\5\2\2")
+        buf.write("\u008b\u008c\7\3\2\2\u008c\u0091\7\t\2\2\u008d\u008e\7")
+        buf.write("\7\2\2\u008e\u0090\7\t\2\2\u008f\u008d\3\2\2\2\u0090\u0093")
+        buf.write("\3\2\2\2\u0091\u008f\3\2\2\2\u0091\u0092\3\2\2\2\u0092")
+        buf.write("\u0094\3\2\2\2\u0093\u0091\3\2\2\2\u0094\u0097\7\4\2\2")
+        buf.write("\u0095\u0096\7\b\2\2\u0096\u0098\7\t\2\2\u0097\u0095\3")
+        buf.write("\2\2\2\u0097\u0098\3\2\2\2\u0098\u00c2\3\2\2\2\u0099\u009a")
+        buf.write("\7\5\2\2\u009a\u009b\7\3\2\2\u009b\u00a0\7\t\2\2\u009c")
+        buf.write("\u009d\7\7\2\2\u009d\u009f\7\t\2\2\u009e\u009c\3\2\2\2")
+        buf.write("\u009f\u00a2\3\2\2\2\u00a0\u009e\3\2\2\2\u00a0\u00a1\3")
+        buf.write("\2\2\2\u00a1\u00a3\3\2\2\2\u00a2\u00a0\3\2\2\2\u00a3\u00a6")
+        buf.write("\7\4\2\2\u00a4\u00a5\7\b\2\2\u00a5\u00a7\7\r\2\2\u00a6")
+        buf.write("\u00a4\3\2\2\2\u00a6\u00a7\3\2\2\2\u00a7\u00c2\3\2\2\2")
+        buf.write("\u00a8\u00a9\7\5\2\2\u00a9\u00aa\7\3\2\2\u00aa\u00af\7")
+        buf.write("\t\2\2\u00ab\u00ac\7\7\2\2\u00ac\u00ae\7\t\2\2\u00ad\u00ab")
+        buf.write("\3\2\2\2\u00ae\u00b1\3\2\2\2\u00af\u00ad\3\2\2\2\u00af")
+        buf.write("\u00b0\3\2\2\2\u00b0\u00b2\3\2\2\2\u00b1\u00af\3\2\2\2")
+        buf.write("\u00b2\u00bf\7\4\2\2\u00b3\u00b4\7\b\2\2\u00b4\u00b5\7")
+        buf.write("\5\2\2\u00b5\u00b6\7\3\2\2\u00b6\u00bb\7\t\2\2\u00b7\u00b8")
+        buf.write("\7\7\2\2\u00b8\u00ba\7\t\2\2\u00b9\u00b7\3\2\2\2\u00ba")
+        buf.write("\u00bd\3\2\2\2\u00bb\u00b9\3\2\2\2\u00bb\u00bc\3\2\2\2")
+        buf.write("\u00bc\u00be\3\2\2\2\u00bd\u00bb\3\2\2\2\u00be\u00c0\7")
+        buf.write("\4\2\2\u00bf\u00b3\3\2\2\2\u00bf\u00c0\3\2\2\2\u00c0\u00c2")
+        buf.write("\3\2\2\2\u00c1\5\3\2\2\2\u00c1\61\3\2\2\2\u00c1^\3\2\2")
+        buf.write("\2\u00c1d\3\2\2\2\u00c1j\3\2\2\2\u00c1y\3\2\2\2\u00c1")
+        buf.write("\u008a\3\2\2\2\u00c1\u0099\3\2\2\2\u00c1\u00a8\3\2\2\2")
+        buf.write("\u00c2\3\3\2\2\2\'\5\b\13\16\22\26\31\35!%.\61\648<?C")
+        buf.write("GLOVZ\\bhsw\u0080\u0088\u0091\u0097\u00a0\u00a6\u00af")
+        buf.write("\u00bb\u00bf\u00c1")
+        return buf.getvalue()
+
 
 class comparatorParser ( Parser ):
 
@@ -140,15 +150,13 @@ class comparatorParser ( Parser ):
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.checkVersion("4.13.0")
+        self.checkVersion("4.7.1")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
 
 
-
     class ExpressionContext(ParserRuleContext):
-        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -240,7 +248,7 @@ class comparatorParser ( Parser ):
                 self.state = 9
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==3:
+                if _la==comparatorParser.METHOD:
                     self.state = 8
                     self.match(comparatorParser.METHOD)
 
@@ -248,7 +256,7 @@ class comparatorParser ( Parser ):
                 self.state = 12
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==1:
+                if _la==comparatorParser.T__0:
                     self.state = 11
                     self.match(comparatorParser.T__0)
 
@@ -266,13 +274,13 @@ class comparatorParser ( Parser ):
                 self.state = 31
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==5:
+                while _la==comparatorParser.OP:
                     self.state = 18
                     self.match(comparatorParser.OP)
                     self.state = 20
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if _la==3:
+                    if _la==comparatorParser.METHOD:
                         self.state = 19
                         self.match(comparatorParser.METHOD)
 
@@ -280,7 +288,7 @@ class comparatorParser ( Parser ):
                     self.state = 23
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if _la==1:
+                    if _la==comparatorParser.T__0:
                         self.state = 22
                         self.match(comparatorParser.T__0)
 
@@ -302,7 +310,7 @@ class comparatorParser ( Parser ):
                 self.state = 35
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==2:
+                if _la==comparatorParser.T__1:
                     self.state = 34
                     self.match(comparatorParser.T__1)
 
@@ -310,33 +318,33 @@ class comparatorParser ( Parser ):
                 self.state = 44
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [6]:
+                if token in [comparatorParser.COMP]:
                     self.state = 37
                     self.match(comparatorParser.COMP)
                     self.state = 38
                     self.match(comparatorParser.NUMBER)
                     pass
-                elif token in [16]:
+                elif token in [comparatorParser.FNUMBER]:
                     self.state = 39
                     self.match(comparatorParser.FNUMBER)
                     pass
-                elif token in [4]:
+                elif token in [comparatorParser.BOOL]:
                     self.state = 40
                     self.match(comparatorParser.BOOL)
                     pass
-                elif token in [11]:
+                elif token in [comparatorParser.STRING]:
                     self.state = 41
                     self.match(comparatorParser.STRING)
                     pass
-                elif token in [12]:
+                elif token in [comparatorParser.ARRSTRING]:
                     self.state = 42
                     self.match(comparatorParser.ARRSTRING)
                     pass
-                elif token in [13]:
+                elif token in [comparatorParser.DICTSTRING]:
                     self.state = 43
                     self.match(comparatorParser.DICTSTRING)
                     pass
-                elif token in [-1]:
+                elif token in [comparatorParser.EOF]:
                     pass
                 else:
                     pass
@@ -347,7 +355,7 @@ class comparatorParser ( Parser ):
                 self.state = 47
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==3:
+                if _la==comparatorParser.METHOD:
                     self.state = 46
                     self.match(comparatorParser.METHOD)
 
@@ -355,7 +363,7 @@ class comparatorParser ( Parser ):
                 self.state = 50
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==1:
+                if _la==comparatorParser.T__0:
                     self.state = 49
                     self.match(comparatorParser.T__0)
 
@@ -365,7 +373,7 @@ class comparatorParser ( Parser ):
                 self.state = 54
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==2:
+                if _la==comparatorParser.T__1:
                     self.state = 53
                     self.match(comparatorParser.T__1)
 
@@ -373,13 +381,13 @@ class comparatorParser ( Parser ):
                 self.state = 69
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==5:
+                while _la==comparatorParser.OP:
                     self.state = 56
                     self.match(comparatorParser.OP)
                     self.state = 58
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if _la==3:
+                    if _la==comparatorParser.METHOD:
                         self.state = 57
                         self.match(comparatorParser.METHOD)
 
@@ -387,7 +395,7 @@ class comparatorParser ( Parser ):
                     self.state = 61
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if _la==1:
+                    if _la==comparatorParser.T__0:
                         self.state = 60
                         self.match(comparatorParser.T__0)
 
@@ -397,7 +405,7 @@ class comparatorParser ( Parser ):
                     self.state = 65
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if _la==2:
+                    if _la==comparatorParser.T__1:
                         self.state = 64
                         self.match(comparatorParser.T__1)
 
@@ -409,13 +417,13 @@ class comparatorParser ( Parser ):
                 self.state = 90
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==6:
+                if _la==comparatorParser.COMP:
                     self.state = 72
                     self.match(comparatorParser.COMP)
                     self.state = 74
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if _la==3:
+                    if _la==comparatorParser.METHOD:
                         self.state = 73
                         self.match(comparatorParser.METHOD)
 
@@ -423,7 +431,7 @@ class comparatorParser ( Parser ):
                     self.state = 77
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if _la==1:
+                    if _la==comparatorParser.T__0:
                         self.state = 76
                         self.match(comparatorParser.T__0)
 
@@ -433,7 +441,7 @@ class comparatorParser ( Parser ):
                     self.state = 84
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    while _la==5:
+                    while _la==comparatorParser.OP:
                         self.state = 80
                         self.match(comparatorParser.OP)
                         self.state = 81
@@ -445,7 +453,7 @@ class comparatorParser ( Parser ):
                     self.state = 88
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if _la==2:
+                    if _la==comparatorParser.T__1:
                         self.state = 87
                         self.match(comparatorParser.T__1)
 
@@ -461,17 +469,17 @@ class comparatorParser ( Parser ):
                 self.state = 96
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [6]:
+                if token in [comparatorParser.COMP]:
                     self.state = 93
                     self.match(comparatorParser.COMP)
                     self.state = 94
                     self.match(comparatorParser.NUMBER)
                     pass
-                elif token in [16]:
+                elif token in [comparatorParser.FNUMBER]:
                     self.state = 95
                     self.match(comparatorParser.FNUMBER)
                     pass
-                elif token in [-1]:
+                elif token in [comparatorParser.EOF]:
                     pass
                 else:
                     pass
@@ -484,17 +492,17 @@ class comparatorParser ( Parser ):
                 self.state = 102
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [6]:
+                if token in [comparatorParser.COMP]:
                     self.state = 99
                     self.match(comparatorParser.COMP)
                     self.state = 100
                     self.match(comparatorParser.IPADDRESS)
                     pass
-                elif token in [11]:
+                elif token in [comparatorParser.STRING]:
                     self.state = 101
                     self.match(comparatorParser.STRING)
                     pass
-                elif token in [-1]:
+                elif token in [comparatorParser.EOF]:
                     pass
                 else:
                     pass
@@ -507,7 +515,7 @@ class comparatorParser ( Parser ):
                 self.state = 117
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==6:
+                if _la==comparatorParser.COMP:
                     self.state = 105
                     self.match(comparatorParser.COMP)
                     self.state = 106
@@ -519,7 +527,7 @@ class comparatorParser ( Parser ):
                     self.state = 113
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    while _la==5:
+                    while _la==comparatorParser.OP:
                         self.state = 109
                         self.match(comparatorParser.OP)
                         self.state = 110
@@ -545,7 +553,7 @@ class comparatorParser ( Parser ):
                 self.state = 126
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==5:
+                while _la==comparatorParser.OP:
                     self.state = 122
                     self.match(comparatorParser.OP)
                     self.state = 123
@@ -559,21 +567,21 @@ class comparatorParser ( Parser ):
                 self.state = 134
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [6]:
+                if token in [comparatorParser.COMP]:
                     self.state = 130
                     self.match(comparatorParser.COMP)
                     self.state = 131
                     self.match(comparatorParser.NUMBER)
                     pass
-                elif token in [16]:
+                elif token in [comparatorParser.FNUMBER]:
                     self.state = 132
                     self.match(comparatorParser.FNUMBER)
                     pass
-                elif token in [4]:
+                elif token in [comparatorParser.BOOL]:
                     self.state = 133
                     self.match(comparatorParser.BOOL)
                     pass
-                elif token in [-1]:
+                elif token in [comparatorParser.EOF]:
                     pass
                 else:
                     pass
@@ -590,7 +598,7 @@ class comparatorParser ( Parser ):
                 self.state = 143
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==5:
+                while _la==comparatorParser.OP:
                     self.state = 139
                     self.match(comparatorParser.OP)
                     self.state = 140
@@ -604,7 +612,7 @@ class comparatorParser ( Parser ):
                 self.state = 149
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==6:
+                if _la==comparatorParser.COMP:
                     self.state = 147
                     self.match(comparatorParser.COMP)
                     self.state = 148
@@ -624,7 +632,7 @@ class comparatorParser ( Parser ):
                 self.state = 158
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==5:
+                while _la==comparatorParser.OP:
                     self.state = 154
                     self.match(comparatorParser.OP)
                     self.state = 155
@@ -638,7 +646,7 @@ class comparatorParser ( Parser ):
                 self.state = 164
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==6:
+                if _la==comparatorParser.COMP:
                     self.state = 162
                     self.match(comparatorParser.COMP)
                     self.state = 163
@@ -658,7 +666,7 @@ class comparatorParser ( Parser ):
                 self.state = 173
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==5:
+                while _la==comparatorParser.OP:
                     self.state = 169
                     self.match(comparatorParser.OP)
                     self.state = 170
@@ -672,7 +680,7 @@ class comparatorParser ( Parser ):
                 self.state = 189
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==6:
+                if _la==comparatorParser.COMP:
                     self.state = 177
                     self.match(comparatorParser.COMP)
                     self.state = 178
@@ -684,7 +692,7 @@ class comparatorParser ( Parser ):
                     self.state = 185
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    while _la==5:
+                    while _la==comparatorParser.OP:
                         self.state = 181
                         self.match(comparatorParser.OP)
                         self.state = 182
@@ -707,7 +715,6 @@ class comparatorParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
 
 

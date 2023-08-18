@@ -196,7 +196,6 @@ def get_node(awsclient, node, snapshot_source, snapshot):
             if function_to_call and callable(function_to_call):
                 kwargs = {"node": node}
                 params = _get_function_kwargs(arn_str, each_method_str, json_to_put, kwargs)
-                # print('params: ', params)
                 try:
                     data = function_to_call(**params)
                     if data:
@@ -269,6 +268,10 @@ def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, e
         data['DBClusterParameterGroupName'] = resourceid
         input_attribute_addded = True
     
+    elif client_str == "docdb" and each_method_str=="describe_db_clusters":
+        data['DBClusterIdentifier'] = resourceid
+        input_attribute_addded = True
+    
     elif client_str == "dynamodb" and each_method_str=="describe_continuous_backups":
         data['TableName'] = resourceid
         input_attribute_addded = True
@@ -301,7 +304,9 @@ def _get_resources_from_list_function(response, method, service_name=None):
     elif method == "describe_images":
         return [x["ImageId"] for x in response.get("Images", [])]
     elif method == 'describe_db_instances':
-        return [(x['DBInstanceIdentifier'], x.get("DBInstanceArn")) for x in response.get('DBInstances', [])]
+        return [x['DBInstanceIdentifier'] for x in response.get('DBInstances', [])]
+    elif service_name == "docdb" and method == 'describe_db_clusters':
+        return [x['DBClusterIdentifier'] for x in response.get('DBClusters', [])]
     elif method == 'describe_db_clusters':
         return [(x['DBClusterIdentifier'], x.get("DBClusterArn")) for x in response.get('DBClusters', [])]
     elif method == 'describe_db_parameter_groups':
@@ -331,6 +336,8 @@ def _get_resources_from_list_function(response, method, service_name=None):
         return [x['id'] for x in response.get('items', [])]   
     elif method == 'list_users':
         return [(x['UserName'], x.get("Arn")) for x in response.get('Users', [])]
+    elif method == 'list_instance_profiles':
+        return [(x['InstanceProfileName'], x.get("Arn")) for x in response.get('InstanceProfiles', [])]
     elif method == 'list_roles':
         return [(x['RoleName'], x.get("Arn")) for x in response.get('Roles', [])]     
     elif method == 'list_hosted_zones':
@@ -359,6 +366,8 @@ def _get_resources_from_list_function(response, method, service_name=None):
         return response.get("StreamNames", [])
     elif method == 'list_functions':
         return [(x.get('FunctionName',""), x.get("FunctionArn")) for x in response.get('Functions', [])]
+    elif service_name == "redshift" and method == 'describe_clusters':
+        return [cluster["ClusterIdentifier"] for cluster in response.get("Clusters",[])]
     elif method == 'describe_clusters':
         clusters = []
         clusters.extend([(x.get('ClusterIdentifier', x.get("ClusterName", "")), x.get("ClusterArn")) for x in response.get('Clusters', [])])
@@ -769,6 +778,16 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
         return {
             'PolicyArn': arn_str
         }
+    
+    elif client_str == "iam" and function_name == "get_instance_profile":
+        return {
+            'InstanceProfileName': resource_id
+        }
+
+    elif client_str == "iam" and function_name == "list_mfa_devices":
+        return {
+            'UserName': resource_id
+        }
 
     elif client_str == "iam" and function_name == "get_role":
         return {
@@ -786,7 +805,9 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
             'UserName': resource_id
         }
         
-    elif client_str == "kms" and function_name in ["get_key_rotation_status", "describe_key", "list_resource_tags"]:
+    elif client_str == "kms" and function_name in [
+        "get_key_rotation_status", "describe_key", "list_resource_tags", "list_aliases"
+    ]:
         return {
             'KeyId': resource_id
         }
@@ -942,6 +963,10 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
     elif client_str == "qldb" and function_name == "describe_ledger":
         return {
             'Name': resource_id
+        }
+    elif client_str == "docdb" and function_name == "describe_db_clusters":
+        return {
+            'DBClusterIdentifier': resource_id
         }
     elif client_str == "docdb" and function_name == "describe_db_cluster_parameters":
         return {
