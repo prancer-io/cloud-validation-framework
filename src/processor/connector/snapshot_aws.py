@@ -478,6 +478,8 @@ def _get_resources_from_list_function(response, method, service_name=None):
         return [x.get("DirectoryId") for x in response.get('Directories', [])]
     elif method == 'list_apps':
         return [(x.get("appId"), x.get("appArn")) for x in response.get('apps', [])]
+    elif method == "get_account_summary":
+        return [""]
     else:
         return []
         
