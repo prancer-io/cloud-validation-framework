@@ -14,8 +14,7 @@ from processor.helper.file.file_utils import save_file, exists_file
 from processor.helper.json.json_utils import get_field_value, json_from_file, save_json_to_file
 from processor.logging.log_handler import getlogger
 from processor.templates.base.template_parser import TemplateParser
-# from processor.templates.google.util import ResourceContext, SilentUndefined
-from processor.templates.google.util import ResourceContext
+from processor.templates.google.util import ResourceContext, SilentUndefined
 
 logger = getlogger()
 
@@ -121,8 +120,7 @@ class GoogleTemplateParser(TemplateParser):
                         import_file_path = import_file_path_list[-1]
                         full_path = (full_path + "/" + "/".join(import_file_path_list[:-1])).replace("//","/")
                     
-                    # LoggingUndefined = make_logging_undefined(logger=logger,base=SilentUndefined)
-                    LoggingUndefined = make_logging_undefined(logger=logger,base=Undefined)
+                    LoggingUndefined = make_logging_undefined(logger=logger,base=SilentUndefined)
                     env = Environment(loader=FileSystemLoader(full_path), undefined=LoggingUndefined)
                     template = env.get_template(import_file_path)
                     render_data = {
