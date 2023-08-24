@@ -114,9 +114,10 @@ def dump_output_results(results, container, test_file, snapshot, filesystem=True
         if status:
             update_value["$set"] = { "json.status": status }
             
-        find_and_update_document(
-            collection=collection,
-            dbname=dbname,
-            query={"_id" : ObjectId(doc_id)},
-            update_value=update_value
-        )
+        if update_value and doc_id:
+            find_and_update_document(
+                collection=collection,
+                dbname=dbname,
+                query={"_id" : ObjectId(doc_id)},
+                update_value=update_value
+            )
