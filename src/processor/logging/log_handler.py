@@ -204,7 +204,7 @@ class MongoDBHandler(logging.Handler):
             self.coll_name = collection
             # Every run of the prancer-basic will have a log name associated with it.
             self.log_name = ''
-            if db:
+            if db is not None:
                 self.db = db
                 self.set_log_collection()
             else:
@@ -217,7 +217,7 @@ class MongoDBHandler(logging.Handler):
         self.collection = self.db[self.coll_name]
         DBLOGGER = get_dblog_name()
         self.dblog_name = DBLOGGER
-        self.collection.insert({'name': self.dblog_name, 'logs': []}, check_keys=False)
+        self.collection.insert_one({'name': self.dblog_name, 'logs': []})
 
     def get_log_collection(self):
         return self.dblog_name
@@ -240,9 +240,9 @@ class MongoDBHandler(logging.Handler):
         }
 
         try:
-            if self.collection and self.dblog_name:
+            if self.collection is not None and self.dblog_name:
                 # self.collection.insert(db_record, check_keys=False)
-                self.collection.update({'name': self.dblog_name}, {'$push': {'logs': db_record}})
+                self.collection.update_one({'name': self.dblog_name}, {'$push': {'logs': db_record}})
         except Exception as e:
             print('CRITICAL Logger DB ERROR: Logging to database not possible!')
 

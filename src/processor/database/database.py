@@ -89,7 +89,7 @@ def get_collection(dbname, collection):
     """ Get the collection new or existing. """
     coll = None
     db = mongodb(dbname)
-    if db and collection:
+    if db is not None and collection:
         coll = db[collection]
     return coll
 
@@ -117,14 +117,17 @@ def sort_dict(data):
 def update_one_document(doc, collection, dbname):
     """ Update the document into the collection. """
     coll = get_collection(dbname, collection)
-    if coll and doc:
-        coll.save(doc)
+    if coll is not None and doc:
+        if '_id' in doc:    
+            coll.replace_one({'_id': doc['_id']}, doc)
+        else:
+            coll.insert_one(doc)
 
 def find_and_update_document(collection, dbname, query, update_value):
     """ find and update single document into the collection. """
     db = mongodb()
     collection = get_collection(dbname, collection)
-    if collection:
+    if collection is not None:
         collection.update_many(query, update_value)
         return True
     return False
@@ -133,13 +136,9 @@ def insert_one_document(doc, collection, dbname, check_keys=True):
     """ Insert one document into the collection. """
     doc_id_str = None
     coll = get_collection(dbname, collection)
-    if coll and doc:
-        if check_keys:
-            doc_id = coll.insert_one(sort_dict(doc))
-            doc_id_str = str(doc_id.inserted_id)
-        else:
-            doc_ids = coll.insert(sort_dict(doc), check_keys=False)
-            doc_id_str = str(doc_ids) if doc_ids else None
+    if coll is not None and doc:
+        doc_id = coll.insert_one(sort_dict(doc))
+        doc_id_str = str(doc_id.inserted_id)
     return doc_id_str
 
 
@@ -155,8 +154,8 @@ def insert_documents(docs, collection, dbname):
 def delete_documents(collection, query, dbname):
     """ Delete the document based on the query """
     db = mongodb(dbname)
-    collection = db[collection] if db and collection else None
-    if collection:
+    collection = db[collection] if db is not None and collection else None
+    if collection is not None:
         doc = collection.delete_many(query)
         return True
     return False
@@ -166,8 +165,8 @@ def check_document(collection, docid, dbname=None):
     """ Find the document based on the docid """
     doc = None
     db = mongodb(dbname)
-    collection = db[collection] if db and collection else None
-    if collection:
+    collection = db[collection] if db is not None and collection else None
+    if collection is not None:
         obj_id = docid if isinstance(docid, ObjectId) else ObjectId(docid)
         doc = collection.find_one({'_id': obj_id})
     return doc
@@ -177,8 +176,8 @@ def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip
     """ Find the documents based on the query """
     docs = None
     db = mongodb(dbname)
-    collection = db[collection] if db and collection else None
-    if collection:
+    collection = db[collection] if db is not None and collection else None
+    if collection is not None:
         query = {} if query is None else query
         proj = proj if proj else {}
         if not _id:
@@ -198,8 +197,8 @@ def count_documents(collection, query=None, dbname=None):
     """ Count the documents based on the query """
     count = None
     db = mongodb(dbname)
-    collection = db[collection] if db and collection else None
-    if collection:
+    collection = db[collection] if db is not None and collection else None
+    if collection is not None:
         query = {} if query is None else query
         count = collection.count_documents(query)
     return count
@@ -209,7 +208,7 @@ def distinct_documents(collection, field=None, dbname=None):
     """ Count the documents based on the query """
     count = []
     db = mongodb(dbname)
-    collection = db[collection] if db and collection else None
+    collection = db[collection] if db is not None and collection else None
     if collection and field:
         count = collection.distinct(field)
     return count
@@ -218,8 +217,8 @@ def create_indexes(collection, dbname, fields):
     """ The fields to be indexed """
     result = None
     db = mongodb(dbname)
-    collection = db[collection] if db and collection else None
-    if collection:
+    collection = db[collection] if db is not None and collection else None
+    if collection is not None:
         # index_fields = [(field, ASCENDING) for field in fields]
         result = collection.create_index(fields, unique=True)
     return result
@@ -227,14 +226,14 @@ def create_indexes(collection, dbname, fields):
 def get_collection_size(collection_name):
     db_name = config_value(DATABASE, DBNAME)
     collection = get_collection(db_name, collection_name)
-    return collection.count()
+    return collection.count_documents({})
 
 def index_information(collection, dbname):
     """ index information of the collection """
     index_info = None
     db = mongodb(dbname)
-    collection = db[collection] if db and collection else None
-    if collection:
+    collection = db[collection] if db is not None and collection else None
+    if collection is not None:
         index_info = sorted(list(collection.index_information()))
     return index_info
 
@@ -303,4 +302,3 @@ def sort_field(name, asc=True):
 #
 # if __name__ == "__main__":
 #     main()
-
