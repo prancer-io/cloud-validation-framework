@@ -1204,7 +1204,7 @@ def populate_aws_snapshot(snapshot, container=None):
                         all_regions = [aws_region]
                     else:
                         all_regions = Session().get_available_regions(client_str.lower())
-                        if client_str.lower() in ['s3','cloudtrail']:
+                        if client_str.lower() in ['s3','cloudtrail'] or not all_regions:
                             all_regions = ['us-west-1']
                     logger.info("Length of all regions is %s"%(str(len(all_regions))))
                     count = 0
