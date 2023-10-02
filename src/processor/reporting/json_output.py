@@ -109,7 +109,7 @@ def dump_output_results(results, container, test_file, snapshot, filesystem=True
             cloud_type = cloud_tags[0].get("cloud", "") if cloud_tags else ""
             update_value["$push"] = { "json.results": { "$each" : results }}
             if cloud_type:
-                update_value["$set"]= {"json.cloud_type": cloud_type}
+                update_value["$set"]= {"json.cloud_type": cloud_type.lower()}
         
         if status:
             update_value["$set"] = { "json.status": status }
