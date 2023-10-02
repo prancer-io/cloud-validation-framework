@@ -1154,7 +1154,7 @@ def populate_aws_snapshot(snapshot, container=None):
                         default_client=connector_client_str, default_region=region)
                     if not _validate_client_name(client_str):
                         logger.error("Invalid Client Name: %s", client_str)
-                        return snapshot_data
+                        continue
                     try:
                         awsclient = client(client_str.lower(), aws_access_key_id=access_key,
                                            aws_secret_access_key=secret_access, region_name=aws_region)
@@ -1199,7 +1199,7 @@ def populate_aws_snapshot(snapshot, container=None):
                         default_client=connector_client_str, default_region=region)
                     if not _validate_client_name(client_str):
                         logger.error("Invalid Client Name %s", client_str)
-                        return snapshot_data
+                        continue
                     if aws_region:
                         all_regions = [aws_region]
                     else:
