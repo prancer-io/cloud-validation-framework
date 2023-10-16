@@ -1,4 +1,4 @@
-FROM python:3.6-alpine3.10
+FROM python:3.10.13-alpine
 ARG APP_VERSION
 ENV APP_VERSION=$APP_VERSION
 RUN apk update \
