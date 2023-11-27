@@ -593,9 +593,13 @@ def _get_list_function_kwargs(service, function_name):
             'REVIEW_IN_PROGRESS', 'IMPORT_IN_PROGRESS', 'IMPORT_COMPLETE', 'IMPORT_ROLLBACK_IN_PROGRESS', \
             'IMPORT_ROLLBACK_FAILED', 'IMPORT_ROLLBACK_COMPLETE']
         }
-    if service == "wafv2":
+    elif service == "wafv2":
         return {
             "Scope": "REGIONAL"
+        }
+    elif service == "ec2" and function_name == "describe_images":
+        return {
+            "Owners": ["self"]
         }
     else:
         return {}
