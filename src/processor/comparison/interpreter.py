@@ -302,8 +302,10 @@ class ComparatorV01:
             if inputjson:
                 results = self.generating_result_for_rego_testcase(inputjson, tid, testId, opa_exe, rule_expr, results)
             else:
-                results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-                self.log_result(results[-1])
+                logger.warn('\t\tWARN: empty content found for SnapshotId: %s' % sid)
+                logger.warn('\t\tRESULT: SKIPPED')
+                # results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                # self.log_result(results[-1])
             return results
         else:
             # ms_id = dict(zip(self.testcase['snapshotId'], self.testcase['masterSnapshotId']))
@@ -334,8 +336,10 @@ class ComparatorV01:
             if inputjson:
                 results = self.generating_result_for_rego_testcase(inputjson, tid, testId, opa_exe, rule_expr, results, resource_sid)
             else:
-                results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
-                self.log_result(results[-1])
+                logger.warn('\t\tWARN: empty content found for Master SnapshotIds: %s' % str(self.testcase['masterSnapshotId']))
+                logger.warn('\t\tRESULT: SKIPPED')
+                # results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
+                # self.log_result(results[-1])
             return results
 
     def generating_result_for_rego_testcase(self, inputjson, tid, testId, opa_exe, rule_expr, results, sid_pair=None):
