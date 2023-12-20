@@ -68,6 +68,8 @@ class AzureCrawler(BaseCrawler):
             main_resource = "/".join(child_resource_type_list[:2])
             if version:
                 for resource in self.resources:
+                    if not resource:
+                        continue
                     if resource.get("type") == main_resource:
                         url = 'https://management.azure.com%s/%s?api-version=%s' % (resource.get("id"), child_resource, version)
                         self.call_azure_api(url)
@@ -100,6 +102,8 @@ class AzureCrawler(BaseCrawler):
         version = self.get_version_of_resource_type(resource_type)
         if version:
             for resource in self.resources:
+                if not resource:
+                    continue
                 if resource['type'] == "Microsoft.Storage/storageAccounts":
                     hdrs = {
                         'Authorization': 'Bearer %s' % self.token

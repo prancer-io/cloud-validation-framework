@@ -136,6 +136,8 @@ def get_all_nodes(token, sub_name, sub_id, node, user, snapshot_source):
         resources = azure_crawler.check_for_special_crawl(nodetype)
         if resources:
             for idx, value in enumerate(resources):
+                if not value:
+                    continue
                 if nodetype.lower() == value.get('type', "").lower() or \
                     nodetype in azure_crawler.special_node_type_crwler:
                     if value['id'] in exclude_paths:
