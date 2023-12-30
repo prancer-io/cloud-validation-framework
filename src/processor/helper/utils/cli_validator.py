@@ -345,7 +345,7 @@ Run prancer for a list of snapshots
 
     # Alls well from this point, check container exists in the directory configured
     retval = 0
-    logger = init_logger(DBVALUES.index(REMOTE) if args.remote else args.db, framework_config())
+    logger = init_logger(DBVALUES.index(REMOTE) if args.remote else args.db, framework_config(), log_type='CRAWLER')
     # logger = add_file_logging(config_ini)
     logger.info("START: Argument parsing and Run Initialization. Version %s", __version__)
 
@@ -480,11 +480,12 @@ Run prancer for a list of snapshots
         
         if args.compliance or crawl_and_run:
             current_progress = 'COMPLIANCESTART'
+            logger = init_logger(DBVALUES.index(REMOTE) if args.remote else args.db, framework_config(), log_type='COMPLIANCE')
             if not crawl_and_run:
                 put_in_currentdata("run_type", COMPLIANCE)
             logger.info("Updating %s container is_run status", args.container)
             update_collection_run_status(args.db, args.container)
-            create_output_entry(args.container, test_file="-", filesystem=True if args.db ==  0 else False)
+            create_output_entry(args.container, test_file="Compliancetest_%s"%(args.container), filesystem=True if args.db ==  0 else False)
             # Normal flow
             snapshot_status = populate_container_snapshots(args.container, fs)
             logger.debug(json.dumps(snapshot_status, indent=2))
