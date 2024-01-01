@@ -19,11 +19,14 @@ DEBUG_LOGFORMAT = '%(asctime)s(%(module)s:%(lineno)4d) - %(message)s'
 LOGFORMAT = '%(asctime)s - %(message)s'
 
 
-def get_dblog_name():
+def get_dblog_name(log_type = None):
     """ Set as per current datetime formay, could be passed thru an environment variable"""
     dblog_name = os.getenv('DBLOG_NAME', None)
+
     if not dblog_name:
         dblog_name = 'logs_%s' % datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
+    if log_type != None:
+        dblog_name += "_%s" % log_type
     return dblog_name
 
 def default_logger():
@@ -191,7 +194,7 @@ class DefaultRoutingFileHandler(RotatingFileHandler):
 class MongoDBHandler(logging.Handler):
     """Customized logging handler that puts logs to the database, pymongo required
     """
-    def __init__(self, dburl, dbname, collection='logs'):
+    def __init__(self, dburl, dbname, collection='logs', log_type=None):
         logging.Handler.__init__(self)
         try:
             dbconnection =  MongoClient(host=dburl, serverSelectionTimeoutMS=3000)
@@ -206,16 +209,16 @@ class MongoDBHandler(logging.Handler):
             self.log_name = ''
             if db is not None:
                 self.db = db
-                self.set_log_collection()
+                self.set_log_collection(log_type)
             else:
                 self.collection = None
         except ServerSelectionTimeoutError as ex:
             self.collection = None
 
-    def set_log_collection(self):
+    def set_log_collection(self, log_type):
         global DBLOGGER
         self.collection = self.db[self.coll_name]
-        DBLOGGER = get_dblog_name()
+        DBLOGGER = get_dblog_name(log_type)
         self.dblog_name = DBLOGGER
         self.collection.insert_one({'name': self.dblog_name, 'logs': []})
 
@@ -371,21 +374,19 @@ def default_logging(fwconfigfile=None):
     return logger
 
 
-def add_file_logging(fwconfigfile, dbargs):
+def add_file_logging(fwconfigfile, dbargs, log_type=None):
     """ Add file logging to the basic logging"""
     global FWLOGGER, FWLOGFILENAME
     log_config = ini_logging_config(fwconfigfile)
     if not log_config['logpath']:
         return
-    dblogname = os.getenv('DBLOG_NAME', None)
-    logname  = dblogname if dblogname else datetime.datetime.today().strftime('%Y%m%d-%H%M%S')
     timestamp_now = int(time.time())
     dt_object = datetime.datetime.fromtimestamp(timestamp_now)
     path_add = '/%s/%s/%s' %(dt_object.year, dt_object.month, dt_object.day)
     full_path = "".join([log_config['logpath'], path_add])
     if not os.path.exists(full_path):
         os.makedirs(full_path)
-    FWLOGFILENAME = '%s/%s.log' % (full_path, logname)
+    FWLOGFILENAME = '%s/%s.log' % (full_path, get_dblog_name(log_type))
     FWLOGFILENAME = FWLOGFILENAME.replace("//", "/")
 
     if not FWLOGGER:
@@ -401,7 +402,7 @@ def add_file_logging(fwconfigfile, dbargs):
     FWLOGGER.addHandler(handler)
 
 
-def add_db_logging(fwconfigfile, dburl, dbargs):
+def add_db_logging(fwconfigfile, dburl, dbargs, log_type):
     """ Add database logging to the basic logging"""
     global FWLOGGER, dbhandler
     log_config = ini_logging_config(fwconfigfile)
@@ -410,7 +411,7 @@ def add_db_logging(fwconfigfile, dburl, dbargs):
         if not FWLOGGER:
             FWLOGGER = default_logging()
         dblogformat = get_logformat(log_config['level'])
-        dbhandler = MongoDBHandler(dburl, log_config['db'])
+        dbhandler = MongoDBHandler(dburl, log_config['db'], log_type=log_type)
         dbhandler.setFormatter(logging.Formatter(dblogformat))
         dbhandler.setLevel(log_config['level'])
         FWLOGGER.addHandler(dbhandler)
@@ -424,24 +425,26 @@ def getlogger(fw_cfg=None):
     FWLOGGER = default_logging()
     return FWLOGGER
 
-def logging_fw(fwconfigfile, dbargs, refresh_logger=False):
+def logging_fw(fwconfigfile, dbargs, refresh_logger=False, log_type=None):
     """Framework file logging"""
     global FWLOGGER
     if FWLOGGER and (dbhandler and dbargs == 2) and not refresh_logger:
         return FWLOGGER
     FWLOGGER = default_logging(fwconfigfile)
-    add_file_logging(fwconfigfile, dbargs)
+    add_file_logging(fwconfigfile, dbargs, log_type)
     unittest = os.getenv('UNITTEST', "false")
     if unittest != "true":
         from processor.logging.dburl_kv import get_dburl
         dburl = get_dburl()
-        add_db_logging(fwconfigfile, dburl, dbargs)
+        add_db_logging(fwconfigfile, dburl, dbargs, log_type)
     return FWLOGGER
 
 
-def init_logger(dbargs, fw_cfg=None, refresh_logger=False):
+def init_logger(dbargs, fw_cfg=None, refresh_logger=False, log_type=None):
     """Get the logger for the framework."""
-    return logging_fw(fw_cfg, dbargs, refresh_logger)
+    global FWLOGGER, dbhandler, FWLOGFILENAME
+    FWLOGGER = dbhandler = FWLOGFILENAME = None
+    return logging_fw(fw_cfg, dbargs, refresh_logger, log_type)
 
 
 def init_logger_old(dbargs, fw_cfg=None, refresh_logger=False):

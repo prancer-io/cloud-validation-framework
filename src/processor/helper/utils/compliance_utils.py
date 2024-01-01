@@ -99,8 +99,7 @@ def create_container_compliance(container, data):
 
 # def upload_compliance_results(container, opath, server, company, apitoken):
 def upload_compliance_results_multipart(container, opath, server, company, apitoken):
-    from processor.logging.log_handler import get_dblog_name, FWLOGFILENAME, FWLOGGER
-    dlog = get_dblog_name()
+    from processor.logging.log_handler import FWLOGFILENAME
     fname = FWLOGFILENAME
     name = fname.rsplit('/', 1)
     oname = opath.rsplit('/', 1)
