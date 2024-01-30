@@ -530,7 +530,10 @@ def get_all_nodes(awsclient, node, snapshot, connector):
         list_function = getattr(awsclient, list_function_name, None)
         if list_function and callable(list_function):
             try:
+                function_kwargs = node.get("kwargs", {})
                 list_kwargs = _get_list_function_kwargs(awsclient.meta._service_model.service_name, list_function_name)
+                list_kwargs.update(function_kwargs)
+                logger.debug("list_kwargs %s", list_kwargs)
                 response = list_function(**list_kwargs)
                 list_of_resources = _get_resources_from_list_function(response, list_function_name, awsclient.meta._service_model.service_name)
                 # print('list_of_resources: ', list_of_resources)
