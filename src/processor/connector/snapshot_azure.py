@@ -27,6 +27,7 @@ from processor.database.database import insert_one_document, COLLECTION, get_col
      DATABASE, DBNAME, sort_field, get_documents
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.templates.azure.azure_parser import AzureTemplateParser
+from processor.helper.config.remote_utils import get_value_from_customer_keyvault
 
 
 logger = getlogger()
@@ -320,9 +321,14 @@ def populate_client_secret(client_id, client_secret, snapshot_user):
         client_secret = os.getenv(snapshot_user, None)
         if client_secret:
             logger.info('Client Secret from environment variable, Secret: %s', '*' * len(client_secret))
-        
+
+    isremote = get_from_currentdata('remote')
     # Read the client secrets from the vault
-    if not client_secret:
+    if not client_secret and isremote:
+        client_secret = get_value_from_customer_keyvault(client_id)
+
+    # Read the client secrets from the vault
+    if not client_secret and not isremote:
         client_secret = get_vault_data(client_id)
         if client_secret:
             logger.info('Client Secret from Vault, Secret: %s', '*' * len(client_secret))

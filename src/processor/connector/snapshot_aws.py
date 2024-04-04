@@ -34,6 +34,7 @@ from processor.helper.httpapi.restapi_azure import json_source
 from processor.helper.httpapi.restapi_azure import get_client_secret
 from processor.connector.snapshot_utils import validate_snapshot_nodes
 from processor.connector.arn_parser import arnparse
+from processor.helper.config.remote_utils import get_value_from_customer_keyvault
 
 logger = getlogger()
 _valid_service_names = Session().get_available_services()
@@ -1143,8 +1144,13 @@ def populate_aws_snapshot(snapshot, container=None):
             if secret_access:
                 logger.info('Secret Access key from environment variable, Secret: %s', '*' * len(secret_access))
         
+        isremote = get_from_currentdata('remote')
         # Read the client secrets from the vault
-        if not secret_access:
+        if not secret_access and isremote:
+            secret_access = get_value_from_customer_keyvault(access_key)
+
+        # Read the client secrets from the vault
+        if not secret_access and not isremote:
             secret_access = get_vault_data(access_key)
             if secret_access:
                 logger.info('Secret Access key from vault Secret: %s', '*' * len(secret_access))
