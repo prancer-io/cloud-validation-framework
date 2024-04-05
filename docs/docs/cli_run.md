@@ -180,3 +180,19 @@ prancer scenario-arm-pass --db=NONE --mastersnapshotid `generated_mastersnapshot
 | scenario-arm-pass |  Name of the collection on which you want to run the compliance. |
 | --db=None | It defines that the prancer have to find the collection of snapshot and master-test files from local filesystem. |
 | mastersnapshotid | snapshot id generated after running crawler looks like `ARM_TEMPLATE_SNAPSHOT1` |
+
+
+#### 10) Run crawler and compliance remotely
+
+```
+prancer "GCP Collection" --db=REMOTE --apitoken=e734c17a1f5********************* --gittoken=ghp_************************************ --company=prancer
+```
+
+
+| Parameters | Description |
+|------------|-------------|
+| GCP Collection |  Name of the collection exists on the Prancer portal. |
+| --db=REMOTE | It defines that the prancer have to find the collection of snapshot and master-test files remotely. |
+| --apitoken | User access token to access the prancer saas solution. |
+| --gittoken | github/enterprise/internal github API token to access the repositories. |
+| --company | company name of the prancer saas solution |
