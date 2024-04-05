@@ -185,8 +185,6 @@ prancer scenario-arm-pass --db=NONE --mastersnapshotid `generated_mastersnapshot
 #### 10) Run crawler and compliance remotely
 
 ```
-prancer scenario-arm-pass --db=NONE --mastersnapshotid `generated_mastersnapshotid`
-
 prancer "GCP Collection" --db=REMOTE --apitoken=e734c17a1f5********************* --gittoken=ghp_************************************ --company=prancer
 ```
 
