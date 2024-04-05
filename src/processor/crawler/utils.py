@@ -8,12 +8,15 @@ from processor.logging.log_handler import getlogger
 from processor.helper.httpapi.http_utils import http_get_request, http_post_request
 from processor.connector.vault import get_vault_data, set_vault_data
 from processor.connector.snapshot_azure import populate_client_secret
+from processor.helper.config.rundata_utils import get_from_currentdata
 from oauth2client.service_account import ServiceAccountCredentials
 from boto3 import client
 import copy
 import requests
 import tempfile
 import re
+import os
+from processor.helper.config.remote_utils import get_value_from_customer_keyvault
 
 logger = getlogger()
 
@@ -195,13 +198,22 @@ def access_token_from_service_account(private_key_id, private_key, client_email,
 def get_projects_list(private_key_id, private_key, client_email, client_id, test_user):
     """ Get google projects list """
     project_list = []
+    isremote = get_from_currentdata('remote')
+    if not private_key and isremote:
+        private_key = get_value_from_customer_keyvault(private_key_id)
+        logger.info('Private key from customer keyvault, Secret: %s', '*' * len(private_key))
+    
     if not private_key:
-        new_private_key = get_vault_data(private_key_id)
-    else:
-        new_private_key = private_key
-
-    if new_private_key:
-        access_token = access_token_from_service_account(private_key_id, new_private_key, client_email, client_id)
+        private_key = os.getenv("GCP_PRIVATE_KEY", None)
+        if private_key:
+            private_key = private_key.replace("\\n","\n")
+            logger.info('Private key from environment variable, Secret: %s', '*' * len(private_key))
+    
+    if not private_key and not isremote:
+        private_key = get_vault_data(private_key_id)
+    
+    if private_key:
+        access_token = access_token_from_service_account(private_key_id, private_key, client_email, client_id)
         if access_token:
             hdrs = {"Accept": "application/json", "Authorization": "Bearer %s" % access_token }
             url = "https://cloudresourcemanager.googleapis.com/v1/projects"

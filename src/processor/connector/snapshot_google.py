@@ -33,6 +33,7 @@ from processor.database.database import insert_one_document, sort_field, get_doc
     COLLECTION, DATABASE, DBNAME, get_collection_size, create_indexes
 from processor.helper.httpapi.restapi_azure import json_source
 from processor.connector.snapshot_utils import validate_snapshot_nodes
+from processor.helper.config.remote_utils import get_value_from_customer_keyvault
 import requests
 
 
@@ -187,6 +188,9 @@ def get_params_for_get_method(response, url_var, project_id):
 
             elif item == r"{cloud_run_service}":
                 params[item] = response['metadata']['name']
+            elif item == r"{secret}":
+                secret_name = response['name']
+                params[item] = secret_name.split('/')[-1]
 
         return params
     except Exception as ex:
@@ -715,9 +719,20 @@ def generate_gce(google_data, project, user):
         
         if not gce['private_key']:
             raise Exception("Private key does not exist at given private key path : %s " % private_key_path)
+
+    isremote = get_from_currentdata('remote')
+    if not gce['private_key'] and isremote:
+        gce['private_key'] = get_value_from_customer_keyvault(gce['private_key_id'])
+        logger.info('Private key from customer keyvault, Secret: %s', '*' * len(gce['private_key']))
     
+    elif not gce['private_key']:
+        gce['private_key'] = os.getenv("GCP_PRIVATE_KEY", None)
+        if gce['private_key']:
+            gce['private_key'] = gce['private_key'].replace("\\n","\n")
+            logger.info('Private key from environment variable, Secret: %s', '*' * len(gce['private_key']))
+
     # Read the private key from the vault
-    if not gce['private_key']:
+    if not gce['private_key'] and not isremote:
         private_key = get_vault_data(gce['private_key_id'])
         if private_key:
             gce["private_key"] = private_key.replace("\\n","\n")
