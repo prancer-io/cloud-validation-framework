@@ -297,7 +297,7 @@ Run prancer for a list of snapshots
                         if status and isinstance(status, int) and status == 200:
                             if 'data' in data:
                                 collectionData = data['data']
-                                error, cfg_ini = remote_config_ini_setup()
+                                error, cfg_ini = remote_config_ini_setup(collectionData)
                                 if error:
                                     msg = "Unable to setup config.ini, exiting!....."
                                     console_log(msg, currentframe())

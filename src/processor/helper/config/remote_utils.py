@@ -5,10 +5,12 @@ import datetime
 import subprocess
 from urllib import request
 from inspect import currentframe, getframeinfo
-
+from processor.helper.config.rundata_utils import get_from_currentdata
 from processor.helper.file.file_utils import exists_file, exists_dir, mkdir_path
+from processor.helper.utils.compliance_utils import get_api_server
 from processor.helper.config.config_utils import COMPLIANCE, CRAWL, CRAWL_AND_COMPLIANCE, framework_dir, config_value, framework_config, \
     CFGFILE, get_config_data
+from processor.helper.httpapi.http_utils import http_get_request_useragent
 
 def console_log(message, cf):
     """Logger like statements only used till logger configuration is read and initialized."""
@@ -20,10 +22,14 @@ def console_log(message, cf):
     print(fmtstr)
 
 
-def remote_config_ini_setup():
+def mastersnapshot_type(masersnapshot_data):
+    return masersnapshot_data.get("json", {}).get("type", "")
+
+def remote_config_ini_setup(collection_data):
     """Need the config.ini file to read initial configuration data"""
     error = False
     config_ini = None
+    mastersnapshot = collection_data["masersnapshots"][0] if collection_data.get("masersnapshots") else {}
     fwdir = os.getenv('FRAMEWORKDIR', None)
     if fwdir:
         if exists_dir(fwdir):
@@ -60,7 +66,7 @@ def remote_config_ini_setup():
         if not opapresent:
             console_log("opa binary required, not present in path or current directory, exiting...", currentframe())
             error = True
-        if not error:
+        if not error and mastersnapshot_type(mastersnapshot) == "helm":
             helmpresent = check_exe_in_path_and_curdir(config_ini, 'HELM', 'helmexe', 'helm')
             if not helmpresent:
                 console_log("helm binary required, not present in path or current directory, exiting...", currentframe())
@@ -137,3 +143,24 @@ def create_remote_config(config_ini):
     cfgparser.read_dict(cdata)
     with open(config_ini, 'w') as configfile:
         cfgparser.write(configfile)
+
+
+def get_value_from_customer_keyvault(key):
+    value = None
+    env = get_from_currentdata('env')
+    apitoken = get_from_currentdata('apitoken')
+    company = get_from_currentdata('company')
+
+    apiserver = get_api_server(env, company)
+    vaultapi_uri = f'{apiserver}secret/vault/?key_name={key}'
+    if vaultapi_uri:
+        hdrs = {
+            "Content-Type": "application/json",
+            "Authorization" : f"Bearer {apitoken}"
+        }
+        status, data = http_get_request_useragent(vaultapi_uri, headers=hdrs, useragent=True)
+        if status and isinstance(status, int) and status == 200:
+            if 'data' in data:
+                value = data['data'].get("value")
+
+    return value
