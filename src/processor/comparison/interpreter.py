@@ -737,6 +737,7 @@ class ComparatorV01:
         if exists_dir(json_dir):
             rego_file_name = '%s/%s/%s' % (json_dir, container, rego_file)
             if exists_file(rego_file_name):
+                rego_file_name = rego_file_name.replace(" ", "\ ")
                 pass
             else:
                 rego_file_name = None
