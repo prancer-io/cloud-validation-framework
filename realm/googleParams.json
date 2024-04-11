@@ -1,6 +1,7 @@
 {
     "GoogleApis": {
-        "projects.zones.clusters.list": "https://container.googleapis.com/v1/projects/{projectId}/zones/{zone}/clusters",
+        "projects.locations.clusters.list": "https://container.googleapis.com/v1/projects/{project}/locations/-/clusters",
+        "projects.zones.clusters.list": "https://container.googleapis.com/v1/projects/{project}/zones/-/clusters",
         "acceleratorTypes.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/acceleratorTypes",
         "addresses.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/addresses",
         "autoscalers.aggregatedList": "https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/autoscalers",
@@ -65,11 +66,16 @@
         "apps.list": "https://appengine.googleapis.com/v1/apps/{project}",
         "datasets.list": "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets",
         "CloudRun.list": "https://run.googleapis.com/v1/projects/{project}/locations/-/services",
-        "gcp.services.list" : "https://serviceusage.googleapis.com/v1/projects/{project}/services?filter=state:ENABLED"        
+        "gcp.services.list" : "https://serviceusage.googleapis.com/v1/projects/{project}/services?filter=state:ENABLED",
+        "projects.accounts.batchGet": "https://identitytoolkit.googleapis.com/v1/projects/{project}/accounts:batchGet",
+        "projects.secrets.list" : "https://secretmanager.googleapis.com/v1/projects/{project}/secrets"
     },
 
     "GoogleGetApis": {
-        "storage/b_iam.get":{
+        "storage/b.get":{
+            "url" : "https://storage.googleapis.com/storage/v1/b/{bucket}"
+        },
+        "storage/b.getIamPolicy":{
             "url" : "https://storage.googleapis.com/storage/v1/b/{bucket}/iam"
         },
         "cloudresourcemanager/projects.getIamPolicy" :{
@@ -105,7 +111,18 @@
         },
         "run/CloudRun.get": {
             "url" : "https://run.googleapis.com/v1/projects/{project}/locations/{location}/services/{cloud_run_service}"
+        },
+        "compute/instances.get": {
+            "url" : "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{instance}"
+        },
+        "secretmanager/projects.secrets.get" : {
+            "url" : "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{secret}"
+        },
+        "secretmanager/projects.secrets.getIamPolicy" : {
+            "url" : "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{secret}:getIamPolicy"
+        },
+        "identitytoolkit/projects.accounts.batchGet": {
+            "url" : "https://identitytoolkit.googleapis.com/v1/projects/{project}/accounts:batchGet"
         }
-        
     }
 }
