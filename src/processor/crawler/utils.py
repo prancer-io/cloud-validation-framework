@@ -69,7 +69,7 @@ def populate_azure_accounts(container, source, structure_data, test_user):
     account_index = 0
     subscription_list = []
     dbname = config_value(DATABASE, DBNAME)
-    collection = config_value(DATABASE, collectiontypes[STRUCTURE])
+    collection = config_value(DATABASE, collectiontypes[STRUCTURE], default="structures")
     all_account = False
     
     for account in structure_data.get("accounts"):
@@ -152,7 +152,7 @@ def get_azure_token(tenant_id, client_id, client_secret):
 def populate_gcp_projects(container, source, structure_data):
     account_list = []
     dbname = config_value(DATABASE, DBNAME)
-    collection = config_value(DATABASE, collectiontypes[STRUCTURE])
+    collection = config_value(DATABASE, collectiontypes[STRUCTURE], default="structures")
     all_account = False
     if structure_data.get("projects"):
         project = structure_data.get("projects")[0]
@@ -319,6 +319,6 @@ def check_container_for_all_accounts(container, mastersnapshot, file_name):
 
     mastersnapshot = mastersnapshot_json
     dbname = config_value(DATABASE, DBNAME)
-    collection = config_value(DATABASE, collectiontypes[MASTERSNAPSHOT])
+    collection = config_value(DATABASE, collectiontypes[MASTERSNAPSHOT], default="mastersnapshots")
     update_collection_data(container, file_name, mastersnapshot_json, dbname, collection)
     return mastersnapshot

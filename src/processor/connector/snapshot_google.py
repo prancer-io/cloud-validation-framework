@@ -153,7 +153,7 @@ def get_method_api_path(node_type):
             return api_url, request_method
         else:
             logger.error("Node Type not found: %s", node_type)
-            return None
+            return None, None
 
 
 def get_params_for_get_method(response, url_var, project_id):
