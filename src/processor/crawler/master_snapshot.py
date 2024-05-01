@@ -75,7 +75,9 @@ def generate_snapshot(snapshot_json_data, snapshot_file_data):
         if snapshot_type and snapshot_type == 'masterSnapshot':
             snapshots = get_field_value(snapshot_json_data, 'snapshots')
             if snapshots:
+                master_snapshot_index = 0
                 for snapshot in snapshots:
+                    master_snapshot_index += 1
                     nodes = get_field_value(snapshot, 'nodes')
                     if nodes:
                         new_nodes = []
@@ -101,6 +103,7 @@ def generate_snapshot(snapshot_json_data, snapshot_file_data):
 
                                     newnode = copy.deepcopy(node)
                                     newnode.update(sid_data)
+                                    newnode["snapshotId"] = f'{newnode.get("snapshotId", "")}{str(master_snapshot_index)}'
                                     
                                     for field in REMOVE_SNAPSHOTGEN_FIELDS:
                                         if field in newnode:
