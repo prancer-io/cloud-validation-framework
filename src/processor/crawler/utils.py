@@ -168,6 +168,7 @@ def populate_gcp_projects(container, source, structure_data):
             account_list += get_projects_list(private_key_id, private_key, client_email, client_id, name)
         else:
             account_list = structure_data.get("projects")
+            
     updated_data = copy.deepcopy(structure_data)
     updated_data["projects"] = account_list
     update_collection_data(container, source, updated_data, dbname, collection)
