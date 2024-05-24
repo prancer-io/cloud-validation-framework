@@ -166,6 +166,8 @@ def populate_gcp_projects(container, source, structure_data):
             private_key = user.get("private_key")
             name = re.sub(r"-\d+$", "", name)
             account_list += get_projects_list(private_key_id, private_key, client_email, client_id, name)
+        else:
+            account_list = structure_data.get("projects")
     updated_data = copy.deepcopy(structure_data)
     updated_data["projects"] = account_list
     update_collection_data(container, source, updated_data, dbname, collection)
@@ -199,6 +201,7 @@ def get_projects_list(private_key_id, private_key, client_email, client_id, test
     """ Get google projects list """
     project_list = []
     isremote = get_from_currentdata('remote')
+    private_key_set = True if private_key else False
     if not private_key and isremote:
         private_key = get_value_from_customer_keyvault(private_key_id)
         logger.info('Private key from customer keyvault, Secret: %s', '*' * len(private_key))
@@ -233,7 +236,7 @@ def get_projects_list(private_key_id, private_key, client_email, client_id, test
                                     "client_id": client_id,
                                     "name": "%s-%s" % (test_user, index),
                                     "private_key_id": private_key_id,
-                                    "private_key" : private_key if private_key else "",
+                                    "private_key" : private_key if private_key_set else "",
                                     "type": "service_account"
                                 }
                             ]
