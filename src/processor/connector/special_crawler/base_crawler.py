@@ -1,7 +1,6 @@
 
 class BaseCrawler:
-    def __init__(self, resources, **kwargs):
-        self.resources = resources
+    def __init__(self, **kwargs):
         self.resource_types = {}
 
     def check_for_special_crawl(self, resource_type):

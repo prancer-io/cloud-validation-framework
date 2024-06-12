@@ -6,7 +6,9 @@ from processor.helper.httpapi.restapi_azure import get_access_token, GRAPH_TOKEN
 class AzureCrawler(BaseCrawler):
 
     def __init__(self, resources, **kwargs):
-        super().__init__(resources, **kwargs)
+        super().__init__(**kwargs)
+
+        self.resources = resources
         self.token = kwargs.get("token")
         self.apiversions = kwargs.get("apiversions")
         self.subscription_id = kwargs.get("subscription_id")
