@@ -247,7 +247,11 @@ class MongoDBHandler(logging.Handler):
             "log_type": getattr(record, "type", "DEFAULT")
         }
 
-        self.cursize += len(json.dumps(db_record))
+        try:
+            self.cursize += len(json.dumps(db_record))
+        except:
+            self.cursize += len(str(db_record))
+        
         if self.cursize // self.max_docsize >= 1:
             self.index += 1
             self.cursize = 0
