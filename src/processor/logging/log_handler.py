@@ -196,6 +196,11 @@ class MongoDBHandler(logging.Handler):
     """
     def __init__(self, dburl, dbname, collection='logs', log_type=None):
         logging.Handler.__init__(self)
+
+        self.max_docsize = 15.5*1024*1024
+        self.cursize = 0
+        self.index = 0
+
         try:
             dbconnection =  MongoClient(host=dburl, serverSelectionTimeoutMS=3000)
             _ = dbconnection.list_database_names()
@@ -220,7 +225,7 @@ class MongoDBHandler(logging.Handler):
         self.collection = self.db[self.coll_name]
         DBLOGGER = get_dblog_name(log_type)
         self.dblog_name = DBLOGGER
-        self.collection.insert_one({'name': self.dblog_name, 'logs': []})
+        self.collection.insert_one({'name': self.dblog_name, 'index': self.index, 'logs': []})
 
     def get_log_collection(self):
         return self.dblog_name
@@ -242,10 +247,16 @@ class MongoDBHandler(logging.Handler):
             "log_type": getattr(record, "type", "DEFAULT")
         }
 
+        self.cursize += len(json.dumps(db_record))
+        if self.cursize // self.max_docsize >= 1:
+            self.index += 1
+            self.cursize = 0
+            self.collection.insert_one({'name': self.dblog_name, 'index': self.index, 'logs': []})
+
         try:
             if self.collection is not None and self.dblog_name:
                 # self.collection.insert(db_record, check_keys=False)
-                self.collection.update_one({'name': self.dblog_name}, {'$push': {'logs': db_record}})
+                self.collection.update_one({'name': self.dblog_name, 'index': self.index}, {'$push': {'logs': db_record}})
         except Exception as e:
             print('CRITICAL Logger DB ERROR: Logging to database not possible!')
 
