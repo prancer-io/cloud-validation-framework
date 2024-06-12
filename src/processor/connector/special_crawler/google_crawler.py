@@ -54,13 +54,6 @@ class GoogleCrawler(BaseCrawler):
 
         return self.status, self.response_data
 
-    def policy_xml_to_json(self, xml_contnet):
-        json_content = xml_to_json(xml_contnet)
-        json_data = {}
-        for key, value in json_content.items():
-            json_data["name"] = key
-            json_data["data"] = value
-        return json_data
 
     def process_apigee_version_data(self):
         response_data = {}
@@ -76,24 +69,41 @@ class GoogleCrawler(BaseCrawler):
         request_url = f"https://apigee.googleapis.com/{self.path}?format=bundle"
         response = requests.get(url=request_url, headers=self.get_header())
 
+        pattern_dict = {
+            "policies": r'.+/policies/[^/]+\.xml',
+            "proxies": r'.+/proxies/[^/]+\.xml',
+            "targets": r'.+/targets/[^/]+\.xml'
+        }
+
         if response.status_code == 200:
             bundle_zip = io.BytesIO(response.content)
             policies_json = []
-            pattern = r'.+/policies/[^/]+\.xml'
-            with zipfile.ZipFile(bundle_zip, 'r') as zip_ref:
+            proxies_json = []
+            targets_json = []
+            with zipfile.ZipFile(bundle_zip, 'r') as zip_ref:                
                 for file in zip_ref.filelist:
-                    matches = re.findall(pattern, file.filename)
-                    if matches:
-                        with zip_ref.open(file.filename) as xml_file:
-                            xml_content = xml_file.read()
-                            json_content = self.policy_xml_to_json(xml_content)
-                            policies_json.append(json_content)
+                    for pattern_key, pattern in pattern_dict.items():
+                        matches = re.findall(pattern, file.filename)
+                        if matches:
+                            with zip_ref.open(file.filename) as xml_file:
+                                xml_content = xml_file.read()
+                                json_content = xml_to_json(xml_content)
+
+                                if pattern_key == "policies":
+                                    policies_json.append(json_content)
+                                elif pattern_key == "proxies":
+                                    proxies_json.append(json_content)
+                                elif pattern_key == "targets":
+                                    targets_json.append(json_content)
+                                
                         
             response_data = {
                 "organization" : organization,
                 "api" : api,
                 "revision" : revision,
-                "policies" : policies_json
+                "policies" : policies_json,
+                "proxies" : proxies_json,
+                "targets" : targets_json
             }
             return response_data
         else:
