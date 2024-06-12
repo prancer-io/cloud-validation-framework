@@ -20,6 +20,7 @@ import os
 import re
 from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
+from processor.connector.special_crawler.google_crawler import GoogleCrawler
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
 from processor.helper.httpapi.http_utils import http_get_request
@@ -191,6 +192,8 @@ def get_params_for_get_method(response, url_var, project_id):
             elif item == r"{secret}":
                 secret_name = response['name']
                 params[item] = secret_name.split('/')[-1]
+            elif item == r"{selfLink}" and response.get("selfLink"):
+                params[item] = response['selfLink']
 
         return params
     except Exception as ex:
@@ -198,6 +201,9 @@ def get_params_for_get_method(response, url_var, project_id):
 
 def get_request_url_get_method(get_method, item, project_id=None):
     request_url, _ = get_method_api_path(get_method)
+    if not request_url:
+        return request_url
+
     url_list = request_url.split('/')
     url_var = []
     for elements in url_list:
@@ -207,6 +213,7 @@ def get_request_url_get_method(get_method, item, project_id=None):
 
     params = get_params_for_get_method(item , url_var, project_id)
     request_url = requested_get_method_url(request_url, params)
+    request_url = re.sub(r'(?<!:)\/\/', '/', request_url)
     return request_url
 
 def get_request_url_list_method(get_method, list_method, item, project_id=None, credentials=None):
@@ -273,6 +280,9 @@ def get_node(credentials, node, snapshot_source, snapshot):
             "Authorization" : ("Bearer %s" % access_token)
         }
 
+        status = False
+        data = {}
+
         if get_method:
             node_type = node['get_method'] if node and 'get_method' in node else ""
             if isinstance(node_type, list) and len(node_type) > 1:
@@ -286,7 +296,14 @@ def get_node(credentials, node, snapshot_source, snapshot):
             else:
                 logger.error("Invalid node type %s", node_type)
                 return db_record
-            if method == "POST":
+
+            google_crawler = GoogleCrawler(access_token=access_token, project_id=project_id)
+            process_status, data = google_crawler.check_for_data_process(path, node_type)
+
+            if process_status:
+                status = 200
+
+            elif method == "POST":
                 base_url = "%s%s" % (base_node_type, ".googleapis.com")
                 request_url = "https://%s/%s" % (base_url, path)
                 logger.info("Invoke request for get snapshot: %s", request_url)
@@ -391,22 +408,26 @@ def get_all_nodes(credentials, node, snapshot_source, snapshot, snapshot_data):
             "Authorization" : ("Bearer %s" % access_token)
         }
 
-        base_node_type_list = node_type.split("/")
-        if len(base_node_type_list) > 1:
-            base_node_type = "/".join(base_node_type_list[1:])
-        else:
-            logger.error("Invalid node type '%s'", node_type)
-            return db_record
+        google_crawler = GoogleCrawler(access_token=access_token, project_id=project_id)
+        crawler_status, data = google_crawler.check_for_special_crawl(node_type)
 
-        request_url = get_api_path(base_node_type)
-        if not request_url:
-            logger.error("API URL not set in google parameters for resource type: %s", base_node_type)
+        if not crawler_status:
+            base_node_type_list = node_type.split("/")
+            if len(base_node_type_list) > 1:
+                base_node_type = "/".join(base_node_type_list[1:])
+            else:
+                logger.error("Invalid node type '%s'", node_type)
+                return db_record
 
-        request_url = generate_request_url(request_url, project_id)
-        logger.info("Invoke request for get snapshot: %s", request_url)
+            request_url = get_api_path(base_node_type)
+            if not request_url:
+                logger.error("API URL not set in google parameters for resource type: %s", base_node_type)
+
+            request_url = generate_request_url(request_url, project_id)
+            logger.info("Invoke request for get snapshot: %s", request_url)
         
-        status, data = http_get_request(request_url, header)
-        logger.info('Get snapshot status: %s', status)
+            status, data = http_get_request(request_url, header)
+            logger.info('Get snapshot status: %s', status)
 
         fn_str_list = ""
         if node and 'type' in node and node['type']:
