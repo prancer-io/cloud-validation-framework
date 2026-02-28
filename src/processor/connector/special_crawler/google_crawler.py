@@ -67,7 +67,7 @@ class GoogleCrawler(BaseCrawler):
             return
 
         request_url = f"https://apigee.googleapis.com/{self.path}?format=bundle"
-        response = requests.get(url=request_url, headers=self.get_header())
+        response = requests.get(url=request_url, headers=self.get_header(), timeout=30)
 
         pattern_dict = {
             "policies": r'.+/policies/[^/]+\.xml',
@@ -113,7 +113,7 @@ class GoogleCrawler(BaseCrawler):
     def get_apigee_organizations(self):
         organizations = []
         request_url = "https://apigee.googleapis.com/v1/organizations"
-        response = requests.get(url=request_url, headers=self.get_header())
+        response = requests.get(url=request_url, headers=self.get_header(), timeout=30)
         if response.status_code != 200:
             logger.error(f"Failed to get the organization list. Status code: {response.status_code}, Error: {response.content}")
             return organizations
@@ -125,7 +125,7 @@ class GoogleCrawler(BaseCrawler):
     def get_apigee_apis(self, organization):
         apis = []
         request_url = f"https://apigee.googleapis.com/v1/organizations/{organization}/apis"
-        response = requests.get(url=request_url, headers=self.get_header())
+        response = requests.get(url=request_url, headers=self.get_header(), timeout=30)
         if response.status_code != 200:
             logger.error(f"Failed to get the apigee apis. Status code: {response.status_code}, Error: {response.content}")
             return apis
@@ -137,7 +137,7 @@ class GoogleCrawler(BaseCrawler):
     def get_apigee_deployments(self, organization, api):
         deployments = []
         request_url = f"https://apigee.googleapis.com/v1/organizations/{organization}/apis/{api}/deployments"
-        response = requests.get(url=request_url, headers=self.get_header())
+        response = requests.get(url=request_url, headers=self.get_header(), timeout=30)
         if response.status_code != 200:
             logger.error(f"Failed to get the apigee deployments. Status code: {response.status_code}, Error: {response.content}")
             return deployments

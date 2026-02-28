@@ -7,12 +7,18 @@ import re
 import tempfile
 import requests
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 CLONE_REPOS = []
+MAX_CLONE_REPOS = 1000
 GITHUB_URL = "https://api.github.com/"
 
 def set_clone_repo(git_cmd, repo, clone_dir):
     global CLONE_REPOS
+    if len(CLONE_REPOS) > MAX_CLONE_REPOS:
+        CLONE_REPOS = CLONE_REPOS[-MAX_CLONE_REPOS//2:]
     CLONE_REPOS.append({
         "git_command" : git_cmd,
         "repo" : repo,
@@ -25,6 +31,10 @@ def check_clone_repos(git_cmd):
         if repo.get("git_command") == git_cmd:
             return repo.get("repo"), repo.get("clonedir")
     return None, None
+
+def clear_clone_repos():
+    global CLONE_REPOS
+    CLONE_REPOS = []
 
 class GithubFunctions:
 
@@ -151,7 +161,8 @@ class GithubFunctions:
         try:
             self.repo.git.checkout('-b', branch_name)
             return True
-        except:
+        except Exception as e:
+            logger.error("Failed to checkout branch '%s': %s", branch_name, str(e))
             return False
 
     def commit_changes(self, commit_message=""):
@@ -159,7 +170,8 @@ class GithubFunctions:
         try:
             self.repo.git.add(".")
             self.repo.index.commit(commit_message)
-        except:
+        except Exception as e:
+            logger.error("Failed to commit changes: %s", str(e))
             return False
 
     def push_changes(self, branch_name):
@@ -169,7 +181,8 @@ class GithubFunctions:
             origin = self.repo.remote()
             origin.push(branch_name)
             return True
-        except:
+        except Exception as e:
+            logger.error("Failed to push changes to branch '%s': %s", branch_name, str(e))
             return False
 
 if __name__ == '__main__':
@@ -209,8 +222,8 @@ if __name__ == '__main__':
         if rpo:
             print('Successfully cloned in %s dir' % clonedir)
         else:
-            print('Failed to  clone %s ' % repoUrl)
+            print('Failed to  clone %s ' % source_repo)
 
 
-            
+
     

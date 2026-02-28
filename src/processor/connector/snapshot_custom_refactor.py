@@ -138,9 +138,10 @@ def run_subprocess_cmd(cmd, ignoreerror=False, maskoutput=False, outputmask="Err
     result = ''
     errresult = None
     if cmd:
-        if isinstance(cmd, list):
-            cmd = ' '.join(cmd)
-        myprocess = Popen(cmd, shell=True, stdout=PIPE,
+        if isinstance(cmd, str):
+            import shlex
+            cmd = shlex.split(cmd)
+        myprocess = Popen(cmd, stdout=PIPE,
                                      stderr=PIPE,
                                      stdin=PIPE)
         out, err = myprocess.communicate()

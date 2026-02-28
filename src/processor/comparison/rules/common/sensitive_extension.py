@@ -1,7 +1,9 @@
 from processor.logging.log_handler import getlogger
 logger = getlogger()
 
-def sensitive_extensions(generated_snapshot, kwargs={}):
+def sensitive_extensions(generated_snapshot, kwargs=None):
+    if kwargs is None:
+        kwargs = {}
     paths = kwargs.get("paths", [])
     sensitive_extension_list = [
         ".pfx", ".p12", ".cer", ".crt", ".crl", ".csr", ".der", ".p7b", ".p7r", ".spc", ".pem"

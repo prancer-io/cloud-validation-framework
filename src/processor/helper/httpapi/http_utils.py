@@ -34,7 +34,7 @@ def get_request_headers(headers=None):
 def urlopen_request(urlreq, method):
     """Common utility to trigger the http request."""
     try:
-        urlresp = request.urlopen(urlreq)
+        urlresp = request.urlopen(urlreq, timeout=30)
         respdata = urlresp.read()
         st_code = urlresp.status
         # logger.debug("%s status: %d, response: %s", method, st_code, respdata)

@@ -2,11 +2,14 @@
 import configparser
 import time
 import os
-import random
+import secrets
 import string
 import datetime
 import threading
+import logging
 from processor.helper.file.file_utils import exists_file, exists_dir
+
+logger = logging.getLogger(__name__)
 
 FRAMEWORKDIR = None
 FRAMEWORKCONFIG = None
@@ -35,11 +38,11 @@ def generateid(name):
     pwdSize = 5
     digits = False
     chars = string.digits if digits else string.ascii_letters
-    numval = (random.choice(chars) for x in range(pwdSize))
+    numval = (secrets.choice(chars) for x in range(pwdSize))
     pwdSize = 4
     digits = True
     chars1 = string.digits if digits else string.ascii_letters
-    charval = (random.choice(chars1) for x in range(pwdSize))
+    charval = (secrets.choice(chars1) for x in range(pwdSize))
     if name:
         idval = '%s_%s_%s' % (name, ''.join(numval), ''.join(charval))
     else:
@@ -50,8 +53,8 @@ def parseint(value, default=0):
     intvalue = default
     try:
         intvalue = int(value)
-    except:
-        pass
+    except Exception as e:
+        logger.warning("Failed to parse integer from value '%s': %s", value, str(e))
     return intvalue
 
 

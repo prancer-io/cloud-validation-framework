@@ -538,8 +538,8 @@ class TerraformTemplateParser(TemplateParser):
                 list_data = ast.literal_eval("[" + str(update_resource) + "]")
                 resource, processed = self.process_resource(list_data, count=count)
                 return True, resource
-        except:
-            pass
+        except Exception as e:
+            logger.warning("Failed to parse resource as list: %s", str(e))
 
         return False, resource
     
@@ -620,16 +620,18 @@ class TerraformTemplateParser(TemplateParser):
 
     def eval_expression(self, resource):
         try:
-            response = eval(resource)
+            response = ast.literal_eval(resource)
             return response, True
         except Exception as e:
             return resource, False
         
 
-    def process_resource(self, resource, count=None, nested_string_params={}):
-        """ 
+    def process_resource(self, resource, count=None, nested_string_params=None):
+        """
         process the resource json and return the resource with updated values
         """
+        if nested_string_params is None:
+            nested_string_params = {}
         processed = True
         new_resource = ""
         if isinstance(resource, list):

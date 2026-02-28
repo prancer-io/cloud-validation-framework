@@ -40,8 +40,8 @@ class AWSTemplateProcessor(TemplateProcessor):
                     try:
                         template_json = json.loads(to_json(yml_file.read()))
                         self.contentType = 'yaml'
-                    except:
-                        pass
+                    except Exception as e:
+                        logger.warning("Failed to parse YAML template file: %s, error: %s", file_path, str(e))
             elif file_path.endswith(".json"):
                 template_json = json_from_file(file_path)
                 self.contentType = 'json'
@@ -55,8 +55,8 @@ class AWSTemplateProcessor(TemplateProcessor):
                         try:
                             template_json = json.loads(to_json(yml_file.read()))
                             self.contentType = 'yaml'
-                        except:
-                            pass
+                        except Exception as e:
+                            logger.warning("Failed to parse template file: %s, error: %s", file_path, str(e))
 
             if template_json and "AWSTemplateFormatVersion" in template_json:
                 return True

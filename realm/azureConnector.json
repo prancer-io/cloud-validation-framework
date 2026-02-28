@@ -1,5 +1,5 @@
 {
-    "filetype":"structure",
+    "fileType":"structure",
     "type":"azure",
     "companyName": "Company Name",
     "tenant_id": "<tenant-id>",

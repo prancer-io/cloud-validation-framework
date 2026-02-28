@@ -2,6 +2,7 @@ import sys
 import types
 import os
 import re
+import importlib
 from ply.yacc import tab_module, PlyLogger, get_caller_module_dict, ParserReflect, YaccError, \
         LRTable, LRParser, VersionError, YaccSymbol, YaccProduction, error_count, call_errorfunc, \
         yaccdebug, debug_file
@@ -582,7 +583,7 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
             else:
                 parts = tabmodule.split('.')
                 pkgname = '.'.join(parts[:-1])
-                exec('import %s' % pkgname)
+                importlib.import_module(pkgname)
                 srcfile = getattr(sys.modules[pkgname], '__file__', '')
         outputdir = os.path.dirname(srcfile)
 

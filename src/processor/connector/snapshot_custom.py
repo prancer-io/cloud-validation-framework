@@ -85,11 +85,11 @@
 #   IdentitiesOnly yes
 #   ServerAliveInterval 100
 import string
-import random
+import secrets
 import json
 import hashlib
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 import tempfile
 import shutil
 import hcl
@@ -176,7 +176,7 @@ def get_node(repopath, node, snapshot, ref, connector):
         "reference": ref if not base_path else "",
         "source": parts[0],
         "path": base_path + node['path'],
-        "timestamp": int(datetime.utcnow().timestamp() * 1000),
+        "timestamp": int(datetime.now(timezone.utc).timestamp() * 1000),
         "queryuser": get_field_value(snapshot, 'testUser'),
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,
@@ -206,7 +206,7 @@ def get_node(repopath, node, snapshot, ref, connector):
 def get_all_nodes(repopath, node, snapshot, ref, connector):
     """ Fetch all the nodes from the cloned git repository in the given path."""
     db_records = []
-    charVal = (random.choice(string.ascii_letters) for x in range(4))
+    charVal = (secrets.choice(string.ascii_letters) for x in range(4))
     randomstr = ''.join(charVal)
     collection = node['collection'] if 'collection' in node else COLLECTION
     given_type = get_field_value(connector, "type")
@@ -218,7 +218,7 @@ def get_all_nodes(repopath, node, snapshot, ref, connector):
         "reference": ref if not base_path else "",
         "source": parts[0],
         "path": '',
-        "timestamp": int(datetime.utcnow().timestamp() * 1000),
+        "timestamp": int(datetime.now(timezone.utc).timestamp() * 1000),
         "queryuser": get_field_value(snapshot, 'testUser'),
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,

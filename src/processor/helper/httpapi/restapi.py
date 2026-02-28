@@ -1,6 +1,9 @@
 """all the base functions for making REST API calls"""
 import json
+import logging
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 jsonhdr = {
@@ -20,15 +23,15 @@ def json_delete_request(url, deldata=None, headers=None, log=False):
         headers = jsonhdr
     if url: #Do something only valid URL
         if deldata:
-            resp = requests.delete(url, data=json.dumps(deldata), headers=headers)
+            resp = requests.delete(url, data=json.dumps(deldata), headers=headers, timeout=30)
         else:
-            resp = requests.delete(url, headers=headers)
+            resp = requests.delete(url, headers=headers, timeout=30)
         if log: print("Get response: %s" % resp)
         st_code = resp.status_code
         try:
             data = resp.json()
-        except:
-            pass # Can we do anything here, not anything i can think of immediately
+        except Exception as e:
+            logger.warning("Error parsing JSON response from DELETE %s: %s", url, str(e))
     else:
         pass # Do nothing.
     return st_code, data
@@ -44,13 +47,13 @@ def json_get_request(url, headers=None, log=False):
     else:
         headers = jsonhdr
     if url: #Do something only valid URL
-        resp = requests.get(url, headers=headers)
+        resp = requests.get(url, headers=headers, timeout=30)
         if log: print("Get response: %s" % resp)
         st_code = resp.status_code
         try:
             data = resp.json()
-        except:
-            pass # Can we do anything here, not anything i can think of immediately
+        except Exception as e:
+            logger.warning("Error parsing JSON response from GET %s: %s", url, str(e))
     else:
         pass # Do nothing.
     return st_code, data
@@ -66,13 +69,13 @@ def json_put_request(url, mapdata, headers=None, log=False):
     else:
         headers = jsonhdr
     if url: #Do something only valid URL
-        resp = requests.put(url, data=json.dumps(mapdata), headers=headers)
+        resp = requests.put(url, data=json.dumps(mapdata), headers=headers, timeout=30)
         if log: print("Get response: %s" % resp)
         st_code = resp.status_code
         try:
             data = resp.json()
-        except:
-            pass # Can we do anything here, not anything i can think of immediately
+        except Exception as e:
+            logger.warning("Error parsing JSON response from PUT %s: %s", url, str(e))
     else:
         pass # Do nothing.
     return st_code, data
@@ -88,13 +91,13 @@ def json_post_request(url, mapdata, headers=None, log=False):
     else:
         headers = jsonhdr
     if url: #Do something only valid URL
-        resp = requests.post(url, data=json.dumps(mapdata), headers=headers)
+        resp = requests.post(url, data=json.dumps(mapdata), headers=headers, timeout=30)
         if log: print("Get response: %s" % resp)
         st_code = resp.status_code
         try:
             data = resp.json()
-        except:
-            pass # Can we do anything here, not anything i can think of immediately
+        except Exception as e:
+            logger.warning("Error parsing JSON response from POST %s: %s", url, str(e))
     else:
         pass # Do nothing.
     return st_code, data

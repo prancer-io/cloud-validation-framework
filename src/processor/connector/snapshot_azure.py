@@ -174,7 +174,7 @@ def export_template(url, hdrs, path, retry_count=3):
         "resources": [ path ],
         "options": "SkipAllParameterization"
     }
-    response = requests.post(url, data=json.dumps(request_data), headers=hdrs)
+    response = requests.post(url, data=json.dumps(request_data), headers=hdrs, timeout=30)
     data = {}
     if response.status_code and isinstance(response.status_code, int) and response.status_code == 202 and retry_count:
         return export_template(url, hdrs, path, retry_count=retry_count-1)

@@ -41,9 +41,9 @@ class AWSTemplateParser(TemplateParser):
         with open(yaml_file, encoding="utf-8") as yml_file:
             try:
                 template_json = json.loads(to_json(yml_file.read()))
-            except:
+            except Exception as e:
                 file_name = yaml_file.split("/")[-1]
-                logger.error("Failed to load yaml file, please check yaml file contains correct content: %s", file_name)
+                logger.error("Failed to load yaml file, please check yaml file contains correct content: %s: %s", file_name, str(e))
         return template_json
     
     def generate_template_json(self):
@@ -65,8 +65,8 @@ class AWSTemplateParser(TemplateParser):
                 try:
                     template_json = self.yaml_to_json(self.get_template())
                     self.contentType = 'yaml'
-                except:
-                    pass
+                except Exception as e:
+                    logger.warning("Failed to parse template as yaml: %s", str(e))
 
         self.template_json = template_json
         if not template_json:
@@ -278,7 +278,8 @@ class AWSTemplateParser(TemplateParser):
                         if resource_properties == None:
                             return value
                     return resource_properties
-            except:
+            except Exception as e:
+                logger.warning("Failed to get attribute from resource: %s", str(e))
                 return value
         return value
     

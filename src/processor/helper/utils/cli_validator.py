@@ -355,7 +355,7 @@ Run prancer for a list of snapshots
     from processor.crawler.master_snapshot import generate_container_mastersnapshots
     try:
         from processor_enterprise.notifications.notification import check_send_notification
-    except:
+    except Exception as e:
         check_send_notification = lambda container, db: None
 
     logger.info("Command: '%s %s'", sys.executable.rsplit('/', 1)[-1], ' '.join(sys.argv))
@@ -446,7 +446,7 @@ Run prancer for a list of snapshots
         #     args.db  = DBVALUES.index(NONE)
 
         put_in_currentdata(EXCLUSION, populate_container_exclusions(args.container, fs))
-        session_id = "session_" + str(int(datetime.datetime.utcnow().timestamp() * 1000))
+        session_id = "session_" + str(int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000))
         put_in_currentdata("session_id", session_id)
 
         if args.file_content:

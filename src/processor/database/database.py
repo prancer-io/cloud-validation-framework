@@ -1,6 +1,7 @@
 """Mongo db driver and utility functions."""
 import os
 import collections
+import threading
 from datetime import datetime, timedelta
 from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
 from pymongo.errors import ServerSelectionTimeoutError
@@ -8,9 +9,12 @@ from bson.objectid import ObjectId
 from processor.helper.config.config_utils import config_value, DATABASE, DBNAME, DBURL
 from processor.helper.config.rundata_utils import put_in_cachedata, get_from_cachedata
 from processor.logging.dburl_kv import get_dburl
+from processor.logging.log_handler import getlogger
 
+logger = getlogger()
 
 MONGO = None
+_mongo_lock = threading.Lock()
 COLLECTION = 'resources'
 TIMEOUT = 3000
 EXPIRE_TIME = 14400 # 4 hours
@@ -22,13 +26,16 @@ def mongoconnection(dbport=27017, to=TIMEOUT):
     global MONGO
     if MONGO:
        return MONGO
-    dburl = get_dburl_from_cache()
-    # print("Dburl: %s" % dburl)
-    if dburl:
-        MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
-    else:
-        MONGO = MongoClient(port=dbport, serverSelectionTimeoutMS=to)
-    return MONGO
+    with _mongo_lock:
+        if MONGO:  # Double-check after acquiring lock
+            return MONGO
+        dburl = get_dburl_from_cache()
+        # print("Dburl: %s" % dburl)
+        if dburl:
+            MONGO = MongoClient(host=dburl, serverSelectionTimeoutMS=to)
+        else:
+            MONGO = MongoClient(port=dbport, serverSelectionTimeoutMS=to)
+        return MONGO
 
 def clean_mongo_client():
     global MONGO
@@ -118,13 +125,27 @@ def update_one_document(doc, collection, dbname):
     """ Update the document into the collection. """
     coll = get_collection(dbname, collection)
     if coll is not None and doc:
-        if '_id' in doc:    
-            coll.replace_one({'_id': doc['_id']}, doc)
-        else:
-            coll.insert_one(doc)
+        try:
+            if '_id' in doc:
+                result = coll.replace_one({'_id': doc['_id']}, doc)
+                if not result.acknowledged:
+                    logger.warning("Update not acknowledged for doc in %s", collection)
+            else:
+                coll.insert_one(doc)
+        except Exception as e:
+            logger.error("Database operation failed on %s: %s", collection, str(e))
+
+def _sanitize_query(query):
+    """Basic sanitization to prevent NoSQL injection via query operators."""
+    if query and isinstance(query, dict):
+        for key in query:
+            if isinstance(key, str) and key.startswith('$'):
+                logger.warning("Potentially unsafe MongoDB query operator found: %s", key)
+    return query
 
 def find_and_update_document(collection, dbname, query, update_value):
     """ find and update single document into the collection. """
+    query = _sanitize_query(query)
     db = mongodb()
     collection = get_collection(dbname, collection)
     if collection is not None:
@@ -137,8 +158,11 @@ def insert_one_document(doc, collection, dbname, check_keys=True):
     doc_id_str = None
     coll = get_collection(dbname, collection)
     if coll is not None and doc:
-        doc_id = coll.insert_one(sort_dict(doc))
-        doc_id_str = str(doc_id.inserted_id)
+        try:
+            doc_id = coll.insert_one(sort_dict(doc))
+            doc_id_str = str(doc_id.inserted_id)
+        except Exception as e:
+            logger.error("Database insert failed on %s: %s", collection, str(e))
     return doc_id_str
 
 
@@ -153,6 +177,7 @@ def insert_documents(docs, collection, dbname):
 
 def delete_documents(collection, query, dbname):
     """ Delete the document based on the query """
+    query = _sanitize_query(query)
     db = mongodb(dbname)
     collection = db[collection] if db is not None and collection else None
     if collection is not None:
@@ -174,6 +199,7 @@ def check_document(collection, docid, dbname=None):
 
 def get_documents(collection, query=None, dbname=None, sort=None, limit=10, skip=0, proj=None, _id=False):
     """ Find the documents based on the query """
+    query = _sanitize_query(query)
     docs = None
     db = mongodb(dbname)
     collection = db[collection] if db is not None and collection else None

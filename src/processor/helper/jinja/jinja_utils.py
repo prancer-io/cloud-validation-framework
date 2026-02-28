@@ -59,9 +59,9 @@ class JinjaConverter:
         try:
             with open(file_name) as fp:
                 if transform:
-                    json_data = yaml.load(self.comment_jinja_syntax(fp.read()))
+                    json_data = yaml.safe_load(self.comment_jinja_syntax(fp.read()))
                 else:
-                    json_data = yaml.load(fp.read())
+                    json_data = yaml.safe_load(fp.read())
         except Exception as e:
             logger.info("Failed to convert jinja template into json object %s ", str(e))
         return json_data
@@ -77,7 +77,7 @@ class JinjaConverter:
                         yaml.dump(json_data, fp)
                     return True
             logger.info("File doesnot exist at given path : %s", output_file)
-        except:
-            logger.info("Failed to save json data into jinja file")
+        except Exception as e:
+            logger.info("Failed to save json data into jinja file: %s", str(e))
             logger.error(traceback.format_exc())
         return False
