@@ -3,7 +3,7 @@ import json
 import base64
 import shutil
 import glob
-from datetime import datetime
+from datetime import datetime, timezone
 from zipfile import ZipFile, ZIP_BZIP2
 import requests
 import urllib.parse
@@ -228,7 +228,7 @@ def upload_compliance_results(container, opath, server, company, apitoken):
     logs = name[-1].split('.')
     oname = opath.rsplit('/', 1)
     ts = None
-    uploadid = 'upload_%s_%s' % (container.replace(' ', '_'), datetime.utcnow().strftime('%d%m%Y%H%M%s'))
+    uploadid = 'upload_%s_%s' % (container.replace(' ', '_'), datetime.now(timezone.utc).strftime('%d%m%Y%H%M%s'))
     fileUploaded = False
     apiserver = get_api_server(server, company)
     if apiserver:

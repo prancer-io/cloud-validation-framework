@@ -24,7 +24,7 @@ def get_dblog_name(log_type = None):
     dblog_name = os.getenv('DBLOG_NAME', None)
 
     if not dblog_name:
-        dblog_name = 'logs_%s' % datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
+        dblog_name = 'logs_%s' % datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S')
     if log_type != None:
         dblog_name += "_%s" % log_type
     return dblog_name
@@ -167,7 +167,7 @@ class DefaultRoutingFileHandler(RotatingFileHandler):
             if self.isjson:
                 log_msg = self.format(record)
                 db_record = {
-                    "timestamp": int(datetime.datetime.utcnow().timestamp() * 1000),
+                    "timestamp": int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000),
                     "level": record.levelname,
                     "module": record.module,
                     "line": record.lineno,
@@ -238,7 +238,7 @@ class MongoDBHandler(logging.Handler):
         # format the log message so it can be put to db (escape quotes)
         self.log_msg = self.format(record)
         db_record = {
-            "timestamp": int(datetime.datetime.utcnow().timestamp() * 1000),
+            "timestamp": int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000),
             "level": record.levelname,
             "module": record.module,
             "line": record.lineno,
@@ -249,7 +249,7 @@ class MongoDBHandler(logging.Handler):
 
         try:
             self.cursize += len(json.dumps(db_record))
-        except:
+        except Exception as e:
             self.cursize += len(str(db_record))
         
         if self.cursize // self.max_docsize >= 1:
@@ -322,7 +322,8 @@ def get_logdir(fw_cfg, baselogdir):
     try:
         if not os.path.exists(logdir):
             os.makedirs(logdir)
-    except:
+    except Exception as e:
+        logging.getLogger(__name__).warning("Error creating log directory %s: %s", logdir, str(e))
         log_writeable = False
     try:
         if log_writeable:
@@ -333,7 +334,8 @@ def get_logdir(fw_cfg, baselogdir):
                 os.remove(testfile)
             else:
                 log_writeable = False
-    except:
+    except Exception as e:
+        logging.getLogger(__name__).warning("Error checking log directory writability: %s", str(e))
         log_writeable = False
     return log_writeable, logdir
 

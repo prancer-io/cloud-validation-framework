@@ -170,9 +170,10 @@ def get_cyberark_data(secret_key=None):
     ca_exe = config_value('VAULT', 'CA_EXE')
     ca_appid = config_value('VAULT', 'CA_APPID')
     if ca_object and ca_exe and ca_appid:
-        cmd_args = '%s  GetPassword -p AppDescs.AppID=%s -p Query="Safe=%s;Folder=Root;Object=%s-%s" -o Password' \
-                  % (ca_exe, ca_appid, ca_safe, ca_object, secret_key)
-        my_process = Popen(cmd_args, shell=True, stdout=PIPE,
+        cmd_args = [ca_exe, 'GetPassword', '-p', 'AppDescs.AppID=%s' % ca_appid,
+                    '-p', 'Query=Safe=%s;Folder=Root;Object=%s-%s' % (ca_safe, ca_object, secret_key),
+                    '-o', 'Password']
+        my_process = Popen(cmd_args, stdout=PIPE,
                                      stderr=PIPE,
                                      stdin=PIPE)
         out, err = my_process.communicate()

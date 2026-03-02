@@ -2,7 +2,7 @@
 Snapshot utils contains common functionality for all snapshots.
 """
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 from processor.database.database import COLLECTION, get_documents
 from processor.logging.log_handler import getlogger
@@ -45,7 +45,7 @@ def get_data_record(ref_name, node, user, snapshot_source, connector_type):
         "reference": ref_name,
         "source": parts[0],
         "path": '',
-        "timestamp": int(datetime.utcnow().timestamp() * 1000),
+        "timestamp": int(datetime.now(timezone.utc).timestamp() * 1000),
         "queryuser": user,
         "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
         "node": node,

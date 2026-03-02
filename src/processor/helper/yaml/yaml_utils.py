@@ -16,8 +16,8 @@ def save_yaml_to_file(indata, outfile, indent=None):
         try:
             with open(outfile, 'w') as yamlfile:
                 yaml.dump(indata, yamlfile, indent=indent)
-        except:
-            pass
+        except Exception as e:
+            logger.error("Error saving yaml to file %s: %s", outfile, str(e))
 
 
 def yaml_from_string(yaml_str):
@@ -25,8 +25,8 @@ def yaml_from_string(yaml_str):
     try:
         yamldata = yaml.load(yaml_str, Loader=FullLoader)
         return yamldata
-    except:
-        print('Failed to load yaml data: %s' % yaml_str)
+    except Exception as e:
+        logger.error('Failed to load yaml data: %s, error: %s', yaml_str, str(e))
     return None
 
 
@@ -50,8 +50,8 @@ def valid_yaml(yaml_input):
     try:
         data = yaml.load(yaml_input, Loader=FullLoader)
         return isinstance(data, dict)
-    except:
-        print('Not a valid yaml: %s' % yaml_input)
+    except Exception as e:
+        logger.warning('Not a valid yaml: %s, error: %s', yaml_input, str(e))
     return False
 
 def multiple_yaml_from_file(yamlfile, loader=None):
@@ -63,7 +63,7 @@ def multiple_yaml_from_file(yamlfile, loader=None):
                 if loader:
                     yamldata = list(yaml.load_all(infile, Loader=loader))
                 else:
-                    yamldata = list(yaml.load_all(infile))
+                    yamldata = list(yaml.safe_load_all(infile))
     except Exception as ex:
         return None
     return yamldata

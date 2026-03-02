@@ -224,23 +224,23 @@ def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, e
         try:
             data["BucketName"] = resourceid
             input_attribute_addded = True
-        except:
-            pass
-    
+        except Exception as e:
+            logger.error("Error setting s3 input data: %s", str(e))
+
     elif client_str == "sqs":
         try:
             data["QueueUrl"] = 'https:{url}'.format(url=resourceid)
             input_attribute_addded = True
-        except:
-            pass
-    
+        except Exception as e:
+            logger.error("Error setting sqs input data: %s", str(e))
+
     elif client_str == "elb":
         try:
             data["LoadBalancerName"] = resourceid
             data["LoadBalancerNames"] = [resourceid]
             input_attribute_addded = True
-        except:
-            pass
+        except Exception as e:
+            logger.error("Error setting elb input data: %s", str(e))
     
     elif client_str == "elbv2":
         data["LoadBalancerArn"] = arn_str
@@ -284,8 +284,8 @@ def set_input_data_in_json(data, json_to_put, client_str, resourceid, arn_str, e
     if input_attribute_addded:
         try:
             json_to_put.update(data)
-        except:
-            pass
+        except Exception as e:
+            logger.error("Error updating json_to_put with input data: %s", str(e))
     
 
 def _get_resources_from_list_function(response, method, service_name=None):
@@ -587,8 +587,8 @@ def get_checksum(data):
     try:
         data_str = json.dumps(data, default=str)
         checksum = hashlib.md5(data_str.encode('utf-8')).hexdigest()
-    except:
-        pass
+    except Exception as e:
+        logger.error("Error computing checksum: %s", str(e))
     return checksum
 
 def _get_list_function_kwargs(service, function_name):
@@ -612,8 +612,10 @@ def _get_list_function_kwargs(service, function_name):
     else:
         return {}
 
-def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
+def _get_function_kwargs(arn_str, function_name, existing_json, kwargs=None):
     """Fetches the correct keyword arguments for different detail functions"""
+    if kwargs is None:
+        kwargs = {}
     arn = arnparse(arn_str)
     client_str = arn.service
     node = kwargs.get("node", {})
@@ -657,7 +659,8 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
     elif client_str == "ec2" and function_name == "describe_images":
         try:
             imageid = existing_json['Reservations'][0]['Instances'][0]['ImageId']
-        except:
+        except Exception as e:
+            logger.warning("Error getting ImageId from existing_json: %s", str(e))
             imageid = resource_id
         return {
             'ImageIds': [imageid]
@@ -665,7 +668,8 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
     elif client_str == "ec2" and function_name == "describe_volumes":
         try:
             volumeid = existing_json['Reservations'][0]['Instances'][0]['BlockDeviceMappings'][0]['Ebs']['VolumeId']
-        except:
+        except Exception as e:
+            logger.warning("Error getting VolumeId from existing_json: %s", str(e))
             volumeid = ""
         return {
             'VolumeIds': [volumeid]
@@ -685,7 +689,8 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
     elif client_str == "ec2" and function_name == "describe_subnets":
         try:
             subnetid = existing_json['Reservations'][0]['Instances'][0]['SubnetId']
-        except:
+        except Exception as e:
+            logger.warning("Error getting SubnetId from existing_json: %s", str(e))
             subnetid = ""
         return {
             'SubnetIds': [subnetid]
@@ -693,7 +698,8 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
     elif client_str == "ec2" and function_name == "describe_snapshots":
         try:
             ownerid = existing_json['Reservations'][0]['OwnerId']
-        except:
+        except Exception as e:
+            logger.warning("Error getting OwnerId from existing_json: %s", str(e))
             ownerid = ""
         return {
             'OwnerIds': [ownerid]
@@ -701,7 +707,8 @@ def _get_function_kwargs(arn_str, function_name, existing_json, kwargs={}):
     elif client_str == "ec2" and function_name == "describe_snapshot_attribute":
         try:
             snapshot_id = existing_json['Snapshots'][0]['SnapshotId']
-        except:
+        except Exception as e:
+            logger.warning("Error getting SnapshotId from existing_json: %s", str(e))
             snapshot_id = ""
         return {
             'SnapshotId': snapshot_id,

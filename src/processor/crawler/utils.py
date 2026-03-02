@@ -13,6 +13,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from boto3 import client
 import copy
 import requests
+import shutil
 import tempfile
 import re
 import os
@@ -177,7 +178,7 @@ def access_token_from_service_account(private_key_id, private_key, client_email,
     """
     Generate a Google Service Account credentials file and 
     """
-    credential_path = tempfile.mkdtemp()
+    tmpdir = tempfile.mkdtemp()
     access_token = None
     gce = {
         "type": "service_account",
@@ -186,7 +187,7 @@ def access_token_from_service_account(private_key_id, private_key, client_email,
         "client_email": client_email,
         "client_id": client_id
     }
-    credential_path = "%s/gce.json" % credential_path
+    credential_path = "%s/gce.json" % tmpdir
     save_json_to_file(gce, credential_path)
     scopes = ['https://www.googleapis.com/auth/compute', "https://www.googleapis.com/auth/cloud-platform"]
     try:
@@ -194,8 +195,11 @@ def access_token_from_service_account(private_key_id, private_key, client_email,
         if not credentials:
             return access_token
         return credentials.get_access_token().access_token
-    except:
+    except Exception as e:
+        logger.error("Failed to get access token from credentials: %s", str(e))
         return access_token
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 def get_projects_list(private_key_id, private_key, client_email, client_id, test_user):
     """ Get google projects list """
@@ -220,7 +224,7 @@ def get_projects_list(private_key_id, private_key, client_email, client_id, test
         if access_token:
             hdrs = {"Accept": "application/json", "Authorization": "Bearer %s" % access_token }
             url = "https://cloudresourcemanager.googleapis.com/v1/projects"
-            resp = requests.get(url, headers=hdrs)
+            resp = requests.get(url, headers=hdrs, timeout=30)
             if resp.status_code == 200:
                 projectData = resp.json()
                 if projectData and  'projects' in projectData:

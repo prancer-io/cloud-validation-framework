@@ -56,8 +56,8 @@ def save_json_to_file(indata, outfile):
             instr = json.dumps(indata, indent=2, default=json_util.default)
             with open(outfile, 'w') as jsonwrite:
                 jsonwrite.write(instr)
-        except:
-            pass
+        except Exception as e:
+            logger.error("Error saving json to file %s: %s", outfile, str(e))
 
 
 def json_from_string(json_str):
@@ -65,8 +65,8 @@ def json_from_string(json_str):
     try:
         jsondata = json.loads(json_str)
         return jsondata
-    except:
-        logger.debug('Failed to load json data: %s', json_str)
+    except Exception as e:
+        logger.debug('Failed to load json data: %s, error: %s', json_str, str(e))
     return None
 
 def remove_comments(string):
@@ -116,8 +116,8 @@ def valid_json(json_input):
     try:
         _ = json.loads(json_input)
         return True
-    except:
-        logger.debug('Not a valid json: %s', json_input)
+    except Exception as e:
+        logger.debug('Not a valid json: %s, error: %s', json_input, str(e))
     return False
 
 

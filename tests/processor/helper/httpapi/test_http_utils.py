@@ -5,19 +5,19 @@ from urllib.error import HTTPError, URLError
 def my_side_effect():
     raise Exception("Test")
 
-def mock_urlopen(url):
+def mock_urlopen(url, **kwargs):
     cm = MagicMock()
     cm.status = 200
     cm.read.return_value = str.encode('{"a": "b"}')
     return cm
 
-def mock_urlopen_exception(url):
+def mock_urlopen_exception(url, **kwargs):
     cm = MagicMock()
     cm.status = 404
     cm.read.side_effect = HTTPError(url, 404, 'not found', {}, None)
     return cm
 
-def mock_urlopen_URLError_exception(url):
+def mock_urlopen_URLError_exception(url, **kwargs):
     cm = MagicMock()
     cm.status = 500
     cm.read.side_effect = URLError('Unknown URL Error')

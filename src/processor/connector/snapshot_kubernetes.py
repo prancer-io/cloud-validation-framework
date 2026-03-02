@@ -151,7 +151,7 @@ def create_kube_apiserver_instance_client(cluster_url,service_account_secret,nod
     token = '%s' % (service_account_secret)
     configuration.api_key={"authorization":"Bearer "+ token}
     configuration.host = cluster_url
-    configuration.verify_ssl=False 
+    configuration.verify_ssl = os.environ.get('K8S_VERIFY_SSL', 'true').lower() != 'false' 
     configuration.debug = False
     client.Configuration.set_default(configuration)
     if node_type in ["pod","service","serviceaccount"]:

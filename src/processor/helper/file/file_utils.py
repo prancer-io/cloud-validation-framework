@@ -24,7 +24,8 @@ def remove_file(fname):
     try:
         os.remove(fname)
         return True
-    except:
+    except Exception as e:
+        logger.error("Error removing file %s: %s", fname, str(e))
         return False
 
 
@@ -33,7 +34,8 @@ def mkdir_path(dirpath):
     try:
         os.makedirs(dirpath)
         return exists_dir(dirpath)
-    except:
+    except Exception as e:
+        logger.error("Error creating directory %s: %s", dirpath, str(e))
         return False
 
 def save_file(file_path, content):

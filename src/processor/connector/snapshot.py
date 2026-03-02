@@ -203,6 +203,19 @@ def populate_container_snapshots_filesystem(container, mastersnapshotfile=None):
     return snapshots_status
 
 
+def _get_base_snapshot_name(name):
+    """Extract the base snapshot name from a chunk name.
+
+    e.g., 'TEST_IAM_01_gen_part2' -> 'TEST_IAM_01_gen'
+         'TEST_IAM_01_gen' -> 'TEST_IAM_01_gen'
+    """
+    import re
+    match = re.match(r'^(.+_gen)(_part\d+)?$', name)
+    if match:
+        return match.group(1)
+    return name
+
+
 def populate_container_snapshots_database(container, mastersnapshotfile=None):
     """
     Get the snapshot files from the container with storage system as database.
@@ -215,7 +228,9 @@ def populate_container_snapshots_database(container, mastersnapshotfile=None):
     mastersnapshotfile_name = mastersnapshotfile + "_gen" if mastersnapshotfile else None
     qry = {'container': container}
     if mastersnapshotfile:
-        qry["name"] = mastersnapshotfile_name
+        # Use regex to find base document and any split chunks
+        escaped = mastersnapshotfile_name.replace('.', r'\.').replace('(', r'\(').replace(')', r'\)')
+        qry["name"] = {'$regex': '^%s(_part\\d+)?$' % escaped}
     sort = [sort_field('timestamp', False)]
     docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, _id=True)
     if docs and len(docs):
@@ -227,6 +242,8 @@ def populate_container_snapshots_database(container, mastersnapshotfile=None):
         for doc in docs:
             if doc['json']:
                 snapshot = doc['name']
+                # Map chunk names back to their base name for tracking
+                base_name = _get_base_snapshot_name(snapshot)
                 try:
                     git_connector_json = False
                     if "connector" in doc['json'] and "remoteFile" in doc['json'] and doc['json']["connector"] and doc['json']["remoteFile"]:
@@ -237,7 +254,8 @@ def populate_container_snapshots_database(container, mastersnapshotfile=None):
                         if not pull_response:
                             break
 
-                    if snapshot in snapshots or snapshot == mastersnapshotfile_name:
+                    if base_name in snapshots or base_name == mastersnapshotfile_name or \
+                       snapshot in snapshots or snapshot == mastersnapshotfile_name:
                         if snapshot not in populated:
                             # Take the snapshot and populate whether it was successful or not.
                             # Then pass it back to the validation tests, so that tests for those
@@ -249,7 +267,11 @@ def populate_container_snapshots_database(container, mastersnapshotfile=None):
 
                             populated.append(snapshot)
                             if snapshot_file_data:
-                                snapshots_status[snapshot] = snapshot_file_data
+                                # Merge chunk data into base snapshot entry
+                                if base_name in snapshots_status:
+                                    snapshots_status[base_name].update(snapshot_file_data)
+                                else:
+                                    snapshots_status[base_name] = snapshot_file_data
                     else:
                         logger.error("No testcase found for %s " % snapshot)
                 except Exception as e:

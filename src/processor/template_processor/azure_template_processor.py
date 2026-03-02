@@ -1,6 +1,7 @@
 import json
 import re
 import os
+import subprocess
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import json_from_file, get_field_value
 from processor.template_processor.base.base_template_processor import TemplateProcessor
@@ -25,8 +26,8 @@ class AzureTemplateProcessor(TemplateProcessor):
         """
         try:
             from azure.cli.core import get_default_cli
-        except:
-            logger.error("dependancy `azure-cli` is not installed! Install the dependancy and try it again.")
+        except Exception as e:
+            logger.error("dependancy `azure-cli` is not installed! Install the dependancy and try it again. Error: %s", str(e))
             return {"error" : "dependancy `azure-cli` is not installed! Install the dependancy and try it again."}
 
         login_user = os.environ.get('AD_LOGIN_USER', None)
@@ -37,14 +38,14 @@ class AzureTemplateProcessor(TemplateProcessor):
             return {"error" : "`loginUser` or `loginPassword` field is not set in environment"}
             
         azexe = os.environ.get('AZEXE', 'az')
-        os.system(azexe + " login -u " + login_user + " -p " + login_password)
+        subprocess.run([azexe, 'login', '-u', login_user, '-p', login_password], capture_output=True)
 
         args = args_str.split()
         cli = get_default_cli()
         cli.invoke(args)
         logger.info('Invoked Azure CLI command :: az %s' % args)
         if cli.result.result:
-            os.system(azexe + " logout")
+            subprocess.run([azexe, 'logout'], capture_output=True)
             return cli.result.result
         elif cli.result.error:
             raise cli.result.error
@@ -127,6 +128,7 @@ class AzureTemplateProcessor(TemplateProcessor):
                         template_json = azure_template_parser.parse()
                         self.contentType = azure_template_parser.contentType
                         self.resource_types = azure_template_parser.resource_types
-                    except:
+                    except Exception as e:
+                        logger.error("Failed to parse Azure template: %s", str(e))
                         template_json = None
         return template_json

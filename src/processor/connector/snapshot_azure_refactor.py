@@ -182,7 +182,7 @@ def populate_snapshot_azure(snapshot_json, fssnapshot):
     fssnapshot.store_value('subscriptionId', sub_id)
     fssnapshot.store_value('tenant_id', tenant_id)
     token = get_access_token()
-    logger.debug('TOKEN: %s', token)
+    logger.debug('Access token obtained successfully')
     if not token:
         logger.info("Unable to get access token, will not run tests....")
         raise SnapshotsException("Unable to get access token, will not run tests....")

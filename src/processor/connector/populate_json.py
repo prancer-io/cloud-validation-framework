@@ -6,6 +6,7 @@ from processor.connector.snapshot_custom import get_custom_data, git_clone_dir
 from processor.logging.log_handler import getlogger
 from subprocess import Popen, PIPE
 import copy
+import shlex
 import tempfile
 import re
 import os
@@ -18,9 +19,9 @@ def run_subprocess_cmd(cmd, ignoreerror=False, maskoutput=False, outputmask="Err
     result = ''
     error_result = None
     if cmd:
-        if isinstance(cmd, list):
-            cmd = ' '.join(cmd)
-        myprocess = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+        if isinstance(cmd, str):
+            cmd = shlex.split(cmd)
+        myprocess = Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE)
         out, err = myprocess.communicate()
         result = out.rstrip()
         error_result = err.rstrip() if err else None

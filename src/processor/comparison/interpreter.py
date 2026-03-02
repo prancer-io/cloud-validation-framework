@@ -9,6 +9,8 @@ import json
 import logging
 import os
 import re
+import shutil
+import tempfile
 import pymongo
 import subprocess
 from processor.helper.json.json_utils import get_field_value, json_from_file, save_json_to_file
@@ -89,8 +91,8 @@ def adapt_roperand(roperand, is_math=False):
     if is_math:
         try:
             value = int(roperand)
-        except:
-            pass
+        except Exception as e:
+            logger.debug("Error converting roperand to int: %s", str(e))
     if value and not isinstance(value, int):
         if value[0] == '"' and value[-1] == '"':
             value = value.replace('"', '')
@@ -173,14 +175,16 @@ def import_from(module, name):
     try:
         module = __import__(module, fromlist=[name])
         return getattr(module, name)
-    except:
+    except Exception as e:
+        logger.warning("Error importing %s from %s: %s", name, module, str(e))
         return
 
 def import_module(module):
     try:
         module = __import__(module)
         return module
-    except:
+    except Exception as e:
+        logger.warning("Error importing module %s: %s", module, str(e))
         logger.debug(traceback.format_exc())
         return False
 
@@ -343,7 +347,10 @@ class ComparatorV01:
             return results
 
     def generating_result_for_rego_testcase(self, inputjson, tid, testId, opa_exe, rule_expr, results, sid_pair=None):
-        save_json_to_file(inputjson, '/tmp/input_%s.json' % tid)
+        tmpdir = tempfile.mkdtemp(prefix='prancer_')
+        input_file = os.path.join(tmpdir, 'input.json')
+        output_file = os.path.join(tmpdir, 'output.json')
+        save_json_to_file(inputjson, input_file)
         rego_rule = self.rule
         rego_match=re.match(r'^file\((.*)\)$', rego_rule, re.I)
         if rego_match:
@@ -360,23 +367,28 @@ class ComparatorV01:
                 "   %s" % rego_rule,
                 "}", ""
             ]
-            rego_file = '/tmp/input_%s.rego' % tid
-            open(rego_file, 'w').write('\n'.join(rego_txt))
+            rego_file = os.path.join(tmpdir, 'input.rego')
+            with open(rego_file, 'w') as f:
+                f.write('\n'.join(rego_txt))
         if rego_file:
             if isinstance(rule_expr, list):
-                result = os.system('%s eval -i /tmp/input_%s.json -d %s "data.rule" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, tid))
+                with open(output_file, 'w') as outf:
+                    proc = subprocess.run([opa_exe, 'eval', '--v0-compatible', '-i', input_file, '-d', rego_file, 'data.rule'], stdout=outf, stderr=subprocess.PIPE)
+                    result = proc.returncode
                 if result != 0 :
                     self.log_compliance_info(testId)
                     logger.error("\t\tERROR: have problem in running opa binary")
-                    self.log_rego_error(json_from_file("/tmp/a_%s.json" % tid, object_pairs_hook=None))
+                    self.log_rego_error(json_from_file(output_file, object_pairs_hook=None))
             else:
-                result = os.system('%s eval -i /tmp/input_%s.json -d %s "%s" > /tmp/a_%s.json' % (opa_exe, tid, rego_file, rule_expr, tid))
+                with open(output_file, 'w') as outf:
+                    proc = subprocess.run([opa_exe, 'eval', '--v0-compatible', '-i', input_file, '-d', rego_file, rule_expr], stdout=outf, stderr=subprocess.PIPE)
+                    result = proc.returncode
                 if result != 0 :
                     self.log_compliance_info(testId)
                     logger.error("\t\tERROR: have problem in running opa binary")
-                    self.log_rego_error(json_from_file("/tmp/a_%s.json" % tid, object_pairs_hook=None))
+                    self.log_rego_error(json_from_file(output_file, object_pairs_hook=None))
 
-            resultval = json_from_file('/tmp/a_%s.json' % tid)
+            resultval = json_from_file(output_file)
             if resultval and "errors" in resultval and resultval["errors"]:
                 if isinstance(rule_expr, list):
                     if rule_expr[0] and "eval" in rule_expr[0]:
@@ -444,8 +456,7 @@ class ComparatorV01:
                 logger.warning('\t\tRESULT: SKIPPED')
             # results.append({'eval': rule_expr, 'result': "passed" if result else "failed", 'message': ''})
             # self.log_result(results[-1])
-        remove_file('/tmp/input_%s.json' % tid)
-        remove_file('/tmp/a_%s.json' % tid)
+        shutil.rmtree(tmpdir, ignore_errors=True)
         return results
 
     def process_python_test_case(self) -> list:
@@ -728,8 +739,9 @@ class ComparatorV01:
                         if name == rego_file:
                             content = get_field_value(file_doc, 'container_file')
                             if content:
-                                rego_file_name = '/tmp/%s' % rego_file
-                                open(rego_file_name, 'w', encoding="utf-8").write(content)
+                                rego_file_name = os.path.join(tempfile.mkdtemp(prefix='prancer_'), rego_file)
+                                with open(rego_file_name, 'w', encoding="utf-8") as f:
+                                    f.write(content)
                                 return rego_file_name
                 # print(doc)
 

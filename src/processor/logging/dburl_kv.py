@@ -1,5 +1,6 @@
 """Helper functions to get data  from KV."""
 import json
+import logging
 from urllib.error import HTTPError, URLError
 import os
 import copy
@@ -12,8 +13,8 @@ def json_from_string(json_str):
     try:
         jsondata = json.loads(json_str)
         return jsondata
-    except:
-        pass
+    except Exception as e:
+        logging.getLogger(__name__).warning("Error parsing json string: %s", str(e))
     return None
 
 

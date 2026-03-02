@@ -7,7 +7,9 @@ logger = getlogger()
 
 class ResourceContext(object):
 
-    def __init__(self, properties={}, **kwargs):
+    def __init__(self, properties=None, **kwargs):
+        if properties is None:
+            properties = {}
         self.properties = properties
     
     def __getattribute__(self, name):

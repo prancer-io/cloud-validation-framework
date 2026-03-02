@@ -36,7 +36,8 @@ def main(argv):
                 print("All the parsed tokens: ", children)
                 r_i = RuleInterpreter(children)
         return True
-    except:
+    except Exception as e:
+        logger.error("Failed to parse comparator input: %s", str(e))
         return False
 
 

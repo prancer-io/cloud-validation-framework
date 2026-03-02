@@ -1,4 +1,4 @@
-import random
+import secrets
 import string
 import re
 import subprocess
@@ -77,7 +77,7 @@ class TemplateProcessor:
         self.processed_templates = get_processed_templates()
         self.kwargs = {}
         self.folder_path = False
-        charVal = (random.choice(string.ascii_letters) for x in range(5))
+        charVal = (secrets.choice(string.ascii_letters) for x in range(5))
         self.randomstr = ''.join(charVal)
     
     def append_exclude_directories(self, dirs):
@@ -167,9 +167,9 @@ class TemplateProcessor:
             
             if store_record:
                 self.node['status'] = 'active'
-        except:
+        except Exception as e:
             store_record = False
-            logger.error("Failed to insert record, invalid snapshot")
+            logger.error("Failed to insert record, invalid snapshot: %s", str(e))
             logger.debug(traceback.format_exc())
         return store_record
 
@@ -220,8 +220,10 @@ class TemplateProcessor:
     def process_helm_chart(self,dir_path):
         helm_source_dir_name = dir_path.rpartition("/")[-1]
         helm_path = self.helm_binary()
-        result = os.system('%s template %s > %s/%s_prancer_helm_template.yaml' % (helm_path, dir_path,dir_path,helm_source_dir_name))
-        paths = self.break_multiple_yaml_file('%s/%s_prancer_helm_template.yaml' % (dir_path,helm_source_dir_name))
+        output_path = os.path.join(dir_path, '%s_prancer_helm_template.yaml' % helm_source_dir_name)
+        with open(output_path, 'w') as outf:
+            result = subprocess.run([helm_path, 'template', dir_path], stdout=outf, stderr=subprocess.PIPE).returncode
+        paths = self.break_multiple_yaml_file(output_path)
         # os.remove('%s/Chart.yaml' % dir_path)
         self.contentType = "yaml"
         return paths
@@ -324,8 +326,8 @@ class TemplateProcessor:
                     self.node['status'] = 'active'
                 else:
                     self.node['status'] = 'inactive'
-        except:
-            logger.error("Failed to process template snapshot")
+        except Exception as e:
+            logger.error("Failed to process template snapshot: %s", str(e))
             logger.debug(traceback.format_exc())
         return self.snapshot_data
     

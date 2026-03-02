@@ -24,6 +24,7 @@
    }
 """
 import json
+import sys
 import time
 import copy
 import hashlib
@@ -65,6 +66,72 @@ REMOVE_SNAPSHOTGEN_FIELDS = [
     "account_id",
     "project_id"
 ]
+
+# MongoDB BSON document size limit is 16MB. Use a safe threshold (14MB)
+# to account for BSON encoding overhead.
+MONGODB_MAX_DOC_SIZE = 14 * 1024 * 1024  # 14MB safe threshold
+
+
+def _estimate_doc_size(doc):
+    """Estimate the BSON size of a document using JSON serialization."""
+    try:
+        return sys.getsizeof(json.dumps(doc, default=str))
+    except Exception:
+        return 0
+
+
+def _split_snapshot_nodes(snapshot_json, max_size=MONGODB_MAX_DOC_SIZE):
+    """Split a snapshot document into chunks if it exceeds the max BSON document size.
+
+    Returns a list of snapshot JSON documents. If the document is small enough,
+    returns a single-element list with the original document.
+    When splitting, each chunk contains a subset of nodes from each snapshot entry.
+    """
+    estimated_size = _estimate_doc_size(snapshot_json)
+    if estimated_size <= max_size:
+        return [snapshot_json]
+
+    # Find the largest nodes list and split it
+    snapshots = snapshot_json.get('snapshots', [])
+    if not snapshots:
+        return [snapshot_json]
+
+    # Count total nodes across all snapshots
+    total_nodes = sum(len(s.get('nodes', [])) for s in snapshots)
+    if total_nodes == 0:
+        return [snapshot_json]
+
+    # Calculate how many chunks we need
+    num_chunks = max(2, (estimated_size // max_size) + 1)
+    nodes_per_chunk = max(1, total_nodes // num_chunks)
+
+    # Collect all nodes with their parent snapshot index
+    all_nodes = []
+    for snap_idx, snapshot in enumerate(snapshots):
+        for node in snapshot.get('nodes', []):
+            all_nodes.append((snap_idx, node))
+
+    # Split nodes into chunks
+    chunks = []
+    for i in range(0, len(all_nodes), nodes_per_chunk):
+        chunk_nodes = all_nodes[i:i + nodes_per_chunk]
+        # Build a new snapshot JSON for this chunk
+        chunk_json = copy.deepcopy(snapshot_json)
+        # Clear all nodes first
+        for snapshot in chunk_json.get('snapshots', []):
+            snapshot['nodes'] = []
+        # Add chunk nodes to appropriate snapshots
+        for snap_idx, node in chunk_nodes:
+            chunk_json['snapshots'][snap_idx]['nodes'].append(node)
+        # Remove empty snapshots
+        chunk_json['snapshots'] = [s for s in chunk_json['snapshots'] if s.get('nodes')]
+        if chunk_json.get('snapshots'):
+            chunks.append(chunk_json)
+
+    logger.info('Split oversized snapshot document (%d bytes) into %d chunks (%d total nodes)',
+                estimated_size, len(chunks), total_nodes)
+    return chunks if chunks else [snapshot_json]
+
 
 def generate_snapshot(snapshot_json_data, snapshot_file_data):
     """
@@ -349,22 +416,26 @@ def generate_container_mastersnapshots_database(container, mastersnapshotfile=No
                             snapshot_file_data = generate_mastersnapshots_from_json(doc['json'], snp_json_data, container=container)
                             # Insert or update the new generated snapshot document with name='*_gen' and same container name.
                             generate_snapshot(doc['json'], snapshot_file_data)
-                            if snp_json_data:
-                                set_snapshot_activate_and_validate_data(doc['json'], snp_json_data['json'])
-                                snp_json_data['json'] = doc['json']
-                                snp_json_data["timestamp"] = int(time.time() * 1000)
-                                update_one_document(snp_json_data, snp_json_data['collection'], dbname)
-                            else:
-                                db_record = {
-                                    "timestamp": int(time.time() * 1000),
-                                    "container": container,
-                                    "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
-                                    "type": "snapshot",
-                                    "name": snp_name,
-                                    "collection": "snapshots",
-                                    "json": doc['json']
-                                }
-                                insert_one_document(db_record, db_record['collection'], dbname, False)
+                            # Split large snapshot documents to avoid MongoDB 16MB BSON limit
+                            snapshot_chunks = _split_snapshot_nodes(doc['json'])
+                            for chunk_idx, chunk_json in enumerate(snapshot_chunks):
+                                chunk_name = snp_name if chunk_idx == 0 else '%s_part%d' % (snp_name, chunk_idx)
+                                if snp_json_data and chunk_idx == 0:
+                                    set_snapshot_activate_and_validate_data(chunk_json, snp_json_data['json'])
+                                    snp_json_data['json'] = chunk_json
+                                    snp_json_data["timestamp"] = int(time.time() * 1000)
+                                    update_one_document(snp_json_data, snp_json_data['collection'], dbname)
+                                else:
+                                    db_record = {
+                                        "timestamp": int(time.time() * 1000),
+                                        "container": container,
+                                        "checksum": hashlib.md5("{}".encode('utf-8')).hexdigest(),
+                                        "type": "snapshot",
+                                        "name": chunk_name,
+                                        "collection": "snapshots",
+                                        "json": chunk_json
+                                    }
+                                    insert_one_document(db_record, db_record['collection'], dbname, False)
                             populated.append(snapshot)
                             snapshots_status[snapshot] = snapshot_file_data
                     else:
@@ -472,9 +543,11 @@ def update_crawler_run_status(status):
     """
     Update the status of crawler process in database
     """
+    if not doc_id:
+        return
     output_collection = config_value(DATABASE, collectiontypes[OUTPUT])
     dbname = config_value(DATABASE, DBNAME)
-    
+
     find_and_update_document(
         collection=output_collection,
         dbname=dbname,

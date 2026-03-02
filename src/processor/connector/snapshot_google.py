@@ -14,6 +14,7 @@ identify the resource object.
 """
 import json
 import hashlib
+import tempfile
 import time
 import pymongo
 import os
@@ -109,8 +110,8 @@ def generate_request_url(base_url, project_id):
         updated_base_url = re.sub(r"{zone}", "-", updated_base_url)
 
         return updated_base_url
-    except:
-        logger.error("Invalid api url")
+    except Exception as e:
+        logger.error("Invalid api url: %s", str(e))
         return None
 
 def get_api_path(node_type):
@@ -136,8 +137,8 @@ def requested_get_method_url(base_url, params):
 
         logger.warning("updated_base_url %s", base_url)
         return base_url
-    except:
-        logger.error("Invalid api url")
+    except Exception as e:
+        logger.error("Invalid api url: %s", str(e))
         return None
 
 def get_method_api_path(node_type):
@@ -170,16 +171,18 @@ def get_params_for_get_method(response, url_var, project_id):
             elif item == r"{location}":
                 params[item] = response['metadata']['labels']['cloud.googleapis.com/location']
             elif item == r"{project}" or item == r"{resource}":
-                try: 
+                try:
                     params[item] = response['projectId']
-                except:
+                except Exception as e:
+                    logger.warning("Error getting projectId from response, using project_id: %s", str(e))
                     params[item] = project_id
             elif item == r"{dataset}":
                 params[item] = response["datasetReference"]["datasetId"]
             elif item == r"{account}":
                 try:
                     params[item] = response['email']
-                except:
+                except Exception as e:
+                    logger.warning("Error getting email from response, using name: %s", str(e))
                     account = response['name']
                     params[item] = account.split('/')[-3]
 
@@ -232,7 +235,7 @@ def get_request_url_list_method(get_method, list_method, item, project_id=None, 
     header = {
         "Authorization" : ("Bearer %s" % access_token)
     }
-    list_data_response = requests.get(url=request_url, headers=header)
+    list_data_response = requests.get(url=request_url, headers=header, timeout=30)
     if list_data_response.status_code == 200:
         data = list_data_response.json()
         resource_items =[]
@@ -307,7 +310,7 @@ def get_node(credentials, node, snapshot_source, snapshot):
                 base_url = "%s%s" % (base_node_type, ".googleapis.com")
                 request_url = "https://%s/%s" % (base_url, path)
                 logger.info("Invoke request for get snapshot: %s", request_url)
-                temp_data_var = requests.post(url=request_url, headers=header)
+                temp_data_var = requests.post(url=request_url, headers=header, timeout=30)
                 data = temp_data_var.json()
                 status = temp_data_var.status_code
                 logger.info('Get snapshot status: %s', status)
@@ -636,8 +639,8 @@ def get_checksum(data):
     try:
         data_str = json.dumps(data)
         checksum = hashlib.md5(data_str.encode('utf-8')).hexdigest()
-    except:
-        pass
+    except Exception as e:
+        logger.error("Error computing checksum: %s", str(e))
     return checksum
 
 
@@ -791,10 +794,15 @@ def get_google_client_data(google_data, snapshot_user, node_type, project_id):
                             found = True
                             gce = generate_gce(google_data, project, user)
                             if gce:
-                                save_json_to_file(gce, '/tmp/gce.json')
-                                logger.info("Creating credential object")
-                                scopes = ['https://www.googleapis.com/auth/compute', "https://www.googleapis.com/auth/cloud-platform"]
-                                credentials = ServiceAccountCredentials.from_json_keyfile_name('/tmp/gce.json', scopes)
+                                fd, gce_file = tempfile.mkstemp(suffix='.json', prefix='gce_')
+                                os.close(fd)
+                                try:
+                                    save_json_to_file(gce, gce_file)
+                                    logger.info("Creating credential object")
+                                    scopes = ['https://www.googleapis.com/auth/compute', "https://www.googleapis.com/auth/cloud-platform"]
+                                    credentials = ServiceAccountCredentials.from_json_keyfile_name(gce_file, scopes)
+                                finally:
+                                    os.remove(gce_file)
                                 # service_name = get_service_name(node_type)
                                 # compute = discovery.build(service_name, 'v1', credentials=credentials, cache_discovery=False)
                             break 

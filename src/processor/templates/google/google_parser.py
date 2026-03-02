@@ -133,7 +133,8 @@ class GoogleTemplateParser(TemplateParser):
                         yaml_file_path = ("%s/%s") % (resource_file, "resource_file.yaml")
                         save_file(yaml_file_path, template_render)
                         resource_json = self.yaml_to_json(yaml_file_path)
-                    except:
+                    except Exception as e:
+                        logger.error("Failed to render jinja template for resource: %s", str(e))
                         resource_json = None
 
                     if resource_json:
@@ -157,8 +158,8 @@ class GoogleTemplateParser(TemplateParser):
 
                     try:
                         resource_module = importlib.import_module(modname)
-                    except:
-                        logger.error("Failed to load module: ", modname)
+                    except Exception as e:
+                        logger.error("Failed to load module %s: %s", modname, str(e))
                         return new_resources
 
                     resource_context = ResourceContext(self.gparams)

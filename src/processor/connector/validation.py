@@ -24,6 +24,60 @@ from processor.connector.special_compliance.compliances import COMPLIANCES
 
 logger = getlogger()
 
+
+def _merge_snapshot_chunks(docs):
+    """Merge multiple snapshot chunk documents into a single snapshot JSON.
+
+    When a snapshot document exceeds MongoDB's 16MB BSON limit, it is split into
+    chunks named <name>, <name>_part1, <name>_part2, etc. This function merges
+    the nodes from all chunks back into a single in-memory snapshot document.
+    """
+    if not docs:
+        return {}
+    if len(docs) == 1:
+        return docs[0]['json'] if docs[0].get('json') else {}
+
+    # Sort: base document first (no _part suffix), then parts in order
+    def chunk_sort_key(doc):
+        name = doc.get('name', '')
+        if '_part' in name:
+            try:
+                return int(name.rsplit('_part', 1)[1])
+            except (ValueError, IndexError):
+                return 999
+        return -1  # base document comes first
+
+    sorted_docs = sorted(docs, key=chunk_sort_key)
+    merged = sorted_docs[0]['json']
+    if not merged:
+        return {}
+
+    # Merge nodes from chunk parts into the base document
+    for doc in sorted_docs[1:]:
+        chunk_json = doc.get('json', {})
+        if not chunk_json:
+            continue
+        chunk_snapshots = chunk_json.get('snapshots', [])
+        base_snapshots = merged.get('snapshots', [])
+        for chunk_snap in chunk_snapshots:
+            chunk_nodes = chunk_snap.get('nodes', [])
+            if not chunk_nodes:
+                continue
+            # Match by source/type to find the right base snapshot entry
+            matched = False
+            for base_snap in base_snapshots:
+                if base_snap.get('source') == chunk_snap.get('source') and \
+                   base_snap.get('type') == chunk_snap.get('type'):
+                    base_snap.setdefault('nodes', []).extend(chunk_nodes)
+                    matched = True
+                    break
+            if not matched:
+                # No matching base snapshot entry, append as new
+                base_snapshots.append(chunk_snap)
+
+    return merged
+
+
 def get_snapshot_file(snapshot_file, container, dbname, filesystem):
     snapshot_json_data = {}
     if filesystem:
@@ -34,12 +88,15 @@ def get_snapshot_file(snapshot_file, container, dbname, filesystem):
     else:
         # parts = snapshot_file.split('.')
         collection = config_value(DATABASE, collectiontypes[SNAPSHOT])
-        qry = {'container': container, 'name': snapshot_file}
+        # Use regex query to find base document and any split chunks
+        # e.g., "TEST_IAM_01_gen" also matches "TEST_IAM_01_gen_part1", "_part2", etc.
+        escaped_name = snapshot_file.replace('.', r'\.').replace('(', r'\(').replace(')', r'\)')
+        qry = {'container': container, 'name': {'$regex': '^%s(_part\\d+)?$' % escaped_name}}
         sort = [sort_field('timestamp', False)]
-        docs = get_documents(collection, dbname=dbname, sort=sort, query=qry, limit=1)
+        docs = get_documents(collection, dbname=dbname, sort=sort, query=qry)
         logger.info('Number of Snapshot Documents: %s', len(docs))
         if docs and len(docs):
-            snapshot_json_data = docs[0]['json']
+            snapshot_json_data = _merge_snapshot_chunks(docs)
     return snapshot_json_data
 
 def get_snapshot_id_to_collection_dict(snapshot_file, container, dbname, filesystem=True):
