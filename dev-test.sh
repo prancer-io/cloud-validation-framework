@@ -1,4 +1,10 @@
 python -m pip install --upgrade pip && pip install -r requirements.txt
+
+# Install OPA binary
+curl -L -o /usr/local/bin/opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64_static
+chmod +x /usr/local/bin/opa
+export OPA_HOME=/usr/local/bin
+
 export BASEDIR=`pwd`
 export FRAMEWORKDIR=`pwd`
 export PYTHONPATH=$FRAMEWORKDIR/src

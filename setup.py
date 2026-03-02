@@ -16,7 +16,7 @@ LONG_DESCRIPTION = """
 """
 
 setup(
-    name='prancer-basic',
+    name='prancer_basic',
     # also update the version in processor.__init__.py file
     version='3.1.0',
     description='Prancer Basic, http://prancer.io/',
@@ -26,7 +26,7 @@ setup(
     url='https://github.com/prancer-io/cloud-validation-framework',
     # Author(s) details
     author='Farshid M/Ajey Khanapuri',
-    author_email='ajey.khanapuri@liquware.com',
+    author_email='dev@prancer.io',
     classifiers=[
         "Development Status :: 3 - Alpha",
         'Topic :: Software Development :: Libraries :: Application Frameworks',
