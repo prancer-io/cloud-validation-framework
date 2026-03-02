@@ -543,9 +543,11 @@ def update_crawler_run_status(status):
     """
     Update the status of crawler process in database
     """
+    if not doc_id:
+        return
     output_collection = config_value(DATABASE, collectiontypes[OUTPUT])
     dbname = config_value(DATABASE, DBNAME)
-    
+
     find_and_update_document(
         collection=output_collection,
         dbname=dbname,

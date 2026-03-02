@@ -122,3 +122,6 @@ __pycache__
 *.interp
 *.tokens
 configdata/mysubscription.json
+
+log/*
+realm/*

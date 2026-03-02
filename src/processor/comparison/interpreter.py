@@ -373,7 +373,7 @@ class ComparatorV01:
         if rego_file:
             if isinstance(rule_expr, list):
                 with open(output_file, 'w') as outf:
-                    proc = subprocess.run([opa_exe, 'eval', '-i', input_file, '-d', rego_file, 'data.rule'], stdout=outf, stderr=subprocess.PIPE)
+                    proc = subprocess.run([opa_exe, 'eval', '--v0-compatible', '-i', input_file, '-d', rego_file, 'data.rule'], stdout=outf, stderr=subprocess.PIPE)
                     result = proc.returncode
                 if result != 0 :
                     self.log_compliance_info(testId)
@@ -381,7 +381,7 @@ class ComparatorV01:
                     self.log_rego_error(json_from_file(output_file, object_pairs_hook=None))
             else:
                 with open(output_file, 'w') as outf:
-                    proc = subprocess.run([opa_exe, 'eval', '-i', input_file, '-d', rego_file, rule_expr], stdout=outf, stderr=subprocess.PIPE)
+                    proc = subprocess.run([opa_exe, 'eval', '--v0-compatible', '-i', input_file, '-d', rego_file, rule_expr], stdout=outf, stderr=subprocess.PIPE)
                     result = proc.returncode
                 if result != 0 :
                     self.log_compliance_info(testId)
