@@ -880,10 +880,11 @@ class TerraformTemplateParser(TemplateParser):
                     else:
                         parameters.append(processed_param)
 
-                args = inspect.getargspec(func['method']).args
-                varargs = inspect.getargspec(func['method']).varargs
-                keywords = inspect.getargspec(func['method']).keywords
-                defaults = inspect.getargspec(func['method']).defaults
+                argspec = inspect.getfullargspec(func['method'])
+                args = argspec.args
+                varargs = argspec.varargs
+                keywords = argspec.varkw
+                defaults = argspec.defaults
 
                 if process and ((len(args) == len(parameters)) or \
                     (defaults and len(parameters) <= len(args) and len(parameters) >= (len(args) - len(defaults))) or \
