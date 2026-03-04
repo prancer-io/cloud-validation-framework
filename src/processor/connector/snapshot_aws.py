@@ -1276,8 +1276,13 @@ def eliminate_duplicate_snapshots(snapshot_data):
     is_updated = False
     for snapshot_id, value in snapshot_data.items():
         is_updated = False
+        if not isinstance(value, list):
+            data[snapshot_id] = value
+            continue
         for count, snapshot in enumerate(value):
             for sid, sval in data.items():
+                if not isinstance(sval, list):
+                    continue
                 for cnt, val in enumerate(sval):
                     if sid == snapshot_id:
                         continue
