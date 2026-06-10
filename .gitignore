@@ -125,3 +125,11 @@ configdata/mysubscription.json
 
 log/*
 realm/*
+
+# >>> gadriel-code-security >>>
+.security/state/
+.security/audit/
+.security/metrics/
+.security/logs/
+.security/cache/
+# <<< gadriel-code-security <<<
