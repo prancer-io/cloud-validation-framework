@@ -1,3 +1,5 @@
+> **Prancer is now an AI-native Autonomous Penetration Testing & Continuous Attack Validation Platform powered by [SwarmHack](https://www.prancer.io/technology/swarmhack).**
+> **[Prancer Platform](https://www.prancer.io)** · **[SwarmHack Engine](https://www.prancer.io/technology/swarmhack)** · **[Autonomous Pentesting](https://www.prancer.io/solutions/penetration-testing)** · **[Agentic Pentesting](https://www.prancer.io/agentic-pentesting)** · **[Documentation](https://www.prancer.io/docs)**
 
 ## Introduction
 Prancer is a pre-deployment and post-deployment multi-cloud security platform for your Infrastructure as Code (IaC) and live cloud resources. It shifts the security to the left and provides end-to-end security scanning based on the Policy as Code concept. DevOps engineers can use it for static code analysis on IaC to find security drifts and maintain their cloud security posture with continuous compliance features. you can get more information from our website at : https://www.prancer.io
