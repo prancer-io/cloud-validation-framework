@@ -19,11 +19,17 @@ setup(
     name='prancer_basic',
     # also update the version in processor.__init__.py file
     version='3.1.1',
-    description='Prancer Basic, http://prancer.io/',
+    description='Prancer — Autonomous Penetration Testing & Cloud Validation Framework (https://www.prancer.io)',
     long_description=LONG_DESCRIPTION,
     license = "BSD",
     # The project's main homepage.
-    url='https://github.com/prancer-io/cloud-validation-framework',
+    url='https://www.prancer.io',
+    project_urls={
+        'Homepage': 'https://www.prancer.io',
+        'SwarmHack': 'https://www.prancer.io/technology/swarmhack',
+        'Documentation': 'https://www.prancer.io/docs',
+        'Source': 'https://github.com/prancer-io/cloud-validation-framework',
+    },
     # Author(s) details
     author='Farshid M/Ajey Khanapuri',
     author_email='dev@prancer.io',
