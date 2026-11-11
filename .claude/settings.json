@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "enabledMcpjsonServers": [
+    "gadriel"
+  ],
+  "env": {
+    "GADRIEL_HOOKS_ENABLED": "true"
+  },
+  "gadriel": {
+    "attribution_enabled": false,
+    "fail_on_severity": "critical",
+    "rule_corpus_sha": "vendored",
+    "scan_layer_default": "watch",
+    "version": "1.2.2"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/helpers/gadriel-hook.sh\" post-edit || true",
+            "timeout": 10000,
+            "type": "command"
+          }
+        ],
+        "matcher": "Write|Edit|MultiEdit"
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/helpers/gadriel-hook.sh\" compact-manual || true",
+            "timeout": 5000,
+            "type": "command"
+          }
+        ],
+        "matcher": "manual"
+      },
+      {
+        "hooks": [
+          {
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/helpers/gadriel-hook.sh\" compact-auto || true",
+            "timeout": 6000,
+            "type": "command"
+          }
+        ],
+        "matcher": "auto"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/helpers/gadriel-hook.sh\" pre-bash || true",
+            "timeout": 5000,
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/helpers/gadriel-hook.sh\" session-end || true",
+            "timeout": 10000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/helpers/gadriel-hook.sh\" session-restore || true",
+            "timeout": 15000,
+            "type": "command"
+          },
+          {
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/helpers/gadriel-hook.sh\" snapshot-load || true",
+            "timeout": 8000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/helpers/gadriel-hook.sh\" sync || true",
+            "timeout": 10000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/helpers/gadriel-hook.sh\" post-task || true",
+            "timeout": 5000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/helpers/gadriel-hook.sh\" route || true",
+            "timeout": 10000,
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
+  "mcpServers": {
+    "gadriel": {
+      "args": [
+        "code",
+        "mcp"
+      ],
+      "command": "gadriel"
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(gadriel:*)",
+      "Bash(node .claude/helpers/*)",
+      "Bash(sh .claude/helpers/*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(jq:*)",
+      "Bash(which:*)",
+      "Bash(pwd)",
+      "Bash(ls:*)",
+      "mcp__gadriel__*"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Bash(rm -rf /)"
+    ]
+  },
+  "skillListingBudgetFraction": 0.04,
+  "statusLine": {
+    "command": "sh -c 'exec bash \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/gadriel-statusline-chain.sh\"'",
+    "env": {
+      "PREV_STATUSLINE_CMD": ""
+    },
+    "type": "command"
+  }
+}
