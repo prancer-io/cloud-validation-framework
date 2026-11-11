@@ -1,0 +1,51 @@
+# .gadriel.toml — Gadriel project configuration (ADR-158).
+#
+# Precedence (highest wins):
+#   inline CLI flag  >  GADRIEL_*/ANTHROPIC_* env  >  this file  >
+#   ~/.gadriel/config.toml (global)  >  built-in defaults
+#
+# Every key below sets a DEFAULT for its paired flag/env — a flag or env
+# var still overrides it for a one-off invocation. Secrets NEVER go
+# here (ANTHROPIC_API_KEY, GADRIEL_TOKEN, ...) — set them as
+# environment variables; a secret-shaped key found in this file is
+# ignored with a warning. `[mcp] auth_token_env` below stores the NAME
+# of an env var to read the token from, never a token value itself.
+#
+# Refresh with `gadriel code init --upgrade` — it appends any new
+# section a later gadriel version ships and never touches a section you
+# already have. Use `--force` to replace this file wholesale.
+
+[scan]
+fail_on          = "none"      # none|info|low|medium|high|critical  (--fail-on)
+osv_auto_sync    = "prompt"    # yes|no|prompt                        (--osv-auto-sync)
+no_osv           = false       # skip OSV/CVE consumption             (--no-osv)
+osv_ecosystems   = "auto"    # auto|all|<csv>                       (--osv-ecosystems)
+git_history      = false       # L4 git-history secret sweep          (--git-history)
+workspace_taint  = true        # cross-file SAST taint                (--no-workspace-taint inverts)
+scan_iac         = false       # EXPERIMENTAL Terraform/K8s/CFN/Helm  (--scan-iac)
+corroborate      = false       # EXPERIMENTAL Tier-1 tool corrob.     (--corroborate)
+output_format    = "ocsf"      # ocsf|json|sarif  (findings file)     (--output-format)
+regen_html       = true        # auto-regen HTML bundle post-scan     (--no-html inverts)
+
+[report]
+frameworks       = []          # e.g. ["soc2","pci-dss"] or ["all"]   (--compliance)
+formats          = ["pdf", "html"]   # (--format)
+fail_on          = "verdict"   # verdict|render-only                  (--fail-on)
+executive        = true        # emit executive/CISO PDF              (--no-executive inverts)
+
+[init]
+skip_hooks       = false
+skip_claude      = false
+policies_url     = "https://github.com/Gadriel-ai/gadriel-code-policies"
+platforms        = []          # cursor|windsurf|copilot|codex|claude-code|…
+
+[mcp]
+auth_token_env   = "GADRIEL_TOKEN"   # NAME of the env var to read the token from
+
+[tier2]
+enabled          = false       # ADR-133 host-LLM semantic layer — OFF by default; set true or use --tier2/GADRIEL_TIER2
+source_consent   = false       # persist --send-source consent; privacy-gated — sends source to your configured model when true, never auto-enables
+
+[secrets]                       # detector signal toggles (GADRIEL_GENERIC_SECRETS)
+generic_keyword  = true
+generic_entropy  = false

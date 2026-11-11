@@ -10,6 +10,8 @@ from processor.helper.config.rundata_utils import get_from_currentdata,\
 from processor.helper.config.config_utils import config_value
 from processor.helper.httpapi.restapi_azure import get_vault_access_token, get_uami_vault_access_token,\
     get_keyvault_secret, set_keyvault_secret, get_all_secrets, delete_keyvault_secret, set_keyvault_secret_with_response
+from processor.helper.httpapi.restapi_aws import get_aws_secret, set_aws_secret, set_aws_secret_with_response,\
+    delete_aws_secret, get_all_aws_secrets
 
 logger = getlogger()
 
@@ -21,6 +23,8 @@ def get_vault_data(secret_key=None):
     if vaulttype:
         if vaulttype == 'azure':
             val = get_azure_vault_data(secret_key)
+        elif vaulttype == 'aws':
+            val = get_aws_vault_data(secret_key)
         elif vaulttype == 'cyberark':
             val = get_cyberark_data(secret_key)
     return val
@@ -33,6 +37,8 @@ def set_vault_data(key_name=None, value=None):
     if vaulttype:
         if vaulttype == 'azure':
             val = set_azure_vault_data(key_name, value)
+        elif vaulttype == 'aws':
+            val = set_aws_vault_data(key_name, value)
     return val
 
 def set_vault_data_with_response(key_name=None, value=None):
@@ -42,6 +48,8 @@ def set_vault_data_with_response(key_name=None, value=None):
     if vaulttype:
         if vaulttype == 'azure':
             status, response = set_azure_vault_data_with_response(key_name, value)
+        elif vaulttype == 'aws':
+            status, response = set_aws_vault_data_with_response(key_name, value)
     return status, response
 
 def delete_vault_data(secret_key=None):
@@ -51,6 +59,8 @@ def delete_vault_data(secret_key=None):
     if vaulttype:
         if vaulttype == 'azure':
             val = delete_azure_vault_data(secret_key)
+        elif vaulttype == 'aws':
+            val = delete_aws_vault_data(secret_key)
     return val
 
 
@@ -61,7 +71,48 @@ def get_all_vault_secrets():
     if vaulttype:
         if vaulttype == 'azure':
             val = get_all_azure_secrets()
+        elif vaulttype == 'aws':
+            val = get_all_aws_vault_secrets()
     return val
+
+
+# AWS Secrets Manager dispatch helpers. Selected when [VAULT] type = aws.
+# Required config: [VAULT] aws_secrets_prefix (e.g. prancer/prod/customer170)
+# Optional: [VAULT] aws_region (else AWS_REGION env). boto3 default cred chain.
+def _aws_kwargs():
+    return {
+        'prefix': config_value('VAULT', 'aws_secrets_prefix'),
+        'region': config_value('VAULT', 'aws_region'),
+    }
+
+
+def get_aws_vault_data(secret_key=None):
+    if not secret_key:
+        return None
+    data = get_aws_secret(secret_key, **_aws_kwargs())
+    return data['value'] if data and 'value' in data else None
+
+
+def set_aws_vault_data(key_name=None, value=None):
+    if not key_name or value is None:
+        return False
+    return set_aws_secret(key_name, value, **_aws_kwargs())
+
+
+def set_aws_vault_data_with_response(key_name=None, value=None):
+    if not key_name or value is None:
+        return None, None
+    return set_aws_secret_with_response(key_name, value, **_aws_kwargs())
+
+
+def delete_aws_vault_data(secret_key=None):
+    if not secret_key:
+        return False
+    return delete_aws_secret(secret_key, **_aws_kwargs())
+
+
+def get_all_aws_vault_secrets():
+    return get_all_aws_secrets(**_aws_kwargs()) or []
 
 
 def get_all_azure_secrets():
@@ -184,3 +235,18 @@ def get_cyberark_data(secret_key=None):
         else:
             logger.info('Secret Value: %s', '*' * len(val))
     return val
+
+
+def get_platform_vault_data(secret_key=None):
+    """Account-level / platform-shared secret. On AWS resolves from the shared
+    platform prefix (default prancer/prod/platform) so one value serves every
+    tenant (used when prancer-account is not deployed). Other vault types: the
+    account vault is already shared, so defer to get_vault_data."""
+    if not secret_key:
+        return None
+    vaulttype = config_value('VAULT', 'type')
+    if vaulttype != 'aws':
+        return get_vault_data(secret_key)
+    prefix = config_value('VAULT', 'aws_platform_prefix') or 'prancer/prod/platform'
+    data = get_aws_secret(secret_key, prefix=prefix, region=config_value('VAULT', 'aws_region'))
+    return data['value'] if data and 'value' in data else None

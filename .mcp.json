@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "gadriel": {
+      "args": [
+        "code",
+        "mcp"
+      ],
+      "command": "gadriel"
+    }
+  }
+}
