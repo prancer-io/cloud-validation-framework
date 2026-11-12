@@ -27,5 +27,5 @@ and 14 more — see `.claude/skills/gadriel-*/`.
 - `/gadriel-reports` - generate compliance report PDFs
 - `/gadriel-watch`   - start the L1 watch daemon
 
-Re-run `gadriel code init --upgrade` to refresh this section.
+Re-run `gadriel init --upgrade` to refresh this section.
 <!-- <<< gadriel-code-security <<< -->
