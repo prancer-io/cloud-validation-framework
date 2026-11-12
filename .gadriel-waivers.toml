@@ -1,0 +1,28 @@
+# Gadriel durable false-positive waivers.
+# Each [[waiver]] suppresses or segregates a finding regardless of
+# re-detection count. Commit this file. See `gadriel fix --help`.
+
+[[waiver]]
+rule_id = "CODE-W1-L1-871"
+path = "src/processor/connector/git_connector/git_processor.py"
+reason = "All 4 Popen sites (git_processor.py:39, populate_json.py:24, snapshot_custom_refactor.py:144, vault.py:227) pass an argv list (str input is shlex.split first), never shell=True, so no shell injection; args come from operator config (CyberArk exe/appid, connector git settings), not request data."
+mode = "segregate"
+
+[[waiver]]
+rule_id = "CODE-W1-L3-050"
+path = "src/processor/connector/snapshot_aws.py"
+reason = "Every site is hashlib.md5('{}'.encode()).hexdigest() - a constant placeholder checksum field on snapshot documents, not password storage or any security decision."
+mode = "segregate"
+
+[[waiver]]
+rule_id = "CODE-W1-L3-221"
+path = "src/processor/helper/hcl/hcl_utils.py"
+reason = "Both /tmp literals (hcl_utils.py:30, aws_parser.py:375) are inside if __name__ == '__main__' developer debug blocks; never executed when used as a library/CLI."
+mode = "segregate"
+
+[[waiver]]
+rule_id = "CODE-W1-L3-200"
+path = "src/processor/comparison/rules/arm/secret_azure_iac.py"
+reason = "All patterns are built from module-level string constants (secret_*_iac.py EXCLUDE_* lists, json_utils remove_comments literal, terraform literals); no user/request input reaches re.compile."
+mode = "segregate"
+

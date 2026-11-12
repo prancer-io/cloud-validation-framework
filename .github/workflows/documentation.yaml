@@ -27,7 +27,7 @@ jobs:
       run: mkdocs build
 
     - name: Copy files to server
-      uses: appleboy/scp-action@master
+      uses: appleboy/scp-action@7e85c2e09aa21988492acd66466b5d68bda49e2b # master as of 2026-11-12
       with:
         host: ${{ secrets.DOC_SERVER_HOST }}
         username: ${{ secrets.DOC_SERVER_USERNAME }}
@@ -37,7 +37,7 @@ jobs:
         strip_components: 2
 
     - name: Run commands on server
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@c4f70287fc37c43b14b30b407224bbbc8e8c6327 # master as of 2026-11-12
       with:
         host: ${{ secrets.DOC_SERVER_HOST }}
         username: ${{ secrets.DOC_SERVER_USERNAME }}
