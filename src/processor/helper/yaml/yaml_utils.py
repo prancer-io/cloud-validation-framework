@@ -1,7 +1,7 @@
 """ Utility functions for yaml."""
 
 import yaml
-from yaml.loader import FullLoader
+from yaml.loader import SafeLoader
 from collections import OrderedDict
 from processor.helper.file.file_utils import exists_file
 from processor.logging.log_handler import getlogger
@@ -23,7 +23,7 @@ def save_yaml_to_file(indata, outfile, indent=None):
 def yaml_from_string(yaml_str):
     """Get dict from the string in yaml format."""
     try:
-        yamldata = yaml.load(yaml_str, Loader=FullLoader)
+        yamldata = yaml.safe_load(yaml_str)
         return yamldata
     except Exception as e:
         logger.error('Failed to load yaml data: %s, error: %s', yaml_str, str(e))
@@ -39,7 +39,7 @@ def yaml_from_file(yamlfile, loader=None):
                 if loader:
                     yamldata = yaml.load(infile, Loader=loader)
                 else:
-                    yamldata = yaml.load(infile, Loader=FullLoader)
+                    yamldata = yaml.safe_load(infile)
     except Exception as ex:
         print('Failed to load yaml from file: %s, exception: %s' % (yamlfile, ex))
     return yamldata
@@ -48,7 +48,7 @@ def yaml_from_file(yamlfile, loader=None):
 def valid_yaml(yaml_input):
     """ Checks validity of the yaml """
     try:
-        data = yaml.load(yaml_input, Loader=FullLoader)
+        data = yaml.safe_load(yaml_input)
         return isinstance(data, dict)
     except Exception as e:
         logger.warning('Not a valid yaml: %s, error: %s', yaml_input, str(e))
@@ -70,7 +70,7 @@ def multiple_yaml_from_file(yamlfile, loader=None):
 
 def is_multiple_yaml_file(file_path):
     try:
-      if len (multiple_yaml_from_file(file_path,loader=FullLoader)) > 1:
+      if len (multiple_yaml_from_file(file_path,loader=SafeLoader)) > 1:
           return True
       else: 
           return False

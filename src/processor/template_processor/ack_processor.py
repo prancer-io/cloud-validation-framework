@@ -1,4 +1,4 @@
-from yaml.loader import FullLoader
+from yaml.loader import SafeLoader
 from processor.logging.log_handler import getlogger
 from processor.template_processor.base.base_template_processor import TemplateProcessor
 from processor.helper.yaml.yaml_utils import yaml_from_file
@@ -18,7 +18,7 @@ class AckTemplateProcessor(TemplateProcessor):
         check for valid template file for parse arm template
         """
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "yaml":
-            json_data = yaml_from_file(file_path, loader=FullLoader)
+            json_data = yaml_from_file(file_path, loader=SafeLoader)
             return True if (json_data) else False
         return False
 
@@ -40,7 +40,7 @@ class AckTemplateProcessor(TemplateProcessor):
 
             self.template_file = template_file_path
             if template_file_path:
-                template_json = yaml_from_file(file_path,loader=FullLoader)
+                template_json = yaml_from_file(file_path,loader=SafeLoader)
                 if template_json:
                     self.contentType = 'yaml'
                     if template_json.get("kind"):

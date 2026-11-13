@@ -1,0 +1,52 @@
+# Gadriel durable false-positive waivers.
+# Each [[waiver]] suppresses or segregates a finding regardless of
+# re-detection count. Commit this file. See `gadriel fix --help`.
+
+[[waiver]]
+rule_id = "CODE-W1-L1-871"
+path = "src/processor/connector/git_connector/git_processor.py"
+reason = "All 4 Popen sites (git_processor.py:39, populate_json.py:24, snapshot_custom_refactor.py:144, vault.py:227) pass an argv list (str input is shlex.split first), never shell=True, so no shell injection; args come from operator config (CyberArk exe/appid, connector git settings), not request data."
+mode = "segregate"
+
+[[waiver]]
+rule_id = "CODE-W1-L3-050"
+path = "src/processor/connector/snapshot_aws.py"
+reason = "Every site is hashlib.md5('{}'.encode()).hexdigest() - a constant placeholder checksum field on snapshot documents, not password storage or any security decision."
+mode = "segregate"
+
+[[waiver]]
+rule_id = "CODE-W1-L3-221"
+path = "src/processor/helper/hcl/hcl_utils.py"
+reason = "Both /tmp literals (hcl_utils.py:30, aws_parser.py:375) are inside if __name__ == '__main__' developer debug blocks; never executed when used as a library/CLI."
+mode = "segregate"
+
+[[waiver]]
+rule_id = "CODE-W1-L3-200"
+path = "src/processor/comparison/rules/arm/secret_azure_iac.py"
+reason = "All patterns are built from module-level string constants (secret_*_iac.py EXCLUDE_* lists, json_utils remove_comments literal, terraform literals); no user/request input reaches re.compile."
+mode = "segregate"
+
+[[waiver]]
+rule_id = "CODE-W1-L3-016"
+path = "src/processor/helper/yaml/yaml_utils.py"
+line = 40
+reason = "Remaining site yaml_utils.py:40 is yaml.load(infile, Loader=loader) with a caller-supplied loader; the default path now uses yaml.safe_load and every caller in src/ passes loader=SafeLoader (git grep 'loader=' src). No production path reaches FullLoader/UnsafeLoader; !!python tags are rejected (tests/processor/helper/yaml/test_yaml_loader_safety.py)."
+fingerprint = "0fa807de9823114468d9a86f20839ba187cc905f9d8c589e00d2b162de6b975e"
+mode = "segregate"
+
+[[waiver]]
+rule_id = "CODE-W1-L3-029"
+path = "src/processor/helper/yaml/yaml_utils.py"
+line = 64
+reason = "Remaining site yaml_utils.py:64 is yaml.load_all(infile, Loader=loader) with a caller-supplied loader; the default is yaml.safe_load_all and the only callers in src/ (is_multiple_yaml_file, base_template_processor.break_multiple_yaml_file) pass SafeLoader. No production path reaches FullLoader/UnsafeLoader; covered by tests/processor/helper/yaml/test_yaml_loader_safety.py."
+fingerprint = "d808f7e942f8e636e1ca37271d2542a31ed4d44da01e3eabdb790888dbb71d22"
+mode = "segregate"
+
+[[waiver]]
+rule_id = "CODE-W1-CONTAINER-1277"
+path = "dockerfiles/Dockerfile"
+line = 1
+reason = "ACCEPTED RISK (real finding, not a false positive): public image prancer/prancer-basic runs as root by design. Tested alternatives in Docker (2026-11-12): plain USER 10001 breaks validation on root-owned mounted folders (exit 2, log dir not writeable). An entrypoint that su-execs to the owner of the working dir keeps --version, root-owned mounts, --user and default CMD identical, but regresses (a) folders previously used by the root image (root-owned log/ subdirs -> PermissionError, rc 0->1) and (b) credentials mounted under /root (e.g. -v ~/.aws:/root/.aws: boto3 finds no creds; ~/.gitconfig not writable). No variant keeps every current usage working, so the Dockerfile is unchanged. Users can opt in with docker run --user UID:GID. Revisit with a major-version image change."
+fingerprint = "0091ad8219ea8abe75bfccf3a7d5d7d7083055d297718cfb8d401b8e295fa903"
+mode = "segregate"
+

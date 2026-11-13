@@ -1,7 +1,7 @@
 import json
 import os
 import hcl
-from yaml.loader import FullLoader
+from yaml.loader import SafeLoader
 from cfn_flip import flip, to_yaml, to_json
 from processor.logging.log_handler import getlogger
 from processor.helper.yaml.yaml_utils import yaml_from_file

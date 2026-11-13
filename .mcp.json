@@ -5,7 +5,7 @@
         "code",
         "mcp"
       ],
-      "command": "gadriel"
+      "command": "/Users/farshid/.nvm/versions/node/v24.14.1/lib/node_modules/gadriel/node_modules/@gadriel/cli-darwin-x64/bin/gadriel"
     }
   }
 }

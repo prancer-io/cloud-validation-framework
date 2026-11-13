@@ -132,5 +132,6 @@ realm/*
 .security/metrics/
 .security/logs/
 .security/cache/
+.security/backups/
 # <<< gadriel-code-security <<<
 .security/
