@@ -1,7 +1,7 @@
 import json
 import re
 import os
-from yaml.loader import FullLoader
+from yaml.loader import SafeLoader
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import json_from_file, get_field_value
 from processor.template_processor.base.base_template_processor import TemplateProcessor

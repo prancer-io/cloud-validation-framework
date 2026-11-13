@@ -1,4 +1,4 @@
-from yaml.loader import FullLoader
+from yaml.loader import SafeLoader
 from processor.logging.log_handler import getlogger
 from processor.template_processor.base.base_template_processor import TemplateProcessor
 from processor.templates.kubernetes.kubernetes_parser import KubernetesTemplateParser
@@ -20,7 +20,7 @@ class KubernetesTemplateProcessor(TemplateProcessor):
         check for valid template file for parse arm template
         """
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "yaml":
-            json_data = yaml_from_file(file_path, loader=FullLoader)
+            json_data = yaml_from_file(file_path, loader=SafeLoader)
             kube_policy = ["apiVersion","kind","metadata","spec"]
             return True if json_data and any(elem in json_data for elem in kube_policy) else False
         return False

@@ -1,7 +1,7 @@
 import json
 import re
 import os
-from yaml.loader import FullLoader
+from yaml.loader import SafeLoader
 from processor.logging.log_handler import getlogger
 from processor.helper.json.json_utils import json_from_file, get_field_value
 from processor.template_processor.base.base_template_processor import TemplateProcessor
@@ -26,7 +26,7 @@ class YamlTemplateProcessor(TemplateProcessor):
         check for valid template file for parse arm template
         """
         if len(file_path.split(".")) > 0 and file_path.split(".")[-1] == "yaml":
-            json_data = yaml_from_file(file_path, loader=FullLoader)
+            json_data = yaml_from_file(file_path, loader=SafeLoader)
             return True if (json_data) else False
         return False
 
@@ -48,6 +48,6 @@ class YamlTemplateProcessor(TemplateProcessor):
 
             self.template_file = template_file_path
             if template_file_path:
-                template_json = yaml_from_file(file_path,loader=FullLoader)
+                template_json = yaml_from_file(file_path,loader=SafeLoader)
                 self.contentType = 'yaml'
         return template_json

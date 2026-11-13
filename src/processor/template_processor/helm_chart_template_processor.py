@@ -1,7 +1,7 @@
 from processor.template_processor.base.base_template_processor import TemplateProcessor
 from processor.helper.file.file_utils import exists_file,exists_dir
 from processor.helper.yaml.yaml_utils import yaml_from_file,HelmChartConvertionKey
-from yaml.loader import FullLoader
+from yaml.loader import SafeLoader
 from processor.logging.log_handler import getlogger
 from processor.templates.helm.helm_parser import HelmTemplateParser
 
@@ -46,7 +46,7 @@ class HelmChartTemplateProcessor(TemplateProcessor):
 
             self.template_file = template_file_path
             if template_file_path:
-                template_json = yaml_from_file(file_path,loader=FullLoader)
+                template_json = yaml_from_file(file_path,loader=SafeLoader)
                 if template_json:
                     self.contentType = 'yaml'
                     if template_json.get("kind"):
