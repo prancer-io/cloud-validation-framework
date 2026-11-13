@@ -42,3 +42,11 @@ reason = "Remaining site yaml_utils.py:64 is yaml.load_all(infile, Loader=loader
 fingerprint = "d808f7e942f8e636e1ca37271d2542a31ed4d44da01e3eabdb790888dbb71d22"
 mode = "segregate"
 
+[[waiver]]
+rule_id = "CODE-W1-CONTAINER-1277"
+path = "dockerfiles/Dockerfile"
+line = 1
+reason = "ACCEPTED RISK (real finding, not a false positive): public image prancer/prancer-basic runs as root by design. Tested alternatives in Docker (2026-11-12): plain USER 10001 breaks validation on root-owned mounted folders (exit 2, log dir not writeable). An entrypoint that su-execs to the owner of the working dir keeps --version, root-owned mounts, --user and default CMD identical, but regresses (a) folders previously used by the root image (root-owned log/ subdirs -> PermissionError, rc 0->1) and (b) credentials mounted under /root (e.g. -v ~/.aws:/root/.aws: boto3 finds no creds; ~/.gitconfig not writable). No variant keeps every current usage working, so the Dockerfile is unchanged. Users can opt in with docker run --user UID:GID. Revisit with a major-version image change."
+fingerprint = "0091ad8219ea8abe75bfccf3a7d5d7d7083055d297718cfb8d401b8e295fa903"
+mode = "segregate"
+
